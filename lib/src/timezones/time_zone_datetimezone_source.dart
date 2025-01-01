@@ -75,7 +75,7 @@ class TimeZoneDateTimeZoneSource extends DateTimeZoneSource {
   }
 
   @override
-  String get systemDefaultId => tz.local.name;
+  String get systemDefaultId => TzdbIndex.localId;
 
   @override
   Future<String> get versionId => Future.sync(() => 'TZDB: 2024a');
