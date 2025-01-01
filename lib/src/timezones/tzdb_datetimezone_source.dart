@@ -7,23 +7,30 @@ import 'dart:async';
 import 'package:time_machine/src/time_machine_internal.dart';
 import 'package:time_machine/src/timezones/time_machine_timezones.dart';
 
+import 'time_zone_datetimezone_source.dart';
+
 // todo: the Internal Classes here make me sad
 
 @internal
 abstract class IDateTimeZoneProviders {
-  static set defaultProvider(DateTimeZoneProvider provider) => DateTimeZoneProviders._defaultProvider = provider;
+  static set defaultProvider(DateTimeZoneProvider provider) =>
+      DateTimeZoneProviders._defaultProvider = provider;
 }
-
 
 // todo: I think we need an easy way for library users to inject their own IDateTimeZoneSource
 abstract class DateTimeZoneProviders {
   // todo: await ... await ... patterns are so ick.
 
   static Future<DateTimeZoneProvider>? _tzdb;
+  static Future<DateTimeZoneProvider>? _timezone;
 
-  static Future<DateTimeZoneProvider> get tzdb => _tzdb ??= DateTimeZoneCache.getCache(TzdbDateTimeZoneSource());
+  static Future<DateTimeZoneProvider> get tzdb =>
+      _tzdb ??= DateTimeZoneCache.getCache(TzdbDateTimeZoneSource());
+  static Future<DateTimeZoneProvider> get timezone =>
+      _timezone ??= DateTimeZoneCache.getCache(TimeZoneDateTimeZoneSource());
 
   static DateTimeZoneProvider? _defaultProvider;
+
   /// This is the default [DateTimeZoneProvider] for the currently loaded TimeMachine.
   /// It will be used internally where-ever timezone support is needed when no provider is provided,
   static DateTimeZoneProvider? get defaultProvider => _defaultProvider;
@@ -32,7 +39,9 @@ abstract class DateTimeZoneProviders {
 @internal
 class ITzdbDateTimeZoneSource {
   static void loadAllTimeZoneInformation_SetFlag() {
-    if (TzdbDateTimeZoneSource._cachedTzdbIndex != null) throw StateError('loadAllTimeZone flag may not be set after TZDB is initalized.');
+    if (TzdbDateTimeZoneSource._cachedTzdbIndex != null)
+      throw StateError(
+          'loadAllTimeZone flag may not be set after TZDB is initalized.');
     TzdbDateTimeZoneSource._loadAllTimeZoneInformation = true;
   }
 }
@@ -47,8 +56,7 @@ class TzdbDateTimeZoneSource extends DateTimeZoneSource {
 
     if (_loadAllTimeZoneInformation) {
       _cachedTzdbIndex = await TzdbIndex.loadAll();
-    }
-    else {
+    } else {
       _cachedTzdbIndex = await TzdbIndex.load();
     }
 
@@ -68,7 +76,8 @@ class TzdbDateTimeZoneSource extends DateTimeZoneSource {
       : _init().then((_) => _cachedTzdbIndex!);
 
   @override
-  Future<DateTimeZone> forId(String id) async => (await _tzdbIndexAsync).getTimeZone(id);
+  Future<DateTimeZone> forId(String id) async =>
+      (await _tzdbIndexAsync).getTimeZone(id);
 
   @override
   DateTimeZone forCachedId(String id) => _cachedTzdbIndex!.getTimeZoneSync(id)!;
@@ -83,4 +92,3 @@ class TzdbDateTimeZoneSource extends DateTimeZoneSource {
   @override
   Future<String> get versionId => Future.sync(() => 'TZDB: 2018');
 }
-
