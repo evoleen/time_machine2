@@ -1,6 +1,9 @@
 name: time_machine_test_app
 description: A new Flutter application.
 
+environment:
+  sdk: '^3.5.0'
+
 dependencies:
   flutter:
     sdk: flutter

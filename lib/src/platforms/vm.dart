@@ -8,10 +8,13 @@ import 'dart:convert';
 import 'dart:io' as io;
 
 import 'dart:typed_data';
+import 'package:time_machine/src/platforms/dart_pure.dart';
 import 'package:time_machine/src/time_machine_internal.dart';
 
 import 'platform_io.dart';
 import 'dart:isolate' show Isolate;
+
+export 'dart_pure.dart' if (dart.library.ui) 'dart_flutter.dart';
 
 class _VirtualMachineIO implements PlatformIO {
   @override
@@ -63,13 +66,7 @@ Future initialize(Map args, {testing = false}) {
   String? cultureOverride = args['culture'];
   final testing = args['testing'] ?? false;
 
-  if (!testing &&
-      (io.Platform.isIOS ||
-          io.Platform.isAndroid ||
-          io.Platform.isFuchsia ||
-          io.Platform.isMacOS ||
-          io.Platform.isWindows ||
-          io.Platform.isLinux)) {
+  if (!testing && !kIsPureDart) {
     if (args['rootBundle'] == null) {
       throw Exception(
           "Pass in the rootBundle from 'package:flutter/services.dart';");
@@ -97,7 +94,7 @@ class TimeMachine {
     ICultures.loadAllCulturesInformation_SetFlag();
 
     // Default provider
-    var tzdb = await DateTimeZoneProviders.tzdb;
+    var tzdb = await DateTimeZoneProviders.timezone;
     IDateTimeZoneProviders.defaultProvider = tzdb;
 
     // Default TimeZone
