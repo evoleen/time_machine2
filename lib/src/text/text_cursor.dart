@@ -2,10 +2,8 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'package:meta/meta.dart';
 
 import 'package:time_machine/src/time_machine_internal.dart';
-import 'package:time_machine/src/utility/time_machine_utilities.dart';
 
 /// Provides a cursor over text being parsed. None of the methods in this class throw exceptions (unless
 /// there is a bug in Time Machine, in which case an exception is appropriate) and none of the methods

@@ -3,12 +3,10 @@
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
 import 'package:time_machine/src/time_machine_internal.dart';
-import 'package:time_machine/src/fields/time_machine_fields.dart';
 
 /// All the period fields.
 @internal
-abstract class DatePeriodFields
-{
+abstract class DatePeriodFields {
   static const IDatePeriodField daysField = FixedLengthDatePeriodField(1);
   static const IDatePeriodField weeksField = FixedLengthDatePeriodField(7);
   static const IDatePeriodField monthsField = MonthsPeriodField();

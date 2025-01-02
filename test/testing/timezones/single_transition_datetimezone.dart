@@ -3,7 +3,6 @@
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
 import 'package:time_machine/src/time_machine_internal.dart';
-import 'package:time_machine/src/timezones/time_machine_timezones.dart';
 
 /// Time zone with a single transition between two offsets. This provides a simple way to test behaviour across a transition.
 class SingleTransitionDateTimeZone extends DateTimeZone {

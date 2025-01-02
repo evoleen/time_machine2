@@ -1,9 +1,7 @@
 // Portions of this work are Copyright 2018 The Time Machine Authors. All rights reserved.
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
-import 'package:meta/meta.dart';
 
-import 'package:time_machine/src/calendars/time_machine_calendars.dart';
 import 'package:time_machine/src/time_machine_internal.dart';
 
 @internal
@@ -13,10 +11,36 @@ abstract class GJYearMonthDayCalculator extends RegularYearMonthDayCalculator {
   // automatically checked. They are protected so that GregorianYearMonthDayCalculator can
   // read them.
   @protected
-  static const List<int> minDaysPerMonth = [ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  static const List<int> minDaysPerMonth = [
+    31,
+    28,
+    31,
+    30,
+    31,
+    30,
+    31,
+    31,
+    30,
+    31,
+    30,
+    31
+  ];
 
   @protected
-  static const List<int> maxDaysPerMonth = [ 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  static const List<int> maxDaysPerMonth = [
+    31,
+    29,
+    31,
+    30,
+    31,
+    30,
+    31,
+    31,
+    30,
+    31,
+    30,
+    31
+  ];
 
   /*
     void main() {
@@ -37,10 +61,37 @@ abstract class GJYearMonthDayCalculator extends RegularYearMonthDayCalculator {
     }
  */
   // In the source material this was produced in a static constructor -- you can find the code above to reproduce this
-  static const List<int> _minTotalDaysByMonth = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
-  static const List<int> _maxTotalDaysByMonth = [0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335];
+  static const List<int> _minTotalDaysByMonth = [
+    0,
+    31,
+    59,
+    90,
+    120,
+    151,
+    181,
+    212,
+    243,
+    273,
+    304,
+    334
+  ];
+  static const List<int> _maxTotalDaysByMonth = [
+    0,
+    31,
+    60,
+    91,
+    121,
+    152,
+    182,
+    213,
+    244,
+    274,
+    305,
+    335
+  ];
 
-  GJYearMonthDayCalculator(int minYear, int maxYear, int averageDaysPer10Years, int daysAtStartOfYear1)
+  GJYearMonthDayCalculator(int minYear, int maxYear, int averageDaysPer10Years,
+      int daysAtStartOfYear1)
       : super(minYear, maxYear, 12, averageDaysPer10Years, daysAtStartOfYear1);
 
   // Note: parameter is renamed to d for brevity. It's still the 1-based day-of-year
@@ -54,17 +105,52 @@ abstract class GJYearMonthDayCalculator extends RegularYearMonthDayCalculator {
     // are still MinTotalDaysPerMonth and MaxTotalDaysPerMonth (-1 for convenience), just hard-coded.
     if (isLeap) {
       startOfMonth = ((d < 183)
-          ? ((d < 92) ? ((d < 32) ? 0 : (d < 61) ? 31 : 60) : ((d < 122) ? 91 : (d < 153) ? 121 : 152))
+          ? ((d < 92)
+              ? ((d < 32)
+                  ? 0
+                  : (d < 61)
+                      ? 31
+                      : 60)
+              : ((d < 122)
+                  ? 91
+                  : (d < 153)
+                      ? 121
+                      : 152))
           : ((d < 275)
-          ? ((d < 214) ? 182 : (d < 245) ? 213 : 244)
-          : ((d < 306) ? 274 : (d < 336) ? 305 : 335)));
-    }
-    else {
+              ? ((d < 214)
+                  ? 182
+                  : (d < 245)
+                      ? 213
+                      : 244)
+              : ((d < 306)
+                  ? 274
+                  : (d < 336)
+                      ? 305
+                      : 335)));
+    } else {
       startOfMonth = ((d < 182)
-          ? ((d < 91) ? ((d < 32) ? 0 : (d < 60) ? 31 : 59) : ((d < 121) ? 90 : (d < 152) ? 120 : 151))
+          ? ((d < 91)
+              ? ((d < 32)
+                  ? 0
+                  : (d < 60)
+                      ? 31
+                      : 59)
+              : ((d < 121)
+                  ? 90
+                  : (d < 152)
+                      ? 120
+                      : 151))
           : ((d < 274)
-          ? ((d < 213) ? 181 : (d < 244) ? 212 : 243)
-          : ((d < 305) ? 273 : (d < 335) ? 304 : 334)));
+              ? ((d < 213)
+                  ? 181
+                  : (d < 244)
+                      ? 212
+                      : 243)
+              : ((d < 305)
+                  ? 273
+                  : (d < 335)
+                      ? 304
+                      : 334)));
     }
 
     int dayOfMonth = d - startOfMonth;
@@ -76,12 +162,17 @@ abstract class GJYearMonthDayCalculator extends RegularYearMonthDayCalculator {
 
   @override
   int getDaysInMonth(int year, int month) =>
-  // We know that only February differs, so avoid the virtual call for other months.
-  month == 2 && isLeapYear(year) ? maxDaysPerMonth[month - 1] : minDaysPerMonth[month - 1];
+      // We know that only February differs, so avoid the virtual call for other months.
+      month == 2 && isLeapYear(year)
+          ? maxDaysPerMonth[month - 1]
+          : minDaysPerMonth[month - 1];
 
-  @protected @override
+  @protected
+  @override
   int getDaysFromStartOfYearToStartOfMonth(int year, int month) =>
-      isLeapYear(year) ? _maxTotalDaysByMonth[month - 1] : _minTotalDaysByMonth[month - 1];
+      isLeapYear(year)
+          ? _maxTotalDaysByMonth[month - 1]
+          : _minTotalDaysByMonth[month - 1];
 
   @override
   YearMonthDay setYear(YearMonthDay yearMonthDay, int year) {
@@ -94,4 +185,3 @@ abstract class GJYearMonthDayCalculator extends RegularYearMonthDayCalculator {
     return YearMonthDay(year, month, day);
   }
 }
-

@@ -5,8 +5,6 @@
 import 'dart:async';
 
 import 'package:time_machine/src/time_machine_internal.dart';
-import 'package:time_machine/src/utility/time_machine_utilities.dart';
-import 'package:time_machine/src/timezones/time_machine_timezones.dart';
 
 import 'binary_writer.dart';
 
@@ -22,19 +20,19 @@ class DateTimeZoneWriter implements BinaryWriter, IDateTimeZoneWriter {
     bool longStartRequired = false;
     bool longEndRequired = false;
 
-    if (zoneInterval.hasStart)
-    {
+    if (zoneInterval.hasStart) {
       var longStart = zoneInterval.start.epochSeconds;
-      longStartRequired = longStart < Platform.int32MinValue || longStart > Platform.int32MaxValue;
+      longStartRequired = longStart < Platform.int32MinValue ||
+          longStart > Platform.int32MaxValue;
 
       flag |= 1;
       if (longStartRequired) flag |= 1 << 2;
     }
 
-    if (zoneInterval.hasEnd)
-    {
+    if (zoneInterval.hasEnd) {
       var longEnd = zoneInterval.end.epochSeconds;
-      longEndRequired = longEnd < Platform.int32MinValue || longEnd > Platform.int32MaxValue;
+      longEndRequired =
+          longEnd < Platform.int32MinValue || longEnd > Platform.int32MaxValue;
 
       flag |= 2;
       if (longEndRequired) flag |= 1 << 3;
@@ -42,15 +40,25 @@ class DateTimeZoneWriter implements BinaryWriter, IDateTimeZoneWriter {
     _writer.writeUint8(flag);
 
     if (zoneInterval.hasStart) {
-      if (zoneInterval.start.epochNanoseconds % TimeConstants.nanosecondsPerSecond != 0) throw Exception('zoneInterval.Start not seconds.');
-      if (longStartRequired) _writer.writeInt64(zoneInterval.start.epochSeconds);
-      else _writer.writeInt32(zoneInterval.start.epochSeconds); // .ToUnixTimeMilliseconds());
+      if (zoneInterval.start.epochNanoseconds %
+              TimeConstants.nanosecondsPerSecond !=
+          0) throw Exception('zoneInterval.Start not seconds.');
+      if (longStartRequired)
+        _writer.writeInt64(zoneInterval.start.epochSeconds);
+      else
+        _writer.writeInt32(
+            zoneInterval.start.epochSeconds); // .ToUnixTimeMilliseconds());
     }
 
     if (zoneInterval.hasEnd) {
-      if (zoneInterval.end.epochNanoseconds % TimeConstants.nanosecondsPerSecond != 0) throw Exception('zoneInterval.End not seconds.');
-      if (longEndRequired) _writer.writeInt64(zoneInterval.end.epochSeconds);
-      else _writer.writeInt32(zoneInterval.end.epochSeconds); // .ToUnixTimeMilliseconds());
+      if (zoneInterval.end.epochNanoseconds %
+              TimeConstants.nanosecondsPerSecond !=
+          0) throw Exception('zoneInterval.End not seconds.');
+      if (longEndRequired)
+        _writer.writeInt64(zoneInterval.end.epochSeconds);
+      else
+        _writer.writeInt32(
+            zoneInterval.end.epochSeconds); // .ToUnixTimeMilliseconds());
     }
 
     _writer.writeInt32(zoneInterval.wallOffset.inSeconds);
@@ -103,5 +111,3 @@ class DateTimeZoneWriter implements BinaryWriter, IDateTimeZoneWriter {
     }
   }
 }
-
-

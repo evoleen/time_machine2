@@ -2,11 +2,7 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'package:meta/meta.dart';
-
 import 'package:time_machine/src/time_machine_internal.dart';
-import 'package:time_machine/src/utility/time_machine_utilities.dart';
-import 'package:time_machine/src/calendars/time_machine_calendars.dart';
 
 /// Implements [WeekYearRule] for a rule where weeks are regular:
 /// every week has exactly 7 days, which means that some week years straddle
@@ -29,34 +25,44 @@ class SimpleWeekYearRule implements WeekYearRule {
   /// This is the state for ISO-like rules.
   final bool _irregularWeeks;
 
-  SimpleWeekYearRule(this._minDaysInFirstWeek, this._firstDayOfWeek, this._irregularWeeks) {
-    Preconditions.debugCheckArgumentRange('minDaysInFirstWeek', _minDaysInFirstWeek, 1, 7);
-    Preconditions.checkArgumentRange('firstDayOfWeek', _firstDayOfWeek.value, 1, 7);
+  SimpleWeekYearRule(
+      this._minDaysInFirstWeek, this._firstDayOfWeek, this._irregularWeeks) {
+    Preconditions.debugCheckArgumentRange(
+        'minDaysInFirstWeek', _minDaysInFirstWeek, 1, 7);
+    Preconditions.checkArgumentRange(
+        'firstDayOfWeek', _firstDayOfWeek.value, 1, 7);
   }
 
   /// <inheritdoc />
   @override
-  LocalDate getLocalDate(int weekYear, int weekOfWeekYear, DayOfWeek dayOfWeek, CalendarSystem calendar) {
+  LocalDate getLocalDate(int weekYear, int weekOfWeekYear, DayOfWeek dayOfWeek,
+      CalendarSystem calendar) {
     Preconditions.checkNotNull(calendar, 'calendar');
     _validateWeekYear(weekYear, calendar);
 
     // The actual message for this won't be ideal, but it's clear enough.
     Preconditions.checkArgumentRange('dayOfWeek', dayOfWeek.value, 1, 7);
 
-    var yearMonthDayCalculator = ICalendarSystem.yearMonthDayCalculator(calendar);
+    var yearMonthDayCalculator =
+        ICalendarSystem.yearMonthDayCalculator(calendar);
     var maxWeeks = getWeeksInWeekYear(weekYear, calendar);
     if (weekOfWeekYear < 1 || weekOfWeekYear > maxWeeks) {
       throw RangeError.value(weekOfWeekYear, 'weekOfWeekYear');
     }
 
-    int startOfWeekYear = _getWeekYearDaysSinceEpoch(yearMonthDayCalculator, weekYear);
+    int startOfWeekYear =
+        _getWeekYearDaysSinceEpoch(yearMonthDayCalculator, weekYear);
     // 0 for 'already on the first day of the week' up to 6 "it's the last day of the week".
     int daysIntoWeek = ((dayOfWeek - _firstDayOfWeek) + 7) % 7;
     int days = startOfWeekYear + (weekOfWeekYear - 1) * 7 + daysIntoWeek;
-    if (days < ICalendarSystem.minDays(calendar) || days > ICalendarSystem.maxDays(calendar)) {
-      throw ArgumentError.value(weekYear, 'weekYear', "The combination of weekYear, weekOfWeekYear and dayOfWeek is invalid");
+    if (days < ICalendarSystem.minDays(calendar) ||
+        days > ICalendarSystem.maxDays(calendar)) {
+      throw ArgumentError.value(weekYear, 'weekYear',
+          "The combination of weekYear, weekOfWeekYear and dayOfWeek is invalid");
     }
-    LocalDate ret = ILocalDate.trusted(yearMonthDayCalculator.getYearMonthDayFromDaysSinceEpoch(days).withCalendar(calendar));
+    LocalDate ret = ILocalDate.trusted(yearMonthDayCalculator
+        .getYearMonthDayFromDaysSinceEpoch(days)
+        .withCalendar(calendar));
 
     // For rules with irregular weeks, the calculation so far may end up computing a date which isn't
     // in the right week-year. This will happen if the caller has specified a 'short' week (i.e. one
@@ -80,14 +86,16 @@ class SimpleWeekYearRule implements WeekYearRule {
   @override
   int getWeekOfWeekYear(LocalDate date) {
     YearMonthDay yearMonthDay = ILocalDate.yearMonthDay(date);
-    YearMonthDayCalculator yearMonthDayCalculator = ICalendarSystem.yearMonthDayCalculator(date.calendar);
+    YearMonthDayCalculator yearMonthDayCalculator =
+        ICalendarSystem.yearMonthDayCalculator(date.calendar);
     // This is a bit inefficient, as we'll be converting forms several times. However, it's
     // understandable... we might want to optimize in the future if it's reported as a bottleneck.
     int weekYear = getWeekYear(date);
     // Even if this is before the *real* start of the week year due to the rule
     // having short weeks, that doesn't change the week-of-week-year, as we've definitely
     // got the right week-year to start with.
-    int startOfWeekYear = _getWeekYearDaysSinceEpoch(yearMonthDayCalculator, weekYear);
+    int startOfWeekYear =
+        _getWeekYearDaysSinceEpoch(yearMonthDayCalculator, weekYear);
     int daysSinceEpoch = yearMonthDayCalculator.getDaysSinceEpoch(yearMonthDay);
     int zeroBasedDayOfWeekYear = daysSinceEpoch - startOfWeekYear;
     int zeroBasedWeek = zeroBasedDayOfWeekYear ~/ 7;
@@ -98,11 +106,14 @@ class SimpleWeekYearRule implements WeekYearRule {
   @override
   int getWeeksInWeekYear(int weekYear, CalendarSystem calendar) {
     Preconditions.checkNotNull(calendar, 'calendar');
-    YearMonthDayCalculator yearMonthDayCalculator = ICalendarSystem.yearMonthDayCalculator(calendar);
+    YearMonthDayCalculator yearMonthDayCalculator =
+        ICalendarSystem.yearMonthDayCalculator(calendar);
     _validateWeekYear(weekYear, calendar);
 
-    int startOfWeekYear = _getWeekYearDaysSinceEpoch(yearMonthDayCalculator, weekYear);
-    int startOfCalendarYear = yearMonthDayCalculator.getStartOfYearInDays(weekYear);
+    int startOfWeekYear =
+        _getWeekYearDaysSinceEpoch(yearMonthDayCalculator, weekYear);
+    int startOfCalendarYear =
+        yearMonthDayCalculator.getStartOfYearInDays(weekYear);
     // The number of days gained or lost in the week year compared with the calendar year.
     // So if the week year starts on December 31st of the previous calendar year, this will be +1.
     // If the week year starts on January 2nd of this calendar year, this will be -1.
@@ -125,11 +136,13 @@ class SimpleWeekYearRule implements WeekYearRule {
   @override
   int getWeekYear(LocalDate date) {
     YearMonthDay yearMonthDay = ILocalDate.yearMonthDay(date);
-    YearMonthDayCalculator yearMonthDayCalculator = ICalendarSystem.yearMonthDayCalculator(date.calendar);
+    YearMonthDayCalculator yearMonthDayCalculator =
+        ICalendarSystem.yearMonthDayCalculator(date.calendar);
 
     // Let's guess that it's in the same week year as calendar year, and check that.
     int calendarYear = yearMonthDay.year;
-    int startOfWeekYear = _getWeekYearDaysSinceEpoch(yearMonthDayCalculator, calendarYear);
+    int startOfWeekYear =
+        _getWeekYearDaysSinceEpoch(yearMonthDayCalculator, calendarYear);
     int daysSinceEpoch = yearMonthDayCalculator.getDaysSinceEpoch(yearMonthDay);
     if (daysSinceEpoch < startOfWeekYear) {
       // No, the week-year hadn't started yet. For example, we've been given January 1st 2011...
@@ -154,7 +167,9 @@ class SimpleWeekYearRule implements WeekYearRule {
     // We assume that even for the maximum year, we've got just about enough leeway to get to the
     // start of the week year. (If not, we should adjust the maximum.)
     int startOfNextWeekYear = startOfWeekYear + weeksInWeekYear * 7;
-    return daysSinceEpoch < startOfNextWeekYear ? calendarYear : calendarYear + 1;
+    return daysSinceEpoch < startOfNextWeekYear
+        ? calendarYear
+        : calendarYear + 1;
   }
 
   /// Validate that at least one day in the calendar falls in the given week year.
@@ -162,26 +177,37 @@ class SimpleWeekYearRule implements WeekYearRule {
     if (weekYear > calendar.minYear && weekYear < calendar.maxYear) {
       return;
     }
-    int minCalendarYearDays = _getWeekYearDaysSinceEpoch(ICalendarSystem.yearMonthDayCalculator(calendar), calendar.minYear);
+    int minCalendarYearDays = _getWeekYearDaysSinceEpoch(
+        ICalendarSystem.yearMonthDayCalculator(calendar), calendar.minYear);
     // If week year X started after calendar year X, then the first days of the calendar year are in the
     // previous week year.
-    int minWeekYear = minCalendarYearDays > ICalendarSystem.minDays(calendar) ? calendar.minYear - 1 : calendar.minYear;
-    int maxCalendarYearDays = _getWeekYearDaysSinceEpoch(ICalendarSystem.yearMonthDayCalculator(calendar), calendar.maxYear + 1);
+    int minWeekYear = minCalendarYearDays > ICalendarSystem.minDays(calendar)
+        ? calendar.minYear - 1
+        : calendar.minYear;
+    int maxCalendarYearDays = _getWeekYearDaysSinceEpoch(
+        ICalendarSystem.yearMonthDayCalculator(calendar), calendar.maxYear + 1);
     // If week year X + 1 started after the last day in the calendar, then everything is within week year X.
     // For irregular rules, we always just use calendar.MaxYear.
-    int maxWeekYear = _irregularWeeks || (maxCalendarYearDays > ICalendarSystem.maxDays(calendar)) ? calendar.maxYear : calendar.maxYear + 1;
-    Preconditions.checkArgumentRange('weekYear', weekYear, minWeekYear, maxWeekYear);
+    int maxWeekYear = _irregularWeeks ||
+            (maxCalendarYearDays > ICalendarSystem.maxDays(calendar))
+        ? calendar.maxYear
+        : calendar.maxYear + 1;
+    Preconditions.checkArgumentRange(
+        'weekYear', weekYear, minWeekYear, maxWeekYear);
   }
 
   /// Returns the days at the start of the given week-year. The week-year may be
   /// 1 higher or lower than the max/min calendar year. For non-regular rules (i.e. where some weeks
   /// can be short) it returns the day when the week-year *would* have started if it were regular.
   /// So this *always* returns a date on firstDayOfWeek.
-  int _getWeekYearDaysSinceEpoch(YearMonthDayCalculator yearMonthDayCalculator, int weekYear) {
+  int _getWeekYearDaysSinceEpoch(
+      YearMonthDayCalculator yearMonthDayCalculator, int weekYear) {
     // Need to be slightly careful here, as the week-year can reasonably be (just) outside the calendar year range.
     // However, YearMonthDayCalculator.GetStartOfYearInDays already handles min/max -/+ 1.
-    int startOfCalendarYear = yearMonthDayCalculator.getStartOfYearInDays(weekYear);
-    int startOfYearDayOfWeek = /*unchecked*/(startOfCalendarYear >= -3 ? 1 + ((startOfCalendarYear + 3) % 7)
+    int startOfCalendarYear =
+        yearMonthDayCalculator.getStartOfYearInDays(weekYear);
+    int startOfYearDayOfWeek = /*unchecked*/ (startOfCalendarYear >= -3
+        ? 1 + ((startOfCalendarYear + 3) % 7)
         : 7 + arithmeticMod((startOfCalendarYear + 4), 7));
 
     // How many days have there been from the start of the week containing
@@ -191,7 +217,8 @@ class SimpleWeekYearRule implements WeekYearRule {
     // (For example, if the start of the calendar year is Friday and the first day of the week is Monday,
     // this will be 4.)
     int daysIntoWeek = ((startOfYearDayOfWeek - _firstDayOfWeek.value) + 7) % 7;
-    int startOfWeekContainingStartOfCalendarYear = startOfCalendarYear - daysIntoWeek;
+    int startOfWeekContainingStartOfCalendarYear =
+        startOfCalendarYear - daysIntoWeek;
 
     bool startOfYearIsInWeek1 = (7 - daysIntoWeek >= _minDaysInFirstWeek);
     return startOfYearIsInWeek1

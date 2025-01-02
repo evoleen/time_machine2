@@ -2,7 +2,6 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'package:meta/meta.dart';
 // import 'package:quiver_hashcode/hashcode.dart';
 import 'package:time_machine/src/time_machine_internal.dart';
 
@@ -11,10 +10,12 @@ abstract class IOffsetDateTime {
   static OffsetDateTime fullTrust(LocalDateTime localDateTime, Offset offset) =>
       OffsetDateTime(localDateTime, offset);
 
-  static OffsetDateTime lessTrust(LocalDate calendarDate, LocalTime clockTime, Offset offset) =>
+  static OffsetDateTime lessTrust(
+          LocalDate calendarDate, LocalTime clockTime, Offset offset) =>
       OffsetDateTime._lessTrust(calendarDate, clockTime, offset);
 
-  static OffsetDateTime fromInstant(Instant instant, Offset offset, [CalendarSystem? calendar]) =>
+  static OffsetDateTime fromInstant(Instant instant, Offset offset,
+          [CalendarSystem? calendar]) =>
       OffsetDateTime._fromInstant(instant, offset, calendar);
 
   // @deprecated
@@ -41,15 +42,14 @@ class OffsetDateTime {
   ///
   /// * [localDateTime]: Local date and time to represent
   /// * [offset]: Offset from UTC
-  OffsetDateTime(this.localDateTime, this.offset)
-  {
+  OffsetDateTime(this.localDateTime, this.offset) {
     // ICalendarSystem.validateYearMonthDay_(calendar, _yearMonthDay);
   }
 
-  OffsetDateTime._lessTrust(LocalDate calendarDate, LocalTime clockTime, Offset offset)
+  OffsetDateTime._lessTrust(
+      LocalDate calendarDate, LocalTime clockTime, Offset offset)
       : localDateTime = calendarDate.at(clockTime),
-        offset = offset
-  {
+        offset = offset {
     // ICalendarSystem.validateYearMonthDay_(calendar, _yearMonthDay);
   }
 
@@ -58,15 +58,14 @@ class OffsetDateTime {
   /// Optimized conversion from an Instant to an OffsetDateTime in the specified calendar.
   /// This is equivalent to `new OffsetDateTime(new LocalDateTime(instant.Plus(offset), calendar), offset)`
   /// but with less overhead.
-  factory OffsetDateTime._fromInstant(Instant instant, Offset offset, [CalendarSystem? calendar])
-  {
+  factory OffsetDateTime._fromInstant(Instant instant, Offset offset,
+      [CalendarSystem? calendar]) {
     int days = instant.epochDay;
     int nanoOfDay = instant.epochDayTime.inNanoseconds + offset.inNanoseconds;
     if (nanoOfDay >= TimeConstants.nanosecondsPerDay) {
       days++;
       nanoOfDay -= TimeConstants.nanosecondsPerDay;
-    }
-    else if (nanoOfDay < 0) {
+    } else if (nanoOfDay < 0) {
       days--;
       nanoOfDay += TimeConstants.nanosecondsPerDay;
     }
@@ -76,7 +75,8 @@ class OffsetDateTime {
         // todo: can we grab the correct calculator based on the default culture? (is that appropriate?)
         : GregorianYearMonthDayCalculator.getGregorianYearMonthDayCalendarFromDaysSinceEpoch(days);*/
     // var nanosecondsAndOffset = _combineNanoOfDayAndOffset(nanoOfDay, offset);
-    var ldt = LocalDate.fromEpochDay(days, calendar).at(ILocalTime.trustedNanoseconds(nanoOfDay));
+    var ldt = LocalDate.fromEpochDay(days, calendar)
+        .at(ILocalTime.trustedNanoseconds(nanoOfDay));
     return OffsetDateTime(ldt, offset);
     // return new OffsetDateTime(yearMonthDayCalendar, nanoOfDay, offset); // nanosecondsAndOffset);
   }
@@ -153,7 +153,8 @@ class OffsetDateTime {
   // Offset get offset => _offset; // new Offset(nanosecondsAndOffset >> NanosecondsBits);
 
   /// Returns the number of nanoseconds in the offset, without going via an Offset.
-  int get _offsetNanoseconds => offset.inNanoseconds; // (nanosecondsAndOffset >> NanosecondsBits) * TimeConstants.nanosecondsPerSecond;
+  int get _offsetNanoseconds => offset
+      .inNanoseconds; // (nanosecondsAndOffset >> NanosecondsBits) * TimeConstants.nanosecondsPerSecond;
 
   /// Converts this offset date and time to an instant in time by subtracting the offset from the local date and time.
   ///
@@ -162,7 +163,10 @@ class OffsetDateTime {
 
   Time _toElapsedTimeSinceEpoch() {
     // Equivalent to LocalDateTime.ToLocalInstant().Minus(offset)
-    Time elapsedTime = Time(days: calendarDate.epochDay, nanoseconds: clockTime.timeSinceMidnight.inNanoseconds - _offsetNanoseconds);
+    Time elapsedTime = Time(
+        days: calendarDate.epochDay,
+        nanoseconds:
+            clockTime.timeSinceMidnight.inNanoseconds - _offsetNanoseconds);
     // Duration elapsedTime = new Duration(days, NanosecondOfDay).MinusSmallNanoseconds(OffsetNanoseconds);
     return elapsedTime;
   }
@@ -176,7 +180,8 @@ class OffsetDateTime {
   /// use this result for arithmetic operations, as the zone will not adjust to account for daylight savings.
   ///
   /// Returns: A zoned date/time with the same local time and a fixed time zone using the offset from this value.
-  ZonedDateTime get inFixedZone => IZonedDateTime.trusted(this, DateTimeZone.forOffset(offset));
+  ZonedDateTime get inFixedZone =>
+      IZonedDateTime.trusted(this, DateTimeZone.forOffset(offset));
 
   /// Returns this value in ths specified time zone. This method does not expect
   /// the offset in the zone to be the same as for the current value; it simply converts
@@ -281,7 +286,8 @@ class OffsetDateTime {
   OffsetTime toOffsetTime() => OffsetTime(clockTime, offset);
 
   /// Returns a hash code for this offset date and time.
-  @override int get hashCode => hash2(localDateTime, offset);
+  @override
+  int get hashCode => hash2(localDateTime, offset);
 
   /// Compares two [OffsetDateTime] values for equality. This requires
   /// that the local date/time values be the same (in the same calendar) and the offsets.
@@ -296,7 +302,8 @@ class OffsetDateTime {
   ///
   /// The value of the current instance in the default format pattern ('G'), using the current isolate's
   /// culture to obtain a format provider.
-  @override String toString([String? patternText, Culture? culture]) =>
+  @override
+  String toString([String? patternText, Culture? culture]) =>
       OffsetDateTimePatterns.format(this, patternText, culture);
 
   /// Adds a duration to an offset date and time.
@@ -305,7 +312,8 @@ class OffsetDateTime {
   /// * [time]: The duration to add
   ///
   /// Returns: A new value with the time advanced by the given duration, in the same calendar system and with the same offset.
-  static OffsetDateTime plus(OffsetDateTime offsetDateTime, Time time) => offsetDateTime + time;
+  static OffsetDateTime plus(OffsetDateTime offsetDateTime, Time time) =>
+      offsetDateTime + time;
 
   /// Subtracts a duration from an offset date and time.
   ///
@@ -313,7 +321,8 @@ class OffsetDateTime {
   /// * [duration]: The duration to subtract.
   ///
   /// Returns: A new value with the time 'rewound' by the given duration, in the same calendar system and with the same offset.
-  static OffsetDateTime minus(OffsetDateTime offsetDateTime, Time time) => offsetDateTime - time;
+  static OffsetDateTime minus(OffsetDateTime offsetDateTime, Time time) =>
+      offsetDateTime - time;
 
   /// Returns a new [OffsetDateTime] with the time advanced by the given duration.
   ///
@@ -340,14 +349,17 @@ class OffsetDateTime {
   /// * [duration]: The duration to add
   ///
   /// Returns: A new [OffsetDateTime] representing the result of the addition.
-  OffsetDateTime add(Time time) => OffsetDateTime._fromInstant(toInstant() + time, offset);
+  OffsetDateTime add(Time time) =>
+      OffsetDateTime._fromInstant(toInstant() + time, offset);
 
   /// Returns the result of subtracting a duration from this offset date and time.
   ///
   /// * [time]: The duration to subtract
   ///
   /// Returns: A new [OffsetDateTime] representing the result of the subtraction.
-  OffsetDateTime subtract(Time time) => OffsetDateTime._fromInstant(toInstant() - time, offset); // new Instant.trusted(ToElapsedTimeSinceEpoch()
+  OffsetDateTime subtract(Time time) => OffsetDateTime._fromInstant(
+      toInstant() - time,
+      offset); // new Instant.trusted(ToElapsedTimeSinceEpoch()
 
   // dynamic operator -(dynamic value) => value is Time ? minusSpan(value) : value is OffsetDateTime ? minusOffsetDateTime(value) : throw new TypeError();
   // static Duration operator -(OffsetDateTime end, OffsetDateTime start) => end.ToInstant() - start.ToInstant();
@@ -359,7 +371,8 @@ class OffsetDateTime {
   /// * [start]: The offset date and time to subtract from [end].
   ///
   /// Returns: The elapsed duration from [start] to [end].
-  static Time difference(OffsetDateTime end, OffsetDateTime start) => end.timeSince(start);
+  static Time difference(OffsetDateTime end, OffsetDateTime start) =>
+      end.timeSince(start);
 
   /// Returns the result of subtracting another offset date and time from this one, resulting in the elapsed duration
   /// between the two instants represented in the values.
@@ -367,7 +380,8 @@ class OffsetDateTime {
   /// * [other]: The offset date and time to subtract from this one.
   ///
   /// Returns: The elapsed duration from [other] to this value.
-  Time timeUntil(OffsetDateTime other) => toInstant().timeUntil(other.toInstant());
+  Time timeUntil(OffsetDateTime other) =>
+      toInstant().timeUntil(other.toInstant());
 
   /// Returns the result of subtracting this offset date and time from another one, resulting in the elapsed duration
   /// between the two instants represented in the values.
@@ -375,7 +389,8 @@ class OffsetDateTime {
   /// * [other]: The offset date and time to subtract this one from.
   ///
   /// Returns: The elapsed duration from [other] to this value.
-  Time timeSince(OffsetDateTime other) => toInstant().timeSince(other.toInstant());
+  Time timeSince(OffsetDateTime other) =>
+      toInstant().timeSince(other.toInstant());
 
   /// Implements the operator == (equality).
   ///
@@ -391,15 +406,20 @@ class OffsetDateTime {
 
 /// Implementation for [Comparer.Local]
 class _OffsetDateTimeLocalComparer extends OffsetDateTimeComparer {
-  static const OffsetDateTimeComparer _instance = _OffsetDateTimeLocalComparer._();
+  static const OffsetDateTimeComparer _instance =
+      _OffsetDateTimeLocalComparer._();
 
   const _OffsetDateTimeLocalComparer._() : super._();
 
   /// <inheritdoc />
-  @override int compare(OffsetDateTime x, OffsetDateTime y) {
+  @override
+  int compare(OffsetDateTime x, OffsetDateTime y) {
     Preconditions.checkArgument(x.calendar == y.calendar, 'y',
         'Only values with the same calendar system can be compared');
-    int dateComparison = ICalendarSystem.compare(x.calendar, ILocalDate.yearMonthDay(x.calendarDate), ILocalDate.yearMonthDay(y.calendarDate));
+    int dateComparison = ICalendarSystem.compare(
+        x.calendar,
+        ILocalDate.yearMonthDay(x.calendarDate),
+        ILocalDate.yearMonthDay(y.calendarDate));
     if (dateComparison != 0) {
       return dateComparison;
     }
@@ -407,13 +427,15 @@ class _OffsetDateTimeLocalComparer extends OffsetDateTimeComparer {
   }
 
   /// <inheritdoc />
-  @override bool equals(OffsetDateTime x, OffsetDateTime y) =>
+  @override
+  bool equals(OffsetDateTime x, OffsetDateTime y) =>
       x.localDateTime.equals(y.localDateTime); // && x.offset.equals(y.offset);
 
   /// <inheritdoc />
-  @override int getHashCode(OffsetDateTime obj) => obj.localDateTime.hashCode; // hash2(obj.localDateTime, obj.offset);
+  @override
+  int getHashCode(OffsetDateTime obj) =>
+      obj.localDateTime.hashCode; // hash2(obj.localDateTime, obj.offset);
 }
-
 
 /// Base class for [OffsetDateTime] comparers.
 ///
@@ -421,7 +443,7 @@ class _OffsetDateTimeLocalComparer extends OffsetDateTimeComparer {
 /// same value can be used for both equality and ordering comparisons.
 @immutable
 abstract class OffsetDateTimeComparer // implements Comparable<OffsetDateTime> // : IComparer<OffsetDateTime>, IEqualityComparer<OffsetDateTime>
-    {
+{
   // TODO(feature): Should we have a comparer which is calendar-sensitive (so will fail if the calendars are different)
   // but still uses the offset?
 
@@ -431,7 +453,8 @@ abstract class OffsetDateTimeComparer // implements Comparable<OffsetDateTime> /
   /// For example, this comparer considers 2013-03-04T20:21:00+0100 to be later than 2013-03-04T19:21:00-0700 even though
   /// the second value represents a later instant in time.
   /// This property will return a reference to the same instance every time it is called.
-  static OffsetDateTimeComparer get local => _OffsetDateTimeLocalComparer._instance;
+  static OffsetDateTimeComparer get local =>
+      _OffsetDateTimeLocalComparer._instance;
 
   /// Returns a comparer which compares [OffsetDateTime] values by the instant values obtained by applying the offset to
   /// the local date/time, ignoring the calendar system.
@@ -442,7 +465,8 @@ abstract class OffsetDateTimeComparer // implements Comparable<OffsetDateTime> /
   ///
   /// <value>A comparer which compares values by the instant values obtained by applying the offset to
   /// the local date/time, ignoring the calendar system.</value>
-  static OffsetDateTimeComparer get instant => _OffsetDateTimeInstantComparer._instance;
+  static OffsetDateTimeComparer get instant =>
+      _OffsetDateTimeInstantComparer._instance;
 
   /// internal constructor to prevent external classes from deriving from this.
   /// (That means we can add more abstract members in the future.)
@@ -489,22 +513,24 @@ abstract class OffsetDateTimeComparer // implements Comparable<OffsetDateTime> /
 
 /// Implementation for [Comparer.Instant].
 class _OffsetDateTimeInstantComparer extends OffsetDateTimeComparer {
-  static const OffsetDateTimeComparer _instance = _OffsetDateTimeInstantComparer._();
+  static const OffsetDateTimeComparer _instance =
+      _OffsetDateTimeInstantComparer._();
 
   const _OffsetDateTimeInstantComparer._() : super._();
 
   /// <inheritdoc />
-  @override int compare(OffsetDateTime x, OffsetDateTime y) =>
-  // TODO(optimization): Optimize cases which are more than 2 days apart, by avoiding the arithmetic?
-  x._toElapsedTimeSinceEpoch().compareTo(y._toElapsedTimeSinceEpoch());
+  @override
+  int compare(OffsetDateTime x, OffsetDateTime y) =>
+      // TODO(optimization): Optimize cases which are more than 2 days apart, by avoiding the arithmetic?
+      x._toElapsedTimeSinceEpoch().compareTo(y._toElapsedTimeSinceEpoch());
 
   /// <inheritdoc />
-  @override bool equals(OffsetDateTime x, OffsetDateTime y) =>
+  @override
+  bool equals(OffsetDateTime x, OffsetDateTime y) =>
       x._toElapsedTimeSinceEpoch() == y._toElapsedTimeSinceEpoch();
 
   /// <inheritdoc />
-  @override int getHashCode(OffsetDateTime obj) =>
-      obj
-          ._toElapsedTimeSinceEpoch()
-          .hashCode;
+  @override
+  int getHashCode(OffsetDateTime obj) =>
+      obj._toElapsedTimeSinceEpoch().hashCode;
 }

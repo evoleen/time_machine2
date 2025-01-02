@@ -3,8 +3,6 @@
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
 import 'package:time_machine/src/time_machine_internal.dart';
-import 'package:time_machine/src/utility/time_machine_utilities.dart';
-import 'package:time_machine/src/calendars/time_machine_calendars.dart';
 
 /// A rule determining how 'week years' are arranged, including the weeks within the week year.
 /// Implementations provided by Time Machine itself can be obtained via the [WeekYearRules]
@@ -66,7 +64,8 @@ abstract class WeekYearRule {
   /// Returns: A [LocalDate] corresponding to the specified values.
   ///
   /// * [RangeError]: The parameters do not combine to form a valid date.
-  LocalDate getLocalDate(int weekYear, int weekOfWeekYear, DayOfWeek dayOfWeek, CalendarSystem calendar);
+  LocalDate getLocalDate(int weekYear, int weekOfWeekYear, DayOfWeek dayOfWeek,
+      CalendarSystem calendar);
 
   /// Calculates the week-year in which the given date occurs, according to this rule.
   ///
@@ -110,8 +109,10 @@ abstract class WeekYearRuleExtensions {
   /// Returns: A [LocalDate] corresponding to the specified values.
   ///
   /// * [RangeError]: The parameters do not combine to form a valid date.
-  static LocalDate getLocalDate(WeekYearRule rule, int weekYear, int weekOfWeekYear, DayOfWeek dayOfWeek) =>
-      Preconditions.checkNotNull(rule, 'rule').getLocalDate(weekYear, weekOfWeekYear, dayOfWeek, CalendarSystem.iso);
+  static LocalDate getLocalDate(WeekYearRule rule, int weekYear,
+          int weekOfWeekYear, DayOfWeek dayOfWeek) =>
+      Preconditions.checkNotNull(rule, 'rule').getLocalDate(
+          weekYear, weekOfWeekYear, dayOfWeek, CalendarSystem.iso);
 
   /// Convenience overload to call [IWeekYearRule.GetWeeksInWeekYear(int, CalendarSystem)] with
   /// the ISO calendar system.
@@ -121,5 +122,6 @@ abstract class WeekYearRuleExtensions {
   ///
   /// Returns: The number of weeks in the given week year.
   static int getWeeksInWeekYear(WeekYearRule rule, int weekYear) =>
-      Preconditions.checkNotNull(rule, 'rule').getWeeksInWeekYear(weekYear, CalendarSystem.iso);
+      Preconditions.checkNotNull(rule, 'rule')
+          .getWeeksInWeekYear(weekYear, CalendarSystem.iso);
 }

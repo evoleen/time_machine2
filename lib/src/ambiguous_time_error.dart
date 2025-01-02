@@ -2,13 +2,13 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'package:meta/meta.dart';
 import 'package:time_machine/src/time_machine_internal.dart';
 
 @immutable
 class AmbiguousTimeError extends Error {
   /// Get the local date and time which is ambiguous in the time zone.
-  @internal LocalDateTime get localDateTime => earlierMapping.localDateTime;
+  @internal
+  LocalDateTime get localDateTime => earlierMapping.localDateTime;
 
   /// The time zone in which the local date and time is ambiguous.
   DateTimeZone get Zone => earlierMapping.zone;
@@ -31,11 +31,15 @@ class AmbiguousTimeError extends Error {
   /// * [earlierMapping]: The earlier possible mapping
   /// * [laterMapping]: The later possible mapping
   AmbiguousTimeError(this.earlierMapping, this.laterMapping)
-      : message = 'Local time ${earlierMapping.localDateTime} is ambiguous in time zone ${earlierMapping.zone.id}' {
-    Preconditions.checkArgument(earlierMapping.zone == laterMapping.zone, 'laterMapping',
+      : message =
+            'Local time ${earlierMapping.localDateTime} is ambiguous in time zone ${earlierMapping.zone.id}' {
+    Preconditions.checkArgument(
+        earlierMapping.zone == laterMapping.zone,
+        'laterMapping',
         'Ambiguous possible values must use the same time zone');
-    Preconditions.checkArgument(earlierMapping.localDateTime == laterMapping.localDateTime, 'laterMapping',
+    Preconditions.checkArgument(
+        earlierMapping.localDateTime == laterMapping.localDateTime,
+        'laterMapping',
         'Ambiguous possible values must have the same local date/time');
   }
 }
-

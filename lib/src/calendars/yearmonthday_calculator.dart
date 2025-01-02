@@ -1,13 +1,8 @@
 // Portions of this work are Copyright 2018 The Time Machine Authors. All rights reserved.
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
-import 'package:meta/meta.dart';
 
-import 'package:time_machine/src/utility/preconditions.dart';
-
-import 'package:time_machine/src/calendars/time_machine_calendars.dart';
 import 'package:time_machine/src/time_machine_internal.dart';
-
 
 /// The core of date calculations in Time Machine. This class *only* cares about absolute years, and only
 /// dates - it has no time aspects at all, nor era-related aspects.
@@ -17,7 +12,8 @@ abstract class YearMonthDayCalculator {
   /// Cache to speed up working out when a particular year starts.
   /// See the [YearStartCacheEntry] documentation and [GetStartOfYearInDays]
   /// for more details.
-  final List<YearStartCacheEntry> _yearCache = YearStartCacheEntry.createCache();
+  final List<YearStartCacheEntry> _yearCache =
+      YearStartCacheEntry.createCache();
 
   final int minYear;
 
@@ -29,14 +25,15 @@ abstract class YearMonthDayCalculator {
   final int averageDaysPer10Years;
 
   @protected
-  YearMonthDayCalculator(this.minYear, this.maxYear,
-      int averageDaysPer10Years, this.daysAtStartOfYear1) :
-      // We add an extra day to make sure that
-      // approximations using days-since-epoch are conservative, to avoid going out of bounds.
-      averageDaysPer10Years = averageDaysPer10Years + 1 {
+  YearMonthDayCalculator(this.minYear, this.maxYear, int averageDaysPer10Years,
+      this.daysAtStartOfYear1)
+      :
+        // We add an extra day to make sure that
+        // approximations using days-since-epoch are conservative, to avoid going out of bounds.
+        averageDaysPer10Years = averageDaysPer10Years + 1 {
     // We should really check the minimum year as well, but constructing it hurts my brain.
-    Preconditions.checkArgument(maxYear < YearStartCacheEntry.invalidEntryYear, 'maxYear',
-        'Calendar year range would invalidate caching.');
+    Preconditions.checkArgument(maxYear < YearStartCacheEntry.invalidEntryYear,
+        'maxYear', 'Calendar year range would invalidate caching.');
   }
 
   /// Returns the number of days from the start of the given year to the start of the given month.
@@ -84,7 +81,8 @@ abstract class YearMonthDayCalculator {
   int getDaysSinceEpoch(YearMonthDay yearMonthDay) {
     int year = yearMonthDay.year;
     int startOfYear = getStartOfYearInDays(year);
-    int startOfMonth = startOfYear + getDaysFromStartOfYearToStartOfMonth(year, yearMonthDay.month);
+    int startOfMonth = startOfYear +
+        getDaysFromStartOfYearToStartOfMonth(year, yearMonthDay.month);
     return startOfMonth + yearMonthDay.day - 1;
   }
 
@@ -93,8 +91,10 @@ abstract class YearMonthDayCalculator {
   ///
   /// The [year] to fetch the days at the start of. This must be within 1 year of the min/max
   /// range, but can exceed it to make week-year calculations simple.
-  int getStartOfYearInDays(int year) { // todo: tag!
-    assert(Preconditions.debugCheckArgumentRange('year', year, minYear - 1, maxYear + 1));
+  int getStartOfYearInDays(int year) {
+    // todo: tag!
+    assert(Preconditions.debugCheckArgumentRange(
+        'year', year, minYear - 1, maxYear + 1));
     int cacheIndex = YearStartCacheEntry.getCacheIndex(year);
     YearStartCacheEntry cacheEntry = _yearCache[cacheIndex];
     if (!cacheEntry.isValidForYear(year)) {
@@ -118,14 +118,18 @@ abstract class YearMonthDayCalculator {
   void validateYearMonthDay(int year, int month, int day) {
     Preconditions.checkArgumentRange('year', year, minYear, maxYear);
     Preconditions.checkArgumentRange('month', month, 1, getMonthsInYear(year));
-    Preconditions.checkArgumentRange('day', day, 1, getDaysInMonth(year, month));
+    Preconditions.checkArgumentRange(
+        'day', day, 1, getDaysInMonth(year, month));
   }
 
 // #endregion Virtual Methods
 
   /// Converts from a YearMonthDay representation to 'day of year'.
   /// This assumes the parameter have been validated previously.
-  int getDayOfYear(YearMonthDay yearMonthDay) => getDaysFromStartOfYearToStartOfMonth(yearMonthDay.year, yearMonthDay.month) + yearMonthDay.day;
+  int getDayOfYear(YearMonthDay yearMonthDay) =>
+      getDaysFromStartOfYearToStartOfMonth(
+          yearMonthDay.year, yearMonthDay.month) +
+      yearMonthDay.day;
 
   /// Works out the year/month/day of a given days-since-epoch by first computing the year and day of year,
   /// then getting the month and day from those two. This is how almost all calendars are naturally implemented
@@ -159,8 +163,7 @@ abstract class YearMonthDayCalculator {
       do {
         candidate--;
         daysFromCandidateStartToTarget += getDaysInYear(candidate);
-      }
-      while (daysFromCandidateStartToTarget < 0);
+      } while (daysFromCandidateStartToTarget < 0);
       var zeroBasedDayOfYear = daysFromCandidateStartToTarget;
       return [candidate, zeroBasedDayOfYear];
     }
@@ -179,4 +182,3 @@ abstract class YearMonthDayCalculator {
     return [candidate, zeroBasedDayOfYear];
   }
 }
-

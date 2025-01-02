@@ -1,0 +1,21 @@
+name: Sanity Test
+
+on:
+  push:
+
+jobs:
+  Sanity:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📚 Checkout
+        uses: actions/checkout@v4
+
+      - name: 👴🏼 Setup Dart
+        uses: dart-lang/setup-dart@v1
+
+      - name: 🏗️ Install packages
+        run: dart pub get
+
+      - name: 📘 Run unit & integration tests
+        run: |
+          dart test

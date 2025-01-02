@@ -3,9 +3,7 @@
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 import 'dart:math' as math;
 
-import 'package:time_machine/src/calendars/time_machine_calendars.dart';
 import 'package:time_machine/src/time_machine_internal.dart';
-
 
 @internal
 abstract class RegularYearMonthDayCalculator extends YearMonthDayCalculator {
@@ -16,11 +14,13 @@ abstract class RegularYearMonthDayCalculator extends YearMonthDayCalculator {
       : _monthsInYear = monthsInYear,
         super(minYear, maxYear, averageDaysPer10Years, daysAtStartOfYear1);
 
-  @override int getMonthsInYear(int year) => _monthsInYear;
+  @override
+  int getMonthsInYear(int year) => _monthsInYear;
 
   /// Implements a simple year-setting policy, truncating the day
   /// if necessary.
-  @override YearMonthDay setYear(YearMonthDay yearMonthDay, int year) {
+  @override
+  YearMonthDay setYear(YearMonthDay yearMonthDay, int year) {
     // TODO(2.0): All subclasses have the same logic of "detect leap years,
     // and otherwise we're fine". Put it here instead.
     int currentMonth = yearMonthDay.month;
@@ -29,7 +29,8 @@ abstract class RegularYearMonthDayCalculator extends YearMonthDayCalculator {
     return YearMonthDay(year, currentMonth, math.min(currentDay, newDay));
   }
 
-  @override YearMonthDay addMonths(YearMonthDay yearMonthDay, int months) {
+  @override
+  YearMonthDay addMonths(YearMonthDay yearMonthDay, int months) {
     if (months == 0) {
       return yearMonthDay;
     }
@@ -46,8 +47,7 @@ abstract class RegularYearMonthDayCalculator extends YearMonthDayCalculator {
     if (monthToUse >= 0) {
       yearToUse = thisYear + (monthToUse ~/ _monthsInYear);
       monthToUse = (monthToUse % _monthsInYear) + 1;
-    }
-    else {
+    } else {
       yearToUse = thisYear + (monthToUse ~/ _monthsInYear) - 1;
       monthToUse = monthToUse.abs();
       int remMonthToUse = monthToUse % _monthsInYear;
@@ -71,7 +71,8 @@ abstract class RegularYearMonthDayCalculator extends YearMonthDayCalculator {
   }
 
   // todo: this was ported about as wrong as possible ... check the other calculators?
-  @override int monthsBetween(YearMonthDay start, YearMonthDay end) {
+  @override
+  int monthsBetween(YearMonthDay start, YearMonthDay end) {
     int startYear = start.year;
     int endYear = end.year;
     int startMonth = start.month;
@@ -88,8 +89,7 @@ abstract class RegularYearMonthDayCalculator extends YearMonthDayCalculator {
       // Moving forward: if the result of the simple addition is before or equal to the minuend,
       // we're done. Otherwise, rewind a month because we've overshot.
       return simpleAddition <= end ? diff : diff - 1;
-    }
-    else {
+    } else {
       // Moving backward: if the result of the simple addition (of a non-positive number)
       // is after or equal to the minuend, we're done. Otherwise, increment by a month because
       // we've overshot backwards.
@@ -97,4 +97,3 @@ abstract class RegularYearMonthDayCalculator extends YearMonthDayCalculator {
     }
   }
 }
-

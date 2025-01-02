@@ -2,7 +2,6 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'package:meta/meta.dart';
 // import 'package:quiver_hashcode/hashcode.dart';
 import 'package:time_machine/src/time_machine_internal.dart';
 
@@ -11,6 +10,7 @@ import 'package:time_machine/src/time_machine_internal.dart';
 class OffsetTime {
   /// Gets the time-of-day represented by this value.
   final LocalTime clockTime;
+
   /// Gets the offset from UTC of this value.
   final Offset offset;
 
@@ -33,7 +33,8 @@ class OffsetTime {
   int get secondOfMinute => clockTime.timeSinceMidnight.secondOfMinute;
 
   /// Gets the millisecond of this offset time within the second, in the range 0 to 999 inclusive.
-  int get millisecondOfSecond => clockTime.timeSinceMidnight.millisecondOfSecond;
+  int get millisecondOfSecond =>
+      clockTime.timeSinceMidnight.millisecondOfSecond;
 
   /// Gets the nanosecond of this offset time within the second, in the range 0 to 999,999,999 inclusive.
   int get nanosecondOfSecond => clockTime.timeSinceMidnight.nanosecondOfSecond;
@@ -62,10 +63,12 @@ class OffsetTime {
   /// * [date]: The date to combine with this time-of-day.
   ///
   /// Returns: The [OffsetDateTime] representation of this time-of-day on the given date.
-  OffsetDateTime atDate(LocalDate date) => OffsetDateTime(date.at(clockTime), offset);
+  OffsetDateTime atDate(LocalDate date) =>
+      OffsetDateTime(date.at(clockTime), offset);
 
   /// Returns a hash code for this offset time.
-  @override int get hashCode => hash2(clockTime, offset);
+  @override
+  int get hashCode => hash2(clockTime, offset);
 
   /// Compares two [OffsetTime] values for equality. This requires
   /// that the date values be the same and the offsets.
@@ -73,7 +76,8 @@ class OffsetTime {
   /// * [other]: The value to compare this offset time with.
   ///
   /// Returns: True if the given value is another offset time equal to this one; false otherwise.
-  bool equals(OffsetTime other) => clockTime == other.clockTime && offset == other.offset;
+  bool equals(OffsetTime other) =>
+      clockTime == other.clockTime && offset == other.offset;
 
   /// Implements the operator == (equality).
   ///
@@ -93,6 +97,7 @@ class OffsetTime {
   ///
   /// * [culture]: The [Culture] to use when formatting the value,
   /// or null to use the current isolate's culture.
-  @override String toString([String? patternText, Culture? culture]) =>
+  @override
+  String toString([String? patternText, Culture? culture]) =>
       OffsetTimePatterns.format(this, patternText, culture);
 }

@@ -3,7 +3,6 @@
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
 import 'dart:convert';
-import 'package:meta/meta.dart';
 import 'package:time_machine/src/time_machine_internal.dart';
 
 // todo: revisit this summary
@@ -38,7 +37,8 @@ class UmAlQuraYearMonthDayCalculator extends RegularYearMonthDayCalculator {
   // A set of 12 bits for each year, indicating the months which are 30 days long instead of 29.
   // (Month 1 is set in bit 1, etc. Bit 0 and bits 13-15 are unused.)
   // Note: this is all int32 on VM/Flutter -- float64 on JS todo: optimize differently
-  static /*final*/ List<int> /*ushort[]*/ _monthLengths = _genNumbers() ?? _monthLengths;
+  static /*final*/ List<int> /*ushort[]*/ _monthLengths =
+      _genNumbers() ?? _monthLengths;
 
   // Number of days from ComputedMinYear on a per year basis.
   static /*final*/ List<int> _yearStartDays = _genNumbers() ?? _yearStartDays;
@@ -48,9 +48,10 @@ class UmAlQuraYearMonthDayCalculator extends RegularYearMonthDayCalculator {
     // byte[] data = Convert.FromBase64String(GeneratedData);
     var data = base64.decode(_generatedData);
 
-    _monthLengths = List<int>.generate(data.length ~/ 2,
-      (int i) => /*(ushort)*/((data[i * 2] << 8) | (data[i * 2 + 1]))
-    ); // new ushort[data.Length / 2];
+    _monthLengths = List<int>.generate(
+        data.length ~/ 2,
+        (int i) => /*(ushort)*/ ((data[i * 2] << 8) |
+            (data[i * 2 + 1]))); // new ushort[data.Length / 2];
 
     _yearLengths = List<int>.filled(_monthLengths.length, 0);
     _yearStartDays = List<int>.filled(_monthLengths.length, 0);
@@ -71,7 +72,8 @@ class UmAlQuraYearMonthDayCalculator extends RegularYearMonthDayCalculator {
     // Fill in the cache with dummy data for before/after the min/max year, pretending
     // that both of the 'extra' years were 354 days long.
     _yearStartDays[0] = _computedDaysAtStartOfMinYear - 354;
-    _yearStartDays[_yearStartDays.length - 1] = _computedDaysAtStartOfMinYear + totalDays;
+    _yearStartDays[_yearStartDays.length - 1] =
+        _computedDaysAtStartOfMinYear + totalDays;
     _yearLengths[0] = 354;
     _yearLengths[_yearStartDays.length - 1] = 354;
 
@@ -79,10 +81,13 @@ class UmAlQuraYearMonthDayCalculator extends RegularYearMonthDayCalculator {
   }
 
   UmAlQuraYearMonthDayCalculator()
-      : super(_computedMinYear, _computedMaxYear, 12, _averageDaysPer10Years, _computedDaysAtStartOfYear1);
+      : super(_computedMinYear, _computedMaxYear, 12, _averageDaysPer10Years,
+            _computedDaysAtStartOfYear1);
 
   // No need to use the YearMonthDayCalculator cache, given that we've got the value in array already.
-  @override int getStartOfYearInDays(int year) => _yearStartDays[year - _computedMinYear + 1];
+  @override
+  int getStartOfYearInDays(int year) =>
+      _yearStartDays[year - _computedMinYear + 1];
 
   // [ExcludeFromCodeCoverage]
   @protected
@@ -105,16 +110,19 @@ class UmAlQuraYearMonthDayCalculator extends RegularYearMonthDayCalculator {
     return (month - 1) * 29 + extraDays;
   }
 
-  @override int getDaysInMonth(int year, int month) {
+  @override
+  int getDaysInMonth(int year, int month) {
     int monthBits = _monthLengths[year - _computedMinYear + 1];
     return 29 + ((monthBits >> month) & 1);
   }
 
-  @override int getDaysInYear(int year) =>
-  // Fine for one year either side of min/max.
-  _yearLengths[year - _computedMinYear + 1];
+  @override
+  int getDaysInYear(int year) =>
+      // Fine for one year either side of min/max.
+      _yearLengths[year - _computedMinYear + 1];
 
-  @override YearMonthDay getYearMonthDay(int year, int dayOfYear) {
+  @override
+  YearMonthDay getYearMonthDay(int year, int dayOfYear) {
     int daysLeft = dayOfYear;
     int monthBits = _monthLengths[year - _computedMinYear + 1];
     for (int month = 1; month <= 12; month++) {
@@ -125,8 +133,10 @@ class UmAlQuraYearMonthDayCalculator extends RegularYearMonthDayCalculator {
       daysLeft -= monthLength;
     }
     // This should throw...
-    Preconditions.checkArgumentRange('dayOfYear', dayOfYear, 1, getDaysInYear(year));
-    throw StateError("Bug in Noda Time: year $year has ${getDaysInYear(year)} days but $dayOfYear isn't valid");
+    Preconditions.checkArgumentRange(
+        'dayOfYear', dayOfYear, 1, getDaysInYear(year));
+    throw StateError(
+        "Bug in Noda Time: year $year has ${getDaysInYear(year)} days but $dayOfYear isn't valid");
   }
 
   @override

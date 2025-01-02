@@ -110,6 +110,14 @@ class TimeMachine {
     // Default Culture
     var cultureId = cultureOverride ??
         io.Platform.localeName.split('.').first.replaceAll('_', '-');
+
+    // POSIX default culture will be reported as "C". We manually remap this
+    // to en-US, as most systems with POSIX defaults should also be configured
+    // to use American English
+    if (cultureId == 'C') {
+      cultureId = 'en-US';
+    }
+
     Culture? culture = await Cultures.getCulture(cultureId);
     ICultures.currentCulture = culture!;
     // todo: remove Culture.currentCulture

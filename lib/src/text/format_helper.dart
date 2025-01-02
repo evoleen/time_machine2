@@ -3,7 +3,6 @@
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
 import 'package:time_machine/src/time_machine_internal.dart';
-import 'package:time_machine/src/utility/time_machine_utilities.dart';
 
 ///   Provides helper methods for formatting values using pattern strings.
 @internal
