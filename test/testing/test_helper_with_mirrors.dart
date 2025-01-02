@@ -4,7 +4,6 @@
 import 'dart:mirrors';
 // import 'package:time_machine/src/time_machine_internal.dart';
 import 'package:test/test.dart';
-import 'package:matcher/matcher.dart';
 
 // import 'test_fx.dart';
 // import 'time_matchers.dart';

@@ -2,7 +2,6 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'package:meta/meta.dart';
 // import 'package:quiver_hashcode/hashcode.dart';
 import 'package:time_machine/src/time_machine_internal.dart';
 
@@ -33,13 +32,15 @@ class DateInterval {
   /// or the two dates are in different calendars.
   DateInterval(this.start, this.end) {
     // todo: will this equivalence work out?
-    Preconditions.checkArgument(start.calendar == end.calendar, 'end', "Calendars of start and end dates must be the same.");
-    Preconditions.checkArgument(!(end < start), 'end', "End date must not be earlier than the start date");
+    Preconditions.checkArgument(start.calendar == end.calendar, 'end',
+        "Calendars of start and end dates must be the same.");
+    Preconditions.checkArgument(!(end < start), 'end',
+        "End date must not be earlier than the start date");
   }
 
-
   /// Returns the hash code for this interval, consistent with [Equals(DateInterval)].
-  @override int get hashCode => hash2(start, end);
+  @override
+  int get hashCode => hash2(start, end);
 
   /// Compares two [DateInterval] values for equality.
   ///
@@ -50,8 +51,8 @@ class DateInterval {
   ///
   /// Returns: True if the two date intervals have the same properties; false otherwise.
   @override
-  bool operator ==(Object rhs) => rhs is DateInterval && start == rhs.start && end == rhs.end;
-
+  bool operator ==(Object rhs) =>
+      rhs is DateInterval && start == rhs.start && end == rhs.end;
 
   /// Compares the given date interval for equality with this one.
   ///
@@ -74,7 +75,8 @@ class DateInterval {
   /// calendar as the start and end date of this interval.
   bool contains(LocalDate date) {
     // if (date == null) throw ArgumentError.notNull('date');
-    Preconditions.checkArgument(date.calendar == start.calendar, 'date', "The date to check must be in the same calendar as the start and end dates");
+    Preconditions.checkArgument(date.calendar == start.calendar, 'date',
+        "The date to check must be in the same calendar as the start and end dates");
     return start <= date && date <= end;
   }
 
@@ -95,12 +97,11 @@ class DateInterval {
     return contains(interval.start) && contains(interval.end);
   }
 
-
   /// Gets the length of this date interval in days. This will always be at least 1.
   int get length =>
-    // Period.DaysBetween will give us the exclusive result, so we need to add 1
-    // to include the end date.
-    IPeriod.daysBetween(start, end) + 1;
+      // Period.DaysBetween will give us the exclusive result, so we need to add 1
+      // to include the end date.
+      IPeriod.daysBetween(start, end) + 1;
 
   /// Gets the calendar system of the dates in this interval.
   CalendarSystem get calendar => start.calendar;
@@ -109,7 +110,8 @@ class DateInterval {
   ///
   /// A string representation of this interval, as `[start, end]`,
   /// where 'start' and "end" are the dates formatted using an ISO-8601 compatible pattern.
-  @override String toString() {
+  @override
+  String toString() {
     String a = LocalDatePattern.iso.format(start);
     String b = LocalDatePattern.iso.format(end);
     return '[$a, $b]';
@@ -125,13 +127,16 @@ class DateInterval {
   /// * [ArgumentException]: [interval] uses a different
   /// calendar to this date interval.
   DateInterval? intersection(DateInterval interval) {
-    return containsInterval(interval) ? interval
-        : interval.containsInterval(this) ? this
-        : interval.contains(start) ? DateInterval(start, interval.end)
-        : interval.contains(end) ? DateInterval(interval.start, end)
-        : null;
+    return containsInterval(interval)
+        ? interval
+        : interval.containsInterval(this)
+            ? this
+            : interval.contains(start)
+                ? DateInterval(start, interval.end)
+                : interval.contains(end)
+                    ? DateInterval(interval.start, end)
+                    : null;
   }
-
 
   /// Returns the union between the given interval and this interval, as long as they're overlapping or contiguous.
   ///
@@ -163,4 +168,3 @@ class DateInterval {
         'The specified interval uses a different calendar system to this one');
   }
 }
-

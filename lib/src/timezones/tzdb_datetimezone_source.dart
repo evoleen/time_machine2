@@ -5,7 +5,6 @@
 import 'dart:async';
 
 import 'package:time_machine/src/time_machine_internal.dart';
-import 'package:time_machine/src/timezones/time_machine_timezones.dart';
 
 import 'time_zone_datetimezone_source.dart';
 

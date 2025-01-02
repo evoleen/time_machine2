@@ -2,7 +2,6 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'package:meta/meta.dart';
 import 'package:time_machine/src/time_machine_internal.dart';
 
 /// Represents an annual date (month and day) in the ISO calendar but without a specific year,
@@ -29,11 +28,11 @@ class AnnualDate implements Comparable<AnnualDate> {
   /// * [ArgumentOutOfRangeException]: The parameters do not form a valid date.
   /// (February 29th is considered valid.)
   AnnualDate([int month = 1, int day = 1])
-    // See comment below for why this is using year 1, and why that's okay even for February 29th.
-    : _value = YearMonthDay(1, month, day)
-  {
+      // See comment below for why this is using year 1, and why that's okay even for February 29th.
+      : _value = YearMonthDay(1, month, day) {
     // The year 2000 is a leap year, so this is fine for all valid dates.
-    GregorianYearMonthDayCalculator.validateGregorianYearMonthDay(2000, month, day);
+    GregorianYearMonthDayCalculator.validateGregorianYearMonthDay(
+        2000, month, day);
   }
 
   /// Gets the month of year.
@@ -53,11 +52,15 @@ class AnnualDate implements Comparable<AnnualDate> {
   ///
   /// Returns: A date in the given year, suitable for this annual date.
   LocalDate inYear(int year) {
-    Preconditions.checkArgumentRange('year', year,
+    Preconditions.checkArgumentRange(
+        'year',
+        year,
         GregorianYearMonthDayCalculator.minGregorianYear,
         GregorianYearMonthDayCalculator.maxGregorianYear);
-    var ymd = ICalendarSystem.yearMonthDayCalculator(CalendarSystem.iso).setYear(_value, year);
-    return ILocalDate.trusted(ymd.withCalendarOrdinal(const CalendarOrdinal(0))); // ISO calendar
+    var ymd = ICalendarSystem.yearMonthDayCalculator(CalendarSystem.iso)
+        .setYear(_value, year);
+    return ILocalDate.trusted(
+        ymd.withCalendarOrdinal(const CalendarOrdinal(0))); // ISO calendar
   }
 
   /// Checks whether the specified year forms a valid date with the month/day in this
@@ -73,12 +76,14 @@ class AnnualDate implements Comparable<AnnualDate> {
   }
 
   /// Returns a hash code for this annual date.
-  @override int get hashCode => _value.hashCode;
+  @override
+  int get hashCode => _value.hashCode;
 
   /// Returns a [String] that represents this instance.
   ///
   /// The value of the current instance, in the form MM-dd.
-  @override String toString() {
+  @override
+  String toString() {
     // AnnualDatePattern.BclSupport.Format(this, null, Culture.currentCulture);
     return '${month.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}';
   }

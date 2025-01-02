@@ -1,7 +1,6 @@
 import 'dart:io' as io;
 
 import 'package:xml/xml.dart' as xml;
-import 'package:meta/meta.dart';
 // import 'package:xml2json/xml2json.dart';
 
 import 'package:time_machine/src/time_machine_internal.dart';
@@ -16,7 +15,7 @@ import 'package:time_machine/src/time_machine_internal.dart';
 /// <threadsafety>This type is immutable reference type. See the thread safety section of the user guide for more information.</threadsafety>
 @immutable
 class MapZone // : IEquatable<MapZone>
-    {
+{
   /// <summary>
   /// Identifier used for the primary territory of each Windows time zone. A zone mapping with
   /// this territory will always have a single entry. The value of this constant is '001'.
@@ -76,8 +75,8 @@ class MapZone // : IEquatable<MapZone>
   /// <param name='territory'>Territory code. Must not be null.</param>
   /// <param name='tzdbIds'>List of territory codes. Must not be null, and must not
   /// contains null values.</param>
-  factory MapZone(String windowsId, String territory, /*I*/List<String> tzdbIds)
-  {
+  factory MapZone(
+      String windowsId, String territory, /*I*/ List<String> tzdbIds) {
     Preconditions.checkNotNull(windowsId, 'windowsId');
     Preconditions.checkNotNull(territory, 'territory');
     Preconditions.checkNotNull(tzdbIds, 'tzdbIds');
@@ -94,7 +93,7 @@ class MapZone // : IEquatable<MapZone>
   /// Reads a mapping from a reader.
   /// </summary>
 // todo: internal
-  static MapZone read(/*I*/DateTimeZoneReader reader) {
+  static MapZone read(/*I*/ DateTimeZoneReader reader) {
     String windowsId = reader.readString();
     String territory = reader.readString();
 
@@ -118,7 +117,8 @@ class MapZone // : IEquatable<MapZone>
     }
   }
 
-  @override bool operator ==(Object other) {
+  @override
+  bool operator ==(Object other) {
     if (other is MapZone &&
         windowsId == other.windowsId &&
         territory == other.territory) {
@@ -133,11 +133,12 @@ class MapZone // : IEquatable<MapZone>
   }
 
   /// <inheritdoc />
-  @override int get hashCode =>
-      hashObjects([windowsId, windowsId, ...tzdbIds]);
+  @override
+  int get hashCode => hashObjects([windowsId, windowsId, ...tzdbIds]);
 
   /// <inheritdoc />
-  @override String toString() =>
+  @override
+  String toString() =>
       'Windows ID: $windowsId; Territory: $territory; TzdbIds: $tzdbIds';
 }
 
@@ -232,8 +233,7 @@ class WindowsZones {
 
   // todo: internal
   factory WindowsZones(String version, String tzdbVersion,
-      String windowsVersion, List<MapZone> mapZones)
-  {
+      String windowsVersion, List<MapZone> mapZones) {
     Preconditions.checkNotNull(version, 'version');
     Preconditions.checkNotNull(tzdbVersion, 'tzdbVersion');
     Preconditions.checkNotNull(windowsVersion, 'windowsVersion');
@@ -242,11 +242,12 @@ class WindowsZones {
     return WindowsZones._(version, tzdbVersion, windowsVersion, mapZones);
   }
 
-  WindowsZones._(this.version, this.tzdbVersion, this.windowsVersion,
-      this.mapZones) :
-        primaryMapping = {
-          for (var z in mapZones.where((z) => z.territory == MapZone.primaryTerritory))
-            z.windowsId : z.tzdbIds.single
+  WindowsZones._(
+      this.version, this.tzdbVersion, this.windowsVersion, this.mapZones)
+      : primaryMapping = {
+          for (var z
+              in mapZones.where((z) => z.territory == MapZone.primaryTerritory))
+            z.windowsId: z.tzdbIds.single
         };
 
   // todo: internal
@@ -255,8 +256,12 @@ class WindowsZones {
     String tzdbVersion = reader.readString();
     String windowsVersion = reader.readString();
     int count = reader.read7BitEncodedInt(); // ReadCount();
-    var mapZones = List<MapZone>.generate(count, (int i) => MapZone.read(reader));
-    return WindowsZones(version, tzdbVersion, windowsVersion,
+    var mapZones =
+        List<MapZone>.generate(count, (int i) => MapZone.read(reader));
+    return WindowsZones(
+        version,
+        tzdbVersion,
+        windowsVersion,
         // todo: to readonly?
         mapZones);
   }
@@ -267,50 +272,56 @@ class WindowsZones {
     writer.writeString(tzdbVersion);
     writer.writeString(windowsVersion);
     writer.write7BitEncodedInt(mapZones.length);
-    for(var mapZone in mapZones)
-    {
+    for (var mapZone in mapZones) {
       mapZone.write(writer);
     }
   }
 }
 
 // todo: internal
-class CldrWindowsZonesParser
-{
-  static WindowsZones parse(xml.XmlDocument document)
-  {
+class CldrWindowsZonesParser {
+  static WindowsZones parse(xml.XmlDocument document) {
     var mapZones = _mapZones(document);
     var windowsZonesVersion = _findVersion(document);
-    var tzdbVersion = document.findElements('windowsZones').first.findElements('mapTimezones').first.getAttribute('typeVersion') ?? '';
+    var tzdbVersion = document
+            .findElements('windowsZones')
+            .first
+            .findElements('mapTimezones')
+            .first
+            .getAttribute('typeVersion') ??
+        '';
     // todo: var _tzdbVersion = document.rootElement.('windowsZones')?.Element("mapTimezones")?.Attribute("typeVersion")?.Value ?? "";
-    var windowsVersion = document.findElements('windowsZones').first.findElements('mapTimezones').first.getAttribute('typeVersion') ?? '';
+    var windowsVersion = document
+            .findElements('windowsZones')
+            .first
+            .findElements('mapTimezones')
+            .first
+            .getAttribute('typeVersion') ??
+        '';
     // todo: var windowsVersion = document.Root.Element('windowsZones')?.Element("mapTimezones")?.Attribute("otherVersion")?.Value ?? "";
-    return WindowsZones(windowsZonesVersion, tzdbVersion, windowsVersion, mapZones);
+    return WindowsZones(
+        windowsZonesVersion, tzdbVersion, windowsVersion, mapZones);
   }
 
   // todo: internal
-  static WindowsZones parseFile(String file) =>
-      parse(_loadFile(file));
+  static WindowsZones parseFile(String file) => parse(_loadFile(file));
 
   static xml.XmlDocument _loadFile(String file) =>
       xml.XmlDocument.parse(io.File(file).readAsStringSync());
 
-  static String _findVersion(xml.XmlDocument document)
-  {
+  static String _findVersion(xml.XmlDocument document) {
     // String revision = document.Root.Element('version')?.Attribute("number");
-    String? revision = document.findElements('version').first.getAttribute('number');
-    if (revision == null)
-    {
+    String? revision =
+        document.findElements('version').first.getAttribute('number');
+    if (revision == null) {
       return '';
     }
     String prefix = r'$Revision: ';
-    if (revision.startsWith(prefix))
-    {
+    if (revision.startsWith(prefix)) {
       revision = revision.substring(prefix.length);
     }
     String suffix = r' $';
-    if (revision.endsWith(suffix))
-    {
+    if (revision.endsWith(suffix)) {
       revision = revision.substring(0, revision.length - suffix.length);
     }
     return revision;
@@ -331,13 +342,13 @@ class CldrWindowsZonesParser
   /// Reads the input XML file for the windows mappings.
   /// </summary>
   /// <returns>A lookup of Windows time zone mappings</returns>
-  static List<MapZone> _mapZones(xml.XmlDocument document) =>
-      document
-          .findElements('windowsZones').first
-          .findElements('mapTimezones').first
-          .findElements('mapZone')
-          .map((x) => MapZone(x.getAttribute('other')!,
-          x.getAttribute('territory')!,
-          x.getAttribute('type')!.split(r'\\s+')))
-          .toList();
+  static List<MapZone> _mapZones(xml.XmlDocument document) => document
+      .findElements('windowsZones')
+      .first
+      .findElements('mapTimezones')
+      .first
+      .findElements('mapZone')
+      .map((x) => MapZone(x.getAttribute('other')!,
+          x.getAttribute('territory')!, x.getAttribute('type')!.split(r'\\s+')))
+      .toList();
 }

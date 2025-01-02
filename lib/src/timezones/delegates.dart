@@ -3,7 +3,6 @@
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
 import 'package:time_machine/src/time_machine_internal.dart';
-import 'package:time_machine/src/timezones/time_machine_timezones.dart';
 
 // todo: verify with Dart Style Guide ... Should typedef's be UpperCaseInitial? (have some code that depends on that)
 // Delegates used for mapping local date/time values to ZonedDateTime.

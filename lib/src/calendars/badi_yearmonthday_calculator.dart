@@ -5,14 +5,14 @@
 import 'dart:convert';
 import 'dart:math' as math;
 
-import 'package:meta/meta.dart';
 import 'package:time_machine/src/time_machine_internal.dart';
 
 /// See [CalendarSystem.badi] for details about the Badíʿ calendar.
 @internal
 class BadiYearMonthDayCalculator extends YearMonthDayCalculator {
 // named constants to avoid use of raw numbers in the code
-  static const int _averageDaysPer10Years = 3652; // Ideally 365.2425 per year...
+  static const int _averageDaysPer10Years =
+      3652; // Ideally 365.2425 per year...
   static const int _daysInAyyamiHaInLeapYear = 5;
   static const int _daysInAyyamiHaInNormalYear = 4;
 
@@ -28,7 +28,8 @@ class BadiYearMonthDayCalculator extends YearMonthDayCalculator {
   static const int _monthsInYear = 19;
 
   static const int _unixEpochDayAtStartOfYear1 = -45941;
-  static const int _badiMaxYear = 1000; // current lookup tables are pre-calculated for a thousand years
+  static const int _badiMaxYear =
+      1000; // current lookup tables are pre-calculated for a thousand years
   static const int _badiMinYear = 1;
 
   /// This is the base64 representation of information for years 172 to 1000.
@@ -37,19 +38,19 @@ class BadiYearMonthDayCalculator extends YearMonthDayCalculator {
   /// For each year, the value in the array is (NawRuzDate - 19) + 10 * (DaysInAyyamiHa - 4)
   static final List<int> _yearInfoRaw = base64.decode(
       'AgELAgIBCwICAQsCAgEBCwIBAQsCAQELAgEBCwIBAQsCAQELAgEBCwIBAQELAQEBCwEBAQsBAQELAQEB'
-          'CwEBAQsBAQELAQEBCwEBAQEKAQEBCgEBAQsCAgILAgICCwICAgsCAgILAgICCwICAgELAgIBCwICAQsC'
-          'AgELAgIBCwICAQsCAgELAgIBCwICAQELAgEBCwIBAQsCAQELAgEBCwIBAQsCAQELAgEBCwIBAQELAQEB'
-          'CwEBAQsCAgIMAgICDAICAgwCAgIMAgICDAICAgILAgICCwICAgsCAgILAgICCwICAgsCAgILAgICCwIC'
-          'AgELAgIBCwICAQsCAgELAgIBCwICAQsCAgELAgIBCwICAQELAgEBCwIBAQsCAgIMAwICDAMCAgwDAgIM'
-          'AwICDAMCAgIMAgICDAICAgwCAgIMAgICDAICAgwCAgIMAgICDAICAgILAgICCwICAgsCAgILAgICCwIC'
-          'AgsCAgILAgICAQsCAgELAgIBCwICAQsCAgELAgIBCwICAQsCAgELAgIBCwICAQELAgEBCwIBAQsCAQEL'
-          'AgEBCwIBAQsCAQELAgEBCwIBAQELAQEBCwEBAQsBAQELAQEBCwEBAQsBAQELAQEBCwEBAQEKAQEBCgEB'
-          'AQoBAQELAgICCwICAgsCAgILAgICAQsCAgELAgIBCwICAQsCAgELAgIBCwICAQsCAgELAgIBAQsCAQEL'
-          'AgEBCwIBAQsCAQELAgEBCwIBAQsCAQELAgEBAQsBAQELAQEBCwEBAQsBAQELAgICDAICAgwCAgIMAgIC'
-          'AgsCAgILAgICCwICAgsCAgILAgICCwICAgsCAgILAgICAQsCAgELAgIBCwICAQsCAgELAgIBCwICAQsC'
-          'AgELAgIBAQsCAQELAgEBCwIBAQsCAQELAgICDAMCAgwDAgIMAwICAgwCAgIMAgICDAICAgwCAgIMAgIC'
-          'DAICAgwCAgIMAgICAgsCAgILAgICCwICAgsCAgILAgICCwICAgsCAgILAgICAQsCAgELAgIBCwICAQsC'
-          'AgELAgIBCwICAQsCAgELAgIBAQsCAQELAgEBCwIBAQsCAQELAgEBCwIBAQsCAQELAg==');
+      'CwEBAQsBAQELAQEBCwEBAQEKAQEBCgEBAQsCAgILAgICCwICAgsCAgILAgICCwICAgELAgIBCwICAQsC'
+      'AgELAgIBCwICAQsCAgELAgIBCwICAQELAgEBCwIBAQsCAQELAgEBCwIBAQsCAQELAgEBCwIBAQELAQEB'
+      'CwEBAQsCAgIMAgICDAICAgwCAgIMAgICDAICAgILAgICCwICAgsCAgILAgICCwICAgsCAgILAgICCwIC'
+      'AgELAgIBCwICAQsCAgELAgIBCwICAQsCAgELAgIBCwICAQELAgEBCwIBAQsCAgIMAwICDAMCAgwDAgIM'
+      'AwICDAMCAgIMAgICDAICAgwCAgIMAgICDAICAgwCAgIMAgICDAICAgILAgICCwICAgsCAgILAgICCwIC'
+      'AgsCAgILAgICAQsCAgELAgIBCwICAQsCAgELAgIBCwICAQsCAgELAgIBCwICAQELAgEBCwIBAQsCAQEL'
+      'AgEBCwIBAQsCAQELAgEBCwIBAQELAQEBCwEBAQsBAQELAQEBCwEBAQsBAQELAQEBCwEBAQEKAQEBCgEB'
+      'AQoBAQELAgICCwICAgsCAgILAgICAQsCAgELAgIBCwICAQsCAgELAgIBCwICAQsCAgELAgIBAQsCAQEL'
+      'AgEBCwIBAQsCAQELAgEBCwIBAQsCAQELAgEBAQsBAQELAQEBCwEBAQsBAQELAgICDAICAgwCAgIMAgIC'
+      'AgsCAgILAgICCwICAgsCAgILAgICCwICAgsCAgILAgICAQsCAgELAgIBCwICAQsCAgELAgIBCwICAQsC'
+      'AgELAgIBAQsCAQELAgEBCwIBAQsCAQELAgICDAMCAgwDAgIMAwICAgwCAgIMAgICDAICAgwCAgIMAgIC'
+      'DAICAgwCAgIMAgICAgsCAgILAgICCwICAgsCAgILAgICCwICAgsCAgILAgICAQsCAgELAgIBCwICAQsC'
+      'AgELAgIBCwICAQsCAgELAgIBAQsCAQELAgEBCwIBAQsCAQELAgEBCwIBAQsCAQELAg==');
 
 /*
 static BadiYearMonthDayCalculator()
@@ -60,16 +61,16 @@ static BadiYearMonthDayCalculator()
 }*/
 
   BadiYearMonthDayCalculator()
-      : super(_badiMinYear,
-      _badiMaxYear - 1,
-      _averageDaysPer10Years,
-      _unixEpochDayAtStartOfYear1);
+      : super(_badiMinYear, _badiMaxYear - 1, _averageDaysPer10Years,
+            _unixEpochDayAtStartOfYear1);
 
   static int getDaysInAyyamiHa(int year) {
     Preconditions.checkArgumentRange('year', year, _badiMinYear, _badiMaxYear);
     if (year < firstYearOfStandardizedCalendar) {
-      return ICalendarSystem.yearMonthDayCalculator(CalendarSystem.iso).isLeapYear(year + gregorianYearOfFirstBadiYear)
-          ? _daysInAyyamiHaInLeapYear : _daysInAyyamiHaInNormalYear;
+      return ICalendarSystem.yearMonthDayCalculator(CalendarSystem.iso)
+              .isLeapYear(year + gregorianYearOfFirstBadiYear)
+          ? _daysInAyyamiHaInLeapYear
+          : _daysInAyyamiHaInNormalYear;
     }
     int num = _yearInfoRaw[year - firstYearOfStandardizedCalendar];
     return num > 10 ? _daysInAyyamiHaInLeapYear : _daysInAyyamiHaInNormalYear;
@@ -110,7 +111,8 @@ static BadiYearMonthDayCalculator()
     return daysFromStartOfYearToStartOfMonth;
   }
 
-  @override YearMonthDay addMonths(YearMonthDay start, int months) {
+  @override
+  YearMonthDay addMonths(YearMonthDay start, int months) {
     if (months == 0) {
       return start;
     }
@@ -137,36 +139,40 @@ static BadiYearMonthDayCalculator()
     if (nextMonthNum > _monthsInYear) {
       nextYear = thisYear + nextMonthNum ~/ _monthsInYear;
       nextMonthNum = nextMonthNum % _monthsInYear;
-    }
-    else if (nextMonthNum < 1) {
+    } else if (nextMonthNum < 1) {
       nextMonthNum = _monthsInYear - nextMonthNum;
       nextYear = thisYear - nextMonthNum ~/ _monthsInYear;
       nextMonthNum = _monthsInYear - arithmeticMod(nextMonthNum, _monthsInYear);
     }
 
-    Preconditions.checkArgumentRange('nextYear', nextYear, _badiMinYear, _badiMaxYear);
+    Preconditions.checkArgumentRange(
+        'nextYear', nextYear, _badiMinYear, _badiMaxYear);
 
     var result = YearMonthDay(nextYear, nextMonthNum, nextDay);
 
     return result;
   }
 
-  @override int getDaysInMonth(int year, int month) {
+  @override
+  int getDaysInMonth(int year, int month) {
     Preconditions.checkArgumentRange('year', year, _badiMinYear, _badiMaxYear);
-    return month == month18 ? daysInMonth + getDaysInAyyamiHa(year) : daysInMonth;
+    return month == month18
+        ? daysInMonth + getDaysInAyyamiHa(year)
+        : daysInMonth;
   }
 
-  @override int getDaysInYear(int year) => 361 + getDaysInAyyamiHa(year);
+  @override
+  int getDaysInYear(int year) => 361 + getDaysInAyyamiHa(year);
 
-  @override int getDaysSinceEpoch(YearMonthDay target) {
+  @override
+  int getDaysSinceEpoch(YearMonthDay target) {
     var month = target.month;
     var year = target.year;
 
     var firstDay0OfYear = calculateStartOfYearDays(year) - 1;
 
-    var daysSinceEpoch = firstDay0OfYear
-        + (month - 1) * daysInMonth
-        + target.day;
+    var daysSinceEpoch =
+        firstDay0OfYear + (month - 1) * daysInMonth + target.day;
 
     if (month == _month19) {
       daysSinceEpoch += getDaysInAyyamiHa(year);
@@ -175,10 +181,13 @@ static BadiYearMonthDayCalculator()
     return daysSinceEpoch;
   }
 
-  @override int getMonthsInYear(int year) => _monthsInYear;
+  @override
+  int getMonthsInYear(int year) => _monthsInYear;
 
-  @override YearMonthDay getYearMonthDay(int year, int dayOfYear) {
-    Preconditions.checkArgumentRange('dayOfYear', dayOfYear, 1, getDaysInYear(year));
+  @override
+  YearMonthDay getYearMonthDay(int year, int dayOfYear) {
+    Preconditions.checkArgumentRange(
+        'dayOfYear', dayOfYear, 1, getDaysInYear(year));
 
     var firstOfLoftiness = 1 + daysInMonth * month18 + getDaysInAyyamiHa(year);
 
@@ -192,11 +201,15 @@ static BadiYearMonthDayCalculator()
     return YearMonthDay(year, month, day);
   }
 
-  bool isInAyyamiHa(YearMonthDay ymd) => ymd.month == month18 && ymd.day > daysInMonth;
+  bool isInAyyamiHa(YearMonthDay ymd) =>
+      ymd.month == month18 && ymd.day > daysInMonth;
 
-  @override bool isLeapYear(int year) => getDaysInAyyamiHa(year) != _daysInAyyamiHaInNormalYear;
+  @override
+  bool isLeapYear(int year) =>
+      getDaysInAyyamiHa(year) != _daysInAyyamiHaInNormalYear;
 
-  @override int monthsBetween(YearMonthDay start, YearMonthDay end) {
+  @override
+  int monthsBetween(YearMonthDay start, YearMonthDay end) {
     int startMonth = start.month;
     int startYear = start.year;
 
@@ -213,8 +226,7 @@ static BadiYearMonthDayCalculator()
       // Moving forward: if the result of the simple addition is before or equal to the end,
       // we're done. Otherwise, rewind a month because we've overshot.
       return simpleAddition <= end ? diff : diff - 1;
-    }
-    else {
+    } else {
       // Moving backward: if the result of the simple addition (of a non-positive number)
       // is after or equal to the end, we're done. Otherwise, increment by a month because
       // we've overshot backwards.
@@ -222,8 +234,10 @@ static BadiYearMonthDayCalculator()
     }
   }
 
-  @override YearMonthDay setYear(YearMonthDay start, int newYear) {
-    Preconditions.checkArgumentRange('newYear', newYear, _badiMinYear, _badiMaxYear);
+  @override
+  YearMonthDay setYear(YearMonthDay start, int newYear) {
+    Preconditions.checkArgumentRange(
+        'newYear', newYear, _badiMinYear, _badiMaxYear);
 
     var month = start.month;
     var day = start.day;
@@ -232,17 +246,21 @@ static BadiYearMonthDayCalculator()
       // Moving a year while within Ayyam-i-Ha is not well defined.
       // In this implementation, if starting on day 5, end on day 4 (stay in Ayyam-i-Ha)
       var daysInThisAyyamiHa = getDaysInAyyamiHa(newYear);
-      return YearMonthDay(newYear, month, math.min(day, daysInMonth + daysInThisAyyamiHa));
+      return YearMonthDay(
+          newYear, month, math.min(day, daysInMonth + daysInThisAyyamiHa));
     }
 
     return YearMonthDay(newYear, month, day);
   }
 
-  @override void validateYearMonthDay(int year, int month, int day) {
+  @override
+  void validateYearMonthDay(int year, int month, int day) {
     Preconditions.checkArgumentRange('year', year, _badiMinYear, _badiMaxYear);
     Preconditions.checkArgumentRange('month', month, 1, _monthsInYear);
 
-    int daysInMonth = month == month18 ? BadiYearMonthDayCalculator.daysInMonth + getDaysInAyyamiHa(year) : BadiYearMonthDayCalculator.daysInMonth;
+    int daysInMonth = month == month18
+        ? BadiYearMonthDayCalculator.daysInMonth + getDaysInAyyamiHa(year)
+        : BadiYearMonthDayCalculator.daysInMonth;
     Preconditions.checkArgumentRange('day', day, 1, daysInMonth);
   }
 }

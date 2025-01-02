@@ -2,7 +2,6 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'package:meta/meta.dart';
 import 'package:time_machine/src/time_machine_internal.dart';
 
 @internal
@@ -35,12 +34,26 @@ class IslamicYearMonthDayCalculator extends RegularYearMonthDayCalculator {
   static const int _leapYearCycleLength = 30;
 
   /// The number of days in leap cycle.
-  static const int _daysPerLeapCycle = 19 * _daysPerNonLeapYear + 11 * _daysPerLeapYear;
+  static const int _daysPerLeapCycle =
+      19 * _daysPerNonLeapYear + 11 * _daysPerLeapYear;
 
   /// The pattern of leap years within a cycle, one bit per year, for this calendar.
   final int _leapYearPatternBits;
 
-  static const List<int> _totalDaysByMonth = [0, 30, 59, 89, 118, 148, 177, 207, 236, 266, 295, 325];
+  static const List<int> _totalDaysByMonth = [
+    0,
+    30,
+    59,
+    89,
+    118,
+    148,
+    177,
+    207,
+    236,
+    266,
+    295,
+    325
+  ];
 
   // This generates _totalDaysByMonth, but I'd rather this code get tree-shaken out.
   // ignore: unused_element
@@ -62,8 +75,10 @@ class IslamicYearMonthDayCalculator extends RegularYearMonthDayCalculator {
     return totalDaysByMonth;
   }
 
-  factory IslamicYearMonthDayCalculator(IslamicLeapYearPattern leapYearPattern, IslamicEpoch epoch) {
-    return IslamicYearMonthDayCalculator._(_getLeapYearPatternBits(leapYearPattern), epoch);
+  factory IslamicYearMonthDayCalculator(
+      IslamicLeapYearPattern leapYearPattern, IslamicEpoch epoch) {
+    return IslamicYearMonthDayCalculator._(
+        _getLeapYearPatternBits(leapYearPattern), epoch);
   }
 
   IslamicYearMonthDayCalculator._(this._leapYearPatternBits, IslamicEpoch epoch)
@@ -77,14 +92,14 @@ class IslamicYearMonthDayCalculator extends RegularYearMonthDayCalculator {
     return _totalDaysByMonth[month - 1];
   }
 
-  @override YearMonthDay getYearMonthDay(int year, int dayOfYear) {
+  @override
+  YearMonthDay getYearMonthDay(int year, int dayOfYear) {
     int month, day;
     // Special case the last day in a leap year
     if (dayOfYear == _daysPerLeapYear) {
       month = 12;
       day = 30;
-    }
-    else {
+    } else {
       int dayOfYearZeroBased = dayOfYear - 1;
       month = ((dayOfYearZeroBased * 2) ~/ _monthPairLength) + 1;
       day = ((dayOfYearZeroBased % _monthPairLength) % _longMonthLength) + 1;
@@ -92,17 +107,22 @@ class IslamicYearMonthDayCalculator extends RegularYearMonthDayCalculator {
     return YearMonthDay(year, month, day);
   }
 
-  @override bool isLeapYear(int year) {
+  @override
+  bool isLeapYear(int year) {
     // Handle negative years in order to make calculations near the start of the calendar work cleanly.
-    int yearOfCycle = year >= 0 ? year % _leapYearCycleLength
+    int yearOfCycle = year >= 0
+        ? year % _leapYearCycleLength
         : arithmeticMod(year, _leapYearCycleLength) + _leapYearCycleLength;
     int key = 1 << yearOfCycle;
     return (_leapYearPatternBits & key) > 0;
   }
 
-  @override int getDaysInYear(int year) => isLeapYear(year) ? _daysPerLeapYear : _daysPerNonLeapYear;
+  @override
+  int getDaysInYear(int year) =>
+      isLeapYear(year) ? _daysPerLeapYear : _daysPerNonLeapYear;
 
-  @override int getDaysInMonth(int year, int month) {
+  @override
+  int getDaysInMonth(int year, int month) {
     if (month == 12 && isLeapYear(year)) {
       return _longMonthLength;
     }
@@ -115,7 +135,8 @@ class IslamicYearMonthDayCalculator extends RegularYearMonthDayCalculator {
   int calculateStartOfYearDays(int year) {
     // The first cycle starts in year 1, not year 0.
     // We try to cope with years outside the normal range, in order to allow arithmetic at the boundaries.
-    int cycle = year > 0 ? (year - 1) ~/ _leapYearCycleLength
+    int cycle = year > 0
+        ? (year - 1) ~/ _leapYearCycleLength
         : (year - _leapYearCycleLength) ~/ _leapYearCycleLength;
     int yearAtStartOfCycle = (cycle * _leapYearCycleLength) + 1;
 

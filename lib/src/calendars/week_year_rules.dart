@@ -3,15 +3,10 @@
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
 import 'package:time_machine/src/time_machine_internal.dart';
-import 'package:time_machine/src/calendars/time_machine_calendars.dart';
 
 // todo: I.O.U. better API Documentation
 // https://msdn.microsoft.com/en-us/library/system.globalization.calendarweekrule(v=vs.110).aspx
-enum CalendarWeekRule {
-  firstDay,
-  firstFullWeek,
-  firstFourDayWeek
-}
+enum CalendarWeekRule { firstDay, firstFullWeek, firstFourDayWeek }
 
 /// Factory methods to construct week-year rules supported by Time Machine.
 abstract class WeekYearRules {
@@ -27,7 +22,8 @@ abstract class WeekYearRules {
   /// (Saturday and Sunday) were in 2011. Therefore January 1st is part of
   /// week 52 of week-year 2010. Conversely, December 31st 2012 is a Monday,
   /// so is part of week 1 of week-year 2013.
-  static final WeekYearRule iso = SimpleWeekYearRule(4, DayOfWeek.monday, false);
+  static final WeekYearRule iso =
+      SimpleWeekYearRule(4, DayOfWeek.monday, false);
 
   /// Creates a week year rule where the boundary between one week-year and the next
   /// is parameterized in terms of how many days of the first week of the week
@@ -48,8 +44,9 @@ abstract class WeekYearRules {
   ///
   /// A [SimpleWeekYearRule] with the specified minimum number of days in the first
   /// week and first day of the week.
-  static WeekYearRule forMinDaysInFirstWeek(int minDaysInFirstWeek, [DayOfWeek firstDayOfWeek = DayOfWeek.monday])
-  => SimpleWeekYearRule(minDaysInFirstWeek, firstDayOfWeek, false);
+  static WeekYearRule forMinDaysInFirstWeek(int minDaysInFirstWeek,
+          [DayOfWeek firstDayOfWeek = DayOfWeek.monday]) =>
+      SimpleWeekYearRule(minDaysInFirstWeek, firstDayOfWeek, false);
 
   // todo: BCL references... investigate?
 
@@ -69,7 +66,8 @@ abstract class WeekYearRules {
   /// A rule which behaves the same way as the BCL
   /// [Calendar.GetWeekOfYear(DateTime, CalendarWeekRule, DayOfWeek)]
   /// method.
-  static WeekYearRule fromCalendarWeekRule(CalendarWeekRule calendarWeekRule, DayOfWeek firstDayOfWeek) {
+  static WeekYearRule fromCalendarWeekRule(
+      CalendarWeekRule calendarWeekRule, DayOfWeek firstDayOfWeek) {
     int minDaysInFirstWeek;
     switch (calendarWeekRule) {
       case CalendarWeekRule.firstDay:
@@ -87,5 +85,3 @@ abstract class WeekYearRules {
     return SimpleWeekYearRule(minDaysInFirstWeek, firstDayOfWeek, true);
   }
 }
-
-

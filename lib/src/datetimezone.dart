@@ -2,7 +2,6 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'package:meta/meta.dart';
 import 'package:time_machine/src/time_machine_internal.dart';
 
 abstract class IDateTimeZone {
@@ -14,7 +13,6 @@ abstract class IDateTimeZone {
   /// the value of the [utc] property will be returned.
   static const String utcId = 'UTC';
 }
-
 
 /// Represents a time zone - a mapping between UTC and local time. A time zone maps UTC instants to local times
 ///  - or, equivalently, to the offset from UTC at any particular instant.
@@ -62,13 +60,17 @@ abstract class DateTimeZone implements ZoneIntervalMapWithMinMax {
   /// compare equal to an instance returned by calling [forOffset] with an offset of zero, but it may
   /// or may not compare equal to an instance returned by e.g. `DateTimeZoneProviders.Tzdb['UTC']`.
   static final DateTimeZone utc = FixedDateTimeZone.forOffset(Offset.zero);
-  static const int _fixedZoneCacheGranularitySeconds = TimeConstants.secondsPerMinute * 30;
-  static const int _fixedZoneCacheMinimumSeconds = -_fixedZoneCacheGranularitySeconds * 12 * 2; // From UTC-12
-  static const int _fixedZoneCacheSize = (12 + 15) * 2 + 1; // To UTC+15 inclusive
+  static const int _fixedZoneCacheGranularitySeconds =
+      TimeConstants.secondsPerMinute * 30;
+  static const int _fixedZoneCacheMinimumSeconds =
+      -_fixedZoneCacheGranularitySeconds * 12 * 2; // From UTC-12
+  static const int _fixedZoneCacheSize =
+      (12 + 15) * 2 + 1; // To UTC+15 inclusive
   static final List<DateTimeZone> _fixedZoneCache = _buildFixedZoneCache();
 
   /// Gets the local [DateTimeZone] of the local machine if the [DateTimeZoneProviders.defaultProvider] is defined, or [utc].
-  static DateTimeZone get local => DateTimeZoneProviders.defaultProvider?.getCachedSystemDefault() ?? utc;
+  static DateTimeZone get local =>
+      DateTimeZoneProviders.defaultProvider?.getCachedSystemDefault() ?? utc;
 
   /// Returns a fixed time zone with the given offset.
   ///
@@ -87,13 +89,13 @@ abstract class DateTimeZone implements ZoneIntervalMapWithMinMax {
     if (arithmeticMod(seconds, _fixedZoneCacheGranularitySeconds) != 0) {
       return FixedDateTimeZone.forOffset(offset);
     }
-    int index = (seconds - _fixedZoneCacheMinimumSeconds) ~/ _fixedZoneCacheGranularitySeconds;
+    int index = (seconds - _fixedZoneCacheMinimumSeconds) ~/
+        _fixedZoneCacheGranularitySeconds;
     if (index < 0 || index >= _fixedZoneCacheSize) {
       return FixedDateTimeZone.forOffset(offset);
     }
     return _fixedZoneCache[index];
   }
-
 
   /// Initializes a new instance of the [DateTimeZone] class.
   ///
@@ -101,7 +103,8 @@ abstract class DateTimeZone implements ZoneIntervalMapWithMinMax {
   /// * [isFixed]: Set to `true` if this time zone has no transitions.
   /// * [minOffset]: Minimum offset applied within this zone
   /// * [maxOffset]: Maximum offset applied within this zone
-  @protected DateTimeZone(String id, bool isFixed, Offset minOffset, Offset maxOffset)
+  @protected
+  DateTimeZone(String id, bool isFixed, Offset minOffset, Offset maxOffset)
       : id = Preconditions.checkNotNull(id, 'id'),
         _isFixed = isFixed,
         minOffset = minOffset,
@@ -121,11 +124,9 @@ abstract class DateTimeZone implements ZoneIntervalMapWithMinMax {
   /// be examined.
   final bool _isFixed;
 
-
   /// Gets the least (most negative) offset within this time zone, over all time.
   @override
   final Offset minOffset;
-
 
   /// Gets the greatest (most positive) offset within this time zone, over all time.
   @override
@@ -142,7 +143,6 @@ abstract class DateTimeZone implements ZoneIntervalMapWithMinMax {
   /// The offset from UTC at the specified instant.
   Offset getUtcOffset(Instant instant) => getZoneInterval(instant).wallOffset;
 
-
   /// Gets the zone interval for the given instant; the range of time around the instant in which the same Offset
   /// applies (with the same split between standard time and daylight saving time, and with the same offset).
   ///
@@ -155,7 +155,6 @@ abstract class DateTimeZone implements ZoneIntervalMapWithMinMax {
   /// see:[getZoneIntervals]
   @override
   ZoneInterval getZoneInterval(Instant instant);
-
 
   /// Returns complete information about how the given [LocalDateTime] is mapped in this time zone.
   ///
@@ -177,33 +176,45 @@ abstract class DateTimeZone implements ZoneIntervalMapWithMinMax {
     // Most of the time we'll go into here... the local instant and the instant
     // are close enough that we've found the right instant.
     if (IZoneInterval.containsLocal(interval, localInstant)) {
-      ZoneInterval? earlier = _getEarlierMatchingInterval(interval, localInstant);
+      ZoneInterval? earlier =
+          _getEarlierMatchingInterval(interval, localInstant);
       if (earlier != null) {
-        return IZoneLocalMapping.newZoneLocalMapping(this, localDateTime, earlier, interval, 2);
+        return IZoneLocalMapping.newZoneLocalMapping(
+            this, localDateTime, earlier, interval, 2);
       }
       ZoneInterval? later = _getLaterMatchingInterval(interval, localInstant);
       if (later != null) {
-        return IZoneLocalMapping.newZoneLocalMapping(this, localDateTime, interval, later, 2);
+        return IZoneLocalMapping.newZoneLocalMapping(
+            this, localDateTime, interval, later, 2);
       }
-      return IZoneLocalMapping.newZoneLocalMapping(this, localDateTime, interval, interval, 1);
-    }
-    else {
+      return IZoneLocalMapping.newZoneLocalMapping(
+          this, localDateTime, interval, interval, 1);
+    } else {
       // Our first guess was wrong. Either we need to change interval by one (either direction)
       // or we're in a gap.
-      ZoneInterval? earlier = _getEarlierMatchingInterval(interval, localInstant);
+      ZoneInterval? earlier =
+          _getEarlierMatchingInterval(interval, localInstant);
       if (earlier != null) {
-        return IZoneLocalMapping.newZoneLocalMapping(this, localDateTime, earlier, earlier, 1);
+        return IZoneLocalMapping.newZoneLocalMapping(
+            this, localDateTime, earlier, earlier, 1);
       }
       ZoneInterval? later = _getLaterMatchingInterval(interval, localInstant);
       if (later != null) {
-        return IZoneLocalMapping.newZoneLocalMapping(this, localDateTime, later, later, 1);
+        return IZoneLocalMapping.newZoneLocalMapping(
+            this, localDateTime, later, later, 1);
       }
-      return IZoneLocalMapping.newZoneLocalMapping(this, localDateTime, _getIntervalBeforeGap(localInstant), _getIntervalAfterGap(localInstant), 0);
+      return IZoneLocalMapping.newZoneLocalMapping(
+          this,
+          localDateTime,
+          _getIntervalBeforeGap(localInstant),
+          _getIntervalAfterGap(localInstant),
+          0);
     }
   }
 
   /// Returns the interval before this one, if it contains the given local instant, or null otherwise.
-  ZoneInterval? _getEarlierMatchingInterval(ZoneInterval interval, LocalInstant localInstant) {
+  ZoneInterval? _getEarlierMatchingInterval(
+      ZoneInterval interval, LocalInstant localInstant) {
     // Micro-optimization to avoid fetching interval.Start multiple times. Seems
     // to give a performance improvement on x86 at least...
     // If the zone interval extends to the start of time, the next check will definitely evaluate to false.
@@ -221,9 +232,9 @@ abstract class DateTimeZone implements ZoneIntervalMapWithMinMax {
     return null;
   }
 
-
   /// Returns the next interval after this one, if it contains the given local instant, or null otherwise.
-  ZoneInterval? _getLaterMatchingInterval(ZoneInterval interval, LocalInstant localInstant) {
+  ZoneInterval? _getLaterMatchingInterval(
+      ZoneInterval interval, LocalInstant localInstant) {
     // Micro-optimization to avoid fetching interval.End multiple times. Seems
     // to give a performance improvement on x86 at least...
     // If the zone interval extends to the end of time, the next check will
@@ -249,10 +260,10 @@ abstract class DateTimeZone implements ZoneIntervalMapWithMinMax {
     // If the local interval occurs before the zone interval we're looking at starts,
     // we need to find the earlier one; otherwise this interval must come after the gap, and
     // it's therefore the one we want.
-    if (localInstant.minus(guessInterval.wallOffset) < IZoneInterval.rawStart(guessInterval)) {
+    if (localInstant.minus(guessInterval.wallOffset) <
+        IZoneInterval.rawStart(guessInterval)) {
       return getZoneInterval(guessInterval.start - Time.epsilon);
-    }
-    else {
+    } else {
       return guessInterval;
     }
   }
@@ -262,29 +273,32 @@ abstract class DateTimeZone implements ZoneIntervalMapWithMinMax {
     ZoneInterval guessInterval = getZoneInterval(guess);
     // If the local interval occurs before the zone interval we're looking at starts,
     // it's the one we're looking for. Otherwise, we need to find the next interval.
-    if (localInstant.minus(guessInterval.wallOffset) < IZoneInterval.rawStart(guessInterval)) {
+    if (localInstant.minus(guessInterval.wallOffset) <
+        IZoneInterval.rawStart(guessInterval)) {
       return guessInterval;
-    }
-    else {
+    } else {
       // Will definitely be valid - there can't be a gap after an infinite interval.
       return getZoneInterval(guessInterval.end);
     }
   }
 
   /// Returns the ID of this time zone.
-  @override String toString() => id;
+  @override
+  String toString() => id;
 
   /// Creates a fixed time zone for offsets -12 to +15 at every half hour,
   /// fixing the 0 offset as DateTimeZone.Utc.
   static List<DateTimeZone> _buildFixedZoneCache() {
     List<DateTimeZone> ret = List<DateTimeZone>.generate(
       _fixedZoneCacheSize,
-      (int i) => FixedDateTimeZone.forOffset(Offset(i * _fixedZoneCacheGranularitySeconds + _fixedZoneCacheMinimumSeconds)),
+      (int i) => FixedDateTimeZone.forOffset(Offset(
+          i * _fixedZoneCacheGranularitySeconds +
+              _fixedZoneCacheMinimumSeconds)),
     );
-    ret[-_fixedZoneCacheMinimumSeconds ~/ _fixedZoneCacheGranularitySeconds] = utc;
+    ret[-_fixedZoneCacheMinimumSeconds ~/ _fixedZoneCacheGranularitySeconds] =
+        utc;
     return ret;
   }
-
 
   /// Returns all the zone intervals which occur for any instant in the interval [[start], [end]).
   ///
@@ -300,9 +314,8 @@ abstract class DateTimeZone implements ZoneIntervalMapWithMinMax {
   ///
   /// see also: [DateTimeZone.getZoneInterval]
   Iterable<ZoneInterval> getZoneIntervalsFromTo(Instant start, Instant end) =>
-  //    // The static constructor performs all the validation we need.
-  getZoneIntervals(Interval(start, end));
-
+      //    // The static constructor performs all the validation we need.
+      getZoneIntervals(Interval(start, end));
 
   /// Returns all the zone intervals which occur for any instant in the given interval.
   ///
@@ -329,7 +342,6 @@ abstract class DateTimeZone implements ZoneIntervalMapWithMinMax {
     }
   }
 
-
   /// Returns the zone intervals within the given interval, potentially coalescing some of the
   /// original intervals according to options.
   ///
@@ -347,13 +359,15 @@ abstract class DateTimeZone implements ZoneIntervalMapWithMinMax {
   /// infinite in both directions).
   /// * [options]:
   // todo: merge with regular getZoneIntervals as a custom parameter
-  Iterable<ZoneInterval> getZoneIntervalsOptions(Interval interval, ZoneEqualityComparerOptions options) {
+  Iterable<ZoneInterval> getZoneIntervalsOptions(
+      Interval interval, ZoneEqualityComparerOptions options) {
     if ((options & ~ZoneEqualityComparerOptions.strictestMatch).value != 0) {
-      throw ArgumentError('The value $options is not defined within ZoneEqualityComparer.Options');
+      throw ArgumentError(
+          'The value $options is not defined within ZoneEqualityComparer.Options');
     }
-    var zoneIntervalEqualityComparer = ZoneIntervalEqualityComparer(options, interval);
+    var zoneIntervalEqualityComparer =
+        ZoneIntervalEqualityComparer(options, interval);
     var originalIntervals = getZoneIntervals(interval);
     return zoneIntervalEqualityComparer.coalesceIntervals(originalIntervals);
   }
 }
-

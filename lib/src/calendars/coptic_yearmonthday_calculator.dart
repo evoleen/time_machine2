@@ -2,13 +2,11 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'package:meta/meta.dart';
 import 'package:time_machine/src/time_machine_internal.dart';
 
 @internal
 class CopticYearMonthDayCalculator extends FixedMonthYearMonthDayCalculator {
-  CopticYearMonthDayCalculator()
-      : super(1, 9715, -615558);
+  CopticYearMonthDayCalculator() : super(1, 9715, -615558);
 
   @protected
   @override
@@ -23,8 +21,7 @@ class CopticYearMonthDayCalculator extends FixedMonthYearMonthDayCalculator {
       // Add 3 before shifting right since /4 and >>2 behave differently
       // on negative numbers.
       leapYears = safeRightShift(relativeYear + 3, 2);
-    }
-    else {
+    } else {
       leapYears = safeRightShift(relativeYear, 2);
       // For post 1687 an adjustment is needed as jan1st is before leap day
       if (!isLeapYear(year)) {

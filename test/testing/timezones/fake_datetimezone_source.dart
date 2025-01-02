@@ -4,8 +4,6 @@
 
 import 'dart:async';
 import 'package:time_machine/src/time_machine_internal.dart';
-import 'package:time_machine/src/timezones/time_machine_timezones.dart';
-import 'package:time_machine/src/utility/time_machine_utilities.dart';
 
 /// A time zone source for test purposes.
 /// Create instances via [FakeDateTimeZoneSource.Builder].

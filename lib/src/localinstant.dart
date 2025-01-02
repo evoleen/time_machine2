@@ -2,7 +2,6 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'package:meta/meta.dart';
 import 'package:time_machine/src/time_machine_internal.dart';
 
 // todo: can this be refactored out to decrease code-size?
@@ -14,17 +13,20 @@ import 'package:time_machine/src/time_machine_internal.dart';
 @immutable
 @internal
 class LocalInstant {
-  static final LocalInstant beforeMinValue = LocalInstant._trusted(IInstant.beforeMinValue.epochDay, deliberatelyInvalid: true);
-  static final LocalInstant afterMaxValue = LocalInstant._trusted(IInstant.afterMaxValue.epochDay, deliberatelyInvalid: true);
+  static final LocalInstant beforeMinValue = LocalInstant._trusted(
+      IInstant.beforeMinValue.epochDay,
+      deliberatelyInvalid: true);
+  static final LocalInstant afterMaxValue = LocalInstant._trusted(
+      IInstant.afterMaxValue.epochDay,
+      deliberatelyInvalid: true);
 
   /// Elapsed time since the local 1970-01-01T00:00:00.
   final Time _time;
 
-  const LocalInstant._ (this._time);
+  const LocalInstant._(this._time);
 
   /// Constructor which should *only* be used to construct the invalid instances.
-  factory LocalInstant._trusted(int days, {required bool deliberatelyInvalid})
-  {
+  factory LocalInstant._trusted(int days, {required bool deliberatelyInvalid}) {
     return LocalInstant._(Time(days: days));
   }
 
@@ -43,21 +45,22 @@ class LocalInstant {
   ///
   /// [days]: Number of days since 1970-01-01, in a time zone neutral fashion.
   /// [nanoOfDay]: Nanosecond of the local day.
-  factory LocalInstant.daysNanos(int days, int nanoOfDay)
-  {
+  factory LocalInstant.daysNanos(int days, int nanoOfDay) {
     return LocalInstant._(Time(days: days, nanoseconds: nanoOfDay));
   }
 
   /// Returns whether or not this is a valid instant. Returns true for all but
   /// [beforeMinValue] and [afterMaxValue].
-  bool get isValid => daysSinceEpoch >= IInstant.minDays && daysSinceEpoch <= IInstant.maxDays;
+  bool get isValid =>
+      daysSinceEpoch >= IInstant.minDays && daysSinceEpoch <= IInstant.maxDays;
 
   /// Number of nanoseconds since the local unix epoch.
   Time get timeSinceLocalEpoch => _time;
 
   // todo: rename
   /// Number of days since the local unix epoch.
-  int get daysSinceEpoch => IInstant.trusted(_time).epochDay; // Instant.epochTime(_time).epochDay;
+  int get daysSinceEpoch =>
+      IInstant.trusted(_time).epochDay; // Instant.epochTime(_time).epochDay;
 
   // todo: -- make more efficient?
   /// Nanosecond within the day.
@@ -76,7 +79,10 @@ class LocalInstant {
   ///
   /// [offset]: The offset between UTC and a time zone for this local instant
   /// Returns: A new [Instant] representing the difference of the given values.
-  Instant minus(Offset offset) => IInstant.untrusted(ITime.plusSmallNanoseconds(_time, -offset.inNanoseconds)); // _span.MinusSmallNanoseconds(offset.Nanoseconds));
+  Instant minus(Offset offset) => IInstant.untrusted(ITime.plusSmallNanoseconds(
+      _time,
+      -offset
+          .inNanoseconds)); // _span.MinusSmallNanoseconds(offset.Nanoseconds));
 
   /// Implements the operator == (equality).
   ///
@@ -84,7 +90,8 @@ class LocalInstant {
   /// [right]: The right hand side of the operator.
   /// Returns: `true` if values are equal to each other, otherwise `false`.
   @override
-  bool operator ==(Object right) => right is LocalInstant && _time == right._time;
+  bool operator ==(Object right) =>
+      right is LocalInstant && _time == right._time;
 
   /// Equivalent to [Instant.safePlus], but in the opposite direction.
   Instant safeMinus(Offset offset) {
@@ -101,11 +108,14 @@ class LocalInstant {
       return IInstant.afterMaxValue;
     }
     // Okay, do the arithmetic as a Duration, then check the result for overflow, effectively.
-    var asDuration = IInstant.trusted(ITime.plusSmallNanoseconds(_time, -offset.inNanoseconds));
-    if (asDuration.epochDay < IInstant.minDays) { // FloorDays
+    var asDuration = IInstant.trusted(
+        ITime.plusSmallNanoseconds(_time, -offset.inNanoseconds));
+    if (asDuration.epochDay < IInstant.minDays) {
+      // FloorDays
       return IInstant.beforeMinValue;
     }
-    if (asDuration.epochDay > IInstant.maxDays) { // FloorDays
+    if (asDuration.epochDay > IInstant.maxDays) {
+      // FloorDays
       return IInstant.afterMaxValue;
     }
     // And now we don't need any more checks.
@@ -144,12 +154,14 @@ class LocalInstant {
   ///
   /// A hash code for this instance, suitable for use in hashing algorithms and data
   /// structures like a hash table.
-  @override int get hashCode => _time.hashCode;
+  @override
+  int get hashCode => _time.hashCode;
 
   /// Returns a [String] that represents this instance.
   ///
   /// A [String] that represents this instance.
-  @override String toString() // => TextShim.toStringLocalInstant(this);
+  @override
+  String toString() // => TextShim.toStringLocalInstant(this);
   {
     if (this == beforeMinValue) {
       return 'StartOfTime'; // InstantPatternParser.BeforeMinValueText;
@@ -158,10 +170,12 @@ class LocalInstant {
       return 'EndOfTime'; //InstantPatternParser.AfterMaxValueText;
     }
     var date = LocalDate.fromEpochDay(IInstant.trusted(_time).epochDay);
-    var pattern = LocalDateTimePattern.createWithInvariantCulture("uuuu-MM-ddTHH:mm:ss.FFFFFFFFF 'LOC'");
-    var utc = LocalDateTime.localDateAtTime(date, ILocalTime.untrustedNanoseconds(nanosecondOfDay));
+    var pattern = LocalDateTimePattern.createWithInvariantCulture(
+        "uuuu-MM-ddTHH:mm:ss.FFFFFFFFF 'LOC'");
+    var utc = LocalDateTime.localDateAtTime(
+        date, ILocalTime.untrustedNanoseconds(nanosecondOfDay));
     return pattern.format(utc);
-  // return TextShim.toStringLocalDateTime(utc); // + ' ${_span.days}::${_span.nanosecondOfDay} ';
+    // return TextShim.toStringLocalDateTime(utc); // + ' ${_span.days}::${_span.nanosecondOfDay} ';
   }
 
   // #region IEquatable<LocalInstant> Members
@@ -173,4 +187,3 @@ class LocalInstant {
   /// otherwise, false.
   bool equals(LocalInstant other) => this == other;
 }
-

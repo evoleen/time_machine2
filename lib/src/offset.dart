@@ -2,7 +2,6 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'package:meta/meta.dart';
 import 'package:time_machine/src/time_machine_internal.dart';
 
 /// An offset from UTC in seconds. A positive value means that the local time is
@@ -18,7 +17,6 @@ import 'package:time_machine/src/time_machine_internal.dart';
 /// but only in very rare historical cases (or fictional ones).
 @immutable
 class Offset implements Comparable<Offset> {
-
   /// An offset of zero seconds - effectively the permanent offset for UTC.
   static final Offset zero = Offset(0);
 
@@ -40,7 +38,8 @@ class Offset implements Comparable<Offset> {
   ///
   /// * [seconds]: The number of seconds in the offset.
   Offset._([this.inSeconds = 0]) {
-    assert(Preconditions.debugCheckArgumentRange('seconds', inSeconds, _minSeconds, _maxSeconds));
+    assert(Preconditions.debugCheckArgumentRange(
+        'seconds', inSeconds, _minSeconds, _maxSeconds));
   }
 
   /// Gets the number of milliseconds represented by this offset, which may be negative.
@@ -49,20 +48,17 @@ class Offset implements Comparable<Offset> {
   /// by 1,000 to give the number of milliseconds.
   int get inMilliseconds => (inSeconds * TimeConstants.millisecondsPerSecond);
 
-
   /// Gets the number of microseconds represented by this offset, which may be negative.
   ///
   /// Offsets are only accurate to second precision; the number of seconds is simply multiplied
   /// by 1,000,000 to give the number of microseconds.
   int get inMicroseconds => (inSeconds * TimeConstants.microsecondsPerSecond);
 
-
   /// Gets the number of nanoseconds represented by this offset, which may be negative.
   ///
   /// Offsets are only accurate to second precision; the number of seconds is simply multiplied
   /// by 1,000,000,000 to give the number of nanoseconds.
   int get inNanoseconds => (inSeconds * TimeConstants.nanosecondsPerSecond);
-
 
   /// Returns the greater offset of the given two, i.e. the one which will give a later local
   /// time when added to an instant.
@@ -72,7 +68,6 @@ class Offset implements Comparable<Offset> {
   ///
   /// Returns: The greater offset of [x] and [y].
   static Offset max(Offset x, Offset y) => x > y ? x : y;
-
 
   /// Returns the lower offset of the given two, i.e. the one which will give an earlier local
   /// time when added to an instant.
@@ -89,8 +84,8 @@ class Offset implements Comparable<Offset> {
   ///
   /// Returns: A new [Offset] instance with a negated value.
   Offset operator -() =>
-  // Guaranteed to still be in range.
-  Offset._(-inSeconds);
+      // Guaranteed to still be in range.
+      Offset._(-inSeconds);
 
   /// Returns the negation of the specified offset. This is the method form of the unary minus operator.
   ///
@@ -109,7 +104,6 @@ class Offset implements Comparable<Offset> {
   /// * [RangeError]: The result of the operation is outside the range of Offset.
   Offset operator +(Offset other) => Offset(inSeconds + other.inSeconds);
 
-
   /// Adds one Offset to another. Friendly alternative to `operator+()`.
   ///
   /// * [left]: The left hand side of the operator.
@@ -120,7 +114,6 @@ class Offset implements Comparable<Offset> {
   /// * [RangeError]: The result of the operation is outside the range of Offset.
   static Offset plus(Offset left, Offset right) => left + right;
 
-
   /// Returns the result of adding another Offset to this one, for a fluent alternative to `operator+()`.
   ///
   /// * [other]: The offset to add
@@ -130,7 +123,6 @@ class Offset implements Comparable<Offset> {
   /// * [RangeError]: The result of the operation is outside the range of Offset.
   Offset add(Offset other) => this + other;
 
-
   /// Implements the operator - (subtraction).
   ///
   /// * [this]: The left hand side of the operator.
@@ -139,9 +131,7 @@ class Offset implements Comparable<Offset> {
   /// Returns: A new [Offset] representing the difference of the given values.
   ///
   /// * [RangeError]: The result of the operation is outside the range of Offset.
-  Offset operator -(Offset other) =>
-      Offset(inSeconds - other.inSeconds);
-
+  Offset operator -(Offset other) => Offset(inSeconds - other.inSeconds);
 
   /// Subtracts one Offset from another. Friendly alternative to `operator-()`.
   ///
@@ -153,7 +143,6 @@ class Offset implements Comparable<Offset> {
   /// [RangeError]: The result of the operation is outside the range of Offset.
   static Offset minus(Offset left, Offset right) => left - right;
 
-
   /// Returns the result of subtracting another Offset from this one, for a fluent alternative to `operator-()`.
   ///
   /// * [other]: The offset to subtract
@@ -162,7 +151,6 @@ class Offset implements Comparable<Offset> {
   ///
   /// [RangeError]: The result of the operation is outside the range of Offset.
   Offset subtract(Offset other) => this - other;
-
 
   /// Implements the operator == (equality).
   ///
@@ -173,7 +161,6 @@ class Offset implements Comparable<Offset> {
   @override
   bool operator ==(Object other) => other is Offset && equals(other);
 
-
   /// Implements the operator &lt; (less than).
   ///
   /// * [this]: The left hand side of the operator.
@@ -181,7 +168,6 @@ class Offset implements Comparable<Offset> {
   ///
   /// Returns: `true` if the left value is less than the right value, otherwise `false`.
   bool operator <(Offset other) => compareTo(other) < 0;
-
 
   /// Implements the operator &lt;= (less than or equal).
   ///
@@ -191,7 +177,6 @@ class Offset implements Comparable<Offset> {
   /// Returns: `true` if the left value is less than or equal to the right value, otherwise `false`.
   bool operator <=(Offset other) => compareTo(other) <= 0;
 
-
   /// Implements the operator &gt; (greater than).
   ///
   /// [this]: The left hand side of the operator.
@@ -199,7 +184,6 @@ class Offset implements Comparable<Offset> {
   ///
   /// Returns: `true` if the left value is greater than the right value, otherwise `false`.
   bool operator >(Offset other) => compareTo(other) > 0;
-
 
   ///   Implements the operator &gt;= (greater than or equal).
   ///
@@ -223,7 +207,8 @@ class Offset implements Comparable<Offset> {
   ///   | 0      | This object is equal to [other].      |
   ///   | > 0 | This object is greater than [other].      |
   @override
-  int compareTo(Offset? other) => other == null ? 1 : inSeconds.compareTo(other.inSeconds);
+  int compareTo(Offset? other) =>
+      other == null ? 1 : inSeconds.compareTo(other.inSeconds);
 
   /// Indicates whether the current object is equal to another object of the same type.
   ///
@@ -234,13 +219,15 @@ class Offset implements Comparable<Offset> {
   bool equals(Offset other) => inSeconds == other.inSeconds;
 
   /// Returns a hash code for this instance.
-  @override int get hashCode => inSeconds.hashCode;
+  @override
+  int get hashCode => inSeconds.hashCode;
 
   /// Returns a [String] that represents this instance.
   ///
   /// The value of the current instance in the default format pattern ('g'), using the current isolate's
   /// culture to obtain a format provider.
-  @override String toString([String? patternText, Culture? culture]) =>
+  @override
+  String toString([String? patternText, Culture? culture]) =>
       OffsetPatterns.format(this, patternText, culture);
 
   /// Returns an offset for the given seconds value, which may be negative.
@@ -252,7 +239,8 @@ class Offset implements Comparable<Offset> {
   /// * [RangeError]: The specified number of seconds is outside the range of
   /// [-18, +18] hours.
   factory Offset([int seconds = 0]) {
-    Preconditions.checkArgumentRange('seconds', seconds, _minSeconds, _maxSeconds);
+    Preconditions.checkArgumentRange(
+        'seconds', seconds, _minSeconds, _maxSeconds);
     return Offset._(seconds);
   }
 
@@ -283,7 +271,8 @@ class Offset implements Comparable<Offset> {
   ///
   /// [RangeError]: The result of the operation is outside the range of Offset.
   factory Offset.hoursAndMinutes(int hours, int minutes) =>
-      Offset(hours * TimeConstants.secondsPerHour + minutes * TimeConstants.secondsPerMinute);
+      Offset(hours * TimeConstants.secondsPerHour +
+          minutes * TimeConstants.secondsPerMinute);
 
   /// Converts this offset to a [Duration] value.
   Duration toDuration() => Duration(seconds: inSeconds);
@@ -300,7 +289,8 @@ class Offset implements Comparable<Offset> {
   /// * [RangeError]: The given time span falls outside the range of +/- 18 hours.
   factory Offset.duration(Duration duration) {
     int seconds = duration.inSeconds;
-    Preconditions.checkArgumentRange('duration', seconds, _minSeconds, _maxSeconds);
+    Preconditions.checkArgumentRange(
+        'duration', seconds, _minSeconds, _maxSeconds);
     return Offset(seconds);
   }
 
