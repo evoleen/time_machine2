@@ -1,6 +1,9 @@
 =============================================================================
 = NOTICE file corresponding to section 4d of the Apache License Version 2.0 =
 =============================================================================
+This repository is derived from original work by Dana Ferguson, found
+here: https://github.com/Dana-Ferguson/time_machine
+
 Time Machine includes ports of software developed by
 NodaTime.org (https://nodatime.org/).
 
