@@ -110,6 +110,10 @@ class TimeMachine {
     // Default Culture
     var cultureId = cultureOverride ??
         io.Platform.localeName.split('.').first.replaceAll('_', '-');
+
+    // TODO(tigloo): REMOVE
+    print('Culture ID: $cultureId');
+
     Culture? culture = await Cultures.getCulture(cultureId);
     ICultures.currentCulture = culture!;
     // todo: remove Culture.currentCulture
