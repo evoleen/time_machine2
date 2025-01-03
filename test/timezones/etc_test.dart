@@ -7,6 +7,7 @@ import 'dart:async';
 import 'package:time_machine/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
+import 'package:time_machine/time_machine.dart';
 
 import '../time_machine_testing.dart';
 
@@ -15,17 +16,17 @@ late DateTimeZoneProvider tzdb;
 /// Tests for fixed 'Etc/GMT+x' zones. These just test that the time zones are built
 /// appropriately; FixedDateTimeZoneTest takes care of the rest.
 Future main() async {
-  await TimeMachine.initialize();
-  tzdb = await DateTimeZoneProviders.tzdb;
+  await TimeMachineTest.initialize();
+  tzdb = DateTimeZoneProviders.defaultProvider!;
 
   await runTests();
 }
 
 // todo: these don't work at all; I'm guessing these come from Aliases?
 
-@Test() @SkipMe('Aliases not yet available?')
-Future FixedEasternZone() async
-{
+@Test()
+@SkipMe('Aliases not yet available?')
+Future FixedEasternZone() async {
   String id = 'Etc/GMT+5';
   var zone = await tzdb[id];
   expect(id, zone.id);
@@ -34,9 +35,9 @@ Future FixedEasternZone() async
   expect(Offset.hours(-5), fixedZone.offset);
 }
 
-@Test() @SkipMe('Aliases not yet available?')
-Future FixedWesternZone() async
-{
+@Test()
+@SkipMe('Aliases not yet available?')
+Future FixedWesternZone() async {
   String id = 'Etc/GMT-4';
   var zone = await tzdb[id];
   expect(id, zone.id);
@@ -44,4 +45,3 @@ Future FixedWesternZone() async
   FixedDateTimeZone fixedZone = zone as FixedDateTimeZone;
   expect(Offset.hours(4), fixedZone.offset);
 }
-

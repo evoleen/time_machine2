@@ -10,28 +10,28 @@ import 'package:test/test.dart';
 import 'time_machine_testing.dart';
 
 Future main() async {
-  await TimeMachine.initialize();
+  await TimeMachineTest.initialize();
   await runTests();
 }
 
 final Instant one = IInstant.untrusted(Time(nanoseconds: 1));
 final Instant threeMillion = IInstant.untrusted(Time(nanoseconds: 3000000));
-final Instant negativeFiftyMillion = IInstant.untrusted(Time(nanoseconds: -50000000));
+final Instant negativeFiftyMillion =
+    IInstant.untrusted(Time(nanoseconds: -50000000));
 
-final Instant SampleStart = TimeConstants.unixEpoch.add(Time(nanoseconds: -30001));
+final Instant SampleStart =
+    TimeConstants.unixEpoch.add(Time(nanoseconds: -30001));
 final Instant SampleEnd = TimeConstants.unixEpoch.add(Time(nanoseconds: 40001));
 
 @Test()
-void Construction_Success()
-{
+void Construction_Success() {
   var interval = Interval(SampleStart, SampleEnd);
   expect(SampleStart, interval.start);
   expect(SampleEnd, interval.end);
 }
 
 @Test()
-void Construction_EqualStartAndEnd()
-{
+void Construction_EqualStartAndEnd() {
   var interval = Interval(SampleStart, SampleStart);
   expect(SampleStart, interval.start);
   expect(SampleStart, interval.end);
@@ -39,15 +39,13 @@ void Construction_EqualStartAndEnd()
 }
 
 @Test()
-void Construction_EndBeforeStart()
-{
+void Construction_EndBeforeStart() {
   expect(() => Interval(SampleEnd, SampleStart), throwsRangeError);
   expect(() => Interval(SampleEnd, SampleStart), throwsRangeError);
 }
 
 @Test()
-void Equals()
-{
+void Equals() {
   TestHelper.TestEqualsStruct(
       Interval(SampleStart, SampleEnd),
       Interval(SampleStart, SampleEnd),
@@ -60,15 +58,12 @@ void Equals()
       Interval(SampleStart, SampleEnd),
       Interval(SampleStart, SampleEnd),
       [Interval(TimeConstants.unixEpoch, SampleEnd)]);
-  TestHelper.TestEqualsStruct(
-      Interval(null, null),
-      Interval(null, null),
+  TestHelper.TestEqualsStruct(Interval(null, null), Interval(null, null),
       [Interval(TimeConstants.unixEpoch, SampleEnd)]);
 }
 
 @Test()
-void Operators()
-{
+void Operators() {
   TestHelper.TestOperatorEquality(
       Interval(SampleStart, SampleEnd),
       Interval(SampleStart, SampleEnd),
@@ -76,8 +71,7 @@ void Operators()
 }
 
 @Test()
-void Duration()
-{
+void Duration() {
   var interval = Interval(SampleStart, SampleEnd);
   expect(Time(nanoseconds: 70002), interval.totalTime);
 }
@@ -91,21 +85,26 @@ void DefaultConstructor()
 }*/
 
 @Test()
-void ToStringUsesExtendedIsoFormat()
-{
+void ToStringUsesExtendedIsoFormat() {
   // var start = new LocalDateTime.fromYMDHMS(2013, 4, 12, 17, 53, 23).PlusNanoseconds(123456789).InUtc().ToInstant();
   // var end = new LocalDateTime.fromYMDHMSM(2013, 10, 12, 17, 1, 2, 120).InUtc().ToInstant();
 
-  var start = LocalDateTime(2013, 4, 12, 17, 53, 23).addNanoseconds(123456789).inUtc().toInstant();
-  var end = LocalDateTime(2013, 10, 12, 17, 1, 2).addMilliseconds(120).inUtc().toInstant();
+  var start = LocalDateTime(2013, 4, 12, 17, 53, 23)
+      .addNanoseconds(123456789)
+      .inUtc()
+      .toInstant();
+  var end = LocalDateTime(2013, 10, 12, 17, 1, 2)
+      .addMilliseconds(120)
+      .inUtc()
+      .toInstant();
 
   var value = Interval(start, end);
-  expect('2013-04-12T17:53:23.123456789Z/2013-10-12T17:01:02.12Z', value.toString());
+  expect('2013-04-12T17:53:23.123456789Z/2013-10-12T17:01:02.12Z',
+      value.toString());
 }
 
 @Test()
-void ToString_Infinite()
-{
+void ToString_Infinite() {
   var value = Interval(null, null);
   expect('StartOfTime/EndOfTime', value.toString());
 }
@@ -116,8 +115,7 @@ void ToString_Infinite()
 @TestCase(['2010-01-01T00:00:00Z', true], "Within interval")
 @TestCase(['2020-01-01T00:00:00Z', false], "End instant of interval")
 @TestCase(['2030-01-01T00:00:00Z', false], "After interval")
-void Contains(String candidateText, bool expectedResult)
-{
+void Contains(String candidateText, bool expectedResult) {
   var start = Instant.utc(2000, 1, 1, 0, 0);
   var end = Instant.utc(2020, 1, 1, 0, 0);
   var interval = Interval(start, end);
@@ -126,54 +124,48 @@ void Contains(String candidateText, bool expectedResult)
 }
 
 @Test()
-void Contains_Infinite()
-{
+void Contains_Infinite() {
   var interval = Interval(null, null);
   expect(interval.contains(Instant.maxValue), isTrue);
   expect(interval.contains(Instant.minValue), isTrue);
 }
 
 @Test()
-void HasStart()
-{
+void HasStart() {
   expect(Interval(Instant.minValue, null).hasStart, isTrue);
   expect(Interval(null, Instant.minValue).hasStart, isFalse);
 }
 
 @Test()
-void HasEnd()
-{
+void HasEnd() {
   expect(Interval(null, Instant.maxValue).hasEnd, isTrue);
   expect(Interval(Instant.maxValue, null).hasEnd, isFalse);
 }
 
 @Test()
-void Start()
-{
-  expect(TimeConstants.unixEpoch, Interval(TimeConstants.unixEpoch, null).start);
+void Start() {
+  expect(
+      TimeConstants.unixEpoch, Interval(TimeConstants.unixEpoch, null).start);
   Interval noStart = Interval(null, TimeConstants.unixEpoch);
   expect(() => noStart.start.toString(), throwsStateError);
 }
 
 @Test()
-void End()
-{
+void End() {
   expect(TimeConstants.unixEpoch, Interval(null, TimeConstants.unixEpoch).end);
   Interval noEnd = Interval(TimeConstants.unixEpoch, null);
   expect(() => noEnd.end.toString(), throwsStateError);
 }
 
 @Test()
-void Contains_EmptyInterval()
-{
+void Contains_EmptyInterval() {
   var instant = TimeConstants.unixEpoch;
   var interval = Interval(instant, instant);
   expect(interval.contains(instant), isFalse);
 }
 
 @Test()
-void Contains_EmptyInterval_MaxValue()
-{
+void Contains_EmptyInterval_MaxValue() {
   var instant = Instant.maxValue;
   var interval = Interval(instant, instant);
   expect(interval.contains(instant), isFalse);
@@ -185,11 +177,13 @@ void Contains_EmptyInterval_MaxValue()
 @TestCase(['1910-01-01T00:00:00Z', "2000-01-01T00:00:01Z", true], "2")
 @TestCase(['2020-01-01T00:00:00Z', "2030-01-01T00:00:01Z", false], "3")
 @TestCase(['2019-12-31T23:59:59Z', "2030-01-01T00:00:01Z", true], "4")
-void Interval_Overlapping(String otherStart, String otherEnd, bool expectedResult) {
+void Interval_Overlapping(
+    String otherStart, String otherEnd, bool expectedResult) {
   var start = Instant.utc(2000, 1, 1, 0, 0);
   var end = Instant.utc(2020, 1, 1, 0, 0);
   var interval = Interval(start, end);
-  var other = Interval(InstantPattern.extendedIso.parse(otherStart).value, InstantPattern.extendedIso.parse(otherEnd).value);
+  var other = Interval(InstantPattern.extendedIso.parse(otherStart).value,
+      InstantPattern.extendedIso.parse(otherEnd).value);
   expect(interval.overlaps(other), expectedResult);
 }
 

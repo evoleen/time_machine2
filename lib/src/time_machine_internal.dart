@@ -13,6 +13,8 @@ export 'dayofweek.dart';
 
 export 'datetimezone_provider.dart';
 export 'datetimezone.dart';
+export 'timezones/datetimezone_reader.dart';
+export 'timezones/datetimezone_writer.dart';
 export 'zoneddatetime.dart';
 
 export 'localinstant.dart';

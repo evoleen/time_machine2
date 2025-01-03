@@ -27,13 +27,15 @@ import 'dart:async';
 import 'package:time_machine/src/time_machine_internal.dart';
 
 import 'testing/test_fx_interface.dart'
-  if (dart.library.io) 'testing/test_fx.dart'
-as helping_machine;
+    if (dart.library.io) 'testing/test_fx.dart' as helping_machine;
 
 Future<dynamic> runTests() => helping_machine.runTests();
 
-abstract class TimeMachine {
-  TimeMachine() { throw StateError('TimeMachine can not be instantiated.'); }
+abstract class TimeMachineTest {
+  TimeMachineTest() {
+    throw StateError('TimeMachine can not be instantiated.');
+  }
+
   static Future initialize([Map args = const {}]) async {
     helper.setFunctions();
     await public_machine.TimeMachine.initialize({...args, 'testing': true});

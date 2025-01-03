@@ -12,21 +12,24 @@ import 'pattern_test_base.dart';
 import 'pattern_test_data.dart';
 import 'test_cultures.dart';
 
-@private final List<String> AllStandardPatterns = [ 'f', "F", "g", "G", "o", "O", "s" ];
-@private final List _AllCulturesStandardPatterns = [];
+@private
+final List<String> AllStandardPatterns = ['f', "F", "g", "G", "o", "O", "s"];
+@private
+final List _AllCulturesStandardPatterns = [];
 
 Future main() async {
-  await TimeMachine.initialize();
+  await TimeMachineTest.initialize();
 
   var sw = Stopwatch()..start();
   var ids = await Cultures.ids;
   var allCultures = <Culture>[];
-  for(var id in ids) {
+  for (var id in ids) {
     allCultures.add((await Cultures.getCulture(id))!);
   }
-  for(var culture in allCultures) {
-    for(var format in AllStandardPatterns) {
-      _AllCulturesStandardPatterns.add(TestCaseData([culture, format])..name = '$culture: $format');
+  for (var culture in allCultures) {
+    for (var format in AllStandardPatterns) {
+      _AllCulturesStandardPatterns.add(
+          TestCaseData([culture, format])..name = '$culture: $format');
     }
   }
   print('Time to load cultures: ${sw.elapsedMilliseconds} ms;');
@@ -38,11 +41,21 @@ Future main() async {
 class LocalDateTimePatternTest extends PatternTestBase<LocalDateTime> {
   List get AllCulturesStandardPatterns => _AllCulturesStandardPatterns;
 
-  @private static final LocalDateTime SampleLocalDateTime = TestLocalDateTimes.SampleLocalDateTime;
-  @private static final LocalDateTime SampleLocalDateTimeToTicks = TestLocalDateTimes.SampleLocalDateTimeToTicks;
-  @private static final LocalDateTime SampleLocalDateTimeToMillis = TestLocalDateTimes.SampleLocalDateTimeToMillis;
-  @private static final LocalDateTime SampleLocalDateTimeToSeconds = TestLocalDateTimes.SampleLocalDateTimeToSeconds;
-  @private static final LocalDateTime SampleLocalDateTimeToMinutes = TestLocalDateTimes.SampleLocalDateTimeToMinutes;
+  @private
+  static final LocalDateTime SampleLocalDateTime =
+      TestLocalDateTimes.SampleLocalDateTime;
+  @private
+  static final LocalDateTime SampleLocalDateTimeToTicks =
+      TestLocalDateTimes.SampleLocalDateTimeToTicks;
+  @private
+  static final LocalDateTime SampleLocalDateTimeToMillis =
+      TestLocalDateTimes.SampleLocalDateTimeToMillis;
+  @private
+  static final LocalDateTime SampleLocalDateTimeToSeconds =
+      TestLocalDateTimes.SampleLocalDateTimeToSeconds;
+  @private
+  static final LocalDateTime SampleLocalDateTimeToMinutes =
+      TestLocalDateTimes.SampleLocalDateTimeToMinutes;
   /*@internal static final LocalDateTime SampleLocalDateTimeCoptic = new LocalDateTime.fromYMDHMSC(
       1976,
       6,
@@ -54,11 +67,18 @@ class LocalDateTimePatternTest extends PatternTestBase<LocalDateTime> {
 
   // The standard example date/time used in all the MSDN samples, which means we can just cut and paste
   // the expected results of the standard patterns.
-  @internal static final LocalDateTime MsdnStandardExample = TestLocalDateTimes.MsdnStandardExample;
-  @internal static final LocalDateTime MsdnStandardExampleNoMillis = TestLocalDateTimes.MsdnStandardExampleNoMillis;
-  @private static final LocalDateTime MsdnStandardExampleNoSeconds = TestLocalDateTimes.MsdnStandardExampleNoSeconds;
+  @internal
+  static final LocalDateTime MsdnStandardExample =
+      TestLocalDateTimes.MsdnStandardExample;
+  @internal
+  static final LocalDateTime MsdnStandardExampleNoMillis =
+      TestLocalDateTimes.MsdnStandardExampleNoMillis;
+  @private
+  static final LocalDateTime MsdnStandardExampleNoSeconds =
+      TestLocalDateTimes.MsdnStandardExampleNoSeconds;
 
-  @internal final List<Data> InvalidPatternData = [
+  @internal
+  final List<Data> InvalidPatternData = [
     Data()
       ..pattern = ''
       ..message = TextErrorMessages.formatStringEmpty,
@@ -94,7 +114,8 @@ class LocalDateTimePatternTest extends PatternTestBase<LocalDateTime> {
       ..parameters.addAll(['<']),
   ];
 
-  @internal List<Data> ParseFailureData = [
+  @internal
+  List<Data> ParseFailureData = [
     Data()
       ..pattern = 'dd MM yyyy HH:mm:ss'
       ..text = 'Complete mismatch'
@@ -134,7 +155,8 @@ class LocalDateTimePatternTest extends PatternTestBase<LocalDateTime> {
       ..message = TextErrorMessages.invalidHour24,
   ];
 
-  @internal List<Data> ParseOnlyData = [
+  @internal
+  List<Data> ParseOnlyData = [
     Data.ymd(2011, 10, 19, 16, 05, 20)
       ..pattern = 'dd MM yyyy'
       ..text = '19 10 2011'
@@ -144,24 +166,10 @@ class LocalDateTimePatternTest extends PatternTestBase<LocalDateTime> {
       ..text = '16:05:20'
       ..template = LocalDateTime(2011, 10, 19, 0, 0, 0),
     // Parsing using the semi-colon 'comma dot' specifier
-    Data.ymd(
-        2011,
-        10,
-        19,
-        16,
-        05,
-        20,
-        352)
+    Data.ymd(2011, 10, 19, 16, 05, 20, 352)
       ..pattern = 'yyyy-MM-dd HH:mm:ss;fff'
       ..text = '2011-10-19 16:05:20,352',
-    Data.ymd(
-        2011,
-        10,
-        19,
-        16,
-        05,
-        20,
-        352)
+    Data.ymd(2011, 10, 19, 16, 05, 20, 352)
       ..pattern = 'yyyy-MM-dd HH:mm:ss;FFF'
       ..text = '2011-10-19 16:05:20,352',
 
@@ -181,7 +189,8 @@ class LocalDateTimePatternTest extends PatternTestBase<LocalDateTime> {
       ..text = '2011-10-19 24',
   ];
 
-  @internal List<Data> FormatOnlyData = [
+  @internal
+  List<Data> FormatOnlyData = [
     Data.ymd(2011, 10, 19, 16, 05, 20)
       ..pattern = 'ddd yyyy'
       ..text = 'Wed 2011',
@@ -194,7 +203,8 @@ class LocalDateTimePatternTest extends PatternTestBase<LocalDateTime> {
       ..text = '1976-06-19T21:13:34.1234567'
   ];
 
-  @internal List<Data> FormatAndParseData = [
+  @internal
+  List<Data> FormatAndParseData = [
     // Standard patterns (US)
     // Full date/time (short time)
     Data(MsdnStandardExampleNoSeconds)
@@ -272,7 +282,8 @@ class LocalDateTimePatternTest extends PatternTestBase<LocalDateTime> {
       ..culture = TestCultures.FrFr,
     Data(MsdnStandardExample)
       ..standardPattern = LocalDateTimePattern.fullRoundtripWithoutCalendar
-      ..standardPatternCode = 'LocalDateTimePattern.fullRoundtripWithoutCalendar'
+      ..standardPatternCode =
+          'LocalDateTimePattern.fullRoundtripWithoutCalendar'
       ..pattern = 'R'
       ..text = '2009-06-15T13:45:30.090000000'
       ..culture = TestCultures.FrFr,
@@ -290,7 +301,8 @@ class LocalDateTimePatternTest extends PatternTestBase<LocalDateTime> {
       ..culture = TestCultures.FrFr,
     Data(SampleLocalDateTime)
       ..standardPattern = LocalDateTimePattern.fullRoundtripWithoutCalendar
-      ..standardPatternCode = 'LocalDateTimePattern.fullRoundtripWithoutCalendar'
+      ..standardPatternCode =
+          'LocalDateTimePattern.fullRoundtripWithoutCalendar'
       ..pattern = 'R'
       ..text = '1976-06-19T21:13:34.123456789'
       ..culture = TestCultures.FrFr,
@@ -328,34 +340,13 @@ class LocalDateTimePatternTest extends PatternTestBase<LocalDateTime> {
       ..culture = TestCultures.FrFr,
 
     // Use of the semi-colon 'comma dot' specifier
-    Data.ymd(
-        2011,
-        10,
-        19,
-        16,
-        05,
-        20,
-        352)
+    Data.ymd(2011, 10, 19, 16, 05, 20, 352)
       ..pattern = 'yyyy-MM-dd HH:mm:ss;fff'
       ..text = '2011-10-19 16:05:20.352',
-    Data.ymd(
-        2011,
-        10,
-        19,
-        16,
-        05,
-        20,
-        352)
+    Data.ymd(2011, 10, 19, 16, 05, 20, 352)
       ..pattern = 'yyyy-MM-dd HH:mm:ss;FFF'
       ..text = '2011-10-19 16:05:20.352',
-    Data.ymd(
-        2011,
-        10,
-        19,
-        16,
-        05,
-        20,
-        352)
+    Data.ymd(2011, 10, 19, 16, 05, 20, 352)
       ..pattern = "yyyy-MM-dd HH:mm:ss;FFF 'end'"
       ..text = '2011-10-19 16:05:20.352 end',
     Data.ymd(2011, 10, 19, 16, 05, 20)
@@ -377,14 +368,7 @@ class LocalDateTimePatternTest extends PatternTestBase<LocalDateTime> {
       ..pattern = 'yyyy-MM-dd HH:mm:ss.FFF'
       ..text = '2011-10-19 04:05:06'
       ..culture = TestCultures.FrFr,
-    Data.ymd(
-        2011,
-        10,
-        19,
-        4,
-        5,
-        6,
-        123)
+    Data.ymd(2011, 10, 19, 4, 5, 6, 123)
       ..pattern = 'yyyy-MM-dd HH:mm:ss.FFF'
       ..text = '2011-10-19 04:05:06.123'
       ..culture = TestCultures.FrFr,
@@ -395,56 +379,21 @@ class LocalDateTimePatternTest extends PatternTestBase<LocalDateTime> {
       ..pattern = 'yyyy-MM-ddTHH:mm:ss',
 
     // Custom embedded patterns (or mixture of custom and standard)
-    Data.ymd(
-        2015,
-        10,
-        24,
-        11,
-        55,
-        30,
-        0)
+    Data.ymd(2015, 10, 24, 11, 55, 30, 0)
       ..pattern = "ld<yyyy*MM*dd>'X'lt<HH_mm_ss>"
       ..text = '2015*10*24X11_55_30',
-    Data.ymd(
-        2015,
-        10,
-        24,
-        11,
-        55,
-        30,
-        0)
+    Data.ymd(2015, 10, 24, 11, 55, 30, 0)
       ..pattern = "lt<HH_mm_ss>'Y'ld<yyyy*MM*dd>"
       ..text = '11_55_30Y2015*10*24',
-    Data.ymd(
-        2015,
-        10,
-        24,
-        11,
-        55,
-        30,
-        0)
+    Data.ymd(2015, 10, 24, 11, 55, 30, 0)
       ..pattern = "ld<d>'X'lt<HH_mm_ss>"
       ..text = '10/24/2015X11_55_30',
-    Data.ymd(
-        2015,
-        10,
-        24,
-        11,
-        55,
-        30,
-        0)
+    Data.ymd(2015, 10, 24, 11, 55, 30, 0)
       ..pattern = "ld<yyyy*MM*dd>'X'lt<T>"
       ..text = '2015*10*24X11:55:30',
 
     // Standard embedded patterns (main use case of embedded patterns). Short time versions have a seconds value of 0 so they can round-trip.
-    Data.ymd(
-        2015,
-        10,
-        24,
-        11,
-        55,
-        30,
-        90)
+    Data.ymd(2015, 10, 24, 11, 55, 30, 90)
       ..pattern = 'ld<D> lt<r>'
       ..text = 'Saturday, 24 October 2015 11:55:30.09',
     Data.ymd(2015, 10, 24, 11, 55, 0)
@@ -452,24 +401,22 @@ class LocalDateTimePatternTest extends PatternTestBase<LocalDateTime> {
       ..text = '10/24/2015 11:55',
   ];
 
-  @internal Iterable<Data> get ParseData => [ParseOnlyData, FormatAndParseData].expand((x) => x);
+  @internal
+  Iterable<Data> get ParseData =>
+      [ParseOnlyData, FormatAndParseData].expand((x) => x);
 
-  @internal Iterable<Data> get FormatData => [FormatOnlyData, FormatAndParseData].expand((x) => x);
+  @internal
+  Iterable<Data> get FormatData =>
+      [FormatOnlyData, FormatAndParseData].expand((x) => x);
 
   @Test()
   void WithCalendar() {
-    var pattern = LocalDateTimePattern.generalIso.withCalendar(CalendarSystem.coptic);
-    var value = pattern
-        .parse('0284-08-29T12:34:56')
-        .value;
-    expect(LocalDateTime(
-        284,
-        8,
-        29,
-        12,
-        34,
-        56,
-        calendar: CalendarSystem.coptic), value);
+    var pattern =
+        LocalDateTimePattern.generalIso.withCalendar(CalendarSystem.coptic);
+    var value = pattern.parse('0284-08-29T12:34:56').value;
+    expect(
+        LocalDateTime(284, 8, 29, 12, 34, 56, calendar: CalendarSystem.coptic),
+        value);
   }
 
   @Test()
@@ -501,14 +448,16 @@ class LocalDateTimePatternTest extends PatternTestBase<LocalDateTime> {
   @Test()
   @TestCaseSource(#AllCulturesStandardPatterns)
   void ParseFormattedStandardPattern(Culture culture, String patternText) {
-    var pattern = CreatePatternOrNull(patternText, culture, LocalDateTime(2000, 1, 1, 0, 0, 0));
+    var pattern = CreatePatternOrNull(
+        patternText, culture, LocalDateTime(2000, 1, 1, 0, 0, 0));
     if (pattern == null) {
       return;
     }
 
     // If the pattern really can't distinguish between AM and PM (e.g. it's 12 hour with an
     // abbreviated AM/PM designator) then let's let it go.
-    if (pattern.format(SampleLocalDateTime) == pattern.format(SampleLocalDateTime.addHours(-12))) {
+    if (pattern.format(SampleLocalDateTime) ==
+        pattern.format(SampleLocalDateTime.addHours(-12))) {
       return;
     }
 
@@ -523,7 +472,14 @@ class LocalDateTimePatternTest extends PatternTestBase<LocalDateTime> {
     var parseResult = pattern.parse(formatted);
     expect(parseResult.success, isTrue);
     var parsed = parseResult.value;
-    expect(parsed, anyOf(SampleLocalDateTime, SampleLocalDateTimeToTicks, SampleLocalDateTimeToMillis, SampleLocalDateTimeToSeconds, SampleLocalDateTimeToMinutes));
+    expect(
+        parsed,
+        anyOf(
+            SampleLocalDateTime,
+            SampleLocalDateTimeToTicks,
+            SampleLocalDateTimeToMillis,
+            SampleLocalDateTimeToSeconds,
+            SampleLocalDateTimeToMinutes));
 
     /*Assert.That(parsed, Is.EqualTo(SampleLocalDateTime) |
     Is.EqualTo(SampleLocalDateTimeToTicks) |
@@ -578,11 +534,12 @@ class LocalDateTimePatternTest extends PatternTestBase<LocalDateTime> {
   }*/
 
   // Helper method to make it slightly easier for tests to skip 'bad' cultures.
-  @private LocalDateTimePattern? CreatePatternOrNull(String patternText, Culture culture, LocalDateTime templateValue) {
+  @private
+  LocalDateTimePattern? CreatePatternOrNull(
+      String patternText, Culture culture, LocalDateTime templateValue) {
     try {
       return LocalDateTimePattern.createWithCulture(patternText, culture);
-    }
-    catch (InvalidPatternException) {
+    } catch (InvalidPatternException) {
       // The Malta long date/time pattern in Mono 3.0 is invalid (not just wrong; invalid due to the wrong number of quotes).
       // Skip it :(
       // See https://bugzilla.xamarin.com/show_bug.cgi?id=11363
@@ -591,9 +548,11 @@ class LocalDateTimePatternTest extends PatternTestBase<LocalDateTime> {
   }
 }
 
-  /*sealed*/ class Data extends PatternTestData<LocalDateTime> {
+/*sealed*/ class Data extends PatternTestData<LocalDateTime> {
   // Default to the start of the year 2000.
-  /*protected*/ @override LocalDateTime get defaultTemplate => LocalDateTimePatterns.defaultTemplateValue;
+  /*protected*/ @override
+  LocalDateTime get defaultTemplate =>
+      LocalDateTimePatterns.defaultTemplateValue;
 
   /// Initializes a new instance of the [Data] class.
   ///
@@ -601,18 +560,12 @@ class LocalDateTimePatternTest extends PatternTestBase<LocalDateTime> {
   Data([LocalDateTime? value])
       : super(value ?? LocalDateTimePatterns.defaultTemplateValue);
 
-  Data.ymd(int year, int month, int day, [int hour = 0, int minute = 0, int second = 0, int millis = 0])
-      : super(LocalDateTime(
-      year,
-      month,
-      day,
-      hour,
-      minute,
-      second,
-      ms: millis));
+  Data.ymd(int year, int month, int day,
+      [int hour = 0, int minute = 0, int second = 0, int millis = 0])
+      : super(
+            LocalDateTime(year, month, day, hour, minute, second, ms: millis));
 
   Data.dt(LocalDate date, LocalTime time) : super(date.at(time));
-
 
   @internal
   @override
@@ -621,5 +574,3 @@ class LocalDateTimePatternTest extends PatternTestBase<LocalDateTime> {
           .withTemplateValue(template)
           .withCulture(culture);
 }
-
-

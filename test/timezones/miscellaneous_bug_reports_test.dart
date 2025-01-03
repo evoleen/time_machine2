@@ -4,9 +4,8 @@
 
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
-
 import 'package:test/test.dart';
+import 'package:time_machine/time_machine.dart';
 
 import '../time_machine_testing.dart';
 
@@ -17,44 +16,45 @@ late DateTimeZoneProvider tzdb;
 /// to have the original test which showed up the problem, as a small contribution
 /// to regression testing.
 Future main() async {
-  await TimeMachine.initialize();
+  await TimeMachineTest.initialize();
   await setup();
 
   await runTests();
 }
 
 Future setup() async {
-  tzdb = await DateTimeZoneProviders.tzdb;
+  tzdb = DateTimeZoneProviders.defaultProvider!;
 }
 
-
 @Test()
-Future Niue() async
-{
+Future Niue() async {
   DateTimeZone niue = await tzdb['Pacific/Niue'];
-  var offset = niue.getUtcOffset(ZonedDateTime.atStrictly(LocalDateTime(2010, 1, 1, 0, 0, 0), niue).toInstant());
+  var offset = niue.getUtcOffset(
+      ZonedDateTime.atStrictly(LocalDateTime(2010, 1, 1, 0, 0, 0), niue)
+          .toInstant());
   expect(Offset.hours(-11), offset);
 }
 
 @Test()
-Future Kiritimati() async
-{
+Future Kiritimati() async {
   DateTimeZone kiritimati = await tzdb['Pacific/Kiritimati'];
-  var offset = kiritimati.getUtcOffset(ZonedDateTime.atStrictly(LocalDateTime(2010, 1, 1, 0, 0, 0), kiritimati).toInstant());
+  var offset = kiritimati.getUtcOffset(
+      ZonedDateTime.atStrictly(LocalDateTime(2010, 1, 1, 0, 0, 0), kiritimati)
+          .toInstant());
   expect(Offset.hours(14), offset);
 }
 
 @Test()
-Future Pyongyang() async
-{
+Future Pyongyang() async {
   DateTimeZone pyongyang = await tzdb['Asia/Pyongyang'];
-  var offset = pyongyang.getUtcOffset(ZonedDateTime.atStrictly(LocalDateTime(2010, 1, 1, 0, 0, 0), pyongyang).toInstant());
+  var offset = pyongyang.getUtcOffset(
+      ZonedDateTime.atStrictly(LocalDateTime(2010, 1, 1, 0, 0, 0), pyongyang)
+          .toInstant());
   expect(Offset.hours(9), offset);
 }
 
 @Test()
-Future Khartoum() async
-{
+Future Khartoum() async {
   DateTimeZone khartoum = await tzdb['Africa/Khartoum'];
   expect(khartoum, isNotNull);
   Instant utc = Instant.utc(2000, 1, 1, 0, 0, 0);
@@ -71,12 +71,10 @@ Future Khartoum() async
 
 /// Tbilisi used daylight saving time for winter 1996/1997 too.
 @Test()
-Future Tbilisi() async
-{
+Future Tbilisi() async {
   var zone = await tzdb['Asia/Tbilisi'];
   Instant summer1996 = Instant.utc(1996, 6, 1, 0, 0);
   var interval = zone.getZoneInterval(summer1996);
   expect(LocalDateTime(1996, 3, 31, 1, 0, 0), interval.isoLocalStart);
   expect(LocalDateTime(1997, 10, 26, 0, 0, 0), interval.isoLocalEnd);
 }
-

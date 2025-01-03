@@ -12,13 +12,12 @@ import 'package:test/test.dart';
 import 'time_machine_testing.dart';
 
 Future main() async {
-  await TimeMachine.initialize();
+  await TimeMachineTest.initialize();
   await runTests();
 }
 
 @Test()
-void Equality()
-{
+void Equality() {
   LocalInstant equal = LocalInstant.daysNanos(1, 100);
   LocalInstant equal2 = LocalInstant.daysNanos(1, 100);
   LocalInstant different1 = LocalInstant.daysNanos(1, 200);
@@ -32,8 +31,7 @@ void Equality()
 }
 
 @Test()
-void MinusOffset_Zero_IsNeutralElement()
-{
+void MinusOffset_Zero_IsNeutralElement() {
   Instant sampleInstant = IInstant.trusted(Time(days: 1, nanoseconds: 23456));
   LocalInstant sampleLocalInstant = LocalInstant.daysNanos(1, 23456);
   expect(sampleInstant, sampleLocalInstant.minus(Offset.zero));
@@ -45,24 +43,27 @@ void MinusOffset_Zero_IsNeutralElement()
 @TestCase([0, 1, '1970-01-01T00:00:00.000000001 LOC'])
 @TestCase([0, 1000, '1970-01-01T00:00:00.000001 LOC'])
 @TestCase([0, 1000000, '1970-01-01T00:00:00.001 LOC'])
-@TestCase([-1, TimeConstants.nanosecondsPerDay - 1, '1969-12-31T23:59:59.999999999 LOC'])
-void ToString_Valid(int day, int nanoOfDay, String expectedText)
-{
+@TestCase([
+  -1,
+  TimeConstants.nanosecondsPerDay - 1,
+  '1969-12-31T23:59:59.999999999 LOC'
+])
+void ToString_Valid(int day, int nanoOfDay, String expectedText) {
   var localInstant = LocalInstant.daysNanos(day, nanoOfDay);
   expect(localInstant.daysSinceEpoch, day);
   expect(localInstant.toString(), expectedText);
 }
 
 @Test()
-void ToString_Extremes()
-{
-  expect(InstantPatternParser.beforeMinValueText, LocalInstant.beforeMinValue.toString());
-  expect(InstantPatternParser.afterMaxValueText, LocalInstant.afterMaxValue.toString());
+void ToString_Extremes() {
+  expect(InstantPatternParser.beforeMinValueText,
+      LocalInstant.beforeMinValue.toString());
+  expect(InstantPatternParser.afterMaxValueText,
+      LocalInstant.afterMaxValue.toString());
 }
 
 @Test()
-void SafeMinus_NormalTime()
-{
+void SafeMinus_NormalTime() {
   var start = LocalInstant.daysNanos(0, 0);
   var end = start.safeMinus(Offset.hours(1));
   expect(Time(hours: -1), end.timeSinceEpoch);
@@ -76,7 +77,8 @@ void SafeMinus_NormalTime()
 @TestCase([1, 1, 0])
 @TestCase([1, 2, null])
 @TestCase([2, 1, 1])
-void SafeMinus_NearStartOfTime(int? initialOffset, int offsetToSubtract, int? finalOffset) {
+void SafeMinus_NearStartOfTime(
+    int? initialOffset, int offsetToSubtract, int? finalOffset) {
   var start = initialOffset == null
       ? LocalInstant.beforeMinValue
       : IInstant.plusOffset(Instant.minValue, Offset.hours(initialOffset));
@@ -95,7 +97,8 @@ void SafeMinus_NearStartOfTime(int? initialOffset, int offsetToSubtract, int? fi
 @TestCase([-1, -1, 0])
 @TestCase([-1, -2, null])
 @TestCase([-2, -1, -1])
-void SafeMinus_NearEndOfTime(int? initialOffset, int offsetToSubtract, int? finalOffset) {
+void SafeMinus_NearEndOfTime(
+    int? initialOffset, int offsetToSubtract, int? finalOffset) {
   var start = initialOffset == null
       ? LocalInstant.afterMaxValue
       : IInstant.plusOffset(Instant.maxValue, Offset.hours(initialOffset));
@@ -105,4 +108,3 @@ void SafeMinus_NearEndOfTime(int? initialOffset, int offsetToSubtract, int? fina
   var actual = start.safeMinus(Offset.hours(offsetToSubtract));
   expect(expected, actual);
 }
-

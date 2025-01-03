@@ -6,11 +6,10 @@
 // https://github.com/dart-lang/sdk/issues/24581
 import 'dart:async';
 import 'src/platforms/platform_io.dart'
-  // `dart.library.js` is compatible with node and browser via dart2js -- `dart.library.html` will only work for the browser
-  // or at lest it seemed it should be, when I tried `dart.library.js` in chrome, it failed to evaluate to true
-  if (dart.library.html) 'src/platforms/web.dart'
-  if (dart.library.io) 'src/platforms/vm.dart'
-as time_machine;
+    // `dart.library.js` is compatible with node and browser via dart2js -- `dart.library.html` will only work for the browser
+    // or at lest it seemed it should be, when I tried `dart.library.js` in chrome, it failed to evaluate to true
+    if (dart.library.html) 'src/platforms/web.dart'
+    if (dart.library.io) 'src/platforms/vm.dart' as time_machine;
 
 export 'src/calendar_system.dart' show CalendarSystem;
 
@@ -57,17 +56,20 @@ export 'src/utility/invalid_time_data_error.dart' show InvalidTimeDataError;
 // Calendars
 export 'src/calendars/era.dart' show Era;
 export 'src/calendars/week_rule.dart' show WeekYearRule;
-export 'src/calendars/week_year_rules.dart' show WeekYearRules, CalendarWeekRule;
+export 'src/calendars/week_year_rules.dart'
+    show WeekYearRules, CalendarWeekRule;
 export 'src/calendars/hebrew_month_numbering.dart' show HebrewMonthNumbering;
 export 'src/calendars/islamic_epoch.dart' show IslamicEpoch;
-export 'src/calendars/islamic_leap_year_pattern.dart' show IslamicLeapYearPattern;
+export 'src/calendars/islamic_leap_year_pattern.dart'
+    show IslamicLeapYearPattern;
 
 // Fields (no public classes)
 
 // Globalization
 export 'src/text/globalization/culture.dart' show Cultures, Culture;
 // todo: Do we want to expose the Builder?
-export 'src/text/globalization/datetime_format_info.dart' show CalendarType, DateTimeFormat, DateTimeFormatBuilder;
+export 'src/text/globalization/datetime_format_info.dart'
+    show CalendarType, DateTimeFormat, DateTimeFormatBuilder;
 
 // Patterns (no public classes)
 
@@ -75,25 +77,31 @@ export 'src/text/globalization/datetime_format_info.dart' show CalendarType, Dat
 // todo: why is this public? (investigate)
 export 'src/timezones/datetimezone_cache.dart' show DateTimeZoneCache;
 
-export 'src/timezones/datetimezone_notfound_error.dart' show DateTimeZoneNotFoundError;
+export 'src/timezones/datetimezone_notfound_error.dart'
+    show DateTimeZoneNotFoundError;
 export 'src/timezones/delegates.dart';
 export 'src/timezones/datetimezone_source.dart' show DateTimeZoneSource;
-export 'src/timezones/invalid_datetimezone_source_error.dart' show InvalidDateTimeZoneSourceError;
+export 'src/timezones/datetimezone_providers.dart' show DateTimeZoneProviders;
+export 'src/timezones/invalid_datetimezone_source_error.dart'
+    show InvalidDateTimeZoneSourceError;
 export 'src/timezones/resolvers.dart' show Resolvers;
-export 'src/timezones/tzdb_datetimezone_source.dart' show DateTimeZoneProviders, TzdbDateTimeZoneSource;
 
 // These are not used (but aren't @internal either)
 // export 'src/timezones/tzdb_zone_1970_location.dart';
 // export 'src/timezones/tzdb_zone_location.dart';
 
-export 'src/timezones/zone_equality_comparer.dart' show ZoneEqualityComparerOptions, ZoneEqualityComparer;
+export 'src/timezones/zone_equality_comparer.dart'
+    show ZoneEqualityComparerOptions, ZoneEqualityComparer;
 export 'src/timezones/zoneinterval.dart' show ZoneInterval;
 export 'src/timezones/zone_local_mapping.dart' show ZoneLocalMapping;
 
 bool _initialized = false;
 
 abstract class TimeMachine {
-  TimeMachine() { throw StateError('TimeMachine can not be instantiated, because no platform has been detected.'); }
+  TimeMachine() {
+    throw StateError(
+        'TimeMachine can not be instantiated, because no platform has been detected.');
+  }
   static Future initialize([Map args = const {}]) {
     if (_initialized) return Future.sync(() => null);
     _initialized = true;

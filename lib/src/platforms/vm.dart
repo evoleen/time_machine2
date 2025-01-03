@@ -10,6 +10,8 @@ import 'dart:io' as io;
 import 'dart:typed_data';
 import 'package:time_machine/src/platforms/dart_pure.dart';
 import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine/src/timezones/datetimezone_providers.dart';
+import 'package:time_machine/time_machine.dart';
 
 import 'platform_io.dart';
 import 'dart:isolate' show Isolate;
@@ -89,7 +91,6 @@ class TimeMachine {
       String? timeZoneOverride, String? cultureOverride) async {
     Platform.startVM();
 
-    ITzdbDateTimeZoneSource.loadAllTimeZoneInformation_SetFlag();
     // todo: we want this for flutter -- do we want this for the VM too?
     ICultures.loadAllCulturesInformation_SetFlag();
 
@@ -104,8 +105,9 @@ class TimeMachine {
     var local = timeZoneOverride != null
         ? await tzdb.getZoneOrNull(timeZoneOverride)
         : await _figureOutTimeZone(tzdb);
+
     // todo: cache local more directly? (this is indirect caching)
-    TzdbIndex.localId = local!.id;
+    tzdb.setSystemDefault(local!.id);
 
     // Default Culture
     var cultureId = cultureOverride ??

@@ -6,7 +6,7 @@
 // 0958802  on Jun 18, 2017
 
 import 'dart:async';
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine/time_machine.dart';
 
 // Represents a clock which can return the current time as an <see cref='Instant' />.
 ///
@@ -20,8 +20,7 @@ import 'package:time_machine/src/time_machine_internal.dart';
 /// see also:
 /// * [SystemClock]
 /// * [FakeClock]
-abstract class Clock
-{
+abstract class Clock {
   /// Gets the current [Instant] on the time line according to this clock.
   /// Returns the current instant on the time line according to this clock.
   Instant getCurrentInstant();
@@ -37,7 +36,8 @@ abstract class Clock
   /// * [calendar]: Calendar to use in the returned object.
   ///
   /// Returns: A [ZonedClock] with the given clock, time zone and calendar system.
-  ZonedClock inZone(DateTimeZone zone, [CalendarSystem? calendar]) => ZonedClock(this, zone, calendar ?? CalendarSystem.iso);
+  ZonedClock inZone(DateTimeZone zone, [CalendarSystem? calendar]) =>
+      ZonedClock(this, zone, calendar ?? CalendarSystem.iso);
 
   /// Constructs a [ZonedClock] from a clock (the target of the method),
   /// using the UTC time zone and ISO calendar system.
@@ -59,9 +59,8 @@ abstract class Clock
   /// * [DateTimeZoneNotFoundException]: The system default time zone is not mapped by
   ///
   /// see: [DateTimeZoneProviders.Tzdb]
-  Future<ZonedClock> inTzdbSystemDefaultZone() async
-  {
-    var zone = await (await DateTimeZoneProviders.tzdb).getSystemDefault();
+  Future<ZonedClock> inTzdbSystemDefaultZone() async {
+    var zone = await (await DateTimeZoneProviders.timezone).getSystemDefault();
     return ZonedClock(this, zone, CalendarSystem.iso);
   }
 
@@ -72,4 +71,3 @@ abstract class Clock
   /// Library writers should not set this variable.
   static Clock current = SystemClock.instance;
 }
-

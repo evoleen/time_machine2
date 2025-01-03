@@ -12,7 +12,7 @@ import 'package:test/test.dart';
 import 'time_machine_testing.dart';
 
 Future main() async {
-  await TimeMachine.initialize();
+  await TimeMachineTest.initialize();
   await runTests();
 }
 
@@ -38,10 +38,8 @@ void LocalTimeProperties() {
   }*/
 }
 
-
 @Test()
-void ComponentProperties()
-{
+void ComponentProperties() {
   var time = LocalTime(12, 34, 15);
   var offset = Offset.hours(5);
 
@@ -51,8 +49,7 @@ void ComponentProperties()
 }
 
 @Test()
-void Equality()
-{
+void Equality() {
   LocalTime time1 = LocalTime(4, 56, 23, ms: 123);
   LocalTime time2 = LocalTime(6, 23, 12, ms: 987);
   Offset offset1 = Offset.hours(1);
@@ -71,18 +68,17 @@ void Equality()
 }
 
 @Test()
-void On()
-{
+void On() {
   var time = LocalTime(14, 15, 12).addNanoseconds(123456789);
   var date = LocalDate(2012, 6, 19, CalendarSystem.julian);
   var offset = Offset.hours(5);
 
-  expect(OffsetTime(time, offset).atDate(date), time.atDate(date).withOffset(offset));
+  expect(OffsetTime(time, offset).atDate(date),
+      time.atDate(date).withOffset(offset));
 }
 
 @Test()
-void WithOffset()
-{
+void WithOffset() {
   var time = LocalTime(14, 15, 12).addNanoseconds(123456789);
   var initial = OffsetTime(time, Offset.hours(2));
   var actual = initial.withOffset(Offset.hours(5));
@@ -91,8 +87,7 @@ void WithOffset()
 }
 
 @Test()
-void WithAdjuster()
-{
+void WithAdjuster() {
   var initial = OffsetTime(LocalTime(14, 15, 12), Offset.hours(-5));
   var actual = initial.adjust(TimeAdjusters.truncateToHour);
   var expected = OffsetTime(LocalTime(14, 0, 0), Offset.hours(-5));
@@ -100,17 +95,16 @@ void WithAdjuster()
 }
 
 @Test()
-void ToString_WithFormat()
-{
+void ToString_WithFormat() {
   LocalTime time = LocalTime(14, 15, 12, ms: 123);
   Offset offset = Offset.hours(1);
   OffsetTime offsetDate = OffsetTime(time, offset);
-  expect(offsetDate.toString('HH:mm:ss.fff o<-HH>', Culture.invariant), "14:15:12.123 01");
+  expect(offsetDate.toString('HH:mm:ss.fff o<-HH>', Culture.invariant),
+      "14:15:12.123 01");
 }
 
 @Test()
-void ToString_WithNullFormat()
-{
+void ToString_WithNullFormat() {
   LocalTime time = LocalTime(14, 15, 12, ms: 123);
   Offset offset = Offset.hours(1);
   OffsetTime offsetDate = OffsetTime(time, offset);
@@ -129,4 +123,3 @@ void ToString_NoFormat() {
     expect(offsetDate.toString(), '14:15:12+01');
   }
 }
-

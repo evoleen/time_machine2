@@ -75,4 +75,7 @@ abstract class DateTimeZoneSource {
   /// The ID for the system default time zone for this source,
   /// or null if the system default time zone has no mapping in this source.
   String? get systemDefaultId;
+
+  /// Set / override the default time zone ID
+  void setSystemDefaultId(String id);
 }
