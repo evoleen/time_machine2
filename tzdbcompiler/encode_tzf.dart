@@ -15,10 +15,10 @@ import 'package:glob/list_local_fs.dart';
 import 'package:logging/logging.dart';
 import 'package:path/path.dart' as p;
 
-import 'package:timezone/src/tools.dart';
-import 'package:timezone/src/tzdb.dart';
-import 'package:timezone/timezone.dart';
-import 'package:timezone/tzdata.dart' as tzfile;
+import 'tools.dart';
+import 'location_database.dart';
+import 'zicfile.dart' as tzfile;
+import 'tzdb.dart';
 
 Future<void> main(List<String> arguments) async {
   // Initialize logger
@@ -36,7 +36,7 @@ Future<void> main(List<String> arguments) async {
     ..addOption('zoneinfo');
   final args = parser.parse(arguments);
 
-  final zoneinfoPath = (args['zoneinfo'] as String?) ?? 'data/zoneinfo';
+  final zoneinfoPath = args['zoneinfo'] as String?;
   if (zoneinfoPath == null) {
     print('Usage:\n${parser.usage}');
     exit(1);
