@@ -30,9 +30,9 @@ Future<void> main(List<String> arguments) async {
 
   // Parse CLI arguments
   final parser = ArgParser()
-    ..addOption('output-all', defaultsTo: 'lib/data/latest_all.tzf')
-    ..addOption('output-common', defaultsTo: 'lib/data/latest.tzf')
-    ..addOption('output-10y', defaultsTo: 'lib/data/latest_10y.tzf')
+    ..addOption('output-all', defaultsTo: 'lib/data/tzdb/latest_all.tzf')
+    ..addOption('output-common', defaultsTo: 'lib/data/tzdb/latest.tzf')
+    ..addOption('output-10y', defaultsTo: 'lib/data/tzdb/latest_10y.tzf')
     ..addOption('zoneinfo');
   final args = parser.parse(arguments);
 

@@ -32,4 +32,4 @@ for scope in latest latest_all latest_10y; do
   dart tzdbcompiler/encode_dart.dart lib/data/$scope.{tzf,dart}
 done
 
-dart format lib/data
+dart format lib/data/tzdb
