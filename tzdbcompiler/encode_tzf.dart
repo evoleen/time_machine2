@@ -17,7 +17,7 @@ import 'package:path/path.dart' as p;
 
 import 'tools.dart';
 import 'location_database.dart';
-import 'zicfile.dart' as tzfile;
+import 'zicfile.dart';
 import 'tzdb.dart';
 
 Future<void> main(List<String> arguments) async {
@@ -51,7 +51,7 @@ Future<void> main(List<String> arguments) async {
       final name = p.relative(f.path, from: zoneinfoPath).replaceAll('\\', '/');
       log.info('- $name');
       db.add(tzfileLocationToNativeLocation(
-          tzfile.Location.fromBytes(name, await f.readAsBytes())));
+          ZicFileLocation.fromBytes(name, await f.readAsBytes())));
     }
   }
 

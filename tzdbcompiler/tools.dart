@@ -4,8 +4,11 @@
 
 import 'dart:collection';
 
-import 'package:timezone/timezone.dart';
-import 'package:timezone/tzdata.dart' as tzfile;
+import 'package:time_machine/src/time_machine_internal.dart';
+
+import 'location.dart';
+import 'location_database.dart';
+import 'zicfile.dart';
 
 const commonLocations = [
   'Africa/Abidjan',
@@ -459,9 +462,10 @@ class FilteredLocationDatabase {
 }
 
 FilteredLocationDatabase filterTimeZoneData(LocationDatabase db,
-    {int dateFrom = TZDateTime.minMillisecondsSinceEpoch,
-    int dateTo = TZDateTime.maxMillisecondsSinceEpoch,
-    List<String> locations = const []}) {
+    {int? dateFrom, int? dateTo, List<String> locations = const []}) {
+  dateFrom ??= IInstant.beforeMinValue.epochMilliseconds;
+  dateTo ??= IInstant.afterMaxValue.epochMilliseconds;
+
   final report = FilterReport();
   final result = LocationDatabase();
 
@@ -492,7 +496,7 @@ FilteredLocationDatabase filterTimeZoneData(LocationDatabase db,
     }
 
     if (i < transitionsCount) {
-      newTransitionAt.add(TZDateTime.minMillisecondsSinceEpoch);
+      newTransitionAt.add(IInstant.beforeMinValue.epochMilliseconds);
       newTransitionZone.add(l.transitionZone[i]);
       i++;
       report.newTransitionsCount++;
@@ -504,7 +508,7 @@ FilteredLocationDatabase filterTimeZoneData(LocationDatabase db,
         report.newTransitionsCount++;
       }
     } else {
-      newTransitionAt.add(TZDateTime.minMillisecondsSinceEpoch);
+      newTransitionAt.add(IInstant.beforeMinValue.epochMilliseconds);
       newTransitionZone.add(l.transitionZone[i - 1]);
     }
 
@@ -515,8 +519,8 @@ FilteredLocationDatabase filterTimeZoneData(LocationDatabase db,
   return FilteredLocationDatabase(result, report);
 }
 
-/// Convert [tzfile.Location] to [Location]
-Location tzfileLocationToNativeLocation(tzfile.Location loc) {
+/// Convert [ZicFileLocation] to [Location]
+Location tzfileLocationToNativeLocation(ZicFileLocation loc) {
   // convert to milliseconds
   final transitionAt = loc.transitionAt
       .map((i) =>

@@ -90,7 +90,7 @@ class InvalidZoneInfoDataException implements Exception {
 }
 
 /// TimeZone data
-class TimeZone {
+class ZicFileTimeZone {
   /// Offset in seconds east of UTC.
   final int offset;
 
@@ -100,12 +100,12 @@ class TimeZone {
   /// Index to abbreviation.
   final int abbreviationIndex;
 
-  const TimeZone(this.offset,
+  const ZicFileTimeZone(this.offset,
       {required this.isDst, required this.abbreviationIndex});
 }
 
 /// Location data
-class Location {
+class ZicFileLocation {
   /// [Location] name
   final String name;
 
@@ -119,7 +119,7 @@ class Location {
   final List<String> abbreviations;
 
   /// List of [TimeZone]s.
-  final List<TimeZone> zones;
+  final List<ZicFileTimeZone> zones;
 
   /// Time in seconds when the leap seconds should be applied.
   final List<int> leapAt;
@@ -135,7 +135,7 @@ class Location {
   /// UTC or local time.
   final List<int> isUtc;
 
-  Location(
+  ZicFileLocation(
       this.name,
       this.transitionAt,
       this.transitionZone,
@@ -147,7 +147,7 @@ class Location {
       this.isUtc);
 
   /// Deserialize [Location] from bytes
-  factory Location.fromBytes(String name, List<int> rawData) {
+  factory ZicFileLocation.fromBytes(String name, List<int> rawData) {
     final data = rawData is Uint8List ? rawData : Uint8List.fromList(rawData);
 
     final bdata =
@@ -209,7 +209,7 @@ class Location {
         }
 
         // read zones
-        final zones = <TimeZone>[];
+        final zones = <ZicFileTimeZone>[];
         offset = transitionZoneOffset;
 
         for (var i = 0; i < header.tzh_typecnt; i++) {
@@ -218,7 +218,7 @@ class Location {
           final tt_abbrind = bdata.getUint8(offset + 5);
           offset += 6;
 
-          zones.add(TimeZone(tt_gmtoff,
+          zones.add(ZicFileTimeZone(tt_gmtoff,
               isDst: tt_isdst == 1,
               abbreviationIndex: readAbbreviation(tt_abbrind)));
         }
@@ -252,8 +252,8 @@ class Location {
           offset += 1;
         }
 
-        return Location(name, transitionAt, transitionZone, abbreviations,
-            zones, leapAt, leapDiff, isStd, isUtc);
+        return ZicFileLocation(name, transitionAt, transitionZone,
+            abbreviations, zones, leapAt, leapDiff, isStd, isUtc);
 
       case 50:
       case 51:
@@ -323,7 +323,7 @@ class Location {
         }
 
         // read transition info
-        final zones = <TimeZone>[];
+        final zones = <ZicFileTimeZone>[];
         offset = transitionZoneOffset;
 
         for (var i = 0; i < header2.tzh_typecnt; i++) {
@@ -332,7 +332,7 @@ class Location {
           final tt_abbrind = bdata.getUint8(offset + 5);
           offset += 6;
 
-          zones.add(TimeZone(tt_gmtoff,
+          zones.add(ZicFileTimeZone(tt_gmtoff,
               isDst: tt_isdst == 1,
               abbreviationIndex: readAbbreviation(tt_abbrind)));
         }
@@ -366,8 +366,8 @@ class Location {
           offset += 1;
         }
 
-        return Location(name, transitionAt, transitionZone, abbreviations,
-            zones, leapAt, leapDiff, isStd, isUtc);
+        return ZicFileLocation(name, transitionAt, transitionZone,
+            abbreviations, zones, leapAt, leapDiff, isStd, isUtc);
 
       default:
         throw InvalidZoneInfoDataException('Unknown version: $version1');
