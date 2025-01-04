@@ -2,7 +2,7 @@ import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:time_machine/src/time_machine_internal.dart';
 
-class TimeZoneDateTimeZoneSource extends DateTimeZoneSource {
+class TzdbDateTimeZoneSource extends DateTimeZoneSource {
   static bool _initialized = false;
 
   static Future _init() async {

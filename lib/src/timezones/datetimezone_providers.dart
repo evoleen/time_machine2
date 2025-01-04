@@ -21,7 +21,7 @@ abstract class DateTimeZoneProviders {
   static Future<DateTimeZoneProvider>? _timezone;
 
   static Future<DateTimeZoneProvider> get timezone =>
-      _timezone ??= DateTimeZoneCache.getCache(TimeZoneDateTimeZoneSource());
+      _timezone ??= DateTimeZoneCache.getCache(TzdbDateTimeZoneSource());
 
   static DateTimeZoneProvider? _defaultProvider;
 
