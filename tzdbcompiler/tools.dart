@@ -499,6 +499,14 @@ FilteredLocationDatabase filterTimeZoneData(TzdbLocationDatabase db,
       report.newTransitionsCount++;
 
       while (i < transitionsCount && l.transitionAt[i] <= dateTo) {
+        // Some transitions are listed as transitions into the same zone.
+        // In that case, we need to skip this transition so that isoLocalEnd
+        // reports the correct end of the current zone. (see misc bug "Tbilisi" test)
+        if (l.transitionZone[i] == newTransitionZone.last) {
+          i++;
+          continue;
+        }
+
         newTransitionAt.add(l.transitionAt[i]);
         newTransitionZone.add(l.transitionZone[i]);
         i++;
