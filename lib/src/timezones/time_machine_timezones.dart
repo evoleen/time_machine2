@@ -16,7 +16,7 @@ export 'standard_daylight_alternating_map.dart';
 export 'timezone_info_interceptor.dart';
 export 'transition.dart';
 export 'transition_mode.dart';
-export 'tzdb_zone_datetimezone_source.dart';
+export 'tzdb_datetimezone_source.dart';
 export 'zone_equality_comparer.dart';
 export 'zoneinterval.dart';
 export 'zone_local_mapping.dart';

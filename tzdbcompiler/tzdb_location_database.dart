@@ -6,28 +6,28 @@
 library timezone.src.location_database;
 
 import 'exceptions.dart';
-import 'location.dart';
+import 'tzdb_location.dart';
 
-/// LocationDatabase provides interface to find [Location]s by their name.
+/// TzdbLocationDatabase provides interface to find [TzdbLocation]s by their name.
 ///
 ///     List<int> data = load(); // load database
 ///
 ///     LocationDatabase db = LocationDatabase.fromBytes(data);
 ///     Location loc = db.get('US/Eastern');
 ///
-class LocationDatabase {
-  /// Mapping between [Location] name and [Location].
-  final _locations = <String, Location>{};
+class TzdbLocationDatabase {
+  /// Mapping between [TzdbLocation] name and [TzdbLocation].
+  final _locations = <String, TzdbLocation>{};
 
-  Map<String, Location> get locations => _locations;
+  Map<String, TzdbLocation> get locations => _locations;
 
-  /// Adds [Location] to the database.
-  void add(Location location) {
+  /// Adds [TzdbLocation] to the database.
+  void add(TzdbLocation location) {
     _locations[location.name] = location;
   }
 
-  /// Finds [Location] by its name.
-  Location get(String name) {
+  /// Finds [TzdbLocation] by its name.
+  TzdbLocation get(String name) {
     if (!isInitialized) {
       // Before you can get a location, you need to manually initialize the
       // timezone location database by calling initializeDatabase or similar.
@@ -43,13 +43,13 @@ class LocationDatabase {
     return loc;
   }
 
-  /// Clears the database of all [Location] entries.
+  /// Clears the database of all [TzdbLocation] entries.
   void clear() => _locations.clear();
 
-  /// Returns whether the database is empty, or has [Location] entries.
+  /// Returns whether the database is empty, or has [TzdbLocation] entries.
   @Deprecated("Use 'isInitialized' instead")
   bool get isEmpty => isInitialized;
 
-  /// Returns whether the database is empty, or has [Location] entries.
+  /// Returns whether the database is empty, or has [TzdbLocation] entries.
   bool get isInitialized => _locations.isNotEmpty;
 }

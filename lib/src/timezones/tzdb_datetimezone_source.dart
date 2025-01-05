@@ -1,13 +1,14 @@
-import 'package:timezone/data/latest.dart' as tz;
-import 'package:timezone/timezone.dart' as tz;
 import 'package:time_machine/src/time_machine_internal.dart';
+
+import 'package:time_machine/src/timezones/tzdb_datetimezone_source_native_impl.dart'
+    if (dart.library.html) 'tzdb_datetimezone_source_browser_impl.dart';
 
 class TzdbDateTimeZoneSource extends DateTimeZoneSource {
   static bool _initialized = false;
 
   static Future _init() async {
     if (!_initialized) {
-      tz.initializeTimeZones();
+      initializeTimeZones();
       _initialized = true;
     }
   }

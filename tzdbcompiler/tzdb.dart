@@ -8,11 +8,11 @@ library timezone.src.tzdb;
 import 'dart:collection';
 import 'dart:convert' show ascii;
 import 'dart:typed_data';
-import 'location.dart';
-import 'location_database.dart';
+import 'tzdb_location.dart';
+import 'tzdb_location_database.dart';
 
 /// Serialize TimeZone Database
-List<int> tzdbSerialize(LocationDatabase db) {
+List<int> tzdbSerialize(TzdbLocationDatabase db) {
   final locationsInBytes = <List<int>>[];
   var bufferLength = 0;
 
@@ -39,7 +39,7 @@ List<int> tzdbSerialize(LocationDatabase db) {
 }
 
 /// Deserialize TimeZone Database
-Iterable<Location> tzdbDeserialize(List<int> rawData) sync* {
+Iterable<TzdbLocation> tzdbDeserialize(List<int> rawData) sync* {
   final data = rawData is Uint8List ? rawData : Uint8List.fromList(rawData);
   final bdata = data.buffer.asByteData(data.offsetInBytes, data.lengthInBytes);
 
@@ -56,7 +56,7 @@ Iterable<Location> tzdbDeserialize(List<int> rawData) sync* {
   }
 }
 
-Uint8List _serializeLocation(Location location) {
+Uint8List _serializeLocation(TzdbLocation location) {
   var offset = 0;
 
   final abbreviations = <String>[];
@@ -78,7 +78,7 @@ Uint8List _serializeLocation(Location location) {
 
   final List<int> encName = ascii.encode(location.name);
 
-  final nameOffset = 32;
+  const nameOffset = 32;
   final nameLength = encName.length;
   final abbreviationsOffset = nameOffset + nameLength;
   final zonesOffset = _align(abbreviationsOffset + abbreviationsLength, 4);
@@ -142,7 +142,7 @@ Uint8List _serializeLocation(Location location) {
   return result;
 }
 
-Location _deserializeLocation(Uint8List data) {
+TzdbLocation _deserializeLocation(Uint8List data) {
   final bdata = data.buffer.asByteData(data.offsetInBytes, data.lengthInBytes);
   var offset = 0;
 
@@ -170,7 +170,7 @@ Location _deserializeLocation(Uint8List data) {
   final name = ascii.decode(
       data.buffer.asUint8List(data.offsetInBytes + nameOffset, nameLength));
   final abbreviations = <String>[];
-  final zones = <TimeZone>[];
+  final zones = <TzdbTimeZone>[];
   final transitionAt = <int>[];
   final transitionZone = <int>[];
 
@@ -203,7 +203,7 @@ Location _deserializeLocation(Uint8List data) {
     final zoneIsDst = bdata.getUint8(offset + 4);
     final zoneAbbreviationIndex = bdata.getUint8(offset + 5);
     offset += 8;
-    zones.add(TimeZone(zoneOffset,
+    zones.add(TzdbTimeZone(zoneOffset,
         isDst: zoneIsDst == 1,
         abbreviation: abbreviations[zoneAbbreviationIndex]));
   }
@@ -224,7 +224,7 @@ Location _deserializeLocation(Uint8List data) {
     offset += 1;
   }
 
-  return Location(name, transitionAt, transitionZone, zones);
+  return TzdbLocation(name, transitionAt, transitionZone, zones);
 }
 
 int _align(int offset, int boundary) {

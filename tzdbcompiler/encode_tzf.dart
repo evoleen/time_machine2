@@ -5,8 +5,6 @@
 /// ```sh
 /// pub run tool/encode_tzf --zoneinfo path/to/zoneinfo
 /// ```
-library;
-
 import 'dart:io';
 import 'package:args/args.dart';
 import 'package:file/file.dart' as pkg_file;
@@ -16,7 +14,7 @@ import 'package:logging/logging.dart';
 import 'package:path/path.dart' as p;
 
 import 'tools.dart';
-import 'location_database.dart';
+import 'tzdb_location_database.dart';
 import 'zicfile.dart';
 import 'tzdb.dart';
 
@@ -42,7 +40,7 @@ Future<void> main(List<String> arguments) async {
     exit(1);
   }
 
-  final db = LocationDatabase();
+  final db = TzdbLocationDatabase();
 
   log.info('Importing zoneinfo files');
   final files = await Glob('**').list(root: zoneinfoPath).toList();
@@ -80,7 +78,7 @@ Future<void> main(List<String> arguments) async {
   logReport(common_10y_Db.report);
 
   log.info('Serializing location databases');
-  Future<void> write(String file, LocationDatabase db) =>
+  Future<void> write(String file, TzdbLocationDatabase db) =>
       File(file).writeAsBytes(tzdbSerialize(db), flush: true);
   await write(args['output-all'] as String, allDb.db);
   await write(args['output-common'] as String, commonDb.db);

@@ -4,10 +4,8 @@
 
 import 'dart:collection';
 
-import 'package:time_machine/src/time_machine_internal.dart';
-
-import 'location.dart';
-import 'location_database.dart';
+import 'tzdb_location.dart';
+import 'tzdb_location_database.dart';
 import 'zicfile.dart';
 
 const commonLocations = [
@@ -455,19 +453,19 @@ class FilterReport {
 }
 
 class FilteredLocationDatabase {
-  final LocationDatabase db;
+  final TzdbLocationDatabase db;
   final FilterReport report;
 
   FilteredLocationDatabase(this.db, this.report);
 }
 
-FilteredLocationDatabase filterTimeZoneData(LocationDatabase db,
+FilteredLocationDatabase filterTimeZoneData(TzdbLocationDatabase db,
     {int? dateFrom, int? dateTo, List<String> locations = const []}) {
   dateFrom ??= IInstant.beforeMinValue.epochMilliseconds;
   dateTo ??= IInstant.afterMaxValue.epochMilliseconds;
 
   final report = FilterReport();
-  final result = LocationDatabase();
+  final result = TzdbLocationDatabase();
 
   final locationsSet = HashSet<String>.from(locations);
 
@@ -485,7 +483,8 @@ FilteredLocationDatabase filterTimeZoneData(LocationDatabase db,
     final newTransitionZone = <int>[];
 
     if (transitionsCount == 0) {
-      result.add(Location(l.name, newTransitionAt, newTransitionZone, l.zones));
+      result.add(
+          TzdbLocation(l.name, newTransitionAt, newTransitionZone, l.zones));
       continue;
     }
 
@@ -512,27 +511,28 @@ FilteredLocationDatabase filterTimeZoneData(LocationDatabase db,
       newTransitionZone.add(l.transitionZone[i - 1]);
     }
 
-    result.add(Location(l.name, newTransitionAt, newTransitionZone, l.zones));
+    result
+        .add(TzdbLocation(l.name, newTransitionAt, newTransitionZone, l.zones));
     report.newLocationsCount++;
   }
 
   return FilteredLocationDatabase(result, report);
 }
 
-/// Convert [ZicFileLocation] to [Location]
-Location tzfileLocationToNativeLocation(ZicFileLocation loc) {
+/// Convert [ZicFileLocation] to [TzdbLocation]
+TzdbLocation tzfileLocationToNativeLocation(ZicFileLocation loc) {
   // convert to milliseconds
   final transitionAt = loc.transitionAt
       .map((i) =>
           (i < -_maxSecondsSinceEpoch) ? -_maxMillisecondsSinceEpoch : i * 1000)
       .toList();
 
-  final zones = <TimeZone>[];
+  final zones = <TzdbTimeZone>[];
 
   for (final z in loc.zones) {
-    zones.add(TimeZone(z.offset * 1000,
+    zones.add(TzdbTimeZone(z.offset * 1000,
         isDst: z.isDst, abbreviation: loc.abbreviations[z.abbreviationIndex]));
   }
 
-  return Location(loc.name, transitionAt, loc.transitionZone, zones);
+  return TzdbLocation(loc.name, transitionAt, loc.transitionZone, zones);
 }
