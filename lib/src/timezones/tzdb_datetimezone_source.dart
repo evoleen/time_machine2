@@ -45,11 +45,12 @@ class TzdbDateTimeZoneSource extends DateTimeZoneSource {
           zoneIntervals.add(firstInterval);
         } else {
           // if it's not a fixed zone, use the transition map
-          for (var i = 0; i < location.transitionAt.length - 1; i++) {
+          for (var i = 0; i < location.transitionAt.length; i++) {
             var zoneStart =
                 Instant.fromEpochMilliseconds(location.transitionAt[i]);
-            var zoneEnd =
-                Instant.fromEpochMilliseconds(location.transitionAt[i + 1]);
+            var zoneEnd = i == location.transitionAt.length - 1
+                ? null
+                : Instant.fromEpochMilliseconds(location.transitionAt[i + 1]);
 
             final zone = location.zones[location.transitionZone[i]];
 
