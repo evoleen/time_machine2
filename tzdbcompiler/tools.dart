@@ -4,8 +4,8 @@
 
 import 'dart:collection';
 
-import '../lib/src/timezones/tzdb_location.dart';
-import '../lib/src/timezones/tzdb_location_database.dart';
+import 'package:time_machine/src/timezones/tzdb_location.dart';
+import 'package:time_machine/src/timezones/tzdb_location_database.dart';
 import 'zicfile.dart';
 
 const commonLocations = [
@@ -495,8 +495,7 @@ FilteredLocationDatabase filterTimeZoneData(TzdbLocationDatabase db,
 
     if (i < transitionsCount) {
       newTransitionAt.add(-_maxMillisecondsSinceEpoch);
-      newTransitionZone.add(l.transitionZone[i]);
-      i++;
+      newTransitionZone.add(i == 0 ? 0 : l.transitionZone[i - 1]);
       report.newTransitionsCount++;
 
       while (i < transitionsCount && l.transitionAt[i] <= dateTo) {

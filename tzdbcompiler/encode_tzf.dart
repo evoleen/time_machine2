@@ -14,9 +14,9 @@ import 'package:logging/logging.dart';
 import 'package:path/path.dart' as p;
 
 import 'tools.dart';
-import '../lib/src/timezones/tzdb_location_database.dart';
+import 'package:time_machine/src/timezones/tzdb_location_database.dart';
 import 'zicfile.dart';
-import '../lib/src/timezones/tzdb_io.dart';
+import 'package:time_machine/src/timezones/tzdb_io.dart';
 
 Future<void> main(List<String> arguments) async {
   // Initialize logger
@@ -31,7 +31,7 @@ Future<void> main(List<String> arguments) async {
     ..addOption('output-all', defaultsTo: 'lib/data/tzdb/latest_all.tzf')
     ..addOption('output-common', defaultsTo: 'lib/data/tzdb/latest.tzf')
     ..addOption('output-10y', defaultsTo: 'lib/data/tzdb/latest_10y.tzf')
-    ..addOption('zoneinfo');
+    ..addOption('zoneinfo', defaultsTo: 'tmp/zoneinfo');
   final args = parser.parse(arguments);
 
   final zoneinfoPath = args['zoneinfo'] as String?;
