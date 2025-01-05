@@ -14,9 +14,9 @@ import 'package:logging/logging.dart';
 import 'package:path/path.dart' as p;
 
 import 'tools.dart';
-import 'tzdb_location_database.dart';
+import '../lib/src/timezones/tzdb_location_database.dart';
 import 'zicfile.dart';
-import 'tzdb.dart';
+import '../lib/src/timezones/tzdb_io.dart';
 
 Future<void> main(List<String> arguments) async {
   // Initialize logger
