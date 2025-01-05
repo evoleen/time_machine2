@@ -3,11 +3,11 @@
 // by a BSD-style license that can be found in the LICENSE file.
 
 /// TimeZone db file.
-library timezone.src.tzdb;
 
 import 'dart:collection';
 import 'dart:convert' show ascii;
 import 'dart:typed_data';
+
 import 'tzdb_location.dart';
 import 'tzdb_location_database.dart';
 

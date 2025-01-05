@@ -3,9 +3,6 @@
 // by a BSD-style license that can be found in the LICENSE file.
 
 /// Locations database
-library timezone.src.location_database;
-
-import 'exceptions.dart';
 import 'tzdb_location.dart';
 
 /// TzdbLocationDatabase provides interface to find [TzdbLocation]s by their name.

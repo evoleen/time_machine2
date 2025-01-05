@@ -4,8 +4,8 @@
 
 import 'dart:collection';
 
-import 'tzdb_location.dart';
-import 'tzdb_location_database.dart';
+import '../lib/src/timezones/tzdb_location.dart';
+import '../lib/src/timezones/tzdb_location_database.dart';
 import 'zicfile.dart';
 
 const commonLocations = [
@@ -460,10 +460,9 @@ class FilteredLocationDatabase {
 }
 
 FilteredLocationDatabase filterTimeZoneData(TzdbLocationDatabase db,
-    {int? dateFrom, int? dateTo, List<String> locations = const []}) {
-  dateFrom ??= IInstant.beforeMinValue.epochMilliseconds;
-  dateTo ??= IInstant.afterMaxValue.epochMilliseconds;
-
+    {int dateFrom = -_maxMillisecondsSinceEpoch,
+    int dateTo = _maxMillisecondsSinceEpoch,
+    List<String> locations = const []}) {
   final report = FilterReport();
   final result = TzdbLocationDatabase();
 
@@ -495,7 +494,7 @@ FilteredLocationDatabase filterTimeZoneData(TzdbLocationDatabase db,
     }
 
     if (i < transitionsCount) {
-      newTransitionAt.add(IInstant.beforeMinValue.epochMilliseconds);
+      newTransitionAt.add(-_maxMillisecondsSinceEpoch);
       newTransitionZone.add(l.transitionZone[i]);
       i++;
       report.newTransitionsCount++;
@@ -507,7 +506,7 @@ FilteredLocationDatabase filterTimeZoneData(TzdbLocationDatabase db,
         report.newTransitionsCount++;
       }
     } else {
-      newTransitionAt.add(IInstant.beforeMinValue.epochMilliseconds);
+      newTransitionAt.add(-_maxMillisecondsSinceEpoch);
       newTransitionZone.add(l.transitionZone[i - 1]);
     }
 
