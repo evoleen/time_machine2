@@ -10,6 +10,8 @@ import 'dart:io' as io;
 import 'dart:typed_data';
 import 'package:time_machine/src/platforms/dart_pure.dart';
 import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine/src/timezones/datetimezone_providers.dart';
+import 'package:time_machine/time_machine.dart';
 
 import 'platform_io.dart';
 import 'dart:isolate' show Isolate;
@@ -89,7 +91,6 @@ class TimeMachine {
       String? timeZoneOverride, String? cultureOverride) async {
     Platform.startVM();
 
-    ITzdbDateTimeZoneSource.loadAllTimeZoneInformation_SetFlag();
     // todo: we want this for flutter -- do we want this for the VM too?
     ICultures.loadAllCulturesInformation_SetFlag();
 
@@ -97,15 +98,12 @@ class TimeMachine {
     var tzdb = await DateTimeZoneProviders.timezone;
     IDateTimeZoneProviders.defaultProvider = tzdb;
 
-    // Default TimeZone
-    //var localTimezoneId = await _getTimeZoneId();
-    //var local = await tzdb[localTimezoneId];
-
     var local = timeZoneOverride != null
         ? await tzdb.getZoneOrNull(timeZoneOverride)
         : await _figureOutTimeZone(tzdb);
+
     // todo: cache local more directly? (this is indirect caching)
-    TzdbIndex.localId = local!.id;
+    tzdb.setSystemDefault(local!.id);
 
     // Default Culture
     var cultureId = cultureOverride ??
@@ -223,52 +221,6 @@ class TimeMachine {
                 : dateTime.timeZoneName) ==
             zoneInterval.name &&
         dateTime.timeZoneOffset.inSeconds == zoneInterval.wallOffset.inSeconds;
-  }
-
-  // This is slower (on at least one computer) than guessing the timezone
-  // Plus, since this type of solution will have a high number of corner cases
-  // for the time, the above method is preferred.
-  // ignore: unused_element
-  static Future<String> _getTimeZoneId() async {
-    try {
-      if (io.Platform.isFuchsia) {
-        //
-      } else if (io.Platform.isLinux) {
-        // e.g. cat /etc/timezone /g --> 'America/New_York\n'
-        var id = await io.Process.run('cat', ["/etc/timezone"]);
-        return (id.stdout as String).trim();
-      } else if (io.Platform.isWindows) {
-        // todo: Test
-        // This returns a CLDR windows timezone see: https://unicode.org/repos/cldr/trunk/common/supplemental/windowsZones.xml
-        // We can then convert this to a TZDB timezone.
-        // e.g. tzutl /g --> 'Eastern Standard Time'
-        var id = await io.Process.run('tzutil', ['/g']);
-        return windowsZoneToCldrZone((id.stdout as String).trim());
-      } else if (io.Platform.isAndroid) {
-        //
-      } else if (io.Platform.isIOS) {
-        //
-      } else if (io.Platform.isMacOS) {
-        //
-      }
-    } catch (e) {
-      // todo: custom error type
-      throw StateError(
-          'LocalTimeZone not found; OS is ${io.Platform.operatingSystem}; Error was $e');
-    }
-
-    throw StateError(
-        'LocalTimeZone not found; OS is ${io.Platform.operatingSystem}; OS was unsupported.');
-  }
-
-  static Map<String, String>? _windowsZones;
-  static Future<String> windowsZoneToCldrZone(String id) async {
-    if (_windowsZones == null) {
-      var file = io.File('${io.Directory.current.path}/lib/data/zones.json');
-      _windowsZones = json.decode(await file.readAsString());
-    }
-
-    return _windowsZones![id]!;
   }
 
   // ignore: unused_field

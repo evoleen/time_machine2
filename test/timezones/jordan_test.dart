@@ -4,9 +4,8 @@
 
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
-
 import 'package:test/test.dart';
+import 'package:time_machine/time_machine.dart';
 
 import '../time_machine_testing.dart';
 
@@ -17,14 +16,14 @@ late DateTimeZone jordan;
 /// This is denoted in the zoneinfo database using lastThu 24:00, which was invalid
 /// in our parser.
 Future main() async {
-  await TimeMachine.initialize();
+  await TimeMachineTest.initialize();
   await setup();
 
   await runTests();
 }
 
 Future setup() async {
-  tzdb = await DateTimeZoneProviders.tzdb;
+  tzdb = DateTimeZoneProviders.defaultProvider!;
   jordan = await tzdb['Asia/Amman'];
 }
 
@@ -51,7 +50,7 @@ void Transitions2000To2010() {
     LocalDate summer = LocalDate(year, 6, 1);
     var intervalPair = jordan.mapLocal(summer.atMidnight());
     expect(1, intervalPair.count);
-    expect(expectedDates[year - 2000], intervalPair.earlyInterval.isoLocalStart.calendarDate);
+    expect(expectedDates[year - 2000],
+        intervalPair.earlyInterval.isoLocalStart.calendarDate);
   }
 }
-

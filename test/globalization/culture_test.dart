@@ -9,14 +9,13 @@ import 'package:test/test.dart';
 import '../time_machine_testing.dart';
 
 Future main() async {
-  await TimeMachine.initialize();
+  await TimeMachineTest.initialize();
 
   await runTests();
 }
 
 @Test()
-Future loadCultures() async
-{
+Future loadCultures() async {
   var ids = await Cultures.ids;
   expect(ids.length, greaterThan(0));
 

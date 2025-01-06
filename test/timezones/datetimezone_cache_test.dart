@@ -6,6 +6,7 @@ import 'dart:async';
 
 import 'package:time_machine/src/time_machine_internal.dart';
 import 'package:test/test.dart';
+import 'package:time_machine/time_machine.dart';
 
 import '../time_machine_testing.dart';
 
@@ -13,14 +14,14 @@ late DateTimeZoneProvider tzdb;
 
 /// Tests for DateTimeZoneCache.
 Future main() async {
-  await TimeMachine.initialize();
+  await TimeMachineTest.initialize();
   await setup();
 
   await runTests();
 }
 
 Future setup() async {
-  tzdb = await DateTimeZoneProviders.tzdb;
+  tzdb = DateTimeZoneProviders.defaultProvider!;
 }
 
 // void Construction_NullProvider()
@@ -59,8 +60,7 @@ Future setup() async {
 // }
 
 @Test()
-Future CachingForPresentValues() async
-{
+Future CachingForPresentValues() async {
   var source = TestDateTimeZoneSource(['Test1', "Test2"]);
   var provider = await DateTimeZoneCache.getCache(source);
   var zone1a = await provider['Test1'];
@@ -80,8 +80,7 @@ Future CachingForPresentValues() async
 }
 
 @Test()
-Future SourceIsNotAskedForUtcIfNotAdvertised() async
-{
+Future SourceIsNotAskedForUtcIfNotAdvertised() async {
   var source = TestDateTimeZoneSource(['Test1', "Test2"]);
   var provider = await DateTimeZoneCache.getCache(source);
   var zone = await provider[IDateTimeZone.utcId];
@@ -90,8 +89,7 @@ Future SourceIsNotAskedForUtcIfNotAdvertised() async
 }
 
 @Test()
-Future SourceIsAskedForUtcIfAdvertised() async
-{
+Future SourceIsAskedForUtcIfAdvertised() async {
   var source = TestDateTimeZoneSource(['Test1', "Test2", "UTC"]);
   var provider = await DateTimeZoneCache.getCache(source);
   var zone = await provider[IDateTimeZone.utcId];
@@ -100,8 +98,7 @@ Future SourceIsAskedForUtcIfAdvertised() async
 }
 
 @Test()
-Future SourceIsNotAskedForUnknownIds() async
-{
+Future SourceIsNotAskedForUnknownIds() async {
   var source = TestDateTimeZoneSource(['Test1', "Test2"]);
   var provider = await DateTimeZoneCache.getCache(source);
   // todo: was InvalidDateTimeZoneSourceError ... why did this change? -- the returned error still makes sense.
@@ -110,24 +107,21 @@ Future SourceIsNotAskedForUnknownIds() async
 }
 
 @Test()
-Future UtcIsReturnedInIdsIfAdvertisedByProvider() async
-{
+Future UtcIsReturnedInIdsIfAdvertisedByProvider() async {
   var source = TestDateTimeZoneSource(['Test1', "Test2", "UTC"]);
   var provider = await DateTimeZoneCache.getCache(source);
   expect(provider.ids.contains(IDateTimeZone.utcId), isTrue);
 }
 
 @Test()
-Future UtcIsNotReturnedInIdsIfNotAdvertisedByProvider() async
-{
+Future UtcIsNotReturnedInIdsIfNotAdvertisedByProvider() async {
   var source = TestDateTimeZoneSource(['Test1', "Test2"]);
   var provider = await DateTimeZoneCache.getCache(source);
   expect(provider.ids.contains(IDateTimeZone.utcId), isFalse);
 }
 
 @Test()
-Future FixedOffsetSucceedsWhenNotAdvertised() async
-{
+Future FixedOffsetSucceedsWhenNotAdvertised() async {
   var source = TestDateTimeZoneSource(['Test1', "Test2"]);
   var provider = await DateTimeZoneCache.getCache(source);
   String id = 'UTC+05:30';
@@ -138,8 +132,7 @@ Future FixedOffsetSucceedsWhenNotAdvertised() async
 }
 
 @Test()
-Future FixedOffsetConsultsSourceWhenAdvertised() async
-{
+Future FixedOffsetConsultsSourceWhenAdvertised() async {
   String id = 'UTC+05:30';
   var source = TestDateTimeZoneSource(['Test1', "Test2", id]);
   var provider = await DateTimeZoneCache.getCache(source);
@@ -149,8 +142,7 @@ Future FixedOffsetConsultsSourceWhenAdvertised() async
 }
 
 @Test()
-Future FixedOffsetUncached() async
-{
+Future FixedOffsetUncached() async {
   String id = 'UTC+05:26';
   var source = TestDateTimeZoneSource(['Test1', "Test2"]);
   var provider = await DateTimeZoneCache.getCache(source);
@@ -161,8 +153,7 @@ Future FixedOffsetUncached() async
 }
 
 @Test()
-Future FixedOffsetZeroReturnsUtc() async
-{
+Future FixedOffsetZeroReturnsUtc() async {
   String id = 'UTC+00:00';
   var source = TestDateTimeZoneSource(['Test1', "Test2"]);
   var provider = await DateTimeZoneCache.getCache(source);
@@ -172,8 +163,7 @@ Future FixedOffsetZeroReturnsUtc() async
 }
 
 @Test()
-void Tzdb_Indexer_InvalidFixedOffset()
-{
+void Tzdb_Indexer_InvalidFixedOffset() {
   expect(tzdb['UTC+5Months'], willThrow<DateTimeZoneNotFoundError>());
 }
 
@@ -185,22 +175,22 @@ void Tzdb_Indexer_InvalidFixedOffset()
 // }
 
 @Test()
-Future EmptyIdAccepted() async
-{
-  var provider = await DateTimeZoneCache.getCache(TestDateTimeZoneSource(['Test1', "Test2"]));
+Future EmptyIdAccepted() async {
+  var provider = await DateTimeZoneCache.getCache(
+      TestDateTimeZoneSource(['Test1', "Test2"]));
   expect(provider[''], willThrow<DateTimeZoneNotFoundError>());
 }
 
 @Test()
-Future VersionIdPassThrough() async
-{
-  var provider = await DateTimeZoneCache.getCache(TestDateTimeZoneSource(['Test1', "Test2"])..versionId = Future(() => "foo"));
+Future VersionIdPassThrough() async {
+  var provider = await DateTimeZoneCache.getCache(
+      TestDateTimeZoneSource(['Test1', "Test2"])
+        ..versionId = Future(() => "foo"));
   expect('foo', provider.versionId);
 }
 
 @Test('Test for issue 7 in bug tracker')
-Future Tzdb_IterateOverIds() async
-{
+Future Tzdb_IterateOverIds() async {
   // According to bug, this would go bang
   int count = tzdb.ids.length;
 
@@ -210,14 +200,12 @@ Future Tzdb_IterateOverIds() async
 }
 
 @Test()
-Future Tzdb_Indexer_UtcId() async
-{
-  expect(DateTimeZone.utc, await tzdb[IDateTimeZone.utcId]);
+Future Tzdb_Indexer_UtcId() async {
+  expect(DateTimeZone.utc.id, (await tzdb[IDateTimeZone.utcId]).id);
 }
 
 @Test()
-Future Tzdb_Indexer_AmericaLosAngeles() async
-{
+Future Tzdb_Indexer_AmericaLosAngeles() async {
   const String americaLosAngeles = 'America/Los_Angeles';
   var actual = await tzdb[americaLosAngeles];
   expect(actual, isNotNull);
@@ -226,8 +214,7 @@ Future Tzdb_Indexer_AmericaLosAngeles() async
 }
 
 @Test()
-Future Tzdb_Ids_All() async
-{
+Future Tzdb_Ids_All() async {
   // todo: we don't have Utc in here.... is this what we want? Need to refer to our faux TZDB
   var actual = tzdb.ids;
   var actualCount = actual.length;
@@ -240,10 +227,8 @@ Future Tzdb_Ids_All() async
 /// helpful for diagnostic debugging when we want to check that some potential
 /// invariant holds for all time zones...
 @Test()
-void Tzdb_Indexer_AllIds()
-{
-  for (String id in tzdb.ids)
-  {
+void Tzdb_Indexer_AllIds() {
+  for (String id in tzdb.ids) {
     expect(tzdb[id], isNotNull);
   }
 }
@@ -255,7 +240,6 @@ void Tzdb_Indexer_AllIds()
 //   var cache = await DateTimeZoneCache.getCache(source);
 //   expect(cache.getSystemDefault(), willThrow<DateTimeZoneNotFoundError>());
 // }
-
 
 class TestDateTimeZoneSource extends DateTimeZoneSource {
   String? LastRequestedId;
@@ -276,7 +260,8 @@ class TestDateTimeZoneSource extends DateTimeZoneSource {
   @override
   DateTimeZone forCachedId(String id) {
     LastRequestedId = id;
-    return SingleTransitionDateTimeZone.withId(TimeConstants.unixEpoch, Offset.zero, Offset.hours(id.hashCode % 18), id);
+    return SingleTransitionDateTimeZone.withId(TimeConstants.unixEpoch,
+        Offset.zero, Offset.hours(id.hashCode % 18), id);
   }
 
   @override
@@ -284,6 +269,11 @@ class TestDateTimeZoneSource extends DateTimeZoneSource {
 
   @override
   String get systemDefaultId => 'map';
+
+  @override
+  void setSystemDefaultId(String id) {
+    // NOP
+  }
 }
 
 // A test source that returns null from ForId and GetSystemDefaultId()

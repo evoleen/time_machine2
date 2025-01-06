@@ -7,6 +7,7 @@ import 'dart:async';
 import 'package:time_machine/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
+import 'package:time_machine/time_machine.dart';
 
 import 'time_machine_testing.dart';
 
@@ -15,25 +16,26 @@ import 'time_machine_testing.dart';
 // TODO: Fix all tests to use SingleTransitionZone.
 
 // Sample time zones for DateTimeZone.AtStartOfDay etc. I didn't want to only test midnight transitions.
-late DateTimeZone LosAngeles;
-late DateTimeZone NewZealand;
-late DateTimeZone Paris;
-late DateTimeZone NewYork;
-late DateTimeZone Pacific;
+DateTimeZone? LosAngeles;
+DateTimeZone? NewZealand;
+DateTimeZone? Paris;
+DateTimeZone? NewYork;
+DateTimeZone? Pacific;
 
 Future main() async {
-  await TimeMachine.initialize();
+  await TimeMachineTest.initialize();
   await setup();
 
   await runTests();
 }
 
 Future setup() async {
-  LosAngeles = await (await DateTimeZoneProviders.tzdb)['America/Los_Angeles'];
-  NewZealand = await (await DateTimeZoneProviders.tzdb)['Pacific/Auckland'];
-  Paris = await (await DateTimeZoneProviders.tzdb)['Europe/Paris'];
-  NewYork = await (await DateTimeZoneProviders.tzdb)['America/New_York'];
-  Pacific = await (await DateTimeZoneProviders.tzdb)['America/Los_Angeles'];
+  LosAngeles =
+      await DateTimeZoneProviders.defaultProvider?['America/Los_Angeles'];
+  NewZealand = await DateTimeZoneProviders.defaultProvider?['Pacific/Auckland'];
+  Paris = await DateTimeZoneProviders.defaultProvider?['Europe/Paris'];
+  NewYork = await DateTimeZoneProviders.defaultProvider?['America/New_York'];
+  Pacific = await DateTimeZoneProviders.defaultProvider?['America/Los_Angeles'];
 }
 
 /// Local midnight at the start of the transition (June 1st) becomes 1am.
@@ -213,10 +215,10 @@ void GetOffsetFromLocal_LosAngelesFallTransition() {
   var atTransition = LocalDateTime(2010, 11, 7, 1, 0, 0);
   var ambiguous = LocalDateTime(2010, 11, 7, 1, 30, 0);
   var after = LocalDateTime(2010, 11, 7, 2, 30, 0);
-  AssertOffset(-7, before, LosAngeles);
-  AssertAmbiguous(atTransition, LosAngeles);
-  AssertAmbiguous(ambiguous, LosAngeles);
-  AssertOffset(-8, after, LosAngeles);
+  AssertOffset(-7, before, LosAngeles!);
+  AssertAmbiguous(atTransition, LosAngeles!);
+  AssertAmbiguous(ambiguous, LosAngeles!);
+  AssertOffset(-8, after, LosAngeles!);
 }
 
 @Test()
@@ -225,10 +227,10 @@ void GetOffsetFromLocal_LosAngelesSpringTransition() {
   var impossible = LocalDateTime(2010, 3, 14, 2, 30, 0);
   var atTransition = LocalDateTime(2010, 3, 14, 3, 0, 0);
   var after = LocalDateTime(2010, 3, 14, 3, 30, 0);
-  AssertOffset(-8, before, LosAngeles);
-  AssertImpossible(impossible, LosAngeles);
-  AssertOffset(-7, atTransition, LosAngeles);
-  AssertOffset(-7, after, LosAngeles);
+  AssertOffset(-8, before, LosAngeles!);
+  AssertImpossible(impossible, LosAngeles!);
+  AssertOffset(-7, atTransition, LosAngeles!);
+  AssertOffset(-7, after, LosAngeles!);
 }
 
 // New Zealand goes from +13 to +12 on April 4th 2010 at 3am wall time
@@ -238,10 +240,10 @@ void GetOffsetFromLocal_NewZealandFallTransition() {
   var atTransition = LocalDateTime(2010, 4, 4, 2, 0, 0);
   var ambiguous = LocalDateTime(2010, 4, 4, 2, 30, 0);
   var after = LocalDateTime(2010, 4, 4, 3, 30, 0);
-  AssertOffset(13, before, NewZealand);
-  AssertAmbiguous(atTransition, NewZealand);
-  AssertAmbiguous(ambiguous, NewZealand);
-  AssertOffset(12, after, NewZealand);
+  AssertOffset(13, before, NewZealand!);
+  AssertAmbiguous(atTransition, NewZealand!);
+  AssertAmbiguous(ambiguous, NewZealand!);
+  AssertOffset(12, after, NewZealand!);
 }
 
 // New Zealand goes from +12 to +13 on September 26th 2010 at 2am wall time
@@ -251,10 +253,10 @@ void GetOffsetFromLocal_NewZealandSpringTransition() {
   var impossible = LocalDateTime(2010, 9, 26, 2, 30, 0);
   var atTransition = LocalDateTime(2010, 9, 26, 3, 0, 0);
   var after = LocalDateTime(2010, 9, 26, 3, 30, 0);
-  AssertOffset(12, before, NewZealand);
-  AssertImpossible(impossible, NewZealand);
-  AssertOffset(13, atTransition, NewZealand);
-  AssertOffset(13, after, NewZealand);
+  AssertOffset(12, before, NewZealand!);
+  AssertImpossible(impossible, NewZealand!);
+  AssertOffset(13, atTransition, NewZealand!);
+  AssertOffset(13, after, NewZealand!);
 }
 
 // Paris goes from +1 to +2 on March 28th 2010 at 2am wall time
@@ -264,10 +266,10 @@ void GetOffsetFromLocal_ParisFallTransition() {
   var atTransition = LocalDateTime(2010, 10, 31, 2, 0, 0);
   var ambiguous = LocalDateTime(2010, 10, 31, 2, 30, 0);
   var after = LocalDateTime(2010, 10, 31, 3, 30, 0);
-  AssertOffset(2, before, Paris);
-  AssertAmbiguous(ambiguous, Paris);
-  AssertAmbiguous(atTransition, Paris);
-  AssertOffset(1, after, Paris);
+  AssertOffset(2, before, Paris!);
+  AssertAmbiguous(ambiguous, Paris!);
+  AssertAmbiguous(atTransition, Paris!);
+  AssertOffset(1, after, Paris!);
 }
 
 @Test()
@@ -276,34 +278,34 @@ void GetOffsetFromLocal_ParisSpringTransition() {
   var impossible = LocalDateTime(2010, 3, 28, 2, 30, 0);
   var atTransition = LocalDateTime(2010, 3, 28, 3, 0, 0);
   var after = LocalDateTime(2010, 3, 28, 3, 30, 0);
-  AssertOffset(1, before, Paris);
-  AssertImpossible(impossible, Paris);
-  AssertOffset(2, atTransition, Paris);
-  AssertOffset(2, after, Paris);
+  AssertOffset(1, before, Paris!);
+  AssertImpossible(impossible, Paris!);
+  AssertOffset(2, atTransition, Paris!);
+  AssertOffset(2, after, Paris!);
 }
 
 @Test()
 void MapLocalDateTime_UnambiguousDateReturnsUnambiguousMapping() {
   //2011-11-09 01:30:00 - not ambiguous in America/New York timezone
   var unambigiousTime = LocalDateTime(2011, 11, 9, 1, 30, 0);
-  var mapping = NewYork.mapLocal(unambigiousTime);
-  expect(1, mapping.count);
+  var mapping = NewYork?.mapLocal(unambigiousTime);
+  expect(1, mapping?.count);
 }
 
 @Test()
 void MapLocalDateTime_AmbiguousDateReturnsAmbigousMapping() {
   //2011-11-06 01:30:00 - falls during DST - EST conversion in America/New York timezone
   var ambiguousTime = LocalDateTime(2011, 11, 6, 1, 30, 0);
-  var mapping = NewYork.mapLocal(ambiguousTime);
-  expect(2, mapping.count);
+  var mapping = NewYork?.mapLocal(ambiguousTime);
+  expect(2, mapping?.count);
 }
 
 @Test()
 void MapLocalDateTime_SkippedDateReturnsSkippedMapping() {
   //2011-03-13 02:30:00 - falls during EST - DST conversion in America/New York timezone
   var skippedTime = LocalDateTime(2011, 3, 13, 2, 30, 0);
-  var mapping = NewYork.mapLocal(skippedTime);
-  expect(0, mapping.count);
+  var mapping = NewYork?.mapLocal(skippedTime);
+  expect(0, mapping?.count);
 }
 
 // Some zones skipped dates by changing from UTC-lots to UTC+lots. For example, Samoa (Pacific/Apia)
@@ -329,7 +331,7 @@ Future AtStartOfDay_DayDoesntExist(String zoneId, String localDate) async {
 @Test()
 void AtStrictly_InWinter() {
   var when = ZonedDateTime.atStrictly(
-      LocalDateTime(2009, 12, 22, 21, 39, 30), Pacific);
+      LocalDateTime(2009, 12, 22, 21, 39, 30), Pacific!);
 
   expect(2009, when.year);
   expect(12, when.monthOfYear);
@@ -343,8 +345,8 @@ void AtStrictly_InWinter() {
 
 @Test()
 void AtStrictly_InSummer() {
-  var when =
-      ZonedDateTime.atStrictly(LocalDateTime(2009, 6, 22, 21, 39, 30), Pacific);
+  var when = ZonedDateTime.atStrictly(
+      LocalDateTime(2009, 6, 22, 21, 39, 30), Pacific!);
 
   expect(2009, when.year);
   expect(6, when.monthOfYear);
@@ -362,7 +364,7 @@ void AtStrictly_ThrowsWhenAmbiguous() {
   // Assert.Throws<AmbiguousTimeException>(() => Pacific.AtStrictly(new LocalDateTime.fromYMDHMS(2009, 11, 1, 1, 30, 0)));
   expect(
       () => ZonedDateTime.atStrictly(
-          LocalDateTime(2009, 11, 1, 1, 30, 0), Pacific),
+          LocalDateTime(2009, 11, 1, 1, 30, 0), Pacific!),
       willThrow<AmbiguousTimeError>());
 }
 
@@ -373,7 +375,7 @@ void AtStrictly_ThrowsWhenSkipped() {
   // Assert.Throws<SkippedTimeException>(() => Pacific.AtStrictly(new LocalDateTime.fromYMDHMS(2009, 3, 8, 2, 30, 0)));
   expect(
       () => ZonedDateTime.atStrictly(
-          LocalDateTime(2009, 3, 8, 2, 30, 0), Pacific),
+          LocalDateTime(2009, 3, 8, 2, 30, 0), Pacific!),
       willThrow<SkippedTimeError>());
 }
 
@@ -382,7 +384,7 @@ void AtStrictly_ThrowsWhenSkipped() {
 @Test()
 void AtLeniently_AmbiguousTime_ReturnsEarlierMapping() {
   var local = LocalDateTime(2009, 11, 1, 1, 30, 0);
-  var zoned = ZonedDateTime.atLeniently(local, Pacific);
+  var zoned = ZonedDateTime.atLeniently(local, Pacific!);
   expect(zoned.localDateTime, local);
   expect(zoned.offset, Offset.hours(-7));
 }
@@ -393,7 +395,7 @@ void AtLeniently_AmbiguousTime_ReturnsEarlierMapping() {
 @Test()
 void AtLeniently_ReturnsForwardShiftedValue() {
   var local = LocalDateTime(2009, 3, 8, 2, 30, 0);
-  var zoned = ZonedDateTime.atLeniently(local, Pacific);
+  var zoned = ZonedDateTime.atLeniently(local, Pacific!);
   expect(LocalDateTime(2009, 3, 8, 3, 30, 0), zoned.localDateTime);
   expect(Offset.hours(-7), zoned.offset);
 }
@@ -403,8 +405,8 @@ void ResolveLocal() {
   // Don't need much for this - it only delegates.
   var ambiguous = LocalDateTime(2009, 11, 1, 1, 30, 0);
   var skipped = LocalDateTime(2009, 3, 8, 2, 30, 0);
-  expect(ZonedDateTime.atLeniently(ambiguous, Pacific),
-      ZonedDateTime.resolve(ambiguous, Pacific, Resolvers.lenientResolver));
-  expect(ZonedDateTime.atLeniently(skipped, Pacific),
-      ZonedDateTime.resolve(skipped, Pacific, Resolvers.lenientResolver));
+  expect(ZonedDateTime.atLeniently(ambiguous, Pacific!),
+      ZonedDateTime.resolve(ambiguous, Pacific!, Resolvers.lenientResolver));
+  expect(ZonedDateTime.atLeniently(skipped, Pacific!),
+      ZonedDateTime.resolve(skipped, Pacific!, Resolvers.lenientResolver));
 }

@@ -1,93 +1,118 @@
-// Portions of this work are Copyright 2018 The Time Machine Authors. All rights reserved.
-// Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
-// Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
-
-import 'dart:async';
-
 import 'package:time_machine/src/time_machine_internal.dart';
 
-import 'time_zone_datetimezone_source.dart';
+import 'package:time_machine/src/timezones/tzdb_datetimezone_source_native_impl.dart'
+    if (dart.library.html) 'tzdb_datetimezone_source_browser_impl.dart';
 
-// todo: the Internal Classes here make me sad
-
-@internal
-abstract class IDateTimeZoneProviders {
-  static set defaultProvider(DateTimeZoneProvider provider) =>
-      DateTimeZoneProviders._defaultProvider = provider;
-}
-
-// todo: I think we need an easy way for library users to inject their own IDateTimeZoneSource
-abstract class DateTimeZoneProviders {
-  // todo: await ... await ... patterns are so ick.
-
-  static Future<DateTimeZoneProvider>? _tzdb;
-  static Future<DateTimeZoneProvider>? _timezone;
-
-  static Future<DateTimeZoneProvider> get tzdb =>
-      _tzdb ??= DateTimeZoneCache.getCache(TzdbDateTimeZoneSource());
-  static Future<DateTimeZoneProvider> get timezone =>
-      _timezone ??= DateTimeZoneCache.getCache(TimeZoneDateTimeZoneSource());
-
-  static DateTimeZoneProvider? _defaultProvider;
-
-  /// This is the default [DateTimeZoneProvider] for the currently loaded TimeMachine.
-  /// It will be used internally where-ever timezone support is needed when no provider is provided,
-  static DateTimeZoneProvider? get defaultProvider => _defaultProvider;
-}
-
-@internal
-class ITzdbDateTimeZoneSource {
-  static void loadAllTimeZoneInformation_SetFlag() {
-    if (TzdbDateTimeZoneSource._cachedTzdbIndex != null)
-      throw StateError(
-          'loadAllTimeZone flag may not be set after TZDB is initalized.');
-    TzdbDateTimeZoneSource._loadAllTimeZoneInformation = true;
-  }
-}
+import 'tzdb_io.dart';
+import 'tzdb_location_database.dart';
 
 class TzdbDateTimeZoneSource extends DateTimeZoneSource {
-  // todo: this is a bandaid ~ we need to rework our infrastructure a bit -- maybe draw some diagrams?
-  // This gives us the JS functionality of just minimizing our timezones, and it gives us the VM/Flutter functionality of just loading them all from one file.
-  static bool _loadAllTimeZoneInformation = false;
+  bool _initialized = false;
 
-  static Future _init() async {
-    if (_cachedTzdbIndex != null) return;
+  // map of date time zones that are deserialized from TZF entries on init
+  final _dateTimeZones = <String, DateTimeZone>{};
 
-    if (_loadAllTimeZoneInformation) {
-      _cachedTzdbIndex = await TzdbIndex.loadAll();
-    } else {
-      _cachedTzdbIndex = await TzdbIndex.load();
+  String _defaultId = "UTC";
+
+  Future<void> _init() async {
+    if (!_initialized) {
+      final tzdbData = await getTzdbData("latest_10y.tzf");
+      final database = _deserializeTzdbDatabase(tzdbData);
+
+      // convert all tzf entries into Time Machine's zone format
+      for (final id in database.locations.keys) {
+        final location = database.locations[id];
+
+        if (location == null) {
+          throw Exception("Internal consistency error.");
+        }
+
+        final zoneIntervals = List<ZoneInterval>.empty(growable: true);
+
+        // if we don't have any transitions, this is a fixed zone
+        if (location.transitionAt.isEmpty) {
+          final firstInterval = IZoneInterval.newZoneInterval(
+            location.zones.first.abbreviation,
+            IInstant.beforeMinValue,
+            IInstant.afterMaxValue,
+            Offset(location.zones.first.offset ~/ 1000),
+            Offset(
+              location.zones.first.offset ~/ 1000 +
+                  (location.zones.first.isDst ? 3600 : 0),
+            ),
+          );
+
+          zoneIntervals.add(firstInterval);
+        } else {
+          // if it's not a fixed zone, use the transition map
+          for (var i = 0; i < location.transitionAt.length; i++) {
+            var zoneStart =
+                Instant.fromEpochMilliseconds(location.transitionAt[i]);
+            var zoneEnd = i == location.transitionAt.length - 1
+                ? null
+                : Instant.fromEpochMilliseconds(location.transitionAt[i + 1]);
+
+            final zone = location.zones[location.transitionZone[i]];
+
+            final zoneInterval = IZoneInterval.newZoneInterval(
+              zone.abbreviation,
+              zoneStart,
+              zoneEnd,
+              Offset(zone.offset ~/ 1000),
+              zone.isDst ? Offset(3600) : Offset.zero,
+            );
+
+            zoneIntervals.add(zoneInterval);
+          }
+        }
+
+        final precalculatedZone =
+            PrecalculatedDateTimeZone(id, zoneIntervals, null);
+
+        _dateTimeZones[id] = precalculatedZone;
+      }
+
+      _initialized = true;
     }
-
-    /*
-    try {
-      DateTimeZoneProviders._defaultProvider ??=
-      await DateTimeZoneProviders.tzdb; // (DateTimeZoneProviders._tzdb ?? DateTimeZoneCache.getCache(new TzdbDateTimeZoneSource()));
-    }
-    catch (e) {
-      print(e);
-    }*/
   }
 
-  static TzdbIndex? _cachedTzdbIndex;
-  static final Future<TzdbIndex> _tzdbIndexAsync = _cachedTzdbIndex != null
-      ? Future.value(_cachedTzdbIndex)
-      : _init().then((_) => _cachedTzdbIndex!);
+  /// Takes raw TZF data and deserializes
+  TzdbLocationDatabase _deserializeTzdbDatabase(List<int> rawData) {
+    final database = TzdbLocationDatabase();
+
+    for (final l in tzdbDeserialize(rawData)) {
+      database.add(l);
+    }
+
+    return database;
+  }
 
   @override
-  Future<DateTimeZone> forId(String id) async =>
-      (await _tzdbIndexAsync).getTimeZone(id);
+  Future<DateTimeZone> forId(String id) async {
+    await _init();
+
+    return forCachedId(id);
+  }
 
   @override
-  DateTimeZone forCachedId(String id) => _cachedTzdbIndex!.getTimeZoneSync(id)!;
+  DateTimeZone forCachedId(String id) {
+    return _dateTimeZones[id] ?? _dateTimeZones['UTC']!;
+  }
 
   @override
-  Future<Iterable<String>> getIds() async => (await _tzdbIndexAsync).zoneIds;
+  Future<Iterable<String>> getIds() async {
+    await _init();
+    return _dateTimeZones.keys;
+  }
 
   @override
-  String get systemDefaultId => TzdbIndex.localId;
+  String get systemDefaultId => _defaultId;
 
-  // TODO: forward version to tzdb_index and then get it in here! (I think nodatime is on 2018e atm?)
   @override
-  Future<String> get versionId => Future.sync(() => 'TZDB: 2018');
+  Future<String> get versionId => Future.sync(() => 'TZDB: 2024b');
+
+  @override
+  void setSystemDefaultId(String id) {
+    _defaultId = id;
+  }
 }

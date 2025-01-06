@@ -4,9 +4,8 @@
 
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
-
 import 'package:test/test.dart';
+import 'package:time_machine/time_machine.dart';
 
 import '../time_machine_testing.dart';
 
@@ -24,26 +23,26 @@ Offset InitialOffset = TestObjects.CreatePositiveOffset(0, 9, 21);
 /// 2010 fall transition: October 31st
 /// 2011 spring transition: March 27th
 Future main() async {
-  await TimeMachine.initialize();
+  await TimeMachineTest.initialize();
   await setup();
 
   await runTests();
 }
 
 Future setup() async {
-  tzdb = await DateTimeZoneProviders.tzdb;
+  tzdb = DateTimeZoneProviders.defaultProvider!;
   // Make sure we deal with the uncached time zone
   paris = Uncached(await tzdb['Europe/Paris']);
 }
 
 @Test()
-void FirstTransitions()
-{
+void FirstTransitions() {
   // Paris had a name change in 1891, and then moved from +0:09:21 to UTC in 1911
   var nameChangeInstant = Instant.utc(1891, 3, 15, 23, 50, 39);
   var utcChangeInstant = Instant.utc(1911, 3, 10, 23, 50, 39);
 
-  var beforeNameChange = paris.getZoneInterval(nameChangeInstant - Time.epsilon);
+  var beforeNameChange =
+      paris.getZoneInterval(nameChangeInstant - Time.epsilon);
   var afterNameChange = paris.getZoneInterval(nameChangeInstant);
   var afterSmallChange = paris.getZoneInterval(utcChangeInstant);
 
@@ -56,4 +55,3 @@ void FirstTransitions()
   expect('WET', afterSmallChange.name);
   expect(Offset.zero, afterSmallChange.wallOffset);
 }
-

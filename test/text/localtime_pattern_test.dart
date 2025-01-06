@@ -13,10 +13,11 @@ import 'pattern_test_base.dart';
 import 'pattern_test_data.dart';
 import 'test_cultures.dart';
 
-@private final List<Culture> _allCultures = [];
+@private
+final List<Culture> _allCultures = [];
 
 Future main() async {
-  await TimeMachine.initialize();
+  await TimeMachineTest.initialize();
   await setup();
 
   await runTests();
@@ -25,7 +26,7 @@ Future main() async {
 Future setup() async {
   var sw = Stopwatch()..start();
   var ids = await Cultures.ids;
-  for(var id in ids) {
+  for (var id in ids) {
     Culture? culture = await Cultures.getCulture(id);
     if (culture != null) _allCultures.add(culture);
   }
@@ -35,25 +36,26 @@ Future setup() async {
 @Test()
 class LocalTimePatternTest extends PatternTestBase<LocalTime> {
   List<Culture> get Cultures => _allCultures;
-  @private static final DateTime SampleDateTime = DateTime(
-      2000,
-      1,
-      1,
-      21,
-      13,
-      34,
-      123); //.AddTicks(4567);
-  @private static final LocalTime SampleLocalTime = LocalTime(21, 13, 34, ns: 123 * TimeConstants.nanosecondsPerMillisecond + 4567 * 100);
+  @private
+  static final DateTime SampleDateTime =
+      DateTime(2000, 1, 1, 21, 13, 34, 123); //.AddTicks(4567);
+  @private
+  static final LocalTime SampleLocalTime = LocalTime(21, 13, 34,
+      ns: 123 * TimeConstants.nanosecondsPerMillisecond + 4567 * 100);
 
 // No BCL here. (also we'd need ExpectedCharacters to be a string?)
 // Characters we expect to work the same in Noda Time as in the BCL.
 // @private static const String ExpectedCharacters = 'hHms.:fFtT ';
 
-  @private static final Culture AmOnlyCulture = CreateCustomAmPmCulture('am', "");
-  @private static final Culture PmOnlyCulture = CreateCustomAmPmCulture('', "pm");
-  @private static final Culture NoAmOrPmCulture = CreateCustomAmPmCulture('', "");
+  @private
+  static final Culture AmOnlyCulture = CreateCustomAmPmCulture('am', "");
+  @private
+  static final Culture PmOnlyCulture = CreateCustomAmPmCulture('', "pm");
+  @private
+  static final Culture NoAmOrPmCulture = CreateCustomAmPmCulture('', "");
 
-  @internal final List<Data> InvalidPatternData = [
+  @internal
+  final List<Data> InvalidPatternData = [
     Data()
       ..pattern = ''
       ..message = TextErrorMessages.formatStringEmpty,
@@ -120,7 +122,8 @@ class LocalTimePatternTest extends PatternTestBase<LocalTime> {
       ..parameters.addAll(['T'])
   ];
 
-  @internal List<Data> ParseFailureData = [
+  @internal
+  List<Data> ParseFailureData = [
     Data()
       ..text = '17 6'
       ..pattern = 'HH h'
@@ -151,7 +154,8 @@ class LocalTimePatternTest extends PatternTestBase<LocalTime> {
       ..message = TextErrorMessages.missingAmPmDesignator
   ];
 
-  @internal List<Data> ParseOnlyData = [
+  @internal
+  List<Data> ParseOnlyData = [
     Data.hms(0, 0, 0, 400)
       ..text = '4'
       ..pattern = '%f',
@@ -290,7 +294,8 @@ class LocalTimePatternTest extends PatternTestBase<LocalTime> {
       ..pattern = 'ss.FF',
   ];
 
-  @internal List<Data> FormatOnlyData = [
+  @internal
+  List<Data> FormatOnlyData = [
     Data.hms(5, 6, 7, 8)
       ..text = ''
       ..pattern = '%F',
@@ -366,7 +371,6 @@ class LocalTimePatternTest extends PatternTestBase<LocalTime> {
     Data.hms(0, 0, 0, 0)
       ..text = ''
       ..pattern = 'FF',
-
     Data.hms(5, 6, 7, 8)
       ..culture = TestCultures.EnUs
       ..text = '0'
@@ -409,14 +413,12 @@ class LocalTimePatternTest extends PatternTestBase<LocalTime> {
       ..pattern = '%s',
   ];
 
-  @internal List<Data> DefaultPatternData = [
+  @internal
+  List<Data> DefaultPatternData = [
     // Invariant culture uses HH:mm:ss for the 'long' pattern
-    Data.hms(5, 0, 0, 0)
-      ..text = '05:00:00',
-    Data.hms(5, 12, 0, 0)
-      ..text = '05:12:00',
-    Data.hms(5, 12, 34, 0)
-      ..text = '05:12:34',
+    Data.hms(5, 0, 0, 0)..text = '05:00:00',
+    Data.hms(5, 12, 0, 0)..text = '05:12:00',
+    Data.hms(5, 12, 34, 0)..text = '05:12:34',
 
     // US uses hh:mm:ss tt for the 'long' pattern
     Data.hms(17, 0, 0, 0)
@@ -433,34 +435,45 @@ class LocalTimePatternTest extends PatternTestBase<LocalTime> {
       ..text = '5:12:34 AM',
   ];
 
-  @internal final List<Data> TemplateValueData = [
+  @internal
+  final List<Data> TemplateValueData = [
     // Pattern specifies nothing - template value is passed through
-    Data(LocalTime(1, 2, 3, ns: 4 * TimeConstants.nanosecondsPerMillisecond + 5 * 100))
+    Data(LocalTime(1, 2, 3,
+        ns: 4 * TimeConstants.nanosecondsPerMillisecond + 5 * 100))
       ..culture = TestCultures.EnUs
       ..text = 'X'
       ..pattern = "'X'"
-      ..template = LocalTime(1, 2, 3, ns: 4 * TimeConstants.nanosecondsPerMillisecond + 5 * 100),
+      ..template = LocalTime(1, 2, 3,
+          ns: 4 * TimeConstants.nanosecondsPerMillisecond + 5 * 100),
     // Tests for each individual field being propagated
-    Data(LocalTime(1, 6, 7, ns: 8 * TimeConstants.nanosecondsPerMillisecond + 9 * 100))
+    Data(LocalTime(1, 6, 7,
+        ns: 8 * TimeConstants.nanosecondsPerMillisecond + 9 * 100))
       ..culture = TestCultures.EnUs
       ..text = '06:07.0080009'
       ..pattern = 'mm:ss.FFFFFFF'
-      ..template = LocalTime(1, 2, 3, ns: 4 * TimeConstants.nanosecondsPerMillisecond + 5 * 100),
-    Data(LocalTime(6, 2, 7, ns: 8 * TimeConstants.nanosecondsPerMillisecond + 9 * 100))
+      ..template = LocalTime(1, 2, 3,
+          ns: 4 * TimeConstants.nanosecondsPerMillisecond + 5 * 100),
+    Data(LocalTime(6, 2, 7,
+        ns: 8 * TimeConstants.nanosecondsPerMillisecond + 9 * 100))
       ..culture = TestCultures.EnUs
       ..text = '06:07.0080009'
       ..pattern = 'HH:ss.FFFFFFF'
-      ..template = LocalTime(1, 2, 3, ns: 4 * TimeConstants.nanosecondsPerMillisecond + 5 * 100),
-    Data(LocalTime(6, 7, 3, ns: 8 * TimeConstants.nanosecondsPerMillisecond + 9 * 100))
+      ..template = LocalTime(1, 2, 3,
+          ns: 4 * TimeConstants.nanosecondsPerMillisecond + 5 * 100),
+    Data(LocalTime(6, 7, 3,
+        ns: 8 * TimeConstants.nanosecondsPerMillisecond + 9 * 100))
       ..culture = TestCultures.EnUs
       ..text = '06:07.0080009'
       ..pattern = 'HH:mm.FFFFFFF'
-      ..template = LocalTime(1, 2, 3, ns: 4 * TimeConstants.nanosecondsPerMillisecond + 5 * 100),
-    Data(LocalTime(6, 7, 8, ns: 4 * TimeConstants.nanosecondsPerMillisecond + 5 * 100))
+      ..template = LocalTime(1, 2, 3,
+          ns: 4 * TimeConstants.nanosecondsPerMillisecond + 5 * 100),
+    Data(LocalTime(6, 7, 8,
+        ns: 4 * TimeConstants.nanosecondsPerMillisecond + 5 * 100))
       ..culture = TestCultures.EnUs
       ..text = '06:07:08'
       ..pattern = 'HH:mm:ss'
-      ..template = LocalTime(1, 2, 3, ns: 4 * TimeConstants.nanosecondsPerMillisecond + 5 * 100),
+      ..template = LocalTime(1, 2, 3,
+          ns: 4 * TimeConstants.nanosecondsPerMillisecond + 5 * 100),
 
     // Hours are tricky because of the ways they can be specified
     Data(LocalTime(6, 2, 3))
@@ -502,7 +515,8 @@ class LocalTimePatternTest extends PatternTestBase<LocalTime> {
 
   /// Common test data for both formatting and parsing. A test should be placed here unless is truly
   /// cannot be run both ways. This ensures that as many round-trip type tests are performed as possible.
-  @internal final List<Data> FormatAndParseData = [
+  @internal
+  final List<Data> FormatAndParseData = [
     Data(LocalTime.midnight)
       ..culture = TestCultures.EnUs
       ..text = '.'
@@ -793,37 +807,49 @@ class LocalTimePatternTest extends PatternTestBase<LocalTime> {
       ..pattern = '%t',
 
     // Pattern specifies nothing - template value is passed through
-    Data(LocalTime(1, 2, 3, ns: 4 * TimeConstants.nanosecondsPerMillisecond + 5 * 100))
+    Data(LocalTime(1, 2, 3,
+        ns: 4 * TimeConstants.nanosecondsPerMillisecond + 5 * 100))
       ..culture = TestCultures.EnUs
       ..text = '*'
       ..pattern = '%*'
-      ..template = LocalTime(1, 2, 3, ns: 4 * TimeConstants.nanosecondsPerMillisecond + 5 * 100),
+      ..template = LocalTime(1, 2, 3,
+          ns: 4 * TimeConstants.nanosecondsPerMillisecond + 5 * 100),
     // Tests for each individual field being propagated
-    Data(LocalTime(1, 6, 7, ns: 8 * TimeConstants.nanosecondsPerMillisecond + 9 * 100))
+    Data(LocalTime(1, 6, 7,
+        ns: 8 * TimeConstants.nanosecondsPerMillisecond + 9 * 100))
       ..culture = TestCultures.EnUs
       ..text = '06:07.0080009'
       ..pattern = 'mm:ss.FFFFFFF'
-      ..template = LocalTime(1, 2, 3, ns: 4 * TimeConstants.nanosecondsPerMillisecond + 5 * 100),
-    Data(LocalTime(6, 2, 7, ns: 8 * TimeConstants.nanosecondsPerMillisecond + 9 * 100))
+      ..template = LocalTime(1, 2, 3,
+          ns: 4 * TimeConstants.nanosecondsPerMillisecond + 5 * 100),
+    Data(LocalTime(6, 2, 7,
+        ns: 8 * TimeConstants.nanosecondsPerMillisecond + 9 * 100))
       ..culture = TestCultures.EnUs
       ..text = '06:07.0080009'
       ..pattern = 'HH:ss.FFFFFFF'
-      ..template = LocalTime(1, 2, 3, ns: 4 * TimeConstants.nanosecondsPerMillisecond + 5 * 100),
-    Data(LocalTime(6, 7, 3, ns: 8 * TimeConstants.nanosecondsPerMillisecond + 9 * 100))
+      ..template = LocalTime(1, 2, 3,
+          ns: 4 * TimeConstants.nanosecondsPerMillisecond + 5 * 100),
+    Data(LocalTime(6, 7, 3,
+        ns: 8 * TimeConstants.nanosecondsPerMillisecond + 9 * 100))
       ..culture = TestCultures.EnUs
       ..text = '06:07.0080009'
       ..pattern = 'HH:mm.FFFFFFF'
-      ..template = LocalTime(1, 2, 3, ns: 4 * TimeConstants.nanosecondsPerMillisecond + 5 * 100),
-    Data(LocalTime(6, 7, 3, ns: 8 * TimeConstants.nanosecondsPerMillisecond + 9 * 100))
+      ..template = LocalTime(1, 2, 3,
+          ns: 4 * TimeConstants.nanosecondsPerMillisecond + 5 * 100),
+    Data(LocalTime(6, 7, 3,
+        ns: 8 * TimeConstants.nanosecondsPerMillisecond + 9 * 100))
       ..culture = TestCultures.EnUs
       ..text = '06:07.0080009'
       ..pattern = 'HH:mm.FFFFFFF'
-      ..template = LocalTime(1, 2, 3, ns: 4 * TimeConstants.nanosecondsPerMillisecond + 5 * 100),
-    Data(LocalTime(6, 7, 8, ns: 4 * TimeConstants.nanosecondsPerMillisecond + 5 * 100))
+      ..template = LocalTime(1, 2, 3,
+          ns: 4 * TimeConstants.nanosecondsPerMillisecond + 5 * 100),
+    Data(LocalTime(6, 7, 8,
+        ns: 4 * TimeConstants.nanosecondsPerMillisecond + 5 * 100))
       ..culture = TestCultures.EnUs
       ..text = '06:07:08'
       ..pattern = 'HH:mm:ss'
-      ..template = LocalTime(1, 2, 3, ns: 4 * TimeConstants.nanosecondsPerMillisecond + 5 * 100),
+      ..template = LocalTime(1, 2, 3,
+          ns: 4 * TimeConstants.nanosecondsPerMillisecond + 5 * 100),
 
     // Hours are tricky because of the ways they can be specified
     Data(LocalTime(6, 2, 3))
@@ -947,15 +973,23 @@ class LocalTimePatternTest extends PatternTestBase<LocalTime> {
       ..pattern = "HH':'mm':'ss;FFFFFFF",
   ];
 
-  @internal Iterable<Data> get ParseData => [ParseOnlyData, FormatAndParseData].expand((x) => x);
+  @internal
+  Iterable<Data> get ParseData =>
+      [ParseOnlyData, FormatAndParseData].expand((x) => x);
 
-  @internal Iterable<Data> get FormatData => [FormatOnlyData, FormatAndParseData].expand((x) => x);
+  @internal
+  Iterable<Data> get FormatData =>
+      [FormatOnlyData, FormatAndParseData].expand((x) => x);
 
-  @private static Culture CreateCustomAmPmCulture(String amDesignator, String pmDesignator) {
-    return Culture('ampmDesignators'/*Culture.invariantCultureId*/, (
-        DateTimeFormatBuilder.invariant()
-          ..amDesignator = amDesignator
-          ..pmDesignator = pmDesignator).Build());
+  @private
+  static Culture CreateCustomAmPmCulture(
+      String amDesignator, String pmDesignator) {
+    return Culture(
+        'ampmDesignators' /*Culture.invariantCultureId*/,
+        (DateTimeFormatBuilder.invariant()
+              ..amDesignator = amDesignator
+              ..pmDesignator = pmDesignator)
+            .Build());
   }
 
   // @Test()
@@ -1022,7 +1056,8 @@ AssertBclNodaEquality(culture, culture.DateTimeFormat.ShortTimePattern);
   @Test()
   void WithTemplateValue_PropertyFetch() {
     LocalTime newValue = LocalTime(1, 23, 45);
-    var pattern = LocalTimePattern.createWithInvariantCulture('HH').withTemplateValue(newValue);
+    var pattern = LocalTimePattern.createWithInvariantCulture('HH')
+        .withTemplateValue(newValue);
     expect(newValue, pattern.templateValue);
   }
 
@@ -1064,23 +1099,26 @@ expect(SampleDateTime.toString(patternText, culture), pattern.Format(SampleLocal
 }
 
 /// A container for test data for formatting and parsing [LocalTime] objects.
-/*sealed*/ class Data extends PatternTestData<LocalTime>
-{
+/*sealed*/ class Data extends PatternTestData<LocalTime> {
   // Default to midnight
-  /*protected*/ @override LocalTime get defaultTemplate => LocalTime.midnight;
+  /*protected*/ @override
+  LocalTime get defaultTemplate => LocalTime.midnight;
 
   Data([LocalTime? value]) : super(value ?? LocalTime.midnight);
 
-  Data.hms(int hours, int minutes, int seconds, [int milliseconds = 0, int ticksWithinMillisecond = 0])
-      : super(LocalTime(hours, minutes, seconds, ns: milliseconds * TimeConstants.nanosecondsPerMillisecond + ticksWithinMillisecond * 100));
+  Data.hms(int hours, int minutes, int seconds,
+      [int milliseconds = 0, int ticksWithinMillisecond = 0])
+      : super(LocalTime(hours, minutes, seconds,
+            ns: milliseconds * TimeConstants.nanosecondsPerMillisecond +
+                ticksWithinMillisecond * 100));
 
   Data.nano(int hours, int minutes, int seconds, int /*long*/ nanoOfSecond)
       : super(LocalTime(hours, minutes, seconds).addNanoseconds(nanoOfSecond));
 
-
-  @internal @override IPattern<LocalTime> CreatePattern() =>
-  LocalTimePattern.createWithInvariantCulture(super.pattern)
-      .withTemplateValue(template)
-      .withCulture(culture);
+  @internal
+  @override
+  IPattern<LocalTime> CreatePattern() =>
+      LocalTimePattern.createWithInvariantCulture(super.pattern)
+          .withTemplateValue(template)
+          .withCulture(culture);
 }
-

@@ -4,7 +4,6 @@
 
 import 'dart:async';
 
-
 import 'package:time_machine/src/time_machine_internal.dart';
 
 /// Provides an implementation of [DateTimeZoneProvider] that caches results from an
@@ -47,12 +46,14 @@ class DateTimeZoneCache extends DateTimeZoneProvider {
     var VersionId = await source.versionId;
 
     if (VersionId == null) {
-      throw InvalidDateTimeZoneSourceError('Source-returned version ID was null');
+      throw InvalidDateTimeZoneSourceError(
+          'Source-returned version ID was null');
     }
 
     var providerIds = await source.getIds();
     if (providerIds == null) {
-      throw InvalidDateTimeZoneSourceError('Source-returned ID sequence was null');
+      throw InvalidDateTimeZoneSourceError(
+          'Source-returned ID sequence was null');
     }
 
     var idList = List<String>.from(providerIds);
@@ -74,7 +75,8 @@ class DateTimeZoneCache extends DateTimeZoneProvider {
   Future<DateTimeZone> getSystemDefault() async {
     String? id = _source.systemDefaultId;
     if (id == null) {
-      throw DateTimeZoneNotFoundError('System default time zone is unknown to source $versionId');
+      throw DateTimeZoneNotFoundError(
+          'System default time zone is unknown to source $versionId');
     }
     return await this[id];
   }
@@ -83,7 +85,8 @@ class DateTimeZoneCache extends DateTimeZoneProvider {
   DateTimeZone getCachedSystemDefault() {
     String? id = _source.systemDefaultId;
     if (id == null) {
-      throw DateTimeZoneNotFoundError('System default time zone is unknown to source $versionId');
+      throw DateTimeZoneNotFoundError(
+          'System default time zone is unknown to source $versionId');
     }
     return getDateTimeZoneSync(id);
   }
@@ -92,12 +95,14 @@ class DateTimeZoneCache extends DateTimeZoneProvider {
   @override
   Future<DateTimeZone?> getZoneOrNull(String id) async {
     Preconditions.checkNotNull(id, 'id');
-    return (await _getZoneFromSourceOrNull(id)) ?? FixedDateTimeZone.getFixedZoneOrNull(id);
+    return (await _getZoneFromSourceOrNull(id)) ??
+        FixedDateTimeZone.getFixedZoneOrNull(id);
   }
 
   DateTimeZone? getCachedZoneOrNull(String id) {
     Preconditions.checkNotNull(id, 'id');
-    return _getCachedZoneFromSourceOrNull(id) ?? FixedDateTimeZone.getFixedZoneOrNull(id);
+    return _getCachedZoneFromSourceOrNull(id) ??
+        FixedDateTimeZone.getFixedZoneOrNull(id);
   }
 
   Future<DateTimeZone?> _getZoneFromSourceOrNull(String id) async {
@@ -143,7 +148,8 @@ class DateTimeZoneCache extends DateTimeZoneProvider {
   Future<DateTimeZone> operator [](String id) async {
     var zone = await getZoneOrNull(id);
     if (zone == null) {
-      throw DateTimeZoneNotFoundError('Time zone $id is unknown to source $versionId');
+      throw DateTimeZoneNotFoundError(
+          'Time zone $id is unknown to source $versionId');
     }
     return zone;
   }
@@ -152,9 +158,14 @@ class DateTimeZoneCache extends DateTimeZoneProvider {
   DateTimeZone getDateTimeZoneSync(String id) {
     var zone = getCachedZoneOrNull(id);
     if (zone == null) {
-      throw DateTimeZoneNotFoundError('Time zone $id is unknown or unavailable synchronously to source $versionId');
+      throw DateTimeZoneNotFoundError(
+          'Time zone $id is unknown or unavailable synchronously to source $versionId');
     }
     return zone;
   }
-}
 
+  @override
+  void setSystemDefault(String id) {
+    _source.setSystemDefaultId(id);
+  }
+}

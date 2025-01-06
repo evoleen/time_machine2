@@ -10,16 +10,14 @@ import 'package:test/test.dart';
 import 'time_machine_testing.dart';
 
 Future main() async {
-  await TimeMachine.initialize();
+  await TimeMachineTest.initialize();
   await runTests();
 }
 
 @Test()
-void AllYears()
-{
+void AllYears() {
   // Range of years we actually care about. We support more, but that's okay.
-  for (int year = -9999; year <= 9999; year++)
-  {
+  for (int year = -9999; year <= 9999; year++) {
     var ymd = YearMonthDay(year, 5, 20);
     expect(year, ymd.year);
     expect(5, ymd.month);
@@ -28,11 +26,9 @@ void AllYears()
 }
 
 @Test()
-void AllMonths()
-{
+void AllMonths() {
   // We'll never actually need 32 months, but we support that many...
-  for (int month = 1; month < 32; month++)
-  {
+  for (int month = 1; month < 32; month++) {
     var ymd = YearMonthDay(-123, month, 20);
     expect(-123, ymd.year);
     expect(month, ymd.month);
@@ -41,11 +37,9 @@ void AllMonths()
 }
 
 @Test()
-void AllDays()
-{
+void AllDays() {
   // We'll never actually need 64 days, but we support that many...
-  for (int day = 1; day < 64; day++)
-  {
+  for (int day = 1; day < 64; day++) {
     var ymd = YearMonthDay(-123, 30, day);
     expect(-123, ymd.year);
     expect(30, ymd.month);
@@ -62,8 +56,7 @@ void AllDays()
 @TestCase(['-2-16-64', "-1-01-01"])
 @TestCase(['-1-16-64', "0-01-01"])
 @TestCase(['-1-16-64', "1-01-01"])
-void Comparisons(String smallerText, String greaterText)
-{
+void Comparisons(String smallerText, String greaterText) {
   var smaller = YearMonthDay.parse(smallerText);
   var smaller2 = YearMonthDay.parse(smallerText);
   var greater = YearMonthDay.parse(greaterText);
@@ -73,9 +66,7 @@ void Comparisons(String smallerText, String greaterText)
 }
 
 @Test()
-void YearMonthDayToString()
-{
+void YearMonthDayToString() {
   var ymd = const YearMonthDay(2017, 8, 25);
   expect('2017-08-25', ymd.toString());
 }
-

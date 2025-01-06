@@ -66,6 +66,11 @@ class FakeDateTimeZoneSource extends DateTimeZoneSource {
     }
     throw ArgumentError('Unknown ID: ' + id);
   }
+
+  @override
+  void setSystemDefaultId(String id) {
+    // NOP
+  }
 }
 
 /// Builder for [FakeDateTimeZoneSource], allowing the built object to
@@ -118,11 +123,13 @@ class FakeDateTimeZoneSourceBuilder {
   ///
   /// Returns: The newly-built time zone source.
   FakeDateTimeZoneSource Build() {
-    var zoneMap = Map<String, DateTimeZone>.fromIterable(_zones, key: (z) => z.id);
+    var zoneMap =
+        Map<String, DateTimeZone>.fromIterable(_zones, key: (z) => z.id);
     _bclIdsToZoneIds.forEach((key, value) {
       Preconditions.checkNotNull(value, 'value');
       if (!zoneMap.containsKey(value)) {
-        throw StateError('Mapping for BCL $key/$value has no corresponding zone.');
+        throw StateError(
+            'Mapping for BCL $key/$value has no corresponding zone.');
       }
     });
 
@@ -130,4 +137,3 @@ class FakeDateTimeZoneSourceBuilder {
     return FakeDateTimeZoneSource._(VersionId, zoneMap, bclIdMapClone);
   }
 }
-

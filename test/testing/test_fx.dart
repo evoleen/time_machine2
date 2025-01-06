@@ -26,19 +26,25 @@ StringBuffer _gen_sb_imports = StringBuffer();
 StringBuffer _gen_sb_methodCalls = StringBuffer();
 String _testFilePath = 'unknown_test.dart';
 
-Iterable<TestCase> toTestCases(TestCaseSource testCaseSource, ObjectMirror mirror) {
-  var argumentsSource = mirror.getField(testCaseSource.source).reflectee as Iterable?;
+Iterable<TestCase> toTestCases(
+    TestCaseSource testCaseSource, ObjectMirror mirror) {
+  var argumentsSource =
+      mirror.getField(testCaseSource.source).reflectee as Iterable?;
 
   if (argumentsSource == null || argumentsSource.isEmpty) return const [];
   var testCases = <TestCase>[];
 
   for (var arguments in argumentsSource) {
     if (arguments is TestCaseData) {
-      if (arguments.arguments is List) testCases.add(TestCase(arguments.arguments as Iterable, arguments.name));
-      else testCases.add(TestCase([arguments.arguments], arguments.name));
-    }
-    else if (arguments is List) testCases.add(TestCase(arguments));
-    else testCases.add(TestCase([arguments]));
+      if (arguments.arguments is List)
+        testCases
+            .add(TestCase(arguments.arguments as Iterable, arguments.name));
+      else
+        testCases.add(TestCase([arguments.arguments], arguments.name));
+    } else if (arguments is List)
+      testCases.add(TestCase(arguments));
+    else
+      testCases.add(TestCase([arguments]));
   }
 
   return testCases;
@@ -53,7 +59,10 @@ Future runTests() async {
   // var lib4 = currentMirrorSystem().findLibrary(new Symbol('testFx'));
 
   var testLibs = currentMirrorSystem()
-      .libraries.values.where((lib) => lib.uri.scheme == 'file' && lib.uri.path.endsWith('_test.dart'))
+      .libraries
+      .values
+      .where((lib) =>
+          lib.uri.scheme == 'file' && lib.uri.path.endsWith('_test.dart'))
       .toList(growable: false);
 
   var futures = <Future>[];
@@ -62,19 +71,27 @@ Future runTests() async {
     if (testGenTest) _printImport(lib.uri);
 
     for (DeclarationMirror declaration in lib.declarations.values) {
-      if (testGenTest && declaration is MethodMirror && _nameOf(declaration) == 'setup') _setupMethod = true;
+      if (testGenTest &&
+          declaration is MethodMirror &&
+          _nameOf(declaration) == 'setup') _setupMethod = true;
       if (declaration.metadata.isEmpty) continue;
 
-      var test = declaration.metadata.where((m) => m.reflectee is Test).map((m) => m.reflectee as Test).toList(growable: false);
+      var test = declaration.metadata
+          .where((m) => m.reflectee is Test)
+          .map((m) => m.reflectee as Test)
+          .toList(growable: false);
       if (test.isEmpty) continue;
 
       // todo: merge with other code
       // should we collate all found test names?
       var testName = test.first.name;
       if (testName == null) {
-        var libSimpleName= _stripSymbol(lib.simpleName);
+        var libSimpleName = _stripSymbol(lib.simpleName);
         var sb = StringBuffer();
-        if (libSimpleName.isNotEmpty) sb..write(libSimpleName)..write('.');
+        if (libSimpleName.isNotEmpty)
+          sb
+            ..write(libSimpleName)
+            ..write('.');
         sb.write(_stripSymbol(declaration.simpleName));
         testName = sb.toString();
       }
@@ -82,9 +99,14 @@ Future runTests() async {
       var skipThisTest = declaration.metadata.any((m) => m.reflectee is SkipMe);
       if (skipThisTest) {
         _skippedTotal++;
-        var reason = (declaration.metadata.firstWhere((m) => m.reflectee is SkipMe).reflectee as SkipMe).reason;
-        if (reason == null) print('skipped $testName');
-        else print('skipped $testName because $reason');
+        var reason = (declaration.metadata
+                .firstWhere((m) => m.reflectee is SkipMe)
+                .reflectee as SkipMe)
+            .reason;
+        if (reason == null)
+          print('skipped $testName');
+        else
+          print('skipped $testName because $reason');
         continue;
       }
 
@@ -131,7 +153,6 @@ void _writeTestGenFile() {
   sb.write(_gen_sb_methodCalls);
   sb.writeln('}');
 
-
   var file = File(_testFilePath);
   file.writeAsString(sb.toString(), mode: FileMode.writeOnly);
 
@@ -143,33 +164,44 @@ void _printImport(Uri uri) {
   var path = uri.pathSegments;
 
   for (var p in path.skipWhile((p) => p != 'test').skip(1)) {
-    sb..write('/')..write(p);
+    sb
+      ..write('/')
+      ..write(p);
   }
-  sb..write("';")..writeln();
+  sb
+    ..write("';")
+    ..writeln();
 
-  _testFilePath = '/' + path.takeWhile((p) => p != 'test').join('/') + '/test/test_gen/' + path.last;
+  _testFilePath = '/' +
+      path.takeWhile((p) => p != 'test').join('/') +
+      '/test/test_gen/' +
+      path.last;
 }
 
-void _printTestCall(ObjectMirror mirror, MethodMirror method, String testName, [TestCase? testCase]) {
+void _printTestCall(ObjectMirror mirror, MethodMirror method, String testName,
+    [TestCase? testCase]) {
   var sb = _gen_sb_methodCalls..write("  test('$testName', () ");
 
-  var isFuture = method.returnType.hasReflectedType && method.returnType.reflectedType == Future;
+  var isFuture = method.returnType.hasReflectedType &&
+      method.returnType.reflectedType == Future;
   isFuture = true; // note: this is an override
   if (isFuture) sb.write('async => await ');
   //  else sb.write('=> ');
 
-  if (_classVarName != null/*mirror is ClassMirror*/) sb..write(_classVarName)..write('.');
+  if (_classVarName != null /*mirror is ClassMirror*/)
+    sb
+      ..write(_classVarName)
+      ..write('.');
 
   sb.write(_nameOf(method));
 
-  sb.write ('(');
+  sb.write('(');
   if (testCase != null) {
     var first = true;
     for (var arg in testCase.arguments) {
       if (!first) {
         sb.write(', ');
-      }
-      else {
+      } else {
         first = false;
       }
 
@@ -177,7 +209,7 @@ void _printTestCall(ObjectMirror mirror, MethodMirror method, String testName, [
     }
   }
   // ${testCase.arguments.join(', ')});
-  sb.write ('));');
+  sb.write('));');
 
   sb.writeln();
 }
@@ -188,48 +220,41 @@ bool _setupMethod = false;
 
 String _printNewObject(Object obj) {
   var sb = StringBuffer();
-if (obj is String) {
+  if (obj is String) {
     // todo: I need to scape this?
-    sb..write("'")..write(_escapeText(obj))..write("'");
-  }
-  else if (obj is Culture) {
+    sb
+      ..write("'")
+      ..write(_escapeText(obj))
+      ..write("'");
+  } else if (obj is Culture) {
     var name = obj.name;
     if (name == '') {
       sb.write('null');
-    }
-    else if (name == 'AwkwardAmPmDesignatorCulture') {
+    } else if (name == 'AwkwardAmPmDesignatorCulture') {
       sb.write('TestCultures.AwkwardAmPmDesignatorCulture');
       _includeTestCulturesImport = true;
-    }
-    else if (name == 'AwkwardDayOfWeekCulture') {
+    } else if (name == 'AwkwardDayOfWeekCulture') {
       sb.write('TestCultures.AwkwardDayOfWeekCulture');
       _includeTestCulturesImport = true;
-    }
-    else if (name == 'GenitiveNameTestCultureWithLeadingNames') {
+    } else if (name == 'GenitiveNameTestCultureWithLeadingNames') {
       sb.write('TestCultures.GenitiveNameTestCultureWithLeadingNames');
       _includeTestCulturesImport = true;
-    }
-    else if (name == 'GenitiveNameTestCulture') {
+    } else if (name == 'GenitiveNameTestCulture') {
       sb.write('TestCultures.GenitiveNameTestCulture');
       _includeTestCulturesImport = true;
-    }
-    else if (name == 'fi-FI-DotTimeSeparator') {
+    } else if (name == 'fi-FI-DotTimeSeparator') {
       sb.write('TestCultures.DotTimeSeparator');
       _includeTestCulturesImport = true;
-    }
-    else if (name == 'fr-FI') {
+    } else if (name == 'fr-FI') {
       sb.write('TestCultures.DotTimeSeparator');
       _includeTestCulturesImport = true;
-    }
-    else if (name == 'fr-CA') {
+    } else if (name == 'fr-CA') {
       sb.write('TestCultures.FrCa');
       _includeTestCulturesImport = true;
-    }
-    else if (name == 'fr-FR') {
+    } else if (name == 'fr-FR') {
       sb.write('TestCultures.FrFr');
       _includeTestCulturesImport = true;
-    }
-    else if (name == 'en-US') {
+    } else if (name == 'en-US') {
       sb.write('TestCultures.EnUs');
       _includeTestCulturesImport = true;
     }
@@ -241,28 +266,30 @@ if (obj is String) {
     }
     // see: LocaltimePatternTests.CreateCustomAmPmCulture
     else if (name == 'ampmDesignators') {
-      sb.write("new Culture('ampmDesignators'/*Culture.invariantCultureId*/, (new DateTimeFormatInfoBuilder.invariantCulture()..amDesignator = '${obj
-          .dateTimeFormat.amDesignator}'..pmDesignator = '${obj.dateTimeFormat.pmDesignator}').Build())");
-    }
-    else sb.write('await Cultures.getCulture("$name")');
-  }
-  else if (obj is PatternTestData) {
+      sb.write(
+          "new Culture('ampmDesignators'/*Culture.invariantCultureId*/, (new DateTimeFormatInfoBuilder.invariantCulture()..amDesignator = '${obj.dateTimeFormat.amDesignator}'..pmDesignator = '${obj.dateTimeFormat.pmDesignator}').Build())");
+    } else
+      sb.write('await Cultures.getCulture("$name")');
+  } else if (obj is PatternTestData) {
     sb.write('new ${obj.runtimeType}(${_printNewObject(obj.Value)})');
-    if (obj.defaultTemplate != null) sb.write('..defaultTemplate =${_printNewObject(obj.defaultTemplate)}');
+    if (obj.defaultTemplate != null)
+      sb.write('..defaultTemplate =${_printNewObject(obj.defaultTemplate)}');
     sb.write('..culture = ${_printNewObject(obj.culture)}');
-    if (obj.standardPattern != null) sb.write('..standardPattern =${obj.standardPatternCode}');
+    if (obj.standardPattern != null)
+      sb.write('..standardPattern =${obj.standardPatternCode}');
     sb.write('..pattern =${_printNewObject(obj.pattern)}');
     sb.write('..text =${_printNewObject(obj.text)}');
-    if (obj.template != null) sb.write('..template =${_printNewObject(obj.template)}');
+    if (obj.template != null)
+      sb.write('..template =${_printNewObject(obj.template)}');
     sb.write('..description =${_printNewObject(obj.description)}');
-    if (obj.message != null) sb.write('..message =${_printNewObject(obj.message!)}');
-    if (obj.parameters.isNotEmpty) sb.write('..parameters.addAll(${_printNewObject(obj.parameters)})');
+    if (obj.message != null)
+      sb.write('..message =${_printNewObject(obj.message!)}');
+    if (obj.parameters.isNotEmpty)
+      sb.write('..parameters.addAll(${_printNewObject(obj.parameters)})');
     ;
-  }
-  else if (obj is AnnualDate) {
+  } else if (obj is AnnualDate) {
     sb.write('new AnnualDate(${obj.month}, ${obj.day})');
-  }
-  else if (obj is List) {
+  } else if (obj is List) {
     if (obj.isEmpty) {
       sb.write('[]');
     } else {
@@ -270,16 +297,16 @@ if (obj is String) {
 
       sb.write(_printNewObject(obj.first));
       for (var item in obj.skip(1)) {
-        sb..write(', ')..write(_printNewObject(item));
+        sb
+          ..write(', ')
+          ..write(_printNewObject(item));
       }
 
       sb.write(']');
     }
-  }
-  else if (obj is num) {
+  } else if (obj is num) {
     sb.write(obj);
-  }
-  else if (obj is CalendarSystem) {
+  } else if (obj is CalendarSystem) {
     // todo: pull this information directly from CalendarSystem?
     if (obj.id == 'Gregorian') {
       sb.write('CalendarSystem.gregorian');
@@ -287,90 +314,76 @@ if (obj is String) {
       sb.write('CalendarSystem.iso');
     } else if (obj.id == 'Julian') {
       sb.write('CalendarSystem.julian');
-    }
-    else {
+    } else {
       sb.write('CalendarSystem.${obj.id}');
     }
-  }
-  else if (obj is Instant) {
+  } else if (obj is Instant) {
     var span = obj.timeSinceEpoch;
     var ms = span.inMilliseconds;
     var ns = ITime.nanosecondsIntervalOf(span);
     sb.write('IInstant.trusted(ISpan.trusted($ms, $ns))');
-  }
-  else if (obj is Time) {
+  } else if (obj is Time) {
     var span = obj;
     var ms = span.inMilliseconds;
     var ns = ITime.nanosecondsIntervalOf(span);
     sb.write('ISpan.trusted($ms, $ns)');
-  }
-  else if (obj is DateTimeZone) {
+  } else if (obj is DateTimeZone) {
     _getTzdb = true;
     sb.write('await tzdb["${obj.id}"]');
-  }
-  else if (obj is DayOfWeek) {
+  } else if (obj is DayOfWeek) {
     sb.write('DayOfWeek.${obj.toString().toLowerCase()}');
-  }
-  else if (obj is HebrewMonthNumbering) {
+  } else if (obj is HebrewMonthNumbering) {
     // sb.write('HebrewMonthNumbering.${obj.toString().toLowerCase()}');
     sb.write(obj);
-  }
-  else if (obj is CalendarOrdinal) {
+  } else if (obj is CalendarOrdinal) {
     sb.write('new CalendarOrdinal(${obj.value})');
-  }
-  else if (obj is YearMonthDayCalculator) {
+  } else if (obj is YearMonthDayCalculator) {
     sb.write('new ${obj.runtimeType}()');
-  }
-  else if (obj is InstantPattern) {
+  } else if (obj is InstantPattern) {
     // sb.write('InstantPattern.createWithCulture(${_printNewObject(obj.patternText)}, ${_printNewObject(InstantPatterns.patternOf(obj))})');
     sb.write('InstantPattern.general');
-  }
-  else if (obj is ZonedDateTime) {
+  } else if (obj is ZonedDateTime) {
     var instant = obj.toInstant();
     var zone = obj.zone;
     var calendar = obj.calendar;
-    sb.write('new ZonedDateTime(${_printNewObject(instant)}, ${_printNewObject(zone)}, ${_printNewObject(calendar)})');
-  }
-  else if (obj is LocalDate) {
+    sb.write(
+        'new ZonedDateTime(${_printNewObject(instant)}, ${_printNewObject(zone)}, ${_printNewObject(calendar)})');
+  } else if (obj is LocalDate) {
     var year = obj.year;
     var month = obj.monthOfYear;
     var day = obj.dayOfMonth;
     var calendar = obj.calendar;
-    sb.write('new LocalDate($year, $month, $day, ${_printNewObject(calendar)})');
-  }
-  else if (obj is LocalTime) {
+    sb.write(
+        'new LocalDate($year, $month, $day, ${_printNewObject(calendar)})');
+  } else if (obj is LocalTime) {
     var nanoseconds = obj.timeSinceMidnight.inNanoseconds;
     sb.write('ILocalTime.fromNanoseconds($nanoseconds)');
-  }
-  else if (obj is LocalDateTime) {
-    sb.write('new LocalDateTime(${_printNewObject(obj.calendarDate)}, ${_printNewObject(obj.clockTime)})');
-  }
-  else if (obj is OffsetDate) {
+  } else if (obj is LocalDateTime) {
+    sb.write(
+        'new LocalDateTime(${_printNewObject(obj.calendarDate)}, ${_printNewObject(obj.clockTime)})');
+  } else if (obj is OffsetDate) {
     var date = obj.calendarDate;
     var offset = obj.offset;
-    sb.write('new OffsetDate(${_printNewObject(date)}, ${_printNewObject(offset)})');
-  }
-  else if (obj is Offset) {
+    sb.write(
+        'new OffsetDate(${_printNewObject(date)}, ${_printNewObject(offset)})');
+  } else if (obj is Offset) {
     var seconds = obj.inSeconds;
     sb.write('new Offset.fromSeconds($seconds)');
-  }
-  else if (obj is OffsetDateTime) {
+  } else if (obj is OffsetDateTime) {
     var localDateTime = obj.localDateTime;
     var offset = obj.offset;
-    sb.write('new OffsetDateTime(${_printNewObject(localDateTime)}, ${_printNewObject(offset)})');
-  }
-  else if (obj is OffsetTime) {
+    sb.write(
+        'new OffsetDateTime(${_printNewObject(localDateTime)}, ${_printNewObject(offset)})');
+  } else if (obj is OffsetTime) {
     var time = obj.clockTime;
-    var offset= obj.offset;
-    sb.write('new OffsetTime(${_printNewObject(time)}, ${_printNewObject(offset)})');
-  }
-  else if (obj is bool) {
+    var offset = obj.offset;
+    sb.write(
+        'new OffsetTime(${_printNewObject(time)}, ${_printNewObject(offset)})');
+  } else if (obj is bool) {
     sb.write(obj);
-  }
-  else if (obj is PeriodUnits) {
+  } else if (obj is PeriodUnits) {
     sb.write('new PeriodUnits(${obj.value})');
-  }
-  else {
+  } else {
     sb.write('"Type = ${obj.runtimeType}; toString = ${obj.toString()}"');
   }
 
@@ -387,26 +400,29 @@ String _escapeText(String text) {
   return text;
 }
 
-Iterable<Future> _runTest(ObjectMirror mirror, MethodMirror method, String testName) {
+Iterable<Future> _runTest(
+    ObjectMirror mirror, MethodMirror method, String testName) {
   var futures = <Future>[];
 
-  var testCases = method
-      .metadata
+  var testCases = method.metadata
       .where((m) => m.reflectee is TestCase)
       .map((m) => m.reflectee as TestCase)
       .toList();
 
-  method
-      .metadata
+  method.metadata
       .where((m) => m.reflectee is TestCaseSource)
       .map((m) => toTestCases(m.reflectee as TestCaseSource, mirror))
-      .fold(null, (p, e) => testCases.addAll(e));
+      .fold(null, (p, e) {
+    testCases.addAll(e);
+    return;
+  });
 
   if (testCases.isEmpty) {
     var name = testName; // '${method.simpleName}';
 
     if (testGenTest) _printTestCall(mirror, method, testName);
-    if (method.returnType.hasReflectedType && method.returnType.reflectedType == Future) {
+    if (method.returnType.hasReflectedType &&
+        method.returnType.reflectedType == Future) {
       // var returnMirror = mirror.invoke(method.simpleName, []);
       // futures.add(returnMirror.reflectee);
 
@@ -414,26 +430,26 @@ Iterable<Future> _runTest(ObjectMirror mirror, MethodMirror method, String testN
         var returnMirror = mirror.invoke(method.simpleName, []);
         await returnMirror.reflectee;
       });
-    }
-    else {
+    } else {
       test(name, () => mirror.invoke(method.simpleName, []));
     }
-  }
-  else {
+  } else {
     for (var testCase in testCases) {
-      var name = '$testName.${testCase.description ?? testCase.arguments}'; // '${method.simpleName}_${i++}';
+      var name =
+          '$testName.${testCase.description ?? testCase.arguments}'; // '${method.simpleName}_${i++}';
 
       if (testGenTest) _printTestCall(mirror, method, testName, testCase);
-      if (method.returnType.hasReflectedType && method.returnType.reflectedType == Future) {
+      if (method.returnType.hasReflectedType &&
+          method.returnType.reflectedType == Future) {
         //var returnMirror = mirror.invoke(method.simpleName, testCase.arguments);
         //futures.add(returnMirror.reflectee);
 
         test(name, () async {
-          var returnMirror = mirror.invoke(method.simpleName, testCase.arguments.toList());
+          var returnMirror =
+              mirror.invoke(method.simpleName, testCase.arguments.toList());
           await returnMirror.reflectee;
         });
-      }
-      else {
+      } else {
         final argsList = testCase.arguments.toList();
         final singleNullArg = argsList.length == 1 && argsList.first == null;
         if (!singleNullArg) {
@@ -446,14 +462,15 @@ Iterable<Future> _runTest(ObjectMirror mirror, MethodMirror method, String testN
   return futures;
 }
 
-Iterable<Future> _runTestsInClass(LibraryMirror lib, ClassMirror classMirror, String testGroupName) {
+Iterable<Future> _runTestsInClass(
+    LibraryMirror lib, ClassMirror classMirror, String testGroupName) {
   var futures = <Future>[];
 
   var instance = classMirror.newInstance(const Symbol(''), []);
-  if (testGenTest)
-  {
+  if (testGenTest) {
     _classVarName = _stripSymbol(classMirror.simpleName).toLowerCase();
-    _gen_sb_methodCalls.write('  var $_classVarName = new ${_stripSymbol(classMirror.simpleName)}();\n\n');
+    _gen_sb_methodCalls.write(
+        '  var $_classVarName = new ${_stripSymbol(classMirror.simpleName)}();\n\n');
   }
   var declarations = <DeclarationMirror>[...classMirror.declarations.values];
   while (classMirror.superclass != null) {
@@ -461,21 +478,31 @@ Iterable<Future> _runTestsInClass(LibraryMirror lib, ClassMirror classMirror, St
     declarations.addAll(classMirror.declarations.values);
   }
 
-  for(DeclarationMirror declaration in declarations) {
-    if (declaration is MethodMirror && declaration.metadata.any((m) => m.reflectee is Test)) {
+  for (DeclarationMirror declaration in declarations) {
+    if (declaration is MethodMirror &&
+        declaration.metadata.any((m) => m.reflectee is Test)) {
       if (declaration.metadata.isEmpty) continue;
-      var test = declaration.metadata.where((m) => m.reflectee is Test).map((m) => m.reflectee as Test).toList(growable: false);
+      var test = declaration.metadata
+          .where((m) => m.reflectee is Test)
+          .map((m) => m.reflectee as Test)
+          .toList(growable: false);
       if (test.isEmpty) continue;
 
       // should we collate all found test names?
-      var testName = '$testGroupName.${test.first.name ?? _stripSymbol(declaration.simpleName)}'; //test.first.name ?? '${lib.simpleName}.${declaration.simpleName}';
+      var testName =
+          '$testGroupName.${test.first.name ?? _stripSymbol(declaration.simpleName)}'; //test.first.name ?? '${lib.simpleName}.${declaration.simpleName}';
 
       var skipThisTest = declaration.metadata.any((m) => m.reflectee is SkipMe);
       if (skipThisTest) {
         _skippedTotal++;
-        var reason = (declaration.metadata.firstWhere((m) => m.reflectee is SkipMe).reflectee as SkipMe).reason;
-        if (reason == null) print('skipped $testName');
-        else print('skipped $testName because $reason');
+        var reason = (declaration.metadata
+                .firstWhere((m) => m.reflectee is SkipMe)
+                .reflectee as SkipMe)
+            .reason;
+        if (reason == null)
+          print('skipped $testName');
+        else
+          print('skipped $testName because $reason');
         continue;
       }
 
@@ -493,7 +520,7 @@ Iterable<Future> _runTestsInClass(LibraryMirror lib, ClassMirror classMirror, St
 
 String _stripSymbol(Symbol symbol) {
   var text = symbol.toString();
-  return text.substring(8, text.toString().length-2);
+  return text.substring(8, text.toString().length - 2);
 }
 
 String _nameOf(MethodMirror method) => _stripSymbol(method.simpleName);

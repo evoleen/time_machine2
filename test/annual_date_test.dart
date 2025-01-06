@@ -9,13 +9,12 @@ import 'package:test/test.dart';
 import 'time_machine_testing.dart';
 
 Future main() async {
-  await TimeMachine.initialize();
+  await TimeMachineTest.initialize();
   await runTests();
 }
 
 @Test()
-void Feb29()
-{
+void Feb29() {
   var date = AnnualDate(2, 29);
   expect(29, date.day);
   expect(2, date.month);
@@ -26,8 +25,7 @@ void Feb29()
 }
 
 @Test()
-void June19()
-{
+void June19() {
   var date = AnnualDate(6, 19);
   expect(19, date.day);
   expect(6, date.month);
@@ -38,8 +36,7 @@ void June19()
 }
 
 @Test()
-void Validation()
-{
+void Validation() {
   // Feb 30th is invalid, but January 30th is fine
   expect(() => AnnualDate(2, 30), throwsRangeError);
   // Assert.Throws<ArgumentOutOfRangeException>(() => new AnnualDate(2, 30));
@@ -51,33 +48,31 @@ void Validation()
 }
 
 @Test()
-void Equality()
-{
-  TestHelper.TestEqualsStruct(AnnualDate(3, 15), AnnualDate(3, 15), [AnnualDate(4, 15), AnnualDate(3, 16)]);
+void Equality() {
+  TestHelper.TestEqualsStruct(AnnualDate(3, 15), AnnualDate(3, 15),
+      [AnnualDate(4, 15), AnnualDate(3, 16)]);
 }
 
 @Test()
-void DefaultValueIsJanuary1st()
-{
+void DefaultValueIsJanuary1st() {
   // todo: I don't see a default constructor in the original C# code?
   expect(AnnualDate(1, 1), AnnualDate());
 }
 
 @Test()
-void Comparision()
-{
-  TestHelper.TestCompareToStruct(AnnualDate(6, 19), AnnualDate(6, 19), [AnnualDate(6, 20), AnnualDate(7, 1)]);
+void Comparision() {
+  TestHelper.TestCompareToStruct(AnnualDate(6, 19), AnnualDate(6, 19),
+      [AnnualDate(6, 20), AnnualDate(7, 1)]);
 }
 
 @Test()
-void Operators()
-{
-  TestHelper.TestOperatorComparisonEquality(AnnualDate(6, 19), AnnualDate(6, 19), [AnnualDate(6, 20), AnnualDate(7, 1)]);
+void Operators() {
+  TestHelper.TestOperatorComparisonEquality(AnnualDate(6, 19),
+      AnnualDate(6, 19), [AnnualDate(6, 20), AnnualDate(7, 1)]);
 }
 
 @Test()
-void ToStringTest()
-{
+void ToStringTest() {
   expect('02-01', AnnualDate(2, 1).toString());
   expect('02-10', AnnualDate(2, 10).toString());
   expect('12-01', AnnualDate(12, 1).toString());

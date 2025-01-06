@@ -7,6 +7,7 @@ import 'dart:async';
 import 'package:time_machine/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
+import 'package:time_machine/time_machine.dart';
 
 import '../time_machine_testing.dart';
 
@@ -15,32 +16,30 @@ late DateTimeZoneProvider tzdb;
 /// Tests for fixed 'Etc/GMT+x' zones. These just test that the time zones are built
 /// appropriately; FixedDateTimeZoneTest takes care of the rest.
 Future main() async {
-  await TimeMachine.initialize();
-  tzdb = await DateTimeZoneProviders.tzdb;
+  await TimeMachineTest.initialize();
+  tzdb = DateTimeZoneProviders.defaultProvider!;
 
   await runTests();
 }
 
 Offset ZoneOffset = Offset.hours(-8);
 FixedDateTimeZone TestZone = FixedDateTimeZone.forOffset(ZoneOffset);
-ZoneInterval FixedPeriod = IZoneInterval.newZoneInterval(TestZone.id, IInstant.beforeMinValue, IInstant.afterMaxValue, ZoneOffset, Offset.zero);
+ZoneInterval FixedPeriod = IZoneInterval.newZoneInterval(TestZone.id,
+    IInstant.beforeMinValue, IInstant.afterMaxValue, ZoneOffset, Offset.zero);
 
 @Test()
-void IsFixed_ReturnsTrue()
-{
+void IsFixed_ReturnsTrue() {
   expect(IDateTimeZone.isFixed(TestZone), isTrue);
 }
 
 @Test()
-void GetZoneIntervalInstant_ZoneInterval()
-{
+void GetZoneIntervalInstant_ZoneInterval() {
   var actual = TestZone.getZoneInterval(TimeConstants.unixEpoch);
   expect(FixedPeriod, actual);
 }
 
 @Test()
-void SimpleProperties_ReturnValuesFromConstructor()
-{
+void SimpleProperties_ReturnValuesFromConstructor() {
   expect(TestZone.id, 'UTC-08', reason: "TestZone.id");
   expect(TestZone.getZoneInterval(TimeConstants.unixEpoch).name, 'UTC-08');
   expect(TestZone.getUtcOffset(TimeConstants.unixEpoch), ZoneOffset);
@@ -49,8 +48,7 @@ void SimpleProperties_ReturnValuesFromConstructor()
 }
 
 @Test()
-void GetZoneIntervals_ReturnsSingleInterval()
-{
+void GetZoneIntervals_ReturnsSingleInterval() {
   var mapping = TestZone.mapLocal(LocalDateTime(2001, 7, 1, 1, 0, 0));
   expect(FixedPeriod, mapping.earlyInterval);
   expect(FixedPeriod, mapping.lateInterval);
@@ -58,8 +56,7 @@ void GetZoneIntervals_ReturnsSingleInterval()
 }
 
 @Test()
-void For_Id_FixedOffset()
-{
+void For_Id_FixedOffset() {
   String id = 'UTC+05:30';
   DateTimeZone zone = FixedDateTimeZone.getFixedZoneOrNull(id)!;
   expect(DateTimeZone.forOffset(Offset.hoursAndMinutes(5, 30)), zone);
@@ -67,8 +64,7 @@ void For_Id_FixedOffset()
 }
 
 @Test()
-void For_Id_FixedOffset_NonCanonicalId()
-{
+void For_Id_FixedOffset_NonCanonicalId() {
   String id = 'UTC+05:00:00';
   DateTimeZone zone = FixedDateTimeZone.getFixedZoneOrNull(id)!;
   expect(zone, DateTimeZone.forOffset(Offset.hours(5)));
@@ -76,14 +72,12 @@ void For_Id_FixedOffset_NonCanonicalId()
 }
 
 @Test()
-void For_Id_InvalidFixedOffset()
-{
+void For_Id_InvalidFixedOffset() {
   expect(FixedDateTimeZone.getFixedZoneOrNull('UTC+5Months'), isNull);
 }
 
 @Test()
-void ExplicitNameAppearsInZoneInterval()
-{
+void ExplicitNameAppearsInZoneInterval() {
   var zone = FixedDateTimeZone('id', Offset.hours(5), "name");
   var interval = zone.getZoneInterval(TimeConstants.unixEpoch);
   expect('id', zone.id); // Check we don't get this wrong...
@@ -92,17 +86,16 @@ void ExplicitNameAppearsInZoneInterval()
 }
 
 @Test()
-void ZoneIntervalNameDefaultsToZoneId()
-{
+void ZoneIntervalNameDefaultsToZoneId() {
   var zone = FixedDateTimeZone.forIdOffset('id', Offset.hours(5));
   var interval = zone.getZoneInterval(TimeConstants.unixEpoch);
   expect('id', interval.name);
   expect('id', zone.name);
 }
 
-@Test() @SkipMe.unimplemented()
-void Read_NoNameInStream()
-{
+@Test()
+@SkipMe.unimplemented()
+void Read_NoNameInStream() {
   // var ioHelper = DtzIoHelper.CreateNoStringPool();
   dynamic ioHelper;
   var offset = Offset.hours(5);
@@ -114,9 +107,9 @@ void Read_NoNameInStream()
   expect('id', zone.name);
 }
 
-@Test() @SkipMe.unimplemented()
-void Read_WithNameInStream()
-{
+@Test()
+@SkipMe.unimplemented()
+void Read_WithNameInStream() {
   // var ioHelper = DtzIoHelper.CreateNoStringPool();
   dynamic ioHelper;
   var offset = Offset.hours(5);
@@ -129,14 +122,15 @@ void Read_WithNameInStream()
   expect('name', zone.name);
 }
 
-@Test() @SkipMe.unimplemented()
-void Roundtrip()
-{
+@Test()
+@SkipMe.unimplemented()
+void Roundtrip() {
   // var ioHelper = DtzIoHelper.CreateNoStringPool();
   dynamic ioHelper;
   var oldZone = FixedDateTimeZone('id', Offset.hours(4), "name");
   oldZone.write(ioHelper.Writer);
-  var newZone = FixedDateTimeZone.read(ioHelper.Reader, 'id') as FixedDateTimeZone;
+  var newZone =
+      FixedDateTimeZone.read(ioHelper.Reader, 'id') as FixedDateTimeZone;
 
   expect(oldZone.id, newZone.id);
   expect(oldZone.offset, newZone.offset);
@@ -144,14 +138,14 @@ void Roundtrip()
 }
 
 @Test()
-void Equals()
-{
-  TestHelper.TestEqualsClass(FixedDateTimeZone.forOffset(Offset(300)),
+void Equals() {
+  TestHelper.TestEqualsClass(
+      FixedDateTimeZone.forOffset(Offset(300)),
       FixedDateTimeZone.forOffset(Offset(300)),
       [FixedDateTimeZone.forOffset(Offset(500))]);
 
-  TestHelper.TestEqualsClass(FixedDateTimeZone.forIdOffset('Foo', Offset(300)),
+  TestHelper.TestEqualsClass(
+      FixedDateTimeZone.forIdOffset('Foo', Offset(300)),
       FixedDateTimeZone.forIdOffset('Foo', Offset(300)),
       [FixedDateTimeZone.forIdOffset('Bar', Offset(300))]);
 }
-

@@ -12,13 +12,12 @@ import 'package:test/test.dart';
 import 'time_machine_testing.dart';
 
 Future main() async {
-  await TimeMachine.initialize();
+  await TimeMachineTest.initialize();
   await runTests();
 }
 
 @Test()
-void LocalDateProperties()
-{
+void LocalDateProperties() {
 // todo: determine equivalent of this test
 //  LocalDate local = new LocalDate.forCalendar(2012, 6, 19, CalendarSystem.Julian);
 //  Offset offset = new Offset.fromHours(5);
@@ -39,8 +38,7 @@ void LocalDateProperties()
 }
 
 @Test()
-void ComponentProperties()
-{
+void ComponentProperties() {
   var date = LocalDate(2012, 1, 2);
   var offset = Offset.hours(5);
 
@@ -50,8 +48,7 @@ void ComponentProperties()
 }
 
 @Test()
-void Equality()
-{
+void Equality() {
   LocalDate date1 = LocalDate(2012, 10, 6);
   LocalDate date2 = LocalDate(2012, 9, 5);
   Offset offset1 = Offset.hours(1);
@@ -70,8 +67,7 @@ void Equality()
 }
 
 @Test()
-void At()
-{
+void At() {
   var date = LocalDate(2012, 6, 19, CalendarSystem.julian);
   var offset = Offset.hours(5);
   var time = LocalTime(14, 15, 12).addNanoseconds(123456789);
@@ -80,8 +76,7 @@ void At()
 }
 
 @Test()
-void WithOffset()
-{
+void WithOffset() {
   var date = LocalDate(2012, 6, 19);
   var initial = OffsetDate(date, Offset.hours(2));
   var actual = initial.withOffset(Offset.hours(5));
@@ -90,8 +85,7 @@ void WithOffset()
 }
 
 @Test()
-void WithCalendar()
-{
+void WithCalendar() {
   var julianDate = LocalDate(2012, 6, 19, CalendarSystem.julian);
   var isoDate = julianDate.withCalendar(CalendarSystem.iso);
   var offset = Offset.hours(5);
@@ -101,8 +95,7 @@ void WithCalendar()
 }
 
 @Test()
-void WithAdjuster()
-{
+void WithAdjuster() {
   var initial = OffsetDate(LocalDate(2016, 6, 19), Offset.hours(-5));
   var actual = initial.adjust(DateAdjusters.startOfMonth);
   var expected = OffsetDate(LocalDate(2016, 6, 1), Offset.hours(-5));

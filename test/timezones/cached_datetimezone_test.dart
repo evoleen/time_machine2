@@ -6,11 +6,12 @@ import 'dart:async';
 
 import 'package:time_machine/src/time_machine_internal.dart';
 import 'package:test/test.dart';
+import 'package:time_machine/time_machine.dart';
 
 import '../time_machine_testing.dart';
 
 Future main() async {
-  await TimeMachine.initialize();
+  await TimeMachineTest.initialize();
   await setup();
 
   await runTests();
@@ -18,60 +19,60 @@ Future main() async {
 
 Future setup() async {
   // NB: may be an invalid work if dateTimeZone._isFixed
-  timeZone = CachedDateTimeZone.forZone(await (await DateTimeZoneProviders.tzdb)['America/Los_Angeles']) as CachedDateTimeZone;
+  timeZone = CachedDateTimeZone.forZone((await DateTimeZoneProviders
+      .defaultProvider?['America/Los_Angeles'])!) as CachedDateTimeZone;
 }
 
-late CachedDateTimeZone timeZone; // = (CachedDateTimeZone) DateTimeZoneProviders.Tzdb['America/Los_Angeles'];
+late CachedDateTimeZone
+    timeZone; // = (CachedDateTimeZone) DateTimeZoneProviders.Tzdb['America/Los_Angeles'];
 Instant summer = Instant.utc(2010, 6, 1, 0, 0);
 
 @Test()
-void GetZoneIntervalInstant_NotNull()
-{
+void GetZoneIntervalInstant_NotNull() {
   var actual = timeZone.getZoneInterval(summer);
   expect(actual, isNotNull);
 }
 
 @Test()
-void GetZoneIntervalInstant_RepeatedCallsReturnSameObject()
-{
+void GetZoneIntervalInstant_RepeatedCallsReturnSameObject() {
   var actual = timeZone.getZoneInterval(summer);
-  for (int i = 0; i < 100; i++)
-  {
+  for (int i = 0; i < 100; i++) {
     var newPeriod = timeZone.getZoneInterval(summer);
     expect(identical(actual, newPeriod), isTrue);
   }
 }
 
 @Test()
-void GetZoneIntervalInstant_RepeatedCallsReturnSameObjectWithOthersInterspersed()
-{
+void
+    GetZoneIntervalInstant_RepeatedCallsReturnSameObjectWithOthersInterspersed() {
   var actual = timeZone.getZoneInterval(summer);
   expect(timeZone.getZoneInterval(TimeConstants.unixEpoch), isNotNull);
-  expect(timeZone.getZoneInterval(TimeConstants.unixEpoch + Time(days: 2000 * 7)), isNotNull);
-  expect(timeZone.getZoneInterval(TimeConstants.unixEpoch + Time(days: 3000 * 7)), isNotNull);
-  expect(timeZone.getZoneInterval(TimeConstants.unixEpoch + Time(days: 4000 * 7)), isNotNull);
+  expect(
+      timeZone.getZoneInterval(TimeConstants.unixEpoch + Time(days: 2000 * 7)),
+      isNotNull);
+  expect(
+      timeZone.getZoneInterval(TimeConstants.unixEpoch + Time(days: 3000 * 7)),
+      isNotNull);
+  expect(
+      timeZone.getZoneInterval(TimeConstants.unixEpoch + Time(days: 4000 * 7)),
+      isNotNull);
   var newPeriod = timeZone.getZoneInterval(summer);
   expect(identical(actual, newPeriod), isTrue);
 }
 
 @Test()
-void MinMaxOffsets()
-{
+void MinMaxOffsets() {
   expect(timeZone.timeZone.minOffset, timeZone.minOffset);
   expect(timeZone.timeZone.maxOffset, timeZone.maxOffset);
 }
 
 @Test()
-void ForZone_Fixed()
-{
+void ForZone_Fixed() {
   var zone = DateTimeZone.forOffset(Offset.hours(1));
   expect(identical(zone, CachedDateTimeZone.forZone(zone)), isTrue);
 }
 
 @Test()
-void ForZone_AlreadyCached()
-{
+void ForZone_AlreadyCached() {
   expect(identical(timeZone, CachedDateTimeZone.forZone(timeZone)), isTrue);
 }
-
-

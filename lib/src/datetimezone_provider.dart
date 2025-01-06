@@ -46,6 +46,9 @@ abstract class DateTimeZoneProvider {
   /// The provider-specific representation of the system default time zone.
   Future<DateTimeZone> getSystemDefault();
 
+  /// Overrides the system's default zone with a specific ID
+  void setSystemDefault(String id);
+
   DateTimeZone getCachedSystemDefault();
 
   /// Returns the time zone for the given ID, if it's available.
@@ -91,5 +94,4 @@ abstract class DateTimeZoneProvider {
     var futureZones = ids.map((id) => this[id]);
     return await Future.wait(futureZones);
   }
-
 }
