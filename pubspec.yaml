@@ -7,19 +7,19 @@ homepage: https://github.com/evoleen/time_machine2
 # SDK's lower bound must be compatible with the current version pushed with Flutter
 # ./flutter --version
 environment:
-  sdk: ">=2.19.0 <4.0.0"
+  sdk: ">=2.19.0 <3.0.0"
 
 # Verify flutter_test dependency compatibility first before updating any constraints
 # https://github.com/flutter/flutter/blob/master/packages/flutter_test/pubspec.yaml
 dependencies:
   archive: ^4.0.0
   collection: ^1.18.0
+  http: ^1.2.2
   meta: ^1.15.0
 
 dev_dependencies:
   args: ^2.0.0
   # used for the TzdbCompiler
-  http: ^1.2.2
   matcher: ^0.12.10
   path: ^1.8.0
   pedantic: ^1.11.0

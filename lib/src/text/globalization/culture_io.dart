@@ -20,23 +20,23 @@ class CultureLoader {
 
     const zipDecoder = GZipDecoder();
 
-    var binary = zipDecoder
-        .decodeBytes(
-            (await PlatformIO.local.getBinary('cultures', 'cultures.bin'))
-                .buffer
-                .asUint8List())
-        .buffer;
+    var binary = zipDecoder.decodeBytes(
+        (await PlatformIO.local.getBinary('cultures', 'cultures.bin'))
+            .buffer
+            .asUint8List());
 
-    var reader = CultureReader(ByteData.view(binary));
+    var reader = CultureReader(ByteData.view(
+      binary.buffer,
+      binary.offsetInBytes,
+      binary.lengthInBytes,
+    ));
 
     while (reader.isMore) {
       var zone = reader.readCulture();
+      print(zone.name);
       cache[zone.name] = zone;
       cultureIds.add(zone.name);
     }
-
-    // todo: this is a good thing to log? (todo: research whether it's ok for libraries in Dart to log)
-    // print('Total ${cache.length} zones loaded');
 
     var index = CultureLoader._(cultureIds);
     cache.forEach((id, zone) => index._cache[id] = zone);
@@ -50,10 +50,6 @@ class CultureLoader {
 
   Iterable<String> get cultureIds => _cultureIds;
   bool zoneIdExists(String zoneId) => _cultureIds.contains(zoneId);
-
-  Culture _cultureFromBinary(ByteData binary) {
-    return CultureReader(binary).readCulture();
-  }
 
   Future<Culture?> getCulture(String? cultureId) async {
     if (cultureId == null) return null;
