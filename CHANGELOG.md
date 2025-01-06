@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.10.0
+- First release of fork as `time_machine2`
+- Replace tzdb code so that the package now has a working tzdb compiler
+- Upgrade tzdb to 2024b
+- Fix asset loading for Flutter Web
+- Compress tzdb and culture data for faster loading
+
 ## 0.9.18
 - Update TZDB to 2022a
 
