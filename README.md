@@ -9,16 +9,18 @@ Dart's native time API is severely flawed because it only knows UTC or local tim
 * displaying an object's time information (file dates, email dates, calendar dates)
 * sharing data between users that work in different time zones
 
+Time Machine provides a simple, intuitive and type safe API to work with global and local time.
+
 **Time Machine API**
 * Time - an amount of time with nanosecond precision
-* Instant - a unique point on the utc_timeline
+* Instant - a unique point on the UTC timeline
 * LocalTime - the time on the clock
 * LocalDate - the date on the calendar
 * LocalDateTime - a location on the clock and calendar
 * Period - amount of time on the clock and calendar
-* Offset - the timezone offset from the utc_timeline
-* DateTimeZone - a mapping between the utc_timeline, and clock and calendar locations
-* ZonedDateTime - a unique point on the utc_timeline and a location on the clock and calendar
+* Offset - the timezone offset from the UTC timeline
+* DateTimeZone - a mapping between the UTC timeline, and clock and calendar locations
+* ZonedDateTime - a unique point on the UTC timeline and a location on the clock and calendar
 * Culture - formatting and parsing rules specific to a locale
 
 **Time Machine's Goals**
@@ -28,7 +30,7 @@ Dart's native time API is severely flawed because it only knows UTC or local tim
 * Clarity - clear, concise, and intuitive
 * Easy - the library should do the hard things for you
 
-The last two/three? are generic library goals.
+The last two/three are generic library goals.
 
 Time Machine is a port of [Noda Time](https://www.nodatime.org).
 
