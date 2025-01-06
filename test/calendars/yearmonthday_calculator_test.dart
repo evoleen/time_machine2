@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 import 'package:test/test.dart';
 
 import '../time_machine_testing.dart';
@@ -18,9 +18,9 @@ Future main() async {
 // Here the term 'Islamic' only refers to whether the implementation is IslamicYearMonthDayCalculator,
 // not whether the calendar itself is based on Islamic scripture.
 List<TestCaseData> NonIslamicCalculators = [
-  TestCaseData(GregorianYearMonthDayCalculator())..name='Gregorian',
+  TestCaseData(GregorianYearMonthDayCalculator())..name = 'Gregorian',
   //new TestCaseData(new CopticYearMonthDayCalculator())..name='Coptic',
-  TestCaseData(JulianYearMonthDayCalculator())..name='Julian',
+  TestCaseData(JulianYearMonthDayCalculator())..name = 'Julian',
 //new TestCaseData(new HebrewYearMonthDayCalculator(HebrewMonthNumbering.Civil)).SetName('Hebrew Civil'),
 //new TestCaseData(new HebrewYearMonthDayCalculator(HebrewMonthNumbering.Scriptural)).SetName('Hebrew Scriptural'),
 //new TestCaseData(new PersianYearMonthDayCalculator.Simple()).SetName('Persian Simple'),
@@ -37,7 +37,8 @@ let calculator = new IslamicYearMonthDayCalculator(leapYearPattern, epoch)
 select new TestCaseData(calculator).SetName($'Islamic: {epoch}, {leapYearPattern}'))
 .ToArray();*/
 
-Iterable<TestCaseData> AllCalculators = [NonIslamicCalculators, IslamicCalculators].expand((x) => x);
+Iterable<TestCaseData> AllCalculators =
+    [NonIslamicCalculators, IslamicCalculators].expand((x) => x);
 
 // Note for tests using TestCaseSource:
 // We can't make the parameter of type YearMonthDayCalculator, because that's internal.
@@ -45,14 +46,12 @@ Iterable<TestCaseData> AllCalculators = [NonIslamicCalculators, IslamicCalculato
 
 @Test()
 @TestCaseSource(#AllCalculators)
-void ValidateStartOfYear1Days(Object calculatorAsObject)
-{
+void ValidateStartOfYear1Days(Object calculatorAsObject) {
   var calculator = calculatorAsObject as YearMonthDayCalculator;
   // Some calendars (e.g. Um Al Qura) don't support year 1, so the DaysAtStartOfYear1
   // is somewhat theoretical. (It's still used in such calendars, but only to get a guess
   // as to a year number given a day number.)
-  if (calculator.minYear > 1 || calculator.maxYear < 0)
-  {
+  if (calculator.minYear > 1 || calculator.maxYear < 0) {
     return;
   }
   expect(calculator.getStartOfYearInDays(1), calculator.daysAtStartOfYear1);
@@ -60,11 +59,9 @@ void ValidateStartOfYear1Days(Object calculatorAsObject)
 
 @Test()
 @TestCaseSource(#AllCalculators)
-void GetYearConsistentWithGetYearDays(Object calculatorAsObject)
-{
+void GetYearConsistentWithGetYearDays(Object calculatorAsObject) {
   var calculator = calculatorAsObject as YearMonthDayCalculator;
-  for (int year = calculator.minYear; year <= calculator.maxYear; year++)
-  {
+  for (int year = calculator.minYear; year <= calculator.maxYear; year++) {
     int startOfYearDays = calculator.getStartOfYearInDays(year);
 
     var tmp = calculator.getYear(startOfYearDays);
@@ -80,4 +77,3 @@ void GetYearConsistentWithGetYearDays(Object calculatorAsObject)
     expect(calculator.getDaysInYear(year - 1) - 1, dayOfYear);
   }
 }
-

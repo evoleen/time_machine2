@@ -2,11 +2,12 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'package:time_machine/src/time_machine_internal.dart';
-
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 abstract class ICompositePatternBuilder {
-  static IPartialPattern<T> buildAsPartial<T>(CompositePatternBuilder<T> compositePatternBuilder) => compositePatternBuilder._buildAsPartial();
+  static IPartialPattern<T> buildAsPartial<T>(
+          CompositePatternBuilder<T> compositePatternBuilder) =>
+      compositePatternBuilder._buildAsPartial();
 }
 
 /// A builder for composite patterns.
@@ -33,7 +34,8 @@ class CompositePatternBuilder<T> {
   // ~ they could be verified at runtime - but Dart can't do it at compile time (not yet anyway?)
   // We also couldn't use [Object] iaw with the Style guide -- since that failed too???
   // todo: add back in type safety with a new method
-  final List<bool Function(dynamic arg)> _formatPredicates = <bool Function(dynamic arg)>[];
+  final List<bool Function(dynamic arg)> _formatPredicates =
+      <bool Function(dynamic arg)>[];
 
   /// Constructs a new instance which initially has no component patterns. At least one component
   /// pattern must be added before [build] is called.
@@ -46,7 +48,8 @@ class CompositePatternBuilder<T> {
   /// formatting the given value.
   void add(IPattern<T> pattern, bool Function(dynamic arg) formatPredicate) {
     _patterns.add(Preconditions.checkNotNull(pattern, 'pattern'));
-    _formatPredicates.add(Preconditions.checkNotNull(formatPredicate, 'formatPredicate'));
+    _formatPredicates
+        .add(Preconditions.checkNotNull(formatPredicate, 'formatPredicate'));
   }
 
   /// Builds a composite pattern from this builder. Further changes to this builder
@@ -56,12 +59,15 @@ class CompositePatternBuilder<T> {
   ///
   /// * [StateError]: No component patterns have been added.
   IPattern<T> build() {
-    Preconditions.checkState(_patterns.isNotEmpty, 'A composite pattern must have at least one component pattern.');
+    Preconditions.checkState(_patterns.isNotEmpty,
+        'A composite pattern must have at least one component pattern.');
     return _CompositePattern<T>._(_patterns, _formatPredicates);
   }
 
   IPartialPattern<T> _buildAsPartial() {
-    Preconditions.debugCheckState(_patterns.every((p) => p is IPartialPattern<T>), 'All patterns should be partial');
+    Preconditions.debugCheckState(
+        _patterns.every((p) => p is IPartialPattern<T>),
+        'All patterns should be partial');
     return build() as IPartialPattern<T>;
   }
 }
@@ -76,7 +82,8 @@ class _CompositePattern<T> implements IPartialPattern<T> {
   ParseResult<T> parse(String text) {
     for (IPattern<T> pattern in _patterns) {
       ParseResult<T> result = pattern.parse(text);
-      if (result.success || !IParseResult.continueAfterErrorWithMultipleFormats(result)) {
+      if (result.success ||
+          !IParseResult.continueAfterErrorWithMultipleFormats(result)) {
         return result;
       }
     }
@@ -92,7 +99,8 @@ class _CompositePattern<T> implements IPartialPattern<T> {
       }
       cursor.move(index);
       ParseResult<T> result = pattern.parsePartial(cursor);
-      if (result.success || !IParseResult.continueAfterErrorWithMultipleFormats(result)) {
+      if (result.success ||
+          !IParseResult.continueAfterErrorWithMultipleFormats(result)) {
         return result;
       }
     }
@@ -113,6 +121,7 @@ class _CompositePattern<T> implements IPartialPattern<T> {
         return _patterns[i];
       }
     }
-    throw const FormatException('Composite pattern was unable to format value using any of the provided patterns.');
+    throw const FormatException(
+        'Composite pattern was unable to format value using any of the provided patterns.');
   }
 }

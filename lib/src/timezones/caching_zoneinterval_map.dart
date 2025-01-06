@@ -4,18 +4,16 @@
 
 import 'dart:math' as math;
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 /// Helper methods for creating IZoneIntervalMaps which cache results.
 @internal
-abstract class CachingZoneIntervalMap
-{
+abstract class CachingZoneIntervalMap {
 // Currently the only implementation is HashArrayCache. This container class is mostly for historical
 // reasons; it's not really necessary but it does no harm.
 
   /// Returns a caching map for the given input map.
-  static ZoneIntervalMap cacheMap(ZoneIntervalMap map)
-  {
+  static ZoneIntervalMap cacheMap(ZoneIntervalMap map) {
     return _HashArrayCache(map);
   }
 }
@@ -47,12 +45,13 @@ class _HashArrayCache implements ZoneIntervalMap {
   /// converts an instant into a number of 32 day periods.
   static const int _periodShift = 5;
 
-  final List<_HashCacheNode?> _instantCache = List<_HashCacheNode?>.filled(_cacheSize, null);
+  final List<_HashCacheNode?> _instantCache =
+      List<_HashCacheNode?>.filled(_cacheSize, null);
   final ZoneIntervalMap _map;
 
   _HashArrayCache(this._map) {
     Preconditions.checkNotNull(_map, 'map');
-  // instantCache = new HashCacheNode[CacheSize];
+    // instantCache = new HashCacheNode[CacheSize];
   }
 
   /// Gets the zone offset period for the given instant. Null is returned if no period is
@@ -75,7 +74,8 @@ class _HashArrayCache implements ZoneIntervalMap {
 
     // Note: moving this code into an instance method in HashCacheNode makes a surprisingly
     // large performance difference.
-    while (node.previous != null && IZoneInterval.rawStart(node.interval) > instant) {
+    while (node.previous != null &&
+        IZoneInterval.rawStart(node.interval) > instant) {
       node = node.previous!;
     }
     return node.interval;
@@ -102,7 +102,8 @@ class _HashCacheNode {
   static _HashCacheNode createNode(int period, ZoneIntervalMap map) {
     // todo: does this need to be a safe shift?
     var days = period << _HashArrayCache._periodShift;
-    var periodStart = IInstant.untrusted(Time(days: math.max(days, IInstant.minDays)));
+    var periodStart =
+        IInstant.untrusted(Time(days: math.max(days, IInstant.minDays)));
     var nextPeriodStartDays = days + (1 << _HashArrayCache._periodShift);
 
     var interval = map.getZoneInterval(periodStart);
@@ -128,4 +129,3 @@ class _HashCacheNode {
   /// [previous]: The previous [_HashCacheNode] node.
   _HashCacheNode(this.interval, this.period, this.previous);
 }
-

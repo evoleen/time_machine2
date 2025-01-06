@@ -4,14 +4,16 @@
 
 // import 'package:quiver_hashcode/hashcode.dart';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 // Note: documentation that refers to the LocalDateTime type within this class must use the fully-qualified
 // reference to avoid being resolved to the LocalDateTime property instead.
 
 @internal
 abstract class IZonedDateTime {
-  static ZonedDateTime trusted(OffsetDateTime offsetDateTime, DateTimeZone zone) => ZonedDateTime._(offsetDateTime, zone);
+  static ZonedDateTime trusted(
+          OffsetDateTime offsetDateTime, DateTimeZone zone) =>
+      ZonedDateTime._(offsetDateTime, zone);
 }
 
 /// A [LocalDateTime] in a specific time zone and with a particular offset to distinguish
@@ -31,6 +33,7 @@ abstract class IZonedDateTime {
 class ZonedDateTime {
   // todo: why isn't this exposed directly?
   final OffsetDateTime _offsetDateTime;
+
   /// Gets the time zone associated with this value.
   final DateTimeZone zone;
 
@@ -43,10 +46,14 @@ class ZonedDateTime {
   /// * [instant]: The instant.
   /// * [zone]: The time zone.
   /// * [calendar]: The calendar system, defaulting to ISO.
-  factory ZonedDateTime([Instant instant = Instant.unixEpoch, DateTimeZone? zone, CalendarSystem? calendar]) {
+  factory ZonedDateTime(
+      [Instant instant = Instant.unixEpoch,
+      DateTimeZone? zone,
+      CalendarSystem? calendar]) {
     // zone = Preconditions.checkNotNull(zone, 'zone');
     var _zone = zone ?? DateTimeZone.utc;
-    var _offsetDateTime = IOffsetDateTime.fromInstant(instant, _zone.getUtcOffset(instant), calendar);
+    var _offsetDateTime = IOffsetDateTime.fromInstant(
+        instant, _zone.getUtcOffset(instant), calendar);
     return ZonedDateTime._(_offsetDateTime, _zone);
   }
 
@@ -61,14 +68,16 @@ class ZonedDateTime {
   ///
   /// * [ArgumentError]: [offset] is not a valid offset at the given
   /// local date and time.
-  factory ZonedDateTime.atOffset(LocalDateTime localDateTime, DateTimeZone zone, Offset offset)
-  {
+  factory ZonedDateTime.atOffset(
+      LocalDateTime localDateTime, DateTimeZone zone, Offset offset) {
     zone = Preconditions.checkNotNull(zone, 'zone');
-    Instant candidateInstant = ILocalDateTime.toLocalInstant(localDateTime).minus(offset);
+    Instant candidateInstant =
+        ILocalDateTime.toLocalInstant(localDateTime).minus(offset);
     Offset correctOffset = zone.getUtcOffset(candidateInstant);
     // Not using Preconditions, to avoid building the string unnecessarily.
     if (correctOffset != offset) {
-      throw ArgumentError('Offset $offset is invalid for local date and time $localDateTime in time zone ${zone.id} offset');
+      throw ArgumentError(
+          'Offset $offset is invalid for local date and time $localDateTime in time zone ${zone.id} offset');
     }
     var offsetDateTime = OffsetDateTime(localDateTime, offset);
     return ZonedDateTime._(offsetDateTime, zone);
@@ -97,17 +106,20 @@ class ZonedDateTime {
       case 0:
         var interval = mapping.lateInterval;
         // Safe to use Start, as it can't extend to the start of time.
-        var offsetDateTime = IOffsetDateTime.fromInstant(interval.start, interval.wallOffset, date.calendar);
+        var offsetDateTime = IOffsetDateTime.fromInstant(
+            interval.start, interval.wallOffset, date.calendar);
         // It's possible that the entire day is skipped. For example, Samoa skipped December 30th 2011.
         // We know the two values are in the same calendar here, so we just need to check the YearMonthDay.
-        if (ILocalDate.yearMonthDay(offsetDateTime.calendarDate) != ILocalDate.yearMonthDay(date)) {
+        if (ILocalDate.yearMonthDay(offsetDateTime.calendarDate) !=
+            ILocalDate.yearMonthDay(date)) {
           throw SkippedTimeError(midnight, zone);
         }
         return IZonedDateTime.trusted(offsetDateTime, zone);
       // Unambiguous or occurs twice, we can just use the offset from the earlier interval.
       case 1:
       case 2:
-        return IZonedDateTime.trusted(midnight.withOffset(mapping.earlyInterval.wallOffset), zone);
+        return IZonedDateTime.trusted(
+            midnight.withOffset(mapping.earlyInterval.wallOffset), zone);
       default:
         throw StateError("This won't happen.");
     }
@@ -126,7 +138,8 @@ class ZonedDateTime {
   /// * [resolver]: The resolver to apply to the mapping.
   ///
   /// Returns: The result of resolving the mapping.
-  factory ZonedDateTime.resolve(LocalDateTime localDateTime, DateTimeZone zone, ZoneLocalMappingResolver resolver) {
+  factory ZonedDateTime.resolve(LocalDateTime localDateTime, DateTimeZone zone,
+      ZoneLocalMappingResolver resolver) {
     Preconditions.checkNotNull(resolver, 'resolver');
     return resolver(zone.mapLocal(localDateTime));
   }
@@ -144,7 +157,8 @@ class ZonedDateTime {
   /// * [SkippedTimeError]: The given local date/time is skipped in this time zone.
   /// * [AmbiguousTimeError]: The given local date/time is ambiguous in this time zone.
   /// Returns: The unambiguous matching [ZonedDateTime] if it exists.
-  factory ZonedDateTime.atStrictly(LocalDateTime localDateTime, DateTimeZone zone) =>
+  factory ZonedDateTime.atStrictly(
+          LocalDateTime localDateTime, DateTimeZone zone) =>
       ZonedDateTime.resolve(localDateTime, zone, Resolvers.strictResolver);
 
   /// Maps the given [LocalDateTime] to the corresponding [ZonedDateTime] in a lenient
@@ -164,9 +178,9 @@ class ZonedDateTime {
   ///
   /// The unambiguous mapping if there is one, the earlier result if the mapping is ambiguous,
   /// or the forward-shifted value if the given local date/time is skipped.
-  factory ZonedDateTime.atLeniently(LocalDateTime localDateTime, DateTimeZone zone) =>
+  factory ZonedDateTime.atLeniently(
+          LocalDateTime localDateTime, DateTimeZone zone) =>
       ZonedDateTime.resolve(localDateTime, zone, Resolvers.lenientResolver);
-
 
   /// Gets the offset of the local representation of this value from UTC.
   Offset get offset => _offsetDateTime.offset;
@@ -281,12 +295,14 @@ class ZonedDateTime {
   /// * [other]: An object to compare with this object.
   ///
   /// Returns: True if the specified value is the same instant in the same time zone; false otherwise.
-  bool equals(ZonedDateTime other) => _offsetDateTime == other._offsetDateTime && zone == other.zone;
+  bool equals(ZonedDateTime other) =>
+      _offsetDateTime == other._offsetDateTime && zone == other.zone;
 
   /// Computes the hash code for this instance.
   ///
   /// A 32-bit signed integer that is the hash code for this instance.
-  @override int get hashCode => hash2(_offsetDateTime, zone);
+  @override
+  int get hashCode => hash2(_offsetDateTime, zone);
 
   /// Implements the operator ==.
   ///
@@ -294,7 +310,8 @@ class ZonedDateTime {
   /// * [other]: The second value to compare
   ///
   /// Returns: True if the two operands are equal according to [Equals(ZonedDateTime)]; false otherwise
-  @override bool operator ==(Object other) => other is ZonedDateTime && equals(other);
+  @override
+  bool operator ==(Object other) => other is ZonedDateTime && equals(other);
 
   /// Adds a duration to a zoned date and time.
   ///
@@ -302,7 +319,8 @@ class ZonedDateTime {
   /// * [time]: The duration to add
   ///
   /// Returns: A new value with the time advanced by the given duration, in the same calendar system and time zone.
-  static ZonedDateTime plus(ZonedDateTime zonedDateTime, Time time) => zonedDateTime.add(time);
+  static ZonedDateTime plus(ZonedDateTime zonedDateTime, Time time) =>
+      zonedDateTime.add(time);
 
   /// Subtracts a duration from a zoned date and time.
   ///
@@ -310,7 +328,8 @@ class ZonedDateTime {
   /// * [time]: The duration to subtract.
   ///
   /// Returns: A new value with the time 'rewound' by the given duration, in the same calendar system and time zone.
-  static ZonedDateTime minus(ZonedDateTime zonedDateTime, Time time) => zonedDateTime.subtract(time);
+  static ZonedDateTime minus(ZonedDateTime zonedDateTime, Time time) =>
+      zonedDateTime.subtract(time);
 
   /// Subtracts one zoned date and time from another, returning an elapsed duration.
   ///
@@ -325,7 +344,8 @@ class ZonedDateTime {
   /// * [start]: The zoned date and time to subtract from [end].
   ///
   /// Returns: The elapsed duration from [start] to [end].
-  static Time difference(ZonedDateTime end, ZonedDateTime start) => end.timeSince(start);
+  static Time difference(ZonedDateTime end, ZonedDateTime start) =>
+      end.timeSince(start);
 
   /// Returns a new [ZonedDateTime] with the time advanced by the given duration. Note that
   /// due to daylight saving time changes this may not advance the local time by the same amount.
@@ -355,7 +375,8 @@ class ZonedDateTime {
   /// * [time]: The duration to add
   ///
   /// Returns: A new [ZonedDateTime] representing the result of the addition.
-  ZonedDateTime add(Time time) => ZonedDateTime(toInstant() + time, zone, calendar);
+  ZonedDateTime add(Time time) =>
+      ZonedDateTime(toInstant() + time, zone, calendar);
 
   /// Returns the result of subtracting a duration from this zoned date and time, for a fluent alternative to
   /// [-].
@@ -363,7 +384,8 @@ class ZonedDateTime {
   /// * [time]: The duration to subtract
   ///
   /// Returns: A new [ZonedDateTime] representing the result of the subtraction.
-  ZonedDateTime subtract(Time time) => ZonedDateTime(toInstant() - time, zone, calendar);
+  ZonedDateTime subtract(Time time) =>
+      ZonedDateTime(toInstant() - time, zone, calendar);
 
   /// Returns the result of subtracting another zoned date and time from this one, resulting in the elapsed duration
   /// between the two instants represented by the values.
@@ -371,7 +393,8 @@ class ZonedDateTime {
   /// * [other]: The zoned date and time to subtract from [this] one.
   ///
   /// Returns: The elapsed duration from [other] to this value.
-  Time timeSince(ZonedDateTime other) => other.toInstant().timeUntil(toInstant());
+  Time timeSince(ZonedDateTime other) =>
+      other.toInstant().timeUntil(toInstant());
 
   /// Returns the result of subtracting [this] from a zoned date and time, resulting in the elapsed duration
   /// between the two instants represented by the values.
@@ -379,7 +402,8 @@ class ZonedDateTime {
   /// * [other]: The zoned date and time to subtract [this] from.
   ///
   /// Returns: The elapsed duration from [other] to this value.
-  Time timeUntil(ZonedDateTime other) => toInstant().timeUntil(other.toInstant());
+  Time timeUntil(ZonedDateTime other) =>
+      toInstant().timeUntil(other.toInstant());
 
   // If we ever get compile-time dispatch, re-enable this use-case
   // Time operator -(ZonedDateTime start) => minus(start); // Subtraction_ZonedDateTime() contains a commented out unit test
@@ -413,7 +437,8 @@ class ZonedDateTime {
   /// or null to use the default format pattern ('G').
   /// * [culture]: The [Culture] to use when formatting the value,
   /// or null to use the current isolate's culture to obtain a format provider.
-  @override String toString([String? patternText, Culture? culture]) =>
+  @override
+  String toString([String? patternText, Culture? culture]) =>
       ZonedDateTimePatterns.format(this, patternText, culture);
 
   @ddcSupportHack
@@ -455,7 +480,7 @@ class ZonedDateTime {
 /// same value can be used for both equality and ordering comparisons.
 @immutable
 abstract class ZonedDateTimeComparer // : todo: IComparer<ZonedDateTime>, IEqualityComparer<ZonedDateTime>
-    {
+{
   // TODO(feature): A comparer which compares instants, but in a calendar-sensitive manner?
 
   /// Gets a comparer which compares [ZonedDateTime] values by their local date/time, without reference to
@@ -464,7 +489,8 @@ abstract class ZonedDateTimeComparer // : todo: IComparer<ZonedDateTime>, IEqual
   /// For example, this comparer considers 2013-03-04T20:21:00 (Europe/London) to be later than
   /// 2013-03-04T19:21:00 (America/Los_Angeles) even though the second value represents a later instant in time.
   /// This property will return a reference to the same instance every time it is called.
-  static ZonedDateTimeComparer get local => _ZonedDateTimeLocalComparer.instance;
+  static ZonedDateTimeComparer get local =>
+      _ZonedDateTimeLocalComparer.instance;
 
   /// Gets a comparer which compares [ZonedDateTime] values by the instants obtained by applying the offset to
   /// the local date/time, ignoring the calendar system.
@@ -473,7 +499,8 @@ abstract class ZonedDateTimeComparer // : todo: IComparer<ZonedDateTime>, IEqual
   /// 2013-03-04T19:21:00 (America/Los_Angeles) even though the second value has a local time which is earlier; the time zones
   /// mean that the first value occurred earlier in the universal time line.
   /// This property will return a reference to the same instance every time it is called.
-  static ZonedDateTimeComparer get instant => _ZonedDateTimeInstantComparer.instance;
+  static ZonedDateTimeComparer get instant =>
+      _ZonedDateTimeInstantComparer.instance;
 
   /// Internal constructor to prevent external classes from deriving from this.
   /// (That means we can add more abstract members in the future.)
@@ -514,34 +541,42 @@ class _ZonedDateTimeLocalComparer extends ZonedDateTimeComparer {
   const _ZonedDateTimeLocalComparer._() : super._();
 
   /// <inheritdoc />
-  @override int compare(ZonedDateTime x, ZonedDateTime y) =>
-      OffsetDateTimeComparer.local.compare(x._offsetDateTime, y._offsetDateTime);
+  @override
+  int compare(ZonedDateTime x, ZonedDateTime y) => OffsetDateTimeComparer.local
+      .compare(x._offsetDateTime, y._offsetDateTime);
 
   /// <inheritdoc />
-  @override bool equals(ZonedDateTime x, ZonedDateTime y) =>
+  @override
+  bool equals(ZonedDateTime x, ZonedDateTime y) =>
       OffsetDateTimeComparer.local.equals(x._offsetDateTime, y._offsetDateTime);
 
   /// <inheritdoc />
-  @override int getHashCode(ZonedDateTime obj) =>
+  @override
+  int getHashCode(ZonedDateTime obj) =>
       OffsetDateTimeComparer.local.getHashCode(obj._offsetDateTime);
 }
 
 /// Implementation for [Comparer.Instant].
 class _ZonedDateTimeInstantComparer extends ZonedDateTimeComparer {
-  static const ZonedDateTimeComparer instance = _ZonedDateTimeInstantComparer._();
+  static const ZonedDateTimeComparer instance =
+      _ZonedDateTimeInstantComparer._();
 
   const _ZonedDateTimeInstantComparer._() : super._();
 
   /// <inheritdoc />
-  @override int compare(ZonedDateTime x, ZonedDateTime y) =>
-      OffsetDateTimeComparer.instant.compare(x._offsetDateTime, y._offsetDateTime);
+  @override
+  int compare(ZonedDateTime x, ZonedDateTime y) =>
+      OffsetDateTimeComparer.instant
+          .compare(x._offsetDateTime, y._offsetDateTime);
 
   /// <inheritdoc />
-  @override bool equals(ZonedDateTime x, ZonedDateTime y) =>
-      OffsetDateTimeComparer.instant.equals(x._offsetDateTime, y._offsetDateTime);
+  @override
+  bool equals(ZonedDateTime x, ZonedDateTime y) =>
+      OffsetDateTimeComparer.instant
+          .equals(x._offsetDateTime, y._offsetDateTime);
 
   /// <inheritdoc />
-  @override int getHashCode(ZonedDateTime obj) =>
+  @override
+  int getHashCode(ZonedDateTime obj) =>
       OffsetDateTimeComparer.instant.getHashCode(obj._offsetDateTime);
 }
-

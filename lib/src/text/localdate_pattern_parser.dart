@@ -2,7 +2,7 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 /// Maximum two-digit-year in the template to treat as the current century.
 /// (One day we may want to make this configurable, but it feels very low
@@ -15,20 +15,42 @@ class LocalDatePatternParser implements IPatternParser<LocalDate> {
   final LocalDate _templateValue;
 
   // todo: was Map<Char
-  final Map<String, CharacterHandler<LocalDate, LocalDateParseBucket>> _patternCharacterHandlers =
+  final Map<String, CharacterHandler<LocalDate, LocalDateParseBucket>>
+      _patternCharacterHandlers =
 /*new Map<String, CharacterHandler<LocalDate, LocalDateParseBucket>>*/
-  {
-    '%': SteppedPatternBuilder.handlePercent/**<LocalDate, LocalDateParseBucket>*/,
-    '\'': SteppedPatternBuilder.handleQuote/**<LocalDate, LocalDateParseBucket>*/,
-    '\"': SteppedPatternBuilder.handleQuote/**<LocalDate, LocalDateParseBucket>*/,
-    '\\': SteppedPatternBuilder.handleBackslash/**<LocalDate, LocalDateParseBucket>*/,
-    '/': (pattern, builder) => builder.addLiteral1(builder.formatInfo.dateSeparator, IParseResult.dateSeparatorMismatch/**<LocalDate>*/),
-    'y': DatePatternHelper.createYearOfEraHandler<LocalDate, LocalDateParseBucket>((value) => value.yearOfEra, (bucket, value) => bucket.yearOfEra = value),
-    'u': SteppedPatternBuilder.handlePaddedField<LocalDate, LocalDateParseBucket>(4, PatternFields.year, -9999, 9999, (value) => value.year, (bucket, value) => bucket.year = value),
-    'M': DatePatternHelper.createMonthOfYearHandler<LocalDate, LocalDateParseBucket>((value) => value.monthOfYear, (bucket, value) => bucket.monthOfYearText = value, (bucket, value) => bucket.monthOfYearNumeric = value),
-    'd': DatePatternHelper.createDayHandler<LocalDate, LocalDateParseBucket>((value) => value.dayOfMonth, (value) => /*(int)*/ value.dayOfWeek.value, (bucket, value) => bucket.dayOfMonth = value, (bucket, value) => bucket.dayOfWeek = value),
-    'c': DatePatternHelper.createCalendarHandler<LocalDate, LocalDateParseBucket>((value) => value.calendar, (bucket, value) => bucket.calendar = value),
-    'g': DatePatternHelper.createEraHandler<LocalDate, LocalDateParseBucket>((date) => date.era, (bucket) => bucket),
+      {
+    '%': SteppedPatternBuilder
+        .handlePercent /**<LocalDate, LocalDateParseBucket>*/,
+    '\'': SteppedPatternBuilder
+        .handleQuote /**<LocalDate, LocalDateParseBucket>*/,
+    '\"': SteppedPatternBuilder
+        .handleQuote /**<LocalDate, LocalDateParseBucket>*/,
+    '\\': SteppedPatternBuilder
+        .handleBackslash /**<LocalDate, LocalDateParseBucket>*/,
+    '/': (pattern, builder) => builder.addLiteral1(
+        builder.formatInfo.dateSeparator,
+        IParseResult.dateSeparatorMismatch /**<LocalDate>*/),
+    'y': DatePatternHelper.createYearOfEraHandler<LocalDate,
+            LocalDateParseBucket>((value) => value.yearOfEra,
+        (bucket, value) => bucket.yearOfEra = value),
+    'u': SteppedPatternBuilder.handlePaddedField<LocalDate,
+            LocalDateParseBucket>(4, PatternFields.year, -9999, 9999,
+        (value) => value.year, (bucket, value) => bucket.year = value),
+    'M': DatePatternHelper.createMonthOfYearHandler<LocalDate,
+            LocalDateParseBucket>(
+        (value) => value.monthOfYear,
+        (bucket, value) => bucket.monthOfYearText = value,
+        (bucket, value) => bucket.monthOfYearNumeric = value),
+    'd': DatePatternHelper.createDayHandler<LocalDate, LocalDateParseBucket>(
+        (value) => value.dayOfMonth,
+        (value) => /*(int)*/ value.dayOfWeek.value,
+        (bucket, value) => bucket.dayOfMonth = value,
+        (bucket, value) => bucket.dayOfWeek = value),
+    'c': DatePatternHelper.createCalendarHandler<LocalDate,
+            LocalDateParseBucket>(
+        (value) => value.calendar, (bucket, value) => bucket.calendar = value),
+    'g': DatePatternHelper.createEraHandler<LocalDate, LocalDateParseBucket>(
+        (date) => date.era, (bucket) => bucket),
   };
 
   LocalDatePatternParser(this._templateValue);
@@ -36,7 +58,8 @@ class LocalDatePatternParser implements IPatternParser<LocalDate> {
   // Note: to implement the interface. It does no harm, and it's simpler than using explicit
   // interface implementation.
   @override
-  IPattern<LocalDate> parsePattern(String patternText, TimeMachineFormatInfo formatInfo) {
+  IPattern<LocalDate> parsePattern(
+      String patternText, TimeMachineFormatInfo formatInfo) {
     // Nullity check is performed in LocalDatePattern.
     if (patternText.isEmpty) {
       throw InvalidPatternError(TextErrorMessages.formatStringEmpty);
@@ -46,21 +69,25 @@ class LocalDatePatternParser implements IPatternParser<LocalDate> {
       // todo: do we want this functionality? (this was similar to the BCL support patterns
       // -- except it hits up dateTimeFormat stuff -- is there a different way this could or should be accessed?
       var patternCharacter = patternText[0];
-      String? newPatternText = _expandStandardFormatPattern(patternText, formatInfo);
+      String? newPatternText =
+          _expandStandardFormatPattern(patternText, formatInfo);
       if (newPatternText == null) {
-        throw IInvalidPatternError.format(TextErrorMessages.unknownStandardFormat, [patternCharacter, 'LocalDate']);
+        throw IInvalidPatternError.format(
+            TextErrorMessages.unknownStandardFormat,
+            [patternCharacter, 'LocalDate']);
       }
       patternText = newPatternText;
     }
 
-    var patternBuilder = SteppedPatternBuilder<LocalDate, LocalDateParseBucket>(formatInfo,
-            () => LocalDateParseBucket(_templateValue));
+    var patternBuilder = SteppedPatternBuilder<LocalDate, LocalDateParseBucket>(
+        formatInfo, () => LocalDateParseBucket(_templateValue));
     patternBuilder.parseCustomPattern(patternText, _patternCharacterHandlers);
     patternBuilder.validateUsedFields();
     return patternBuilder.build(_templateValue);
   }
 
-  String? _expandStandardFormatPattern(String patternCharacter, TimeMachineFormatInfo formatInfo) {
+  String? _expandStandardFormatPattern(
+      String patternCharacter, TimeMachineFormatInfo formatInfo) {
     switch (patternCharacter) {
       case 'd':
         return formatInfo.dateTimeFormat.shortDatePattern;
@@ -89,11 +116,13 @@ class LocalDateParseBucket extends ParseBucket<LocalDate> {
   int dayOfMonth = 0;
   int dayOfWeek = 0;
 
-  LocalDateParseBucket(this.templateValue) :
-    // Only fetch this once.
-    calendar = templateValue.calendar;
+  LocalDateParseBucket(this.templateValue)
+      :
+        // Only fetch this once.
+        calendar = templateValue.calendar;
 
-  ParseResult<TResult>? parseEra<TResult>(TimeMachineFormatInfo formatInfo, ValueCursor cursor) {
+  ParseResult<TResult>? parseEra<TResult>(
+      TimeMachineFormatInfo formatInfo, ValueCursor cursor) {
     var compareInfo = formatInfo.compareInfo;
     for (var era in calendar.eras) {
       for (String eraName in formatInfo.getEraNames(era)) {
@@ -110,7 +139,8 @@ class LocalDateParseBucket extends ParseBucket<LocalDate> {
   @override
   ParseResult<LocalDate> calculateValue(PatternFields usedFields, String text) {
     if (usedFields.hasAny(PatternFields.embeddedDate)) {
-      return ParseResult.forValue<LocalDate>(LocalDate(year, monthOfYearNumeric, dayOfMonth, calendar));
+      return ParseResult.forValue<LocalDate>(
+          LocalDate(year, monthOfYearNumeric, dayOfMonth, calendar));
     }
     // This will set Year if necessary
     ParseResult<LocalDate>? failure = _determineYear(usedFields, text);
@@ -123,14 +153,18 @@ class LocalDateParseBucket extends ParseBucket<LocalDate> {
       return failure;
     }
 
-    int day = usedFields.hasAny(PatternFields.dayOfMonth) ? dayOfMonth : templateValue.dayOfMonth;
+    int day = usedFields.hasAny(PatternFields.dayOfMonth)
+        ? dayOfMonth
+        : templateValue.dayOfMonth;
     if (day > calendar.getDaysInMonth(year, monthOfYearNumeric)) {
-      return IParseResult.dayOfMonthOutOfRange<LocalDate>(text, day, monthOfYearNumeric, year);
+      return IParseResult.dayOfMonthOutOfRange<LocalDate>(
+          text, day, monthOfYearNumeric, year);
     }
 
     LocalDate value = LocalDate(year, monthOfYearNumeric, day, calendar);
 
-    if (usedFields.hasAny(PatternFields.dayOfWeek) && dayOfWeek != value.dayOfWeek.value) {
+    if (usedFields.hasAny(PatternFields.dayOfWeek) &&
+        dayOfWeek != value.dayOfWeek.value) {
       return IParseResult.inconsistentDayOfWeekTextValue<LocalDate>(text);
     }
 
@@ -159,14 +193,18 @@ class LocalDateParseBucket extends ParseBucket<LocalDate> {
   /// and if the template value isn't in the first century already.
   ///
   /// Phew.
-  ParseResult<LocalDate>? _determineYear(PatternFields usedFields, String text) {
+  ParseResult<LocalDate>? _determineYear(
+      PatternFields usedFields, String text) {
     if (usedFields.hasAny(PatternFields.year)) {
       if (year > calendar.maxYear || year < calendar.minYear) {
-        return IParseResult.fieldValueOutOfRangePostParse<LocalDate>(text, year, 'u', 'LocalDate');
+        return IParseResult.fieldValueOutOfRangePostParse<LocalDate>(
+            text, year, 'u', 'LocalDate');
       }
 
-      if (usedFields.hasAny(PatternFields.era) && _era != ICalendarSystem.getEra(calendar, year)) {
-        return IParseResult.inconsistentValues<LocalDate>(text, 'g', 'u', 'LocalDate');
+      if (usedFields.hasAny(PatternFields.era) &&
+          _era != ICalendarSystem.getEra(calendar, year)) {
+        return IParseResult.inconsistentValues<LocalDate>(
+            text, 'g', 'u', 'LocalDate');
       }
 
       if (usedFields.hasAny(PatternFields.yearOfEra)) {
@@ -176,7 +214,8 @@ class LocalDateParseBucket extends ParseBucket<LocalDate> {
           yearOfEraFromYear = yearOfEraFromYear % 100;
         }
         if (yearOfEraFromYear != yearOfEra) {
-          return IParseResult.inconsistentValues<LocalDate>(text, 'y', 'u', 'LocalDate');
+          return IParseResult.inconsistentValues<LocalDate>(
+              text, 'y', 'u', 'LocalDate');
         }
       }
       return null;
@@ -185,8 +224,11 @@ class LocalDateParseBucket extends ParseBucket<LocalDate> {
     // Use the year from the template value, possibly checking the era.
     if (!usedFields.hasAny(PatternFields.yearOfEra)) {
       year = templateValue.year;
-      return usedFields.hasAny(PatternFields.era) && _era != ICalendarSystem.getEra(calendar, year)
-          ? IParseResult.inconsistentValues<LocalDate>(text, 'g', 'u', 'LocalDate') : null;
+      return usedFields.hasAny(PatternFields.era) &&
+              _era != ICalendarSystem.getEra(calendar, year)
+          ? IParseResult.inconsistentValues<LocalDate>(
+              text, 'g', 'u', 'LocalDate')
+          : null;
     }
 
     if (!usedFields.hasAny(PatternFields.era)) {
@@ -203,7 +245,8 @@ class LocalDateParseBucket extends ParseBucket<LocalDate> {
 
     if (yearOfEra < calendar.getMinYearOfEra(_era) ||
         yearOfEra > calendar.getMaxYearOfEra(_era)) {
-      return IParseResult.yearOfEraOutOfRange<LocalDate>(text, yearOfEra, _era, calendar);
+      return IParseResult.yearOfEraOutOfRange<LocalDate>(
+          text, yearOfEra, _era, calendar);
     }
     year = calendar.getAbsoluteYear(yearOfEra, _era);
     return null;
@@ -211,23 +254,24 @@ class LocalDateParseBucket extends ParseBucket<LocalDate> {
 
   //static const PatternFields monthOfYearNumeric = const PatternFields(1 << 10);
   //static const PatternFields monthOfYearText = const PatternFields(1 << 11);
-  static const PatternFields _monthOfYearText_booleanOR_monthOfYearText = PatternFields(1 << 11 | 1 << 10);
+  static const PatternFields _monthOfYearText_booleanOR_monthOfYearText =
+      PatternFields(1 << 11 | 1 << 10);
 
-  ParseResult<LocalDate>? _determineMonth(PatternFields usedFields, String text) {
-    var x = usedFields & (PatternFields.monthOfYearNumeric | PatternFields.monthOfYearText);
-    if (x ==  PatternFields.monthOfYearNumeric) {
-    // No-op
-    }
-    else if (x == PatternFields.monthOfYearText) {
+  ParseResult<LocalDate>? _determineMonth(
+      PatternFields usedFields, String text) {
+    var x = usedFields &
+        (PatternFields.monthOfYearNumeric | PatternFields.monthOfYearText);
+    if (x == PatternFields.monthOfYearNumeric) {
+      // No-op
+    } else if (x == PatternFields.monthOfYearText) {
       monthOfYearNumeric = monthOfYearText;
-    }
-    else if (x == _monthOfYearText_booleanOR_monthOfYearText) { // PatternFields.monthOfYearNumeric | PatternFields.monthOfYearText:
+    } else if (x == _monthOfYearText_booleanOR_monthOfYearText) {
+      // PatternFields.monthOfYearNumeric | PatternFields.monthOfYearText:
       if (monthOfYearNumeric != monthOfYearText) {
         return IParseResult.inconsistentMonthValues<LocalDate>(text);
       }
-    // No need to change MonthOfYearNumeric - this was just a check
-    }
-    else if (x == PatternFields.none) {
+      // No need to change MonthOfYearNumeric - this was just a check
+    } else if (x == PatternFields.none) {
       monthOfYearNumeric = templateValue.monthOfYear;
     }
 
@@ -251,7 +295,8 @@ class LocalDateParseBucket extends ParseBucket<LocalDate> {
     }*/
 
     if (monthOfYearNumeric > calendar.getMonthsInYear(year)) {
-      return IParseResult.monthOutOfRange<LocalDate>(text, monthOfYearNumeric, year);
+      return IParseResult.monthOutOfRange<LocalDate>(
+          text, monthOfYearNumeric, year);
     }
     return null;
   }

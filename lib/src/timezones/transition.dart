@@ -4,7 +4,7 @@
 
 // import 'package:quiver_hashcode/hashcode.dart';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 /// A transition between two offsets, usually for daylight saving reasons. This type only knows about
 /// the new offset, and the transition point.
@@ -18,7 +18,8 @@ class Transition {
 
   const Transition(this.instant, this.newOffset);
 
-  bool equals(Transition other) => instant == other.instant && newOffset == other.newOffset;
+  bool equals(Transition other) =>
+      instant == other.instant && newOffset == other.newOffset;
 
   /// Implements the operator == (equality).
   ///
@@ -32,8 +33,10 @@ class Transition {
   ///
   /// A hash code for this instance, suitable for use in hashing algorithms and data
   /// structures like a hash table.
-  @override int get hashCode => hash2(Instant, newOffset);
+  @override
+  int get hashCode => hash2(Instant, newOffset);
 
   /// Returns a [String] that represents this instance.
-  @override String toString() => 'Transition to $newOffset at $instant';
+  @override
+  String toString() => 'Transition to $newOffset at $instant';
 }

@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-//import 'package:time_machine/src/time_machine_internal.dart';
+//import 'package:time_machine2/src/time_machine_internal.dart';
 
 //import 'package:test/test.dart';
 //import 'package:matcher/matcher.dart';
@@ -16,10 +16,8 @@ Future main() async {
 }
 
 @Test()
-void UnsupportedCalendarWeekRule()
-{
+void UnsupportedCalendarWeekRule() {
 // This rule doesn't work in Dart since we can't create an arbitrary enum.
 // expect(() => WeekYearRules.FromCalendarWeekRule(CalendarWeekRule.FirstDay + 1000, DayOfWeek.Monday), throwsArgumentError);
 // expect(() => WeekYearRules.FromCalendarWeekRule(CalendarWeekRule.FirstDay, IsoDayOfWeek.monday), throwsArgumentError);
 }
-

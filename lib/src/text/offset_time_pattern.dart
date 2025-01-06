@@ -2,7 +2,7 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 /// Class whose existence is solely to avoid type initialization order issues, most of which stem
 /// from needing TimeMachineFormatInfo.InvariantInfo...
@@ -10,24 +10,31 @@ import 'package:time_machine/src/time_machine_internal.dart';
 class OffsetTimePatterns {
   // static OffsetTimePattern _GeneralIsoPatternImpl;
   // @internal static OffsetTimePattern get GeneralIsoPatternImpl => _GeneralIsoPatternImpl ??= OffsetTimePattern.Create(
-    //  "HH':'mm':'sso<G>", NodaFormatInfo.InvariantInfo, OffsetTimePattern.DefaultTemplateValue);
+  //  "HH':'mm':'sso<G>", NodaFormatInfo.InvariantInfo, OffsetTimePattern.DefaultTemplateValue);
 
-  static final OffsetTimePattern generalIsoPatternImpl = OffsetTimePattern._create(
-      "HH':'mm':'sso<G>", TimeMachineFormatInfo.invariantInfo, defaultTemplateValue);
-  static final OffsetTimePattern extendedIsoPatternImpl = OffsetTimePattern._create(
-      "HH':'mm':'ss;FFFFFFFFFo<G>", TimeMachineFormatInfo.invariantInfo, defaultTemplateValue);
+  static final OffsetTimePattern generalIsoPatternImpl =
+      OffsetTimePattern._create("HH':'mm':'sso<G>",
+          TimeMachineFormatInfo.invariantInfo, defaultTemplateValue);
+  static final OffsetTimePattern extendedIsoPatternImpl =
+      OffsetTimePattern._create("HH':'mm':'ss;FFFFFFFFFo<G>",
+          TimeMachineFormatInfo.invariantInfo, defaultTemplateValue);
   static final OffsetTimePattern rfc3339PatternImpl = OffsetTimePattern._create(
-      "HH':'mm':'ss;FFFFFFFFFo<Z+HH:mm>", TimeMachineFormatInfo.invariantInfo, defaultTemplateValue);
-  static String format(OffsetTime offsetTime, String? patternText, Culture? culture) =>
-      TimeMachineFormatInfo
-          .getInstance(culture)
+      "HH':'mm':'ss;FFFFFFFFFo<Z+HH:mm>",
+      TimeMachineFormatInfo.invariantInfo,
+      defaultTemplateValue);
+  static String format(
+          OffsetTime offsetTime, String? patternText, Culture? culture) =>
+      TimeMachineFormatInfo.getInstance(culture)
           .offsetTimePatternParser
           .parsePattern(patternText ?? generalIsoPatternImpl.patternText)
           .format(offsetTime);
 
-  static final OffsetTime defaultTemplateValue = LocalTime.midnight.withOffset(Offset.zero);
+  static final OffsetTime defaultTemplateValue =
+      LocalTime.midnight.withOffset(Offset.zero);
 
-  static TimeMachineFormatInfo formatInfo(OffsetTimePattern offsetTimePattern) => offsetTimePattern._formatInfo;
+  static TimeMachineFormatInfo formatInfo(
+          OffsetTimePattern offsetTimePattern) =>
+      offsetTimePattern._formatInfo;
 }
 
 /// Represents a pattern for parsing and formatting [OffsetTime] values.
@@ -37,13 +44,15 @@ class OffsetTimePattern implements IPattern<OffsetTime> {
   ///
   /// This corresponds to a custom pattern of "HH':'mm':'sso&lt;G&gt;". It is available as the "G"
   /// standard pattern (even though it is invariant).
-  static OffsetTimePattern get generalIso => OffsetTimePatterns.generalIsoPatternImpl;
+  static OffsetTimePattern get generalIso =>
+      OffsetTimePatterns.generalIsoPatternImpl;
 
   /// Gets an invariant offset time pattern based on ISO-8601 (down to the nanosecond), including offset from UTC.
   ///
   /// This corresponds to a custom pattern of "HH':'mm':'ss;FFFFFFFFFo&lt;G&gt;".
   /// This will round-trip all values, and is available as the 'o' standard pattern.
-  static OffsetTimePattern get extendedIso => OffsetTimePatterns.extendedIsoPatternImpl;
+  static OffsetTimePattern get extendedIso =>
+      OffsetTimePatterns.extendedIsoPatternImpl;
 
   /// Gets an invariant offset time pattern based on RFC 3339 (down to the nanosecond), including offset from UTC
   /// as hours and minutes only.
@@ -68,7 +77,8 @@ class OffsetTimePattern implements IPattern<OffsetTime> {
   /// in the pattern are taken from the template.
   final OffsetTime templateValue;
 
-  const OffsetTimePattern._(this.patternText, this._formatInfo, this.templateValue, this._pattern);
+  const OffsetTimePattern._(
+      this.patternText, this._formatInfo, this.templateValue, this._pattern);
 
   /// Parses the given text value according to the rules of this pattern.
   ///
@@ -97,7 +107,8 @@ class OffsetTimePattern implements IPattern<OffsetTime> {
   ///
   /// Returns: The builder passed in as [builder].
   @override
-  StringBuffer appendFormat(OffsetTime value, StringBuffer builder) => _pattern.appendFormat(value, builder);
+  StringBuffer appendFormat(OffsetTime value, StringBuffer builder) =>
+      _pattern.appendFormat(value, builder);
 
   /// Creates a pattern for the given pattern text, format info, and template value.
   ///
@@ -108,11 +119,12 @@ class OffsetTimePattern implements IPattern<OffsetTime> {
   /// Returns: A pattern for parsing and formatting zoned times.
   ///
   /// * [InvalidPatternError]: The pattern text was invalid.
-  static OffsetTimePattern _create(String patternText, TimeMachineFormatInfo formatInfo,
-      OffsetTime templateValue) {
+  static OffsetTimePattern _create(String patternText,
+      TimeMachineFormatInfo formatInfo, OffsetTime templateValue) {
     Preconditions.checkNotNull(patternText, 'patternText');
     Preconditions.checkNotNull(formatInfo, 'formatInfo');
-    var pattern = OffsetTimePatternParser(templateValue).parsePattern(patternText, formatInfo);
+    var pattern = OffsetTimePatternParser(templateValue)
+        .parsePattern(patternText, formatInfo);
     return OffsetTimePattern._(patternText, formatInfo, templateValue, pattern);
   }
 
@@ -128,8 +140,10 @@ class OffsetTimePattern implements IPattern<OffsetTime> {
   /// Returns: A pattern for parsing and formatting local times.
   ///
   /// [InvalidPatternError]: The pattern text was invalid.
-  static OffsetTimePattern createWithCulture(String patternText, Culture culture, OffsetTime templateValue) =>
-      _create(patternText, TimeMachineFormatInfo.getFormatInfo(culture), templateValue);
+  static OffsetTimePattern createWithCulture(
+          String patternText, Culture culture, OffsetTime templateValue) =>
+      _create(patternText, TimeMachineFormatInfo.getFormatInfo(culture),
+          templateValue);
 
   /// Creates a pattern for the given pattern text in the invariant culture, using the default
   /// template value of midnight January 1st 2000 at an offset of 0.
@@ -143,7 +157,8 @@ class OffsetTimePattern implements IPattern<OffsetTime> {
   ///
   /// * [InvalidPatternError]: The pattern text was invalid.
   static OffsetTimePattern createWithInvariantCulture(String patternText) =>
-      _create(patternText, TimeMachineFormatInfo.invariantInfo, OffsetTimePatterns.defaultTemplateValue);
+      _create(patternText, TimeMachineFormatInfo.invariantInfo,
+          OffsetTimePatterns.defaultTemplateValue);
 
   /// Creates a pattern for the given pattern text in the current culture, using the default
   /// template value of midnight January 1st 2000 at an offset of 0.
@@ -159,7 +174,8 @@ class OffsetTimePattern implements IPattern<OffsetTime> {
   ///
   /// * [InvalidPatternError]: The pattern text was invalid.
   static OffsetTimePattern createWithCurrentCulture(String patternText) =>
-      _create(patternText, TimeMachineFormatInfo.currentInfo, OffsetTimePatterns.defaultTemplateValue);
+      _create(patternText, TimeMachineFormatInfo.currentInfo,
+          OffsetTimePatterns.defaultTemplateValue);
 
   /// Creates a pattern for the same original localization information as this pattern, but with the specified
   /// pattern text.

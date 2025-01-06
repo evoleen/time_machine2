@@ -3,7 +3,7 @@
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
 
@@ -22,8 +22,7 @@ Future main() async {
 //}
 
 @Test()
-void Sanity()
-{
+void Sanity() {
   // Previously all the conversions missed the SystemConversions.DateTimeEpochTicks,
   // so they were self-consistent but not consistent with sanity.
   Instant minimumExpected = Instant.utc(2011, 8, 1, 0, 0);
@@ -32,5 +31,3 @@ void Sanity()
   expect(minimumExpected.epochMicroseconds, lessThan(now.epochMicroseconds));
   expect(now.epochMicroseconds, lessThan(maximumExpected.epochMicroseconds));
 }
-
-

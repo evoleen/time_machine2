@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
 
@@ -15,46 +15,39 @@ Future main() async {
 }
 
 @Test()
-void Zero()
-{
+void Zero() {
   Offset test = Offset.zero;
   expect(0, test.inMilliseconds);
 }
 
 @Test()
-void FromSeconds_Valid()
-{
+void FromSeconds_Valid() {
   var test = Offset(12345);
   expect(12345, test.inSeconds);
 }
 
 @Test()
-void FromSeconds_Invalid()
-{
+void FromSeconds_Invalid() {
   int seconds = 18 * TimeConstants.secondsPerHour + 1;
   expect(() => Offset(seconds), throwsRangeError);
   expect(() => Offset(-seconds), throwsRangeError);
 }
 
 @Test()
-void FromHours_Valid()
-{
+void FromHours_Valid() {
   Offset value = Offset.hours(-15);
   expect(-15 * TimeConstants.secondsPerHour, value.inSeconds);
 }
 
 @Test()
-void FromHours_Invalid()
-{
+void FromHours_Invalid() {
   expect(() => Offset.hours(19), throwsRangeError);
   expect(() => Offset.hours(-19), throwsRangeError);
 }
 
 @Test()
-void FromHoursAndMinutes_Valid()
-{
+void FromHoursAndMinutes_Valid() {
   Offset value = Offset.hoursAndMinutes(5, 30);
-  expect(5 * TimeConstants.secondsPerHour + 30 * TimeConstants.secondsPerMinute, value.inSeconds);
+  expect(5 * TimeConstants.secondsPerHour + 30 * TimeConstants.secondsPerMinute,
+      value.inSeconds);
 }
-
-

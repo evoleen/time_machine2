@@ -2,14 +2,7 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-//import 'dart:async';
-//
-//import 'package:time_machine/time_machine_internal.dart';
-//import 'package:test/test.dart';
-//import 'package:matcher/matcher.dart';
-//import 'package:time_machine/time_machine_timezones.dart';
-
-import 'package:time_machine/time_machine.dart' as public_machine;
+import 'package:time_machine2/time_machine2.dart' as public_machine;
 import 'testing/test_helper.dart' as helper;
 
 // export 'testing/test_fx.dart';
@@ -24,7 +17,7 @@ export 'testing/timezones/fake_datetimezone_source.dart';
 export 'testing/test_fx_attributes.dart';
 
 import 'dart:async';
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'testing/test_fx_interface.dart'
     if (dart.library.io) 'testing/test_fx.dart' as helping_machine;

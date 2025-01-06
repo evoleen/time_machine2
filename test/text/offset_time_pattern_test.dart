@@ -3,7 +3,7 @@
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
 
@@ -20,14 +20,20 @@ Future main() async {
 class OffsetTimePatternTest extends PatternTestBase<OffsetTime> {
   // The standard example date/time used in all the MSDN samples, which means we can just cut and paste
   // the expected results of the standard patterns. We've got an offset of 1 hour though.
-  @private static final OffsetTime MsdnStandardExample =
-  TestLocalDateTimes.MsdnStandardExample.clockTime.withOffset(Offset.hours(1));
-  @private static final OffsetTime MsdnStandardExampleNoMillis =
-  TestLocalDateTimes.MsdnStandardExampleNoMillis.clockTime.withOffset(Offset.hours(1));
+  @private
+  static final OffsetTime MsdnStandardExample = TestLocalDateTimes
+      .MsdnStandardExample.clockTime
+      .withOffset(Offset.hours(1));
+  @private
+  static final OffsetTime MsdnStandardExampleNoMillis = TestLocalDateTimes
+      .MsdnStandardExampleNoMillis.clockTime
+      .withOffset(Offset.hours(1));
 
-  @private static final Offset AthensOffset = Offset.hours(3);
+  @private
+  static final Offset AthensOffset = Offset.hours(3);
 
-  @internal final List<Data> InvalidPatternData = [
+  @internal
+  final List<Data> InvalidPatternData = [
     Data()
       ..pattern = ''
       ..message = TextErrorMessages.formatStringEmpty,
@@ -51,7 +57,8 @@ class OffsetTimePatternTest extends PatternTestBase<OffsetTime> {
       ..parameters.addAll(['x', 'OffsetTime']),
   ];
 
-  @internal List<Data> ParseFailureData = [
+  @internal
+  List<Data> ParseFailureData = [
     // Failures copied from LocalDateTimePatternTest
     Data()
       ..pattern = 'HH:mm:ss'
@@ -71,7 +78,8 @@ class OffsetTimePatternTest extends PatternTestBase<OffsetTime> {
       ..parameters.addAll(['H', 't', 'LocalTime']),
   ];
 
-  @internal List<Data> ParseOnlyData = [
+  @internal
+  List<Data> ParseOnlyData = [
     // Parsing using the semi-colon 'comma dot' specifier
     Data.d(16, 05, 20, 352)
       ..pattern = 'HH:mm:ss;fff'
@@ -81,7 +89,8 @@ class OffsetTimePatternTest extends PatternTestBase<OffsetTime> {
       ..text = '16:05:20,352',
   ];
 
-  @internal List<Data> FormatOnlyData = [
+  @internal
+  List<Data> FormatOnlyData = [
     // Our template value has an offset of 0, but the value has an offset of 1.
     // The pattern doesn't include the offset, so that information is lost - no round-trip.
     Data(MsdnStandardExample)
@@ -96,7 +105,8 @@ class OffsetTimePatternTest extends PatternTestBase<OffsetTime> {
       ..culture = TestCultures.FrFr,
   ];
 
-  @internal List<Data> FormatAndParseData = [
+  @internal
+  List<Data> FormatAndParseData = [
 // Copied from LocalDateTimePatternTest
 
     // Standard patterns (all invariant)
@@ -135,16 +145,21 @@ class OffsetTimePatternTest extends PatternTestBase<OffsetTime> {
       ..text = '1:45:30.09 PM +01',
   ];
 
-  @internal Iterable<Data> get ParseData => [ParseOnlyData, FormatAndParseData].expand((x) => x);
+  @internal
+  Iterable<Data> get ParseData =>
+      [ParseOnlyData, FormatAndParseData].expand((x) => x);
 
-  @internal Iterable<Data> get FormatData =>
-      [FormatOnlyData, FormatAndParseData].expand((x) => x
-      );
+  @internal
+  Iterable<Data> get FormatData =>
+      [FormatOnlyData, FormatAndParseData].expand((x) => x);
 
   @Test()
   void CreateWithInvariantCulture() {
     var pattern = OffsetTimePattern.createWithInvariantCulture('HH:mm:sso<g>');
-    expect(identical(TimeMachineFormatInfo.invariantInfo, OffsetTimePatterns.formatInfo(pattern)), isTrue);
+    expect(
+        identical(TimeMachineFormatInfo.invariantInfo,
+            OffsetTimePatterns.formatInfo(pattern)),
+        isTrue);
     var ot = LocalTime(12, 34, 56).withOffset(Offset.hours(2));
     expect('12:34:56+02', pattern.format(ot));
   }
@@ -166,14 +181,16 @@ class OffsetTimePatternTest extends PatternTestBase<OffsetTime> {
 
   @Test()
   void WithCulture() {
-    var pattern = OffsetTimePattern.createWithInvariantCulture('HH:mm').withCulture(TestCultures.DotTimeSeparator);
+    var pattern = OffsetTimePattern.createWithInvariantCulture('HH:mm')
+        .withCulture(TestCultures.DotTimeSeparator);
     var text = pattern.format(LocalTime(19, 30, 0).withOffset(Offset.zero));
     expect('19.30', text);
   }
 
   @Test()
   void WithPatternText() {
-    var pattern = OffsetTimePattern.createWithInvariantCulture('HH:mm:ss').withPatternText("HH:mm");
+    var pattern = OffsetTimePattern.createWithInvariantCulture('HH:mm:ss')
+        .withPatternText("HH:mm");
     var value = LocalTime(13, 30, 0).withOffset(Offset.hours(2));
     var text = pattern.format(value);
     expect('13:30', text);
@@ -183,9 +200,7 @@ class OffsetTimePatternTest extends PatternTestBase<OffsetTime> {
   void WithTemplateValue() {
     var pattern = OffsetTimePattern.createWithInvariantCulture('o<G>')
         .withTemplateValue(LocalTime(13, 30, 0).withOffset(Offset.zero));
-    var parsed = pattern
-        .parse('+02')
-        .value;
+    var parsed = pattern.parse('+02').value;
     // Local time is taken from the template value; offset is from the text
     expect(LocalTime(13, 30, 0), parsed.clockTime);
     expect(Offset.hours(2), parsed.offset);
@@ -195,33 +210,39 @@ class OffsetTimePatternTest extends PatternTestBase<OffsetTime> {
   // void ParseNull() => AssertParseNull(OffsetTimePattern.extendedIso);
 }
 
-@internal /*sealed*/class Data extends PatternTestData<OffsetTime> {
+@internal
+/*sealed*/ class Data extends PatternTestData<OffsetTime> {
   // Default to the start of the year 2000 UTC
-  /*protected*/ @override OffsetTime get defaultTemplate => OffsetTimePatterns.defaultTemplateValue;
+  /*protected*/ @override
+  OffsetTime get defaultTemplate => OffsetTimePatterns.defaultTemplateValue;
 
   /// Initializes a new instance of the [Data] class.
   ///
   /// [value]: The value.
-  @internal Data([OffsetTime? value]) : super(value ?? OffsetTimePatterns.defaultTemplateValue);
+  @internal
+  Data([OffsetTime? value])
+      : super(value ?? OffsetTimePatterns.defaultTemplateValue);
 
-  @internal Data.a(int hour, int minute, Offset offset) : this.c(hour, minute, 0, offset);
+  @internal
+  Data.a(int hour, int minute, Offset offset) : this.c(hour, minute, 0, offset);
 
-  @internal Data.b(int hour, int minute, int second) : this.d(hour, minute, second, 0);
+  @internal
+  Data.b(int hour, int minute, int second) : this.d(hour, minute, second, 0);
 
-  @internal Data.c(int hour, int minute, int second, Offset offset)
+  @internal
+  Data.c(int hour, int minute, int second, Offset offset)
       : this.e(hour, minute, second, 0, offset);
 
-  @internal Data.d(int hour, int minute, int second, int millis)
+  @internal
+  Data.d(int hour, int minute, int second, int millis)
       : this.e(hour, minute, second, millis, Offset.zero);
 
-  @internal Data.e(int hour, int minute, int second, int millis, Offset offset)
+  @internal
+  Data.e(int hour, int minute, int second, int millis, Offset offset)
       : this(LocalTime(hour, minute, second, ms: millis).withOffset(offset));
 
   @internal
   @override
-  IPattern<OffsetTime> CreatePattern() =>
-      OffsetTimePattern.createWithCulture(super.pattern, super.culture, template);
+  IPattern<OffsetTime> CreatePattern() => OffsetTimePattern.createWithCulture(
+      super.pattern, super.culture, template);
 }
-
-
-

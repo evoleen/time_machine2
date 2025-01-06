@@ -2,7 +2,7 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 // todo: verify with Dart Style Guide ... Should typedef's be UpperCaseInitial? (have some code that depends on that)
 // Delegates used for mapping local date/time values to ZonedDateTime.
@@ -27,7 +27,8 @@ import 'package:time_machine/src/time_machine_internal.dart';
 /// [AmbiguousTimeException]: The implementation rejects requests to map ambiguous times.
 ///
 /// A [ZonedDateTime] in the target time zone; typically, one of the two input parameters.
-typedef AmbiguousTimeResolver = ZonedDateTime Function(ZonedDateTime earlier, ZonedDateTime later);
+typedef AmbiguousTimeResolver = ZonedDateTime Function(
+    ZonedDateTime earlier, ZonedDateTime later);
 
 /// Resolves a [LocalDateTime] to a [ZonedDateTime] in the situation
 /// where the requested local time does not exist in the target time zone.
@@ -54,8 +55,11 @@ typedef AmbiguousTimeResolver = ZonedDateTime Function(ZonedDateTime earlier, Zo
 /// [intervalAfter]: The zone interval directly after the target local date and time would have occurred
 /// [SkippedTimeException]: The implementation rejects requests to map skipped times.
 /// Returns: A [ZonedDateTime] in the target time zone.
-typedef SkippedTimeResolver = ZonedDateTime Function(LocalDateTime localDateTime,  DateTimeZone zone,
- ZoneInterval intervalBefore,  ZoneInterval intervalAfter);
+typedef SkippedTimeResolver = ZonedDateTime Function(
+    LocalDateTime localDateTime,
+    DateTimeZone zone,
+    ZoneInterval intervalBefore,
+    ZoneInterval intervalAfter);
 
 /// Resolves the result of attempting to map a local date and time to a target time zone.
 ///
@@ -70,5 +74,5 @@ typedef SkippedTimeResolver = ZonedDateTime Function(LocalDateTime localDateTime
 /// [AmbiguousTimeException]: The implementation rejects requests to map ambiguous times.
 /// [SkippedTimeException]: The implementation rejects requests to map skipped times.
 /// Returns: A [ZonedDateTime] in the target time zone.
-typedef ZoneLocalMappingResolver = ZonedDateTime Function(ZoneLocalMapping mapping);
-
+typedef ZoneLocalMappingResolver = ZonedDateTime Function(
+    ZoneLocalMapping mapping);

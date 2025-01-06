@@ -3,7 +3,7 @@
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 import 'package:test/test.dart';
 
 import 'time_machine_testing.dart';
@@ -13,24 +13,21 @@ Future main() async {
 }
 
 @Test()
-void StartOfMonth()
-{
+void StartOfMonth() {
   var start = LocalDate(2014, 6, 27);
   var end = LocalDate(2014, 6, 1);
   expect(end, DateAdjusters.startOfMonth(start));
 }
 
 @Test()
-void EndOfMonth()
-{
+void EndOfMonth() {
   var start = LocalDate(2014, 6, 27);
   var end = LocalDate(2014, 6, 30);
   expect(end, DateAdjusters.endOfMonth(start));
 }
 
 @Test()
-void DayOfMonth()
-{
+void DayOfMonth() {
   var start = LocalDate(2014, 6, 27);
   var end = LocalDate(2014, 6, 19);
   var adjuster = DateAdjusters.dayOfMonth(19);
@@ -42,10 +39,8 @@ void DayOfMonth()
 @TestCase([2014, 8, 18, DayOfWeek.tuesday, 2014, 8, 19])
 @TestCase([2014, 8, 18, DayOfWeek.sunday, 2014, 8, 24])
 @TestCase([2014, 8, 31, DayOfWeek.monday, 2014, 9, 1], 'Wrap month')
-void NextOrSame(
-    int year, int month, int day, DayOfWeek dayOfWeek,
-    int expectedYear, int expectedMonth, int expectedDay)
-{
+void NextOrSame(int year, int month, int day, DayOfWeek dayOfWeek,
+    int expectedYear, int expectedMonth, int expectedDay) {
   LocalDate start = LocalDate(year, month, day);
   LocalDate actual = start.adjust(DateAdjusters.nextOrSame(dayOfWeek));
   LocalDate expected = LocalDate(expectedYear, expectedMonth, expectedDay);
@@ -57,10 +52,8 @@ void NextOrSame(
 @TestCase([2014, 8, 18, DayOfWeek.tuesday, 2014, 8, 12])
 @TestCase([2014, 8, 18, DayOfWeek.sunday, 2014, 8, 17])
 @TestCase([2014, 8, 1, DayOfWeek.thursday, 2014, 7, 31], 'Wrap month')
-void PreviousOrSame(
-    int year, int month, int day, DayOfWeek dayOfWeek,
-    int expectedYear, int expectedMonth, int expectedDay)
-{
+void PreviousOrSame(int year, int month, int day, DayOfWeek dayOfWeek,
+    int expectedYear, int expectedMonth, int expectedDay) {
   LocalDate start = LocalDate(year, month, day);
   LocalDate actual = start.adjust(DateAdjusters.previousOrSame(dayOfWeek));
   LocalDate expected = LocalDate(expectedYear, expectedMonth, expectedDay);
@@ -72,10 +65,8 @@ void PreviousOrSame(
 @TestCase([2014, 8, 18, DayOfWeek.tuesday, 2014, 8, 19])
 @TestCase([2014, 8, 18, DayOfWeek.sunday, 2014, 8, 24])
 @TestCase([2014, 8, 31, DayOfWeek.monday, 2014, 9, 1], 'Wrap month')
-void Next(
-    int year, int month, int day, DayOfWeek dayOfWeek,
-    int expectedYear, int expectedMonth, int expectedDay)
-{
+void Next(int year, int month, int day, DayOfWeek dayOfWeek, int expectedYear,
+    int expectedMonth, int expectedDay) {
   LocalDate start = LocalDate(year, month, day);
   LocalDate actual = start.adjust(DateAdjusters.next(dayOfWeek));
   LocalDate expected = LocalDate(expectedYear, expectedMonth, expectedDay);
@@ -87,10 +78,8 @@ void Next(
 @TestCase([2014, 8, 18, DayOfWeek.tuesday, 2014, 8, 12])
 @TestCase([2014, 8, 18, DayOfWeek.sunday, 2014, 8, 17])
 @TestCase([2014, 8, 1, DayOfWeek.thursday, 2014, 7, 31], 'Wrap month')
-void Previous(
-    int year, int month, int day, DayOfWeek dayOfWeek,
-    int expectedYear, int expectedMonth, int expectedDay)
-{
+void Previous(int year, int month, int day, DayOfWeek dayOfWeek,
+    int expectedYear, int expectedMonth, int expectedDay) {
   LocalDate start = LocalDate(year, month, day);
   LocalDate actual = start.adjust(DateAdjusters.previous(dayOfWeek));
   LocalDate expected = LocalDate(expectedYear, expectedMonth, expectedDay);
@@ -98,8 +87,7 @@ void Previous(
 }
 
 @Test()
-void Month_Valid()
-{
+void Month_Valid() {
   var adjuster = DateAdjusters.month(2);
   var start = LocalDate(2017, 8, 21, CalendarSystem.julian);
   var actual = start.adjust(adjuster);
@@ -108,8 +96,7 @@ void Month_Valid()
 }
 
 @Test()
-void Month_InvalidAdjustment()
-{
+void Month_InvalidAdjustment() {
   var adjuster = DateAdjusters.month(2);
   var start = LocalDate(2017, 8, 30, CalendarSystem.julian);
   // Assert.Throws<ArgumentOutOfRangeException>(() => start.With(adjuster));
@@ -117,9 +104,8 @@ void Month_InvalidAdjustment()
 }
 
 @Test()
-void IsoDayOfWeekAdjusters_Invalid()
-{
-  var invalid = const DayOfWeek (10); //IsoDayOfWeek) 10;
+void IsoDayOfWeekAdjusters_Invalid() {
+  var invalid = const DayOfWeek(10); //IsoDayOfWeek) 10;
   //Assert.Throws<ArgumentOutOfRangeException>(() => DateAdjusters.Next(invalid));
   //Assert.Throws<ArgumentOutOfRangeException>(() => DateAdjusters.NextOrSame(invalid));
   //Assert.Throws<ArgumentOutOfRangeException>(() => DateAdjusters.Previous(invalid));

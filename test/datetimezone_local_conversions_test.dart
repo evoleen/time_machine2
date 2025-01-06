@@ -4,10 +4,10 @@
 
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
-import 'package:time_machine/time_machine.dart';
+import 'package:time_machine2/time_machine2.dart';
 
 import 'time_machine_testing.dart';
 
@@ -318,7 +318,7 @@ void MapLocalDateTime_SkippedDateReturnsSkippedMapping() {
 @TestCase(['Pacific/Kwajalein', "1993-08-21"])
 Future AtStartOfDay_DayDoesntExist(String zoneId, String localDate) async {
   LocalDate badDate = LocalDatePattern.iso.parse(localDate).value;
-  DateTimeZone zone = await (await DateTimeZoneProviders.timezone)[zoneId];
+  DateTimeZone zone = await (await DateTimeZoneProviders.tzdb)[zoneId];
   SkippedTimeError
       exception; //  = Assert.Throws<SkippedTimeException>(() => zone.AtStartOfDay(badDate));
   expect(

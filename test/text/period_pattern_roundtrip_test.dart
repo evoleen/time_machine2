@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 import '../time_machine_testing.dart';
 import 'pattern_test_base.dart';
@@ -17,9 +17,11 @@ Future main() async {
 
 @Test()
 class PeriodPatternRoundtripTest extends PatternTestBase<Period> {
-  @internal final List<Data?> InvalidPatternData = [ null];
+  @internal
+  final List<Data?> InvalidPatternData = [null];
 
-  @internal List<Data> ParseFailureData = [
+  @internal
+  List<Data> ParseFailureData = [
     Data()
       ..text = 'X5H'
       ..message = TextErrorMessages.mismatchedCharacter
@@ -81,41 +83,32 @@ class PeriodPatternRoundtripTest extends PatternTestBase<Period> {
       ..parameters.addAll(['-10000000000000000000', 'Period']),
   ];
 
-  @internal List<Data> ParseOnlyData = [
-    Data.builder(PeriodBuilder()..hours = 5)
-      ..text = 'PT005H',
+  @internal
+  List<Data> ParseOnlyData = [
+    Data.builder(PeriodBuilder()..hours = 5)..text = 'PT005H',
     Data.builder(PeriodBuilder()..hours = 5)
       ..text = 'PT00000000000000000000005H',
   ];
 
   // This pattern round-trips, so we can always parse what we format.
-  @internal List<Data> FormatOnlyData = [];
+  @internal
+  List<Data> FormatOnlyData = [];
 
-  @internal static final List<Data> FormatAndParseData = [
-    Data(Period.zero)
-      ..text = 'P',
+  @internal
+  static final List<Data> FormatAndParseData = [
+    Data(Period.zero)..text = 'P',
 
-    // All single values                                                                
-    Data.builder(PeriodBuilder()..years = 5)
-      ..text = 'P5Y',
-    Data.builder(PeriodBuilder()..months = 5)
-      ..text = 'P5M',
-    Data.builder(PeriodBuilder()..weeks = 5)
-      ..text = 'P5W',
-    Data.builder(PeriodBuilder()..days = 5)
-      ..text = 'P5D',
-    Data.builder(PeriodBuilder()..hours = 5)
-      ..text = 'PT5H',
-    Data.builder(PeriodBuilder()..minutes = 5)
-      ..text = 'PT5M',
-    Data.builder(PeriodBuilder()..seconds = 5)
-      ..text = 'PT5S',
-    Data.builder(PeriodBuilder()..milliseconds = 5)
-      ..text = 'PT5s',
-    Data.builder(PeriodBuilder()..microseconds = 5)
-      ..text = 'PT5t',
-    Data.builder(PeriodBuilder()..nanoseconds = 5)
-      ..text = 'PT5n',
+    // All single values
+    Data.builder(PeriodBuilder()..years = 5)..text = 'P5Y',
+    Data.builder(PeriodBuilder()..months = 5)..text = 'P5M',
+    Data.builder(PeriodBuilder()..weeks = 5)..text = 'P5W',
+    Data.builder(PeriodBuilder()..days = 5)..text = 'P5D',
+    Data.builder(PeriodBuilder()..hours = 5)..text = 'PT5H',
+    Data.builder(PeriodBuilder()..minutes = 5)..text = 'PT5M',
+    Data.builder(PeriodBuilder()..seconds = 5)..text = 'PT5S',
+    Data.builder(PeriodBuilder()..milliseconds = 5)..text = 'PT5s',
+    Data.builder(PeriodBuilder()..microseconds = 5)..text = 'PT5t',
+    Data.builder(PeriodBuilder()..nanoseconds = 5)..text = 'PT5n',
 
     // No normalization
     Data.builder(PeriodBuilder()
@@ -148,11 +141,14 @@ class PeriodPatternRoundtripTest extends PatternTestBase<Period> {
       ..text = 'PT-9223372036854775808H',
   ];
 
-  @internal Iterable<Data> get ParseData => [ParseOnlyData, FormatAndParseData].expand((x) => x);
+  @internal
+  Iterable<Data> get ParseData =>
+      [ParseOnlyData, FormatAndParseData].expand((x) => x);
 
-  @internal Iterable<Data> get FormatData => [FormatOnlyData, FormatAndParseData].expand((x) => x);
+  @internal
+  Iterable<Data> get FormatData =>
+      [FormatOnlyData, FormatAndParseData].expand((x) => x);
 
   // @Test()
   // void ParseNull() => AssertParseNull(PeriodPattern.roundtrip);
 }
-

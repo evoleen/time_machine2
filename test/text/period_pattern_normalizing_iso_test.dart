@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 import '../time_machine_testing.dart';
 import 'pattern_test_base.dart';
@@ -18,9 +18,11 @@ Future main() async {
 @Test()
 class PeriodPatternNormalizingIsoTest extends PatternTestBase<Period> {
   // Single null value to keep it from being 'inconclusive'
-  @internal final List<Data?> InvalidPatternData = [null];
+  @internal
+  final List<Data?> InvalidPatternData = [null];
 
-  @internal final List<Data> ParseFailureData = [
+  @internal
+  final List<Data> ParseFailureData = [
     Data()
       ..text = 'X5H'
       ..message = TextErrorMessages.mismatchedCharacter
@@ -107,15 +109,13 @@ class PeriodPatternNormalizingIsoTest extends PatternTestBase<Period> {
       ..message = TextErrorMessages.expectedEndOfString
   ];
 
-  @internal final List<Data> ParseOnlyData = [
-    Data.builder(PeriodBuilder()..hours = 5)
-      ..text = 'PT005H',
-    Data.builder(PeriodBuilder()..milliseconds = 500)
-      ..text = 'PT0,5S',
+  @internal
+  final List<Data> ParseOnlyData = [
+    Data.builder(PeriodBuilder()..hours = 5)..text = 'PT005H',
+    Data.builder(PeriodBuilder()..milliseconds = 500)..text = 'PT0,5S',
     Data.builder(PeriodBuilder()..hours = 5)
       ..text = 'PT00000000000000000000005H',
-    Data.builder(PeriodBuilder()..weeks = 5)
-      ..text = 'P5W',
+    Data.builder(PeriodBuilder()..weeks = 5)..text = 'P5W',
   ];
 
   // Only a small amount of testing here - it's around normalization, which is
@@ -129,13 +129,14 @@ class PeriodPatternNormalizingIsoTest extends PatternTestBase<Period> {
       
     The Text is 'P1D2H30M' online... todo: what is happening here? do the tests fail on NodaTime.Test:master?
   */
-  @internal final List<Data> FormatOnlyData = [
+  @internal
+  final List<Data> FormatOnlyData = [
     Data.builder(PeriodBuilder()
       ..hours = 25
       ..minutes = 90)
       ..text = 'P1DT2H30M',
     Data.builder(PeriodBuilder()..nanoseconds = 1234567800)
-    // 'T' was added, see above:
+      // 'T' was added, see above:
       ..text = 'PT1.2345678S',
     Data.builder(PeriodBuilder()
       ..hours = 1
@@ -145,33 +146,23 @@ class PeriodPatternNormalizingIsoTest extends PatternTestBase<Period> {
       ..hours = -1
       ..minutes = 1)
       ..text = 'PT-59M',
-    Data.builder(PeriodBuilder()..weeks = 5)
-      ..text = 'P35D',
+    Data.builder(PeriodBuilder()..weeks = 5)..text = 'P35D',
   ];
 
-  @internal final List<Data> FormatAndParseData = [
-    Data(Period.zero)
-      ..text = 'P0D',
+  @internal
+  final List<Data> FormatAndParseData = [
+    Data(Period.zero)..text = 'P0D',
 
     // All single values
-    Data.builder(PeriodBuilder()..years = 5)
-      ..text = 'P5Y',
-    Data.builder(PeriodBuilder()..months = 5)
-      ..text = 'P5M',
-    Data.builder(PeriodBuilder()..days = 5)
-      ..text = 'P5D',
-    Data.builder(PeriodBuilder()..hours = 5)
-      ..text = 'PT5H',
-    Data.builder(PeriodBuilder()..minutes = 5)
-      ..text = 'PT5M',
-    Data.builder(PeriodBuilder()..seconds = 5)
-      ..text = 'PT5S',
-    Data.builder(PeriodBuilder()..milliseconds = 5)
-      ..text = 'PT0.005S',
-    Data.builder(PeriodBuilder()..microseconds = 5)
-      ..text = 'PT0.000005S',
-    Data.builder(PeriodBuilder()..nanoseconds = 5)
-      ..text = 'PT0.000000005S',
+    Data.builder(PeriodBuilder()..years = 5)..text = 'P5Y',
+    Data.builder(PeriodBuilder()..months = 5)..text = 'P5M',
+    Data.builder(PeriodBuilder()..days = 5)..text = 'P5D',
+    Data.builder(PeriodBuilder()..hours = 5)..text = 'PT5H',
+    Data.builder(PeriodBuilder()..minutes = 5)..text = 'PT5M',
+    Data.builder(PeriodBuilder()..seconds = 5)..text = 'PT5S',
+    Data.builder(PeriodBuilder()..milliseconds = 5)..text = 'PT0.005S',
+    Data.builder(PeriodBuilder()..microseconds = 5)..text = 'PT0.000005S',
+    Data.builder(PeriodBuilder()..nanoseconds = 5)..text = 'PT0.000000005S',
 
     // Compound, negative and zero tests
     Data.builder(PeriodBuilder()
@@ -190,26 +181,28 @@ class PeriodPatternNormalizingIsoTest extends PatternTestBase<Period> {
       ..seconds = 1
       ..milliseconds = 320)
       ..text = 'PT1.32S',
-    Data.builder(PeriodBuilder()..seconds = -1)
-      ..text = 'PT-1S',
+    Data.builder(PeriodBuilder()..seconds = -1)..text = 'PT-1S',
     Data.builder(PeriodBuilder()
       ..seconds = -1
       ..milliseconds = -320)
       ..text = 'PT-1.32S',
-    Data.builder(PeriodBuilder()..milliseconds = -320)
-      ..text = 'PT-0.32S',
+    Data.builder(PeriodBuilder()..milliseconds = -320)..text = 'PT-0.32S',
   ];
 
-  @internal Iterable<Data> get ParseData => [ParseOnlyData, FormatAndParseData].expand((x) => x);
+  @internal
+  Iterable<Data> get ParseData =>
+      [ParseOnlyData, FormatAndParseData].expand((x) => x);
 
-  @internal Iterable<Data> get FormatData => [FormatOnlyData, FormatAndParseData].expand((x) => x);
+  @internal
+  Iterable<Data> get FormatData =>
+      [FormatOnlyData, FormatAndParseData].expand((x) => x);
 
   // note: in C# this was a static constructor; a regular constructor works in Dart's test infrastructure
   // Go over all our sequences and change the pattern to use. This is ugly,
   // but it beats specifying it on each line.
   PeriodPatternNormalizingIsoTest() {
-    print ('Constructor called.');
-    for (var sequence in [ ParseFailureData, ParseData, FormatData]) {
+    print('Constructor called.');
+    for (var sequence in [ParseFailureData, ParseData, FormatData]) {
       for (var item in sequence) {
         item.standardPattern = PeriodPattern.normalizingIso;
       }
@@ -219,5 +212,3 @@ class PeriodPatternNormalizingIsoTest extends PatternTestBase<Period> {
   // @Test()
   // void ParseNull() => AssertParseNull(PeriodPattern.normalizingIso);
 }
-
-

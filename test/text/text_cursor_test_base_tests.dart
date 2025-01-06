@@ -3,7 +3,7 @@
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
 import 'package:test/test.dart';
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 import '../time_machine_testing.dart';
 
@@ -67,21 +67,26 @@ abstract class TextCursorTestBase {
     ValidateBeginningOfString(cursor);
   }
 
-  @internal String GetNextCharacter(TextCursor cursor) {
+  @internal
+  String GetNextCharacter(TextCursor cursor) {
     expect(cursor.moveNext(), isTrue);
     return cursor.current;
   }
 
-  @internal static void ValidateBeginningOfString(TextCursor cursor) {
+  @internal
+  static void ValidateBeginningOfString(TextCursor cursor) {
     ValidateCurrentCharacter(cursor, -1, TextCursor.nul);
   }
 
-  @internal static void ValidateCurrentCharacter(TextCursor cursor, int expectedCurrentIndex, String /*char*/ expectedCurrentCharacter) {
+  @internal
+  static void ValidateCurrentCharacter(TextCursor cursor,
+      int expectedCurrentIndex, String /*char*/ expectedCurrentCharacter) {
     expect(cursor.current, expectedCurrentCharacter);
     expect(cursor.index, expectedCurrentIndex);
   }
 
-  @internal static void ValidateEndOfString(TextCursor cursor) {
+  @internal
+  static void ValidateEndOfString(TextCursor cursor) {
     ValidateCurrentCharacter(cursor, cursor.length, TextCursor.nul);
   }
 
@@ -90,7 +95,9 @@ abstract class TextCursorTestBase {
     ValidateContents(cursor, value, -1);
   }*/
 
-  @internal static void ValidateContents(TextCursor cursor, String value, [int length = -1]) {
+  @internal
+  static void ValidateContents(TextCursor cursor, String value,
+      [int length = -1]) {
     if (length < 0) {
       length = value.length;
     }
@@ -98,6 +105,6 @@ abstract class TextCursorTestBase {
     expect(length, cursor.length, reason: 'Cursor Length mismatch');
   }
 
-  @internal TextCursor MakeCursor(String value);
+  @internal
+  TextCursor MakeCursor(String value);
 }
-

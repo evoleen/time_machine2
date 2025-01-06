@@ -2,7 +2,7 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 // todo: needs rework -- the bit packing worked in VM, but not JS
 
@@ -35,7 +35,8 @@ class YearStartCacheEntryVM {
   static const int _cacheIndexBits = 10;
   static const int _cacheIndexMask = 1023; // _cacheSize - 1;
   static const int _entryValidationBits = 7;
-  static const int _entryValidationMask = 127; // (1 << _entryValidationBits) - 1;
+  static const int _entryValidationMask =
+      127; // (1 << _entryValidationBits) - 1;
 
   static const int _cacheSize = 1024; // 1 << _cacheIndexBits;
 
@@ -52,31 +53,33 @@ class YearStartCacheEntryVM {
   /// Entry value: most significant 25 bits are the number of days (e.g. since the Unix epoch); remaining 7 bits are
   /// the validator.
   final int _value;
- 
 
-  YearStartCacheEntryVM(int year, int days) : _value = (days << _entryValidationBits) | _getValidator(year);
+  YearStartCacheEntryVM(int year, int days)
+      : _value = (days << _entryValidationBits) | _getValidator(year);
 
   static List<YearStartCacheEntry> createCache() {
-    return List<YearStartCacheEntry>.filled(_cacheSize, YearStartCacheEntry._invalid);
+    return List<YearStartCacheEntry>.filled(
+        _cacheSize, YearStartCacheEntry._invalid);
   }
 
   /// Returns the validator to use for a given year, a non-negative number containing at most
   /// EntryValidationBits bits.
   static int _getValidator(int year) =>
-  // Note that we assume that the input year fits into EntryValidationBits+CacheIndexBits bits - if not,
-  // this would return the same validator for more than one input year, meaning that we could potentially
-  // use the wrong cache value.
-  // The masking here is necessary to remove some of the sign-extended high bits for negative years.
-  (year >> _cacheIndexBits) & _entryValidationMask;
+      // Note that we assume that the input year fits into EntryValidationBits+CacheIndexBits bits - if not,
+      // this would return the same validator for more than one input year, meaning that we could potentially
+      // use the wrong cache value.
+      // The masking here is necessary to remove some of the sign-extended high bits for negative years.
+      (year >> _cacheIndexBits) & _entryValidationMask;
 
   /// Returns the cache index, in [0, CacheSize), that should be used to store the given year's cache entry.
   static int getCacheIndex(int year) =>
-  // Effectively keep only the bottom CacheIndexBits bits.
-  year & _cacheIndexMask;
+      // Effectively keep only the bottom CacheIndexBits bits.
+      year & _cacheIndexMask;
 
   /// Returns whether this cache entry is valid for the given year, and so is safe to use.  (We assume that we
   /// have located this entry via the correct cache index.)
-  bool isValidForYear(int year) => _getValidator(year) == (_value & _entryValidationMask);
+  bool isValidForYear(int year) =>
+      _getValidator(year) == (_value & _entryValidationMask);
 
   /// Returns the (signed) number of days since the Unix epoch for the cache entry.
   int get startOfYearDays => _value >> _entryValidationBits;
@@ -87,7 +90,8 @@ class YearStartCacheEntry {
   static const int _cacheIndexBits = 10;
   static const int _cacheIndexMask = 1023; // _cacheSize - 1;
   // static const int _entryValidationBits = 7;
-  static const int _entryValidationMask = 127; // (1 << _entryValidationBits) - 1;
+  static const int _entryValidationMask =
+      127; // (1 << _entryValidationBits) - 1;
 
   static const int _cacheSize = 1024; // 1 << _cacheIndexBits;
 
@@ -99,7 +103,8 @@ class YearStartCacheEntry {
 
   /// Entry which is guaranteed to be obviously invalid for any real date, by having
   /// a validation value which is larger than any valid year number.
-  static final YearStartCacheEntry _invalid = YearStartCacheEntry(invalidEntryYear, 0);
+  static final YearStartCacheEntry _invalid =
+      YearStartCacheEntry(invalidEntryYear, 0);
 
   /// Entry value: most significant 25 bits are the number of days (e.g. since the Unix epoch); remaining 7 bits are
   /// the validator.
@@ -109,27 +114,30 @@ class YearStartCacheEntry {
   YearStartCacheEntry(this.year, this.days);
 
   static List<YearStartCacheEntry> createCache() {
-    return List<YearStartCacheEntry>.filled(_cacheSize, YearStartCacheEntry._invalid);
+    return List<YearStartCacheEntry>.filled(
+        _cacheSize, YearStartCacheEntry._invalid);
   }
 
   /// Returns the validator to use for a given year, a non-negative number containing at most
   /// EntryValidationBits bits.
   static int _getValidator(int year) =>
-  // Note that we assume that the input year fits into EntryValidationBits+CacheIndexBits bits - if not,
-  // this would return the same validator for more than one input year, meaning that we could potentially
-  // use the wrong cache value.
-  // The masking here is necessary to remove some of the sign-extended high bits for negative years.
-  safeRightShift(year, _cacheIndexBits) & _entryValidationMask;
+      // Note that we assume that the input year fits into EntryValidationBits+CacheIndexBits bits - if not,
+      // this would return the same validator for more than one input year, meaning that we could potentially
+      // use the wrong cache value.
+      // The masking here is necessary to remove some of the sign-extended high bits for negative years.
+      safeRightShift(year, _cacheIndexBits) & _entryValidationMask;
 
   /// Returns the cache index, in [0, CacheSize), that should be used to store the given year's cache entry.
   static int getCacheIndex(int year) =>
       // Effectively keep only the bottom CacheIndexBits bits.
-  year & _cacheIndexMask;
+      year & _cacheIndexMask;
   // year % 1024;
 
   /// Returns whether this cache entry is valid for the given year, and so is safe to use.  (We assume that we
   /// have located this entry via the correct cache index.)
-  bool isValidForYear(int year) => _getValidator(year) == _getValidator(this.year); //_value & _entryValidationMask);
+  bool isValidForYear(int year) =>
+      _getValidator(year) ==
+      _getValidator(this.year); //_value & _entryValidationMask);
   // bool isValidForYear(int year) => true; // year % 1024 == this.year % 1024;
 
   /// Returns the (signed) number of days since the Unix epoch for the cache entry.

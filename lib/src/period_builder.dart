@@ -2,7 +2,7 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 /// A mutable builder class for [Period] values. Each property can
 /// be set independently, and then a Period can be created from the result
@@ -44,19 +44,20 @@ class PeriodBuilder {
   /// allows object initializers to be used.
   ///
   /// * [period]: An existing period to copy values from.
-  PeriodBuilder([Period period = Period.zero]) :
-    years = period.years,
-    months = period.months,
-    weeks = period.weeks,
-    days = period.days,
-    hours = period.hours,
-    minutes = period.minutes,
-    seconds = period.seconds,
-    milliseconds = period.milliseconds,
-    microseconds = period.microseconds,
-    nanoseconds = period.nanoseconds;
+  PeriodBuilder([Period period = Period.zero])
+      : years = period.years,
+        months = period.months,
+        weeks = period.weeks,
+        days = period.days,
+        hours = period.hours,
+        minutes = period.minutes,
+        seconds = period.seconds,
+        milliseconds = period.milliseconds,
+        microseconds = period.microseconds,
+        nanoseconds = period.nanoseconds;
 
-  static final Map<PeriodUnits, int Function(PeriodBuilder)> _indexGetterFunctionMap = {
+  static final Map<PeriodUnits, int Function(PeriodBuilder)>
+      _indexGetterFunctionMap = {
     PeriodUnits.years: (PeriodBuilder p) => p.years,
     PeriodUnits.months: (PeriodBuilder p) => p.months,
     PeriodUnits.weeks: (PeriodBuilder p) => p.weeks,
@@ -69,7 +70,8 @@ class PeriodBuilder {
     PeriodUnits.nanoseconds: (PeriodBuilder p) => p.nanoseconds
   };
 
-  static final Map<PeriodUnits, Function(PeriodBuilder, int)> _indexSetterFunctionMap = {
+  static final Map<PeriodUnits, Function(PeriodBuilder, int)>
+      _indexSetterFunctionMap = {
     PeriodUnits.years: (PeriodBuilder p, int v) => p.years = v,
     PeriodUnits.months: (PeriodBuilder p, int v) => p.months = v,
     PeriodUnits.weeks: (PeriodBuilder p, int v) => p.weeks = v,
@@ -95,7 +97,8 @@ class PeriodBuilder {
   ///
   /// [ArgumentError]: [unit] is not a single unit, or a value is provided for a date unit which is outside the range of `System.Int32`.
   int operator [](PeriodUnits unit) {
-    if (_indexGetterFunctionMap.containsKey(unit)) return _indexGetterFunctionMap[unit]!(this);
+    if (_indexGetterFunctionMap.containsKey(unit))
+      return _indexGetterFunctionMap[unit]!(this);
     throw ArgumentError('Indexer for PeriodBuilder only takes a single unit');
   }
 
@@ -106,24 +109,24 @@ class PeriodBuilder {
 //    Preconditions.checkArgumentRange('value', value, int.MinValue, int.MaxValue);
 //  }
 
-    if (_indexSetterFunctionMap.containsKey(unit)) return _indexSetterFunctionMap[unit]!(this, value);
+    if (_indexSetterFunctionMap.containsKey(unit))
+      return _indexSetterFunctionMap[unit]!(this, value);
     throw ArgumentError('Indexer for PeriodBuilder only takes a single unit');
   }
-
 
   // todo: this doesn't work well with the cascade pattern.. is there a way around that?
   /// Builds a period from the properties in this builder.
   ///
   /// Returns: A period containing the values from this builder.
-  Period build() =>
-      IPeriod.period(years: years,
-          months: months,
-          weeks: weeks,
-          days: days,
-          hours: hours,
-          minutes: minutes,
-          seconds: seconds,
-          milliseconds: milliseconds,
-          microseconds: microseconds,
-          nanoseconds: nanoseconds);
+  Period build() => IPeriod.period(
+      years: years,
+      months: months,
+      weeks: weeks,
+      days: days,
+      hours: hours,
+      minutes: minutes,
+      seconds: seconds,
+      milliseconds: milliseconds,
+      microseconds: microseconds,
+      nanoseconds: nanoseconds);
 }

@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
 // import 'package:matcher/matcher.dart';
@@ -15,13 +15,14 @@ Future main() async {
   await runTests();
 }
 
-final CalendarSystem SampleCalendar = CalendarSystem.getIslamicCalendar(IslamicLeapYearPattern.base16, IslamicEpoch.civil);
+final CalendarSystem SampleCalendar = CalendarSystem.getIslamicCalendar(
+    IslamicLeapYearPattern.base16, IslamicEpoch.civil);
 
 @Test()
-void SampleDate1()
-{
+void SampleDate1() {
   // Note: field checks removed from the tests.
-  LocalDateTime ldt = LocalDateTime(1945, 11, 12, 0, 0, 0, calendar: CalendarSystem.iso);
+  LocalDateTime ldt =
+      LocalDateTime(1945, 11, 12, 0, 0, 0, calendar: CalendarSystem.iso);
 
   ldt = ldt.withCalendar(SampleCalendar);
   expect(Era.annoHegirae, ldt.era);
@@ -40,9 +41,9 @@ void SampleDate1()
 }
 
 @Test()
-void SampleDate2()
-{
-  LocalDateTime ldt = LocalDateTime(2005, 11, 26, 0, 0, 0, calendar: CalendarSystem.iso);
+void SampleDate2() {
+  LocalDateTime ldt =
+      LocalDateTime(2005, 11, 26, 0, 0, 0, calendar: CalendarSystem.iso);
   ldt = ldt.withCalendar(SampleCalendar);
   expect(Era.annoHegirae, ldt.era);
   expect(1426, ldt.yearOfEra);
@@ -59,9 +60,9 @@ void SampleDate2()
 }
 
 @Test()
-void SampleDate3()
-{
-  LocalDateTime ldt = LocalDateTime(1426, 12, 24, 0, 0, 0, calendar: SampleCalendar);
+void SampleDate3() {
+  LocalDateTime ldt =
+      LocalDateTime(1426, 12, 24, 0, 0, 0, calendar: SampleCalendar);
   expect(Era.annoHegirae, ldt.era);
 
   expect(1426, ldt.year);
@@ -76,17 +77,14 @@ void SampleDate3()
 }
 
 @Test()
-void InternalConsistency()
-{
-  var calendar = CalendarSystem.getIslamicCalendar(IslamicLeapYearPattern.base15, IslamicEpoch.civil);
+void InternalConsistency() {
+  var calendar = CalendarSystem.getIslamicCalendar(
+      IslamicLeapYearPattern.base15, IslamicEpoch.civil);
   // Check construction and then deconstruction for every day of every year in one 30-year cycle.
-  for (int year = 1; year <= 30; year++)
-  {
-    for (int month = 1; month <= 12; month++)
-    {
+  for (int year = 1; year <= 30; year++) {
+    for (int month = 1; month <= 12; month++) {
       int monthLength = calendar.getDaysInMonth(year, month);
-      for (int day = 1; day < monthLength; day++)
-      {
+      for (int day = 1; day < monthLength; day++) {
         LocalDate date = LocalDate(year, month, day, calendar);
         expect(year, date.year, reason: 'Year of $year-$month-$day');
         expect(month, date.monthOfYear, reason: 'Month of $year-$month-$day');
@@ -97,9 +95,9 @@ void InternalConsistency()
 }
 
 @Test()
-void Base15LeapYear()
-{
-  CalendarSystem calendar = CalendarSystem.getIslamicCalendar(IslamicLeapYearPattern.base15, IslamicEpoch.civil);
+void Base15LeapYear() {
+  CalendarSystem calendar = CalendarSystem.getIslamicCalendar(
+      IslamicLeapYearPattern.base15, IslamicEpoch.civil);
 
   expect(false, calendar.isLeapYear(1));
   expect(true, calendar.isLeapYear(2));
@@ -134,9 +132,9 @@ void Base15LeapYear()
 }
 
 @Test()
-void Base16LeapYear()
-{
-  CalendarSystem calendar = CalendarSystem.getIslamicCalendar(IslamicLeapYearPattern.base16, IslamicEpoch.civil);
+void Base16LeapYear() {
+  CalendarSystem calendar = CalendarSystem.getIslamicCalendar(
+      IslamicLeapYearPattern.base16, IslamicEpoch.civil);
 
   expect(false, calendar.isLeapYear(1));
   expect(true, calendar.isLeapYear(2));
@@ -171,9 +169,9 @@ void Base16LeapYear()
 }
 
 @Test()
-void IndianBasedLeapYear()
-{
-  CalendarSystem calendar = CalendarSystem.getIslamicCalendar(IslamicLeapYearPattern.indian, IslamicEpoch.civil);
+void IndianBasedLeapYear() {
+  CalendarSystem calendar = CalendarSystem.getIslamicCalendar(
+      IslamicLeapYearPattern.indian, IslamicEpoch.civil);
 
   expect(false, calendar.isLeapYear(1));
   expect(true, calendar.isLeapYear(2));
@@ -208,9 +206,9 @@ void IndianBasedLeapYear()
 }
 
 @Test()
-void HabashAlHasibBasedLeapYear()
-{
-  CalendarSystem calendar = CalendarSystem.getIslamicCalendar(IslamicLeapYearPattern.habashAlHasib, IslamicEpoch.civil);
+void HabashAlHasibBasedLeapYear() {
+  CalendarSystem calendar = CalendarSystem.getIslamicCalendar(
+      IslamicLeapYearPattern.habashAlHasib, IslamicEpoch.civil);
 
   expect(false, calendar.isLeapYear(1));
   expect(true, calendar.isLeapYear(2));
@@ -245,8 +243,7 @@ void HabashAlHasibBasedLeapYear()
 }
 
 @Test()
-void ThursdayEpoch()
-{
+void ThursdayEpoch() {
   CalendarSystem thursdayEpochCalendar = CalendarSystem.islamicBcl;
   CalendarSystem julianCalendar = CalendarSystem.julian;
 
@@ -256,9 +253,9 @@ void ThursdayEpoch()
 }
 
 @Test()
-void FridayEpoch()
-{
-  CalendarSystem fridayEpochCalendar = CalendarSystem.getIslamicCalendar(IslamicLeapYearPattern.base16, IslamicEpoch.civil);
+void FridayEpoch() {
+  CalendarSystem fridayEpochCalendar = CalendarSystem.getIslamicCalendar(
+      IslamicLeapYearPattern.base16, IslamicEpoch.civil);
   CalendarSystem julianCalendar = CalendarSystem.julian;
 
   LocalDate fridayEpoch = LocalDate(1, 1, 1, fridayEpochCalendar);
@@ -267,8 +264,7 @@ void FridayEpoch()
 }
 
 @Test()
-void BclUsesAstronomicalEpoch()
-{
+void BclUsesAstronomicalEpoch() {
   // Calendar hijri = BclCalendars.Hijri;
   // DateTime bclDirect = hijri.ToDateTime(1, 1, 1, 0, 0, 0, 0);
   // toString(): 7/18/22 12:00:00 AM (year is 622 but prints weird)
@@ -277,14 +273,15 @@ void BclUsesAstronomicalEpoch()
 
   CalendarSystem julianCalendar = CalendarSystem.julian;
   LocalDate julianIslamicEpoch = LocalDate(622, 7, 15, julianCalendar);
-  LocalDate isoIslamicEpoch = julianIslamicEpoch.withCalendar(CalendarSystem.iso);
+  LocalDate isoIslamicEpoch =
+      julianIslamicEpoch.withCalendar(CalendarSystem.iso);
   DateTime bclFromNoda = isoIslamicEpoch.atMidnight().toDateTimeLocal();
   expect(bclDirect, bclFromNoda);
 }
 
-@Test() @SkipMe()
-void SampleDateBclCompatibility()
-{
+@Test()
+@SkipMe()
+void SampleDateBclCompatibility() {
   dynamic hijri; // = BclCalendars.Hijri;
   DateTime bclDirect = hijri.ToDateTime(1302, 10, 15, 0, 0, 0, 0);
 
@@ -295,20 +292,20 @@ void SampleDateBclCompatibility()
 }
 
 /// This tests every day for 9000 (ISO) years, to check that it always matches the year, month and day.
-@Test() @SkipMe()
+@Test()
+@SkipMe()
 // [Category('Slow')]
-void BclThroughHistory()
-{
+void BclThroughHistory() {
   //var bcl = BclCalendars.Hijri;
   //var noda = CalendarSystem.islamicBcl;
   //BclEquivalenceHelper.AssertEquivalent(bcl, noda);
 }
 
 @Test()
-void GetDaysInMonth()
-{
+void GetDaysInMonth() {
   // Just check that we've got the long/short the right way round...
-  CalendarSystem calendar = CalendarSystem.getIslamicCalendar(IslamicLeapYearPattern.habashAlHasib, IslamicEpoch.civil);
+  CalendarSystem calendar = CalendarSystem.getIslamicCalendar(
+      IslamicLeapYearPattern.habashAlHasib, IslamicEpoch.civil);
   expect(30, calendar.getDaysInMonth(7, 1));
   expect(29, calendar.getDaysInMonth(7, 2));
   expect(30, calendar.getDaysInMonth(7, 3));
@@ -326,9 +323,9 @@ void GetDaysInMonth()
   expect(30, calendar.getDaysInMonth(8, 12));
 }
 
-@Test() @SkipMe()
-void GetInstance_Caching()
-{
+@Test()
+@SkipMe()
+void GetInstance_Caching() {
   /*
   var queue = new Queue<CalendarSystem>();
   var set = new HashSet<CalendarSystem>();
@@ -357,9 +354,9 @@ void GetInstance_Caching()
   }*/
 }
 
-@Test() @SkipMe()
-void GetInstance_ArgumentValidation()
-{
+@Test()
+@SkipMe()
+void GetInstance_ArgumentValidation() {
   /*
   var epochs = Enum.GetValues(typeof(IslamicEpoch)).Cast<IslamicEpoch>();
   var leapYearPatterns = Enum.GetValues(typeof(IslamicLeapYearPattern)).Cast<IslamicLeapYearPattern>();
@@ -371,56 +368,60 @@ void GetInstance_ArgumentValidation()
 }
 
 @Test()
-void PlusYears_Simple()
-{
-  var calendar = CalendarSystem.getIslamicCalendar(IslamicLeapYearPattern.base15, IslamicEpoch.civil);
+void PlusYears_Simple() {
+  var calendar = CalendarSystem.getIslamicCalendar(
+      IslamicLeapYearPattern.base15, IslamicEpoch.civil);
   LocalDateTime start = LocalDateTime(5, 8, 20, 2, 0, 0, calendar: calendar);
-  LocalDateTime expectedEnd = LocalDateTime(10, 8, 20, 2, 0, 0, calendar: calendar);
+  LocalDateTime expectedEnd =
+      LocalDateTime(10, 8, 20, 2, 0, 0, calendar: calendar);
   expect(expectedEnd, start.addYears(5));
 }
 
 @Test()
-void PlusYears_TruncatesAtLeapYear()
-{
-  var calendar = CalendarSystem.getIslamicCalendar(IslamicLeapYearPattern.base15, IslamicEpoch.civil);
+void PlusYears_TruncatesAtLeapYear() {
+  var calendar = CalendarSystem.getIslamicCalendar(
+      IslamicLeapYearPattern.base15, IslamicEpoch.civil);
   expect(calendar.isLeapYear(2), isTrue);
   expect(calendar.isLeapYear(3), isFalse);
 
   LocalDateTime start = LocalDateTime(2, 12, 30, 2, 0, 0, calendar: calendar);
-  LocalDateTime expectedEnd = LocalDateTime(3, 12, 29, 2, 0, 0, calendar: calendar);
+  LocalDateTime expectedEnd =
+      LocalDateTime(3, 12, 29, 2, 0, 0, calendar: calendar);
 
   expect(expectedEnd, start.addYears(1));
 }
 
 @Test()
-void PlusYears_DoesNotTruncateFromOneLeapYearToAnother()
-{
-  var calendar = CalendarSystem.getIslamicCalendar(IslamicLeapYearPattern.base15, IslamicEpoch.civil);
+void PlusYears_DoesNotTruncateFromOneLeapYearToAnother() {
+  var calendar = CalendarSystem.getIslamicCalendar(
+      IslamicLeapYearPattern.base15, IslamicEpoch.civil);
   expect(calendar.isLeapYear(2), isTrue);
   expect(calendar.isLeapYear(5), isTrue);
 
   LocalDateTime start = LocalDateTime(2, 12, 30, 2, 0, 0, calendar: calendar);
-  LocalDateTime expectedEnd = LocalDateTime(5, 12, 30, 2, 0, 0, calendar: calendar);
+  LocalDateTime expectedEnd =
+      LocalDateTime(5, 12, 30, 2, 0, 0, calendar: calendar);
 
   expect(expectedEnd, start.addYears(3));
 }
 
 @Test()
-void PlusMonths_Simple()
-{
-  var calendar = CalendarSystem.getIslamicCalendar(IslamicLeapYearPattern.base15, IslamicEpoch.civil);
+void PlusMonths_Simple() {
+  var calendar = CalendarSystem.getIslamicCalendar(
+      IslamicLeapYearPattern.base15, IslamicEpoch.civil);
   expect(calendar.isLeapYear(2), isTrue);
 
   LocalDateTime start = LocalDateTime(2, 12, 30, 2, 0, 0, calendar: calendar);
-  LocalDateTime expectedEnd = LocalDateTime(3, 11, 30, 2, 0, 0, calendar: calendar);
+  LocalDateTime expectedEnd =
+      LocalDateTime(3, 11, 30, 2, 0, 0, calendar: calendar);
   expect(11, expectedEnd.monthOfYear);
   expect(30, expectedEnd.dayOfMonth);
   expect(expectedEnd, start.addMonths(11));
 }
 
-@Test()  @SkipMe("Doesn't make sense in Dart")
-void Constructor_InvalidEnumsForCoverage()
-{
+@Test()
+@SkipMe("Doesn't make sense in Dart")
+void Constructor_InvalidEnumsForCoverage() {
   // expect(() => new IslamicYearMonthDayCalculator(IslamicLeapYearPattern.base15 + 100, IslamicEpoch.astronomical), throwsRangeError);
   // expect(() => new IslamicYearMonthDayCalculator(IslamicLeapYearPattern.base15, IslamicEpoch.astronomical + 100), throwsRangeError);
 }

@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
 //import 'package:matcher/matcher.dart';
@@ -16,20 +16,18 @@ Future main() async {
 }
 
 @Test()
-void MinValueEqualToMidnight()
-{
+void MinValueEqualToMidnight() {
   expect(LocalTime.midnight, LocalTime.minValue);
 }
 
 @Test()
-void MaxValue()
-{
-  expect(TimeConstants.nanosecondsPerDay - 1, LocalTime.maxValue.timeSinceMidnight.inNanoseconds);
+void MaxValue() {
+  expect(TimeConstants.nanosecondsPerDay - 1,
+      LocalTime.maxValue.timeSinceMidnight.inNanoseconds);
 }
 
 @Test()
-void ClockHourOfHalfDay()
-{
+void ClockHourOfHalfDay() {
   expect(12, LocalTime(0, 0, 0).hourOf12HourClock);
   expect(1, LocalTime(1, 0, 0).hourOf12HourClock);
   expect(12, LocalTime(12, 0, 0).hourOf12HourClock);
@@ -39,16 +37,14 @@ void ClockHourOfHalfDay()
 
 ///   Using the default constructor is equivalent to midnight
 @Test()
-void DefaultConstructor()
-{
+void DefaultConstructor() {
   // todo: new LocalTime();
   var actual = LocalTime(0, 0, 0);
   expect(LocalTime.midnight, actual);
 }
 
 @Test()
-void Max()
-{
+void Max() {
   LocalTime x = LocalTime(5, 10, 0);
   LocalTime y = LocalTime(6, 20, 0);
   expect(y, LocalTime.max(x, y));
@@ -60,8 +56,7 @@ void Max()
 }
 
 @Test()
-void Min()
-{
+void Min() {
   LocalTime x = LocalTime(5, 10, 0);
   LocalTime y = LocalTime(6, 20, 0);
   expect(x, LocalTime.min(x, y));
@@ -73,11 +68,9 @@ void Min()
 }
 
 @Test()
-void WithOffset()
-{
+void WithOffset() {
   var time = LocalTime(3, 45, 12, ms: 34);
   var offset = Offset.hours(5);
   var expected = OffsetTime(time, offset);
   expect(expected, time.withOffset(offset));
 }
-

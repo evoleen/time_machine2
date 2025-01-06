@@ -6,7 +6,7 @@ import 'dart:async';
 // todo: this affects JS_Test_Gen
 import 'dart:mirrors';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
 
@@ -14,9 +14,7 @@ import '../time_machine_testing.dart';
 
 Future main() async {
   var eraType = reflectType(Era) as ClassMirror;
-  Eras = eraType
-      .declarations
-      .values
+  Eras = eraType.declarations.values
       .where((v) => v is VariableMirror && v.isStatic)
       .map((v) => eraType.getField(v.simpleName).reflectee)
       .toList()
@@ -25,18 +23,20 @@ Future main() async {
   await runTests();
 }
 
-List<Era> Eras = []; /*typeof(Era).GetTypeInfo()
+List<Era> Eras =
+    []; /*typeof(Era).GetTypeInfo()
     .DeclaredProperties // TODO: Only static and ones...
     .Where(property => property.PropertyType == typeof(Era))
 .Select(property => property.GetValue(null, null))
 .Cast<Era>();*/
 
 @TestCaseSource(#Eras)
-@Test() @SkipMe.unimplemented()
-void ResourcePresence(Era? era)
-{
+@Test()
+@SkipMe.unimplemented()
+void ResourcePresence(Era? era) {
   // todo: get us resources?
   var valueByName; // PatternResources.ResourceManager.GetString(era.ResourceIdentifier, Culture.invariantCulture);
-  expect(valueByName, isNotNull, reason: 'Missing resource for ' + (era != null ? IEra.resourceIdentifier(era) : 'null'));
+  expect(valueByName, isNotNull,
+      reason: 'Missing resource for ' +
+          (era != null ? IEra.resourceIdentifier(era) : 'null'));
 }
-

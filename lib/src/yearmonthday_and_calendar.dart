@@ -3,7 +3,7 @@
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
 // import 'package:quiver_hashcode/hashcode.dart';
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 // This is a Year - Month - Day - Calendar TUPLE -- this not actually a Calendar;
 // todo: test bit packing
@@ -32,10 +32,9 @@ class YearMonthDayCalendar {
   const YearMonthDayCalendar.ymd(this.yearMonthDay, this.calendarOrdinal);
 // : _value = (yearMonthDay << calendarBits) | calendarOrdinal.value;
 
-
   /// Constructs a new value for the given year, month, day and calendar. No validation is performed.
-  YearMonthDayCalendar(int year, int month, int day, this.calendarOrdinal) :
-      yearMonthDay = YearMonthDay(year, month, day);
+  YearMonthDayCalendar(int year, int month, int day, this.calendarOrdinal)
+      : yearMonthDay = YearMonthDay(year, month, day);
   //      : _value = ((year - 1) << _calendarDayMonthBits) |
   //  ((month - 1) << _calendarDayBits) |
   //  ((day - 1) << calendarBits) |
@@ -57,7 +56,8 @@ class YearMonthDayCalendar {
     // Handle a leading - to negate the year
     if (text.startsWith('-')) {
       var ymdc = Parse(text.substring(1));
-      return YearMonthDayCalendar(-ymdc.year, ymdc.month, ymdc.day, ymdc.calendarOrdinal);
+      return YearMonthDayCalendar(
+          -ymdc.year, ymdc.month, ymdc.day, ymdc.calendarOrdinal);
     }
 
     List<String> bits = text.split('-');
@@ -69,15 +69,19 @@ class YearMonthDayCalendar {
         CalendarOrdinal.parse(bits[3])!);
   }
 
-  YearMonthDay toYearMonthDay() => yearMonthDay; // new YearMonthDay.raw(_value >> calendarBits);
+  YearMonthDay toYearMonthDay() =>
+      yearMonthDay; // new YearMonthDay.raw(_value >> calendarBits);
 
   @override
-  String toString() => YearMonthDay(year, month, day).toString() + '-$calendarOrdinal';
+  String toString() =>
+      YearMonthDay(year, month, day).toString() + '-$calendarOrdinal';
 
   @override
-  bool operator ==(Object rhs) => rhs is YearMonthDayCalendar ? yearMonthDay == rhs.yearMonthDay && calendarOrdinal == rhs.calendarOrdinal : false;
+  bool operator ==(Object rhs) => rhs is YearMonthDayCalendar
+      ? yearMonthDay == rhs.yearMonthDay &&
+          calendarOrdinal == rhs.calendarOrdinal
+      : false;
 
   @override
   int get hashCode => hash2(yearMonthDay.hashCode, calendarOrdinal.hashCode);
 }
-

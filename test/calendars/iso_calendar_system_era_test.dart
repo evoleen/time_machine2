@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 import 'package:test/test.dart';
 
 import '../time_machine_testing.dart';
@@ -16,8 +16,7 @@ Future main() async {
 CalendarSystem Iso = CalendarSystem.iso;
 
 @Test()
-void GetMaxYearOfEra()
-{
+void GetMaxYearOfEra() {
   LocalDate date = LocalDate(Iso.maxYear, 1, 1);
   expect(date.yearOfEra, Iso.getMaxYearOfEra(Era.common));
   expect(Era.common, date.era);
@@ -28,8 +27,7 @@ void GetMaxYearOfEra()
 }
 
 @Test()
-void GetMinYearOfEra()
-{
+void GetMinYearOfEra() {
   LocalDate date = LocalDate(1, 1, 1);
   expect(date.yearOfEra, Iso.getMinYearOfEra(Era.common));
   expect(Era.common, date.era);
@@ -39,12 +37,14 @@ void GetMinYearOfEra()
 }
 
 @Test()
-void GetAbsoluteYear()
-{
+void GetAbsoluteYear() {
   expect(1, Iso.getAbsoluteYear(1, Era.common));
   expect(0, Iso.getAbsoluteYear(1, Era.beforeCommon));
   expect(-1, Iso.getAbsoluteYear(2, Era.beforeCommon));
-  expect(Iso.maxYear, Iso.getAbsoluteYear(Iso.getMaxYearOfEra(Era.common), Era.common));
-  expect(Iso.minYear, Iso.getAbsoluteYear(Iso.getMaxYearOfEra(Era.beforeCommon), Era.beforeCommon));
+  expect(Iso.maxYear,
+      Iso.getAbsoluteYear(Iso.getMaxYearOfEra(Era.common), Era.common));
+  expect(
+      Iso.minYear,
+      Iso.getAbsoluteYear(
+          Iso.getMaxYearOfEra(Era.beforeCommon), Era.beforeCommon));
 }
-

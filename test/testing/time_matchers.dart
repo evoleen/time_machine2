@@ -1,16 +1,15 @@
 // Portions of this work are Copyright 2018 The Time Machine Authors. All rights reserved.
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 import 'package:test/test.dart';
 
-
-Matcher instantIsCloseTo(Instant value) => InstantIsCloseTo(value, Time.epsilon);
+Matcher instantIsCloseTo(Instant value) =>
+    InstantIsCloseTo(value, Time.epsilon);
 
 /// Returns the uncached version of the given zone. If the zone isn't
 /// an instance of CachedDateTimeZone, the same reference is returned back.
-DateTimeZone Uncached(DateTimeZone zone)
-{
+DateTimeZone Uncached(DateTimeZone zone) {
   // 'as' will return 'null' in C#, throws exception in Dart
   if (zone is! CachedDateTimeZone?) return zone;
 
@@ -33,7 +32,8 @@ class InstantIsCloseTo extends Matcher {
   @override
   bool matches(item, Map matchState) {
     if (item is Instant) {
-      var diff = (item > _value) ? _value.timeUntil(item) : item.timeUntil(_value);
+      var diff =
+          (item > _value) ? _value.timeUntil(item) : item.timeUntil(_value);
       // if (diff < 0) diff = -diff;
       return (diff <= _delta);
     } else {
@@ -52,7 +52,8 @@ class InstantIsCloseTo extends Matcher {
   Description describeMismatch(
       item, Description mismatchDescription, Map matchState, bool verbose) {
     if (item is Instant) {
-      var diff = (item > _value) ? _value.timeUntil(item) : item.timeUntil(_value);
+      var diff =
+          (item > _value) ? _value.timeUntil(item) : item.timeUntil(_value);
       // if (diff < Span.zero) diff = -diff;
       return mismatchDescription.add(' differs by ').addDescriptionOf(diff);
     } else {
@@ -60,4 +61,3 @@ class InstantIsCloseTo extends Matcher {
     }
   }
 }
-

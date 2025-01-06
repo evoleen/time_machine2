@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
 // import 'package:matcher/matcher.dart';
@@ -16,10 +16,10 @@ Future main() async {
   await runTests();
 }
 
-@Test() @SkipMe('Unsure how to implement')
+@Test()
+@SkipMe('Unsure how to implement')
 // [Category('Slow')]
-void BclThroughHistory()
-{
+void BclThroughHistory() {
   // Calendar bcl = BclCalendars.Persian;
   // CalendarSystem noda = BclCalendars.CalendarSystemForCalendar(bcl);
   // Note: Noda Time stops in 9377, whereas the BCL goes into the start of 9378. This is because
@@ -60,13 +60,11 @@ void BclThroughHistory()
 @TestCase([1788, 2409, 20])
 @TestCase([1792, 2413, 20])
 @TestCase([1796, 2417, 20])
-
-void ArithmeticExamples(int persianYear, int gregorianYear, int gregorianDayOfMarch)
-{
+void ArithmeticExamples(
+    int persianYear, int gregorianYear, int gregorianDayOfMarch) {
   var persian = LocalDate(persianYear, 1, 1, CalendarSystem.persianArithmetic);
   var gregorian = persian.withCalendar(CalendarSystem.gregorian);
   expect(gregorianYear, gregorian.year);
   expect(3, gregorian.monthOfYear);
   expect(gregorianDayOfMarch, gregorian.dayOfMonth);
 }
-

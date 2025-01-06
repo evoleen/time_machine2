@@ -2,7 +2,7 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 /// Generic interface supporting parsing and formatting. Parsing always results in a
 /// [ParseResult] which can represent success or failure.
@@ -40,4 +40,3 @@ abstract class IPattern<T> {
   /// Returns: The builder passed in as [builder].
   StringBuffer appendFormat(T value, StringBuffer builder);
 }
-

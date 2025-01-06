@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 import 'package:test/test.dart';
 
 import 'time_machine_testing.dart';
@@ -14,8 +14,7 @@ Future main() async {
 }
 
 @Test()
-void Equals_EqualValues()
-{
+void Equals_EqualValues() {
   CalendarSystem calendar = CalendarSystem.julian;
   LocalDate date1 = LocalDate(2011, 1, 2, calendar);
   LocalDate date2 = LocalDate(2011, 1, 2, calendar);
@@ -27,8 +26,7 @@ void Equals_EqualValues()
 }
 
 @Test()
-void Equals_DifferentDates()
-{
+void Equals_DifferentDates() {
   CalendarSystem calendar = CalendarSystem.julian;
   LocalDate date1 = LocalDate(2011, 1, 2, calendar);
   LocalDate date2 = LocalDate(2011, 1, 3, calendar);
@@ -40,8 +38,7 @@ void Equals_DifferentDates()
 }
 
 @Test()
-void Equals_DifferentCalendars()
-{
+void Equals_DifferentCalendars() {
   CalendarSystem calendar = CalendarSystem.julian;
   LocalDate date1 = LocalDate(2011, 1, 2, calendar);
   LocalDate date2 = LocalDate(2011, 1, 2, CalendarSystem.iso);
@@ -53,16 +50,14 @@ void Equals_DifferentCalendars()
 }
 
 @Test()
-void Equals_DifferentToOtherType()
-{
+void Equals_DifferentToOtherType() {
   LocalDate date = LocalDate(2011, 1, 2);
   // ignore: unrelated_type_equality_checks
   expect(date == Instant.fromEpochMicroseconds(0), isFalse);
 }
 
 @Test()
-void ComparisonOperators_SameCalendar()
-{
+void ComparisonOperators_SameCalendar() {
   LocalDate date1 = LocalDate(2011, 1, 2);
   LocalDate date2 = LocalDate(2011, 1, 2);
   LocalDate date3 = LocalDate(2011, 1, 5);
@@ -89,8 +84,7 @@ void ComparisonOperators_SameCalendar()
 }
 
 @Test()
-void ComparisonOperators_DifferentCalendars_Throws()
-{
+void ComparisonOperators_DifferentCalendars_Throws() {
   LocalDate date1 = LocalDate(2011, 1, 2);
   LocalDate date2 = LocalDate(2011, 1, 3, CalendarSystem.julian);
 
@@ -102,8 +96,7 @@ void ComparisonOperators_DifferentCalendars_Throws()
 }
 
 @Test()
-void CompareTo_SameCalendar()
-{
+void CompareTo_SameCalendar() {
   LocalDate date1 = LocalDate(2011, 1, 2);
   LocalDate date2 = LocalDate(2011, 1, 2);
   LocalDate date3 = LocalDate(2011, 1, 5);
@@ -114,9 +107,9 @@ void CompareTo_SameCalendar()
 }
 
 @Test()
-void CompareTo_DifferentCalendars_Throws()
-{
-  CalendarSystem islamic = CalendarSystem.getIslamicCalendar(IslamicLeapYearPattern.base15, IslamicEpoch.astronomical);
+void CompareTo_DifferentCalendars_Throws() {
+  CalendarSystem islamic = CalendarSystem.getIslamicCalendar(
+      IslamicLeapYearPattern.base15, IslamicEpoch.astronomical);
   LocalDate date1 = LocalDate(2011, 1, 2);
   LocalDate date2 = LocalDate(1500, 1, 1, islamic);
 
@@ -129,8 +122,7 @@ void CompareTo_DifferentCalendars_Throws()
 
 /// IComparable.CompareTo works properly with LocalDate inputs with same calendar.
 @Test()
-void IComparableCompareTo_SameCalendar()
-{
+void IComparableCompareTo_SameCalendar() {
   var instance = LocalDate(2012, 3, 5);
   Comparable<LocalDate> i_instance = instance;
 
@@ -169,8 +161,7 @@ void IComparableCompareTo_SameCalendar()
 //}
 
 @Test()
-void MinMax_DifferentCalendars_Throws()
-{
+void MinMax_DifferentCalendars_Throws() {
   LocalDate date1 = LocalDate(2011, 1, 2);
   LocalDate date2 = LocalDate(1500, 1, 1, CalendarSystem.julian);
 
@@ -180,8 +171,7 @@ void MinMax_DifferentCalendars_Throws()
 }
 
 @Test()
-void MinMax_SameCalendar()
-{
+void MinMax_SameCalendar() {
   LocalDate date1 = LocalDate(1500, 1, 2, CalendarSystem.julian);
   LocalDate date2 = LocalDate(1500, 1, 1, CalendarSystem.julian);
 

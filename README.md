@@ -1,26 +1,26 @@
 ![logo-dtm](https://user-images.githubusercontent.com/7284858/43960873-65f3f080-9c81-11e8-9d4d-c34c7e4cc46c.png)
 
-The Dart Time Machine is a date and time library for
-[Flutter](https://flutter.io/), [Web](https://webdev.dartlang.org/), and [Server](https://www.dartlang.org/dart-vm)
-with support for timezones, calendars, cultures, formatting and parsing.
+The Dart Time Machine is a date and time library for [Flutter (native + web)](https://flutter.io/), and [Dart](https://www.dartlang.org/) with support for timezones, calendars, cultures, formatting and parsing.
 
 Time Machine provides an alternative date and time API over Dart Core.
-For comparision:
 
-**Dart Core API**
-* Duration - an amount of time with microsecond precision
-* DateTime - a unique point on the utc_timeline or a point in localtime with microsecond or millisecond precision
+Dart's native time API is severely flawed because it only knows UTC or local time with no clear definition of time zone and no type safety to ensure that time stamps with and without UTC flag aren't mixed up. This can easily lead to an endless source of bugs if applications need to work in local time, such as
+* scheduling reminders
+* displaying an object's time information (file dates, email dates, calendar dates)
+* sharing data between users that work in different time zones
+
+Time Machine provides a simple, intuitive and type safe API to work with global and local time.
 
 **Time Machine API**
 * Time - an amount of time with nanosecond precision
-* Instant - a unique point on the utc_timeline
+* Instant - a unique point on the UTC timeline
 * LocalTime - the time on the clock
 * LocalDate - the date on the calendar
 * LocalDateTime - a location on the clock and calendar
 * Period - amount of time on the clock and calendar
-* Offset - the timezone offset from the utc_timeline
-* DateTimeZone - a mapping between the utc_timeline, and clock and calendar locations
-* ZonedDateTime - a unique point on the utc_timeline and a location on the clock and calendar
+* Offset - the timezone offset from the UTC timeline
+* DateTimeZone - a mapping between the UTC timeline, and clock and calendar locations
+* ZonedDateTime - a unique point on the UTC timeline and a location on the clock and calendar
 * Culture - formatting and parsing rules specific to a locale
 
 **Time Machine's Goals**
@@ -30,11 +30,9 @@ For comparision:
 * Clarity - clear, concise, and intuitive
 * Easy - the library should do the hard things for you
 
-The last two/three? are generic library goals.
+The last two/three are generic library goals.
 
-Time Machine is a port of [Noda Time](https://www.nodatime.org); use it for all your .NET needs.
-
-Current TZDB Version: 2022a
+Time Machine is a port of [Noda Time](https://www.nodatime.org).
 
 ### Example Code:
 
@@ -122,7 +120,7 @@ included in this repository. The goal is to port all this functionality to Dart,
 bootstrapping -- and guaranteeing that our data is exactly the same thing that Noda Time would see (to ease porting).
 
 Future Todo:
- - [ ] Produce our own TSDB files
+ - [X] Produce our own TSDB files
  - [ ] Produce our own Culture files
  - [ ] Benchmarking & Optimizing Library for Dart
 
@@ -134,8 +132,10 @@ You'll need this entry in your pubspec.yaml.
 # The following section is specific to Flutter.
 flutter:
   assets:
-    - packages/time_machine/data/cultures/cultures.bin
-    - packages/time_machine/data/tzdb/tzdb.bin
+    - packages/time_machine2/data/cultures/cultures.bin
+    - packages/time_machine2/data/tzdb/latest_10y.tzf
+    - packages/time_machine2/data/tzdb/latest_all.tzf
+    - packages/time_machine2/data/tzdb/latest.tzf
 ```
 
 Your initialization function will look like this:

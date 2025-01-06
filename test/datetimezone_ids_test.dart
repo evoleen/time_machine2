@@ -3,7 +3,7 @@
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
 
@@ -16,8 +16,6 @@ Future main() async {
 /// Tests for code in DateTimeZone and code which will be moving out
 /// of DateTimeZones into DateTimeZone over time.
 @Test()
-void UtcIsNotNull()
-{
+void UtcIsNotNull() {
   expect(DateTimeZone.utc, isNotNull);
 }
-

@@ -3,10 +3,10 @@
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
-import 'package:time_machine/time_machine.dart';
+import 'package:time_machine2/time_machine2.dart';
 
 import 'time_machine_testing.dart';
 

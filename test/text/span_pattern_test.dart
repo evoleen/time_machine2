@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
 
@@ -20,7 +20,8 @@ Future main() async {
 @Test()
 class SpanPatternTest extends PatternTestBase<Time> {
   /// Test data that can only be used to test formatting.
-  @internal  final List<Data> FormatOnlyData = [
+  @internal
+  final List<Data> FormatOnlyData = [
     // No sign, so we can't parse it.
     Data.hm(-1, 0)
       ..pattern = 'HH:mm'
@@ -36,10 +37,12 @@ class SpanPatternTest extends PatternTestBase<Time> {
   ];
 
   /// Test data that can only be used to test successful parsing.
-  @internal  final List<Data> ParseOnlyData = [];
+  @internal
+  final List<Data> ParseOnlyData = [];
 
   /// Test data for invalid patterns
-  @internal  final List<Data> InvalidPatternData = [
+  @internal
+  final List<Data> InvalidPatternData = [
     Data()
       ..pattern = ''
       ..message = TextErrorMessages.formatStringEmpty,
@@ -60,7 +63,8 @@ class SpanPatternTest extends PatternTestBase<Time> {
   ];
 
   /// Tests for parsing failures (of values)
-  @internal  final List<Data> ParseFailureData = [
+  @internal
+  final List<Data> ParseFailureData = [
     Data(Time.zero)
       ..pattern = 'H:mm'
       ..text = '1:60'
@@ -70,29 +74,25 @@ class SpanPatternTest extends PatternTestBase<Time> {
     Data(Time.minValue)
       ..pattern = '-D:hh:mm:ss.fffffffff'
       ..text = '16777217:00:00:00.000000000'
-      ..
-      message = TextErrorMessages.fieldValueOutOfRange
+      ..message = TextErrorMessages.fieldValueOutOfRange
       ..parameters.addAll(['16777217', 'D', 'Time']),
     Data(Time.minValue)
       ..pattern = '-H:mm:ss.fffffffff'
       ..text = '402653185:00:00.000000000'
-      ..
-      message = TextErrorMessages.fieldValueOutOfRange
+      ..message = TextErrorMessages.fieldValueOutOfRange
       ..parameters.addAll(['402653185', 'H', 'Time']),
     Data(Time.minValue)
       ..pattern = '-M:ss.fffffffff'
       ..text = '24159191041:00.000000000'
-      ..
-      message = TextErrorMessages.fieldValueOutOfRange
+      ..message = TextErrorMessages.fieldValueOutOfRange
       ..parameters.addAll(['24159191041', 'M', 'Time']),
     Data(Time.minValue)
       ..pattern = '-S.fffffffff'
       ..text = '1449551462401.000000000'
-      ..
-      message = TextErrorMessages.fieldValueOutOfRange
+      ..message = TextErrorMessages.fieldValueOutOfRange
       ..parameters.addAll(['1449551462401', 'S', 'Time']),
 
-  /* note: In Dart we don't go out of range -- todo: evaluate -- should we?
+    /* note: In Dart we don't go out of range -- todo: evaluate -- should we?
     // Each field in range, but overall result out of range
     new Data(Span.minValue)
       ..Pattern = '-D:hh:mm:ss.fffffffff'
@@ -143,7 +143,8 @@ class SpanPatternTest extends PatternTestBase<Time> {
 
   /// Common test data for both formatting and parsing. A test should be placed here unless is truly
   /// cannot be run both ways. This ensures that as many round-trip type tests are performed as possible.
-  @internal  final List<Data> FormatAndParseData = [
+  @internal
+  final List<Data> FormatAndParseData = [
     Data.hm(1, 2)
       ..pattern = '+HH:mm'
       ..text = '+01:02',
@@ -226,8 +227,8 @@ class SpanPatternTest extends PatternTestBase<Time> {
       ..text = '-1:02:03:04.123456789'
       ..culture = TestCultures.DotTimeSeparator,
 
-  // Extremes...
-  /* todo: our extremes are different (could be different based on platform?)
+    // Extremes...
+    /* todo: our extremes are different (could be different based on platform?)
     new Data(Span.minValue)
       ..Pattern = '-D:hh:mm:ss.fffffffff'
       ..Text = '-16777216:00:00:00.000000000',
@@ -255,15 +256,20 @@ class SpanPatternTest extends PatternTestBase<Time> {
       ..Text = '1449551462399.999999999',*/
   ];
 
-  @internal Iterable<Data> get ParseData => [ParseOnlyData, FormatAndParseData].expand((x) => x);
-  @internal Iterable<Data> get FormatData => [FormatOnlyData, FormatAndParseData].expand((x) => x);
+  @internal
+  Iterable<Data> get ParseData =>
+      [ParseOnlyData, FormatAndParseData].expand((x) => x);
+  @internal
+  Iterable<Data> get FormatData =>
+      [FormatOnlyData, FormatAndParseData].expand((x) => x);
 
   // @Test()
   // void ParseNull() => AssertParseNull(TimePattern.roundtrip);
 
   @Test()
   void WithCulture() {
-    var pattern = TimePattern.createWithInvariantCulture('H:mm').withCulture(TestCultures.DotTimeSeparator);
+    var pattern = TimePattern.createWithInvariantCulture('H:mm')
+        .withCulture(TestCultures.DotTimeSeparator);
     var text = pattern.format(Time(minutes: 90));
     expect('1.30', text);
   }
@@ -271,8 +277,8 @@ class SpanPatternTest extends PatternTestBase<Time> {
   @Test()
   void CreateWithCurrentCulture() {
     Culture.current = TestCultures.DotTimeSeparator;
-        // using (CultureSaver.SetCultures(TestCultures.DotTimeSeparator))
-        {
+    // using (CultureSaver.SetCultures(TestCultures.DotTimeSeparator))
+    {
       var pattern = TimePattern.createWithCurrentCulture('H:mm');
       var text = pattern.format(Time(minutes: 90));
       expect('1.30', text);
@@ -283,21 +289,27 @@ class SpanPatternTest extends PatternTestBase<Time> {
 /// A container for test data for formatting and parsing [Duration] objects.
 /*sealed*/ class Data extends PatternTestData<Time> {
 // Ignored anyway...
-/*protected*/ @override Time get defaultTemplate => Time.zero;
-
+/*protected*/ @override
+  Time get defaultTemplate => Time.zero;
 
   Data([Time value = Time.zero]) : super(value);
 
-  Data.hm(int hours, int minutes) : this(Time(hours: hours) + Time(minutes: minutes));
+  Data.hm(int hours, int minutes)
+      : this(Time(hours: hours) + Time(minutes: minutes));
 
   Data.hms(int hours, int minutes, int seconds)
-      : this(Time(hours: hours) + Time(minutes: minutes) + Time(seconds: seconds));
+      : this(Time(hours: hours) +
+            Time(minutes: minutes) +
+            Time(seconds: seconds));
 
   Data.dhmsn(int days, int hours, int minutes, int seconds, int nanoseconds)
-      : this(Time(hours: days * 24 + hours) + Time(minutes: minutes) + Time(seconds: seconds) + Time(nanoseconds: nanoseconds));
+      : this(Time(hours: days * 24 + hours) +
+            Time(minutes: minutes) +
+            Time(seconds: seconds) +
+            Time(nanoseconds: nanoseconds));
 
   @internal
   @override
-  IPattern<Time> CreatePattern() => TimePattern.createWithCulture(super.pattern, culture);
+  IPattern<Time> CreatePattern() =>
+      TimePattern.createWithCulture(super.pattern, culture);
 }
-

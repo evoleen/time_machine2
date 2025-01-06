@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
 
@@ -15,8 +15,7 @@ Future main() async {
 }
 
 @Test()
-void LeapYears()
-{
+void LeapYears() {
   var calendar = CalendarSystem.gregorian;
   expect(calendar.isLeapYear(1900), isFalse);
   expect(calendar.isLeapYear(1901), isFalse);
@@ -28,20 +27,18 @@ void LeapYears()
 }
 
 @Test()
-void EraProperty()
-{
+void EraProperty() {
   CalendarSystem calendar = CalendarSystem.gregorian;
-  LocalDateTime startOfEra = LocalDateTime(1, 1, 1, 0, 0, 0, calendar: calendar);
+  LocalDateTime startOfEra =
+      LocalDateTime(1, 1, 1, 0, 0, 0, calendar: calendar);
   expect(Era.common, startOfEra.era);
   expect(Era.beforeCommon, startOfEra.addMicroseconds(-1).era);
 }
 
 @Test()
-void AddMonths_BoundaryCondition()
-{
+void AddMonths_BoundaryCondition() {
   var start = LocalDate(2017, 8, 20);
   var end = start.addMonths(-19);
   var expected = LocalDate(2016, 1, 20);
   expect(expected, end);
 }
-

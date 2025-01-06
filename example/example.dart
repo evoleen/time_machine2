@@ -3,8 +3,8 @@
 
 import 'dart:async';
 
-import 'package:time_machine/time_machine.dart';
-import 'package:time_machine/time_machine_text_patterns.dart';
+import 'package:time_machine2/time_machine2.dart';
+import 'package:time_machine2/time_machine_text_patterns.dart';
 
 Future main() async {
   try {
@@ -12,7 +12,7 @@ Future main() async {
     await TimeMachine.initialize({'rootBundle': ''});
     print('Hello, ${DateTimeZone.local} from the Dart Time Machine!\n');
 
-    var tzdb = await DateTimeZoneProviders.timezone;
+    var tzdb = await DateTimeZoneProviders.tzdb;
     var paris = await tzdb['Europe/Paris'];
 
     var now = Instant.now();

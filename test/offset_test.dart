@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
 // import 'package:matcher/matcher.dart';
@@ -16,8 +16,7 @@ Future main() async {
 }
 
 @Test()
-void Max()
-{
+void Max() {
   Offset x = Offset(100);
   Offset y = Offset(200);
   expect(y, Offset.max(x, y));
@@ -29,8 +28,7 @@ void Max()
 }
 
 @Test()
-void Min()
-{
+void Min() {
   Offset x = Offset(100);
   Offset y = Offset(200);
   expect(x, Offset.min(x, y));
@@ -72,9 +70,7 @@ void FromTimeSpan_Simple()
 
 ///   Using the default constructor is equivalent to Offset.Zero
 @Test()
-void DefaultConstructor()
-{
+void DefaultConstructor() {
   var actual = Offset();
   expect(Offset.zero, actual);
 }
-

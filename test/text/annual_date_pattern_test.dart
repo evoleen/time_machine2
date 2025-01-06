@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
 
@@ -17,10 +17,10 @@ Future main() async {
   await runTests();
 }
 
-
 @Test()
 class AnnualDatePatternTest extends PatternTestBase<AnnualDate> {
-  @internal final List<Data> InvalidPatternData = [
+  @internal
+  final List<Data> InvalidPatternData = [
     Data()
       ..pattern = ''
       ..message = TextErrorMessages.formatStringEmpty,
@@ -31,11 +31,11 @@ class AnnualDatePatternTest extends PatternTestBase<AnnualDate> {
     Data()
       ..pattern = '%'
       ..message = TextErrorMessages.unknownStandardFormat
-      ..parameters.addAll([ '%', 'AnnualDate']),
+      ..parameters.addAll(['%', 'AnnualDate']),
     Data()
       ..pattern = "\\"
       ..message = TextErrorMessages.unknownStandardFormat
-      ..parameters.addAll([ '\\', 'AnnualDate']),
+      ..parameters.addAll(['\\', 'AnnualDate']),
     Data()
       ..pattern = '%%'
       ..message = TextErrorMessages.percentDoubled,
@@ -45,39 +45,40 @@ class AnnualDatePatternTest extends PatternTestBase<AnnualDate> {
     Data()
       ..pattern = 'MMMMM'
       ..message = TextErrorMessages.repeatCountExceeded
-      ..parameters.addAll([ 'M', 4]),
+      ..parameters.addAll(['M', 4]),
     Data()
       ..pattern = 'ddd'
       ..message = TextErrorMessages.repeatCountExceeded
-      ..parameters.addAll([ 'd', 2]),
+      ..parameters.addAll(['d', 2]),
     Data()
       ..pattern = 'M%'
       ..message = TextErrorMessages.percentAtEndOfString,
     Data()
       ..pattern = "'qwe"
       ..message = TextErrorMessages.missingEndQuote
-      ..parameters.addAll([ '\'']),
+      ..parameters.addAll(['\'']),
     Data()
       ..pattern = "'qwe\\"
       ..message = TextErrorMessages.escapeAtEndOfString,
     Data()
       ..pattern = "'qwe\\'"
       ..message = TextErrorMessages.missingEndQuote
-      ..parameters.addAll([ '\'']),
+      ..parameters.addAll(['\'']),
 
     // Common typo (m doesn't mean months)
     Data()
       ..pattern = 'mm-dd'
       ..message = TextErrorMessages.unquotedLiteral
-      ..parameters.addAll([ 'm']),
+      ..parameters.addAll(['m']),
     // T isn't valid in a date pattern
     Data()
       ..pattern = 'MM-ddT00:00:00'
       ..message = TextErrorMessages.unquotedLiteral
-      ..parameters.addAll([ 'T'])
+      ..parameters.addAll(['T'])
   ];
 
-  @internal List<Data> ParseFailureData = [
+  @internal
+  List<Data> ParseFailureData = [
     Data()
       ..pattern = 'MM dd MMMM'
       ..text = '10 09 January'
@@ -109,15 +110,16 @@ class AnnualDatePatternTest extends PatternTestBase<AnnualDate> {
       ..pattern = 'MM dd'
       ..text = '15 29'
       ..message = TextErrorMessages.isoMonthOutOfRange
-      ..parameters.addAll([ 15]),
+      ..parameters.addAll([15]),
     Data()
       ..pattern = 'MM dd'
       ..text = '02 35'
       ..message = TextErrorMessages.dayOfMonthOutOfRangeNoYear
-      ..parameters.addAll([ 35, 2])
+      ..parameters.addAll([35, 2])
   ];
 
-  @internal List<Data> ParseOnlyData = [
+  @internal
+  List<Data> ParseOnlyData = [
     // Month parsing should be case-insensitive
     Data.monthDay(10, 3)
       ..pattern = 'MMM dd'
@@ -145,9 +147,11 @@ class AnnualDatePatternTest extends PatternTestBase<AnnualDate> {
       ..culture = TestCultures.GenitiveNameTestCultureWithLeadingNames,
   ];
 
-  @internal List<Data> FormatOnlyData = [];
+  @internal
+  List<Data> FormatOnlyData = [];
 
-  @internal List<Data> FormatAndParseData = [
+  @internal
+  List<Data> FormatAndParseData = [
     // Standard patterns
     Data.monthDay(10, 20)
       ..pattern = 'G'
@@ -214,12 +218,15 @@ class AnnualDatePatternTest extends PatternTestBase<AnnualDate> {
       ..text = 'Oct 09 10',
   ];
 
-  @internal Iterable<Data> get ParseData => [ParseOnlyData, FormatAndParseData].expand((x) => x);
-  @internal Iterable<Data> get FormatData => [FormatOnlyData, FormatAndParseData].expand((x) => x);
+  @internal
+  Iterable<Data> get ParseData =>
+      [ParseOnlyData, FormatAndParseData].expand((x) => x);
+  @internal
+  Iterable<Data> get FormatData =>
+      [FormatOnlyData, FormatAndParseData].expand((x) => x);
 
   @Test()
-  Future CreateWithCurrentCulture() async
-  {
+  Future CreateWithCurrentCulture() async {
     var date = AnnualDate(8, 23);
     // using (CultureSaver.SetTestCultures(TestCultures.FrFr))
     Culture.current = TestCultures.getCulture('fr-FR')!;
@@ -234,8 +241,7 @@ class AnnualDatePatternTest extends PatternTestBase<AnnualDate> {
 
   @TestCase(['fr-FR', "08/23"])
   @TestCase(['fr-CA', "08-23"])
-  Future CreateWithCulture(String cultureId, String expected) async
-  {
+  Future CreateWithCulture(String cultureId, String expected) async {
     var date = AnnualDate(8, 23);
     var culture = TestCultures.getCulture(cultureId)!;
     var pattern = AnnualDatePattern.createWithCulture('MM/dd', culture);
@@ -244,19 +250,18 @@ class AnnualDatePatternTest extends PatternTestBase<AnnualDate> {
 
   @TestCase(['fr-FR', "08/23"])
   @TestCase(['fr-CA', "08-23"])
-  Future CreateWithCultureAndTemplateValue(String cultureId, String expected) async
-  {
+  Future CreateWithCultureAndTemplateValue(
+      String cultureId, String expected) async {
     var date = AnnualDate(8, 23);
     var template = AnnualDate(5, 3);
     var culture = TestCultures.getCulture(cultureId)!;
     // Check the culture is still used
-    var pattern1 = AnnualDatePattern.createWithCulture('MM/dd', culture, template);
+    var pattern1 =
+        AnnualDatePattern.createWithCulture('MM/dd', culture, template);
     expect(expected, pattern1.format(date));
     // And the template value
     var pattern2 = AnnualDatePattern.createWithCulture('MM', culture, template);
-    var parsed = pattern2
-        .parse('08')
-        .value;
+    var parsed = pattern2.parse('08').value;
     expect(AnnualDate(8, 3), parsed);
   }
 
@@ -266,12 +271,14 @@ class AnnualDatePatternTest extends PatternTestBase<AnnualDate> {
 
 class Data extends PatternTestData<AnnualDate> {
   // Default to January 1st
-  @override AnnualDate get defaultTemplate => AnnualDatePatterns.defaultTemplateValue;
+  @override
+  AnnualDate get defaultTemplate => AnnualDatePatterns.defaultTemplateValue;
 
   /// Initializes a new instance of the [Data] class.
   ///
   /// [value]: The value.
-  Data([AnnualDate? value]) : super(value ?? AnnualDatePatterns.defaultTemplateValue);
+  Data([AnnualDate? value])
+      : super(value ?? AnnualDatePatterns.defaultTemplateValue);
 
   Data.monthDay(int month, int day) : super(AnnualDate(month, day));
 
@@ -282,4 +289,3 @@ class Data extends PatternTestData<AnnualDate> {
           .withTemplateValue(template)
           .withCulture(culture);
 }
-

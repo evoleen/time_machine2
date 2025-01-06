@@ -4,11 +4,7 @@
 
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
-
-//import 'package:test/test.dart';
-//import 'package:matcher/matcher.dart';
-//import 'package:time_machine/src/timezones/time_machine_timezones.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 import '../time_machine_testing.dart';
 
@@ -18,7 +14,9 @@ Future main() async {
   await runTests();
 }
 
-@internal class TimeZoneInfoReplacer extends TimeZoneInfo // TimeZoneInfoInterceptor // .ITimeZoneInfoShim
+@internal
+class TimeZoneInfoReplacer
+    extends TimeZoneInfo // TimeZoneInfoInterceptor // .ITimeZoneInfoShim
 {
   /*
 final TimeZoneInfoInterceptor.ITimeZoneInfoShim originalShim;
@@ -54,5 +52,3 @@ ReadOnlyCollection<TimeZoneInfo> GetSystemTimeZones() => zones;
 
 void Dispose() => TimeZoneInfoInterceptor.Shim = originalShim;*/
 }
-
-

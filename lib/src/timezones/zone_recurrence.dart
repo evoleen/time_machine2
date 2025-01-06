@@ -3,7 +3,7 @@
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
 // import 'package:quiver_hashcode/hashcode.dart';
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 /// Extends [ZoneYearOffset] with a name and savings.
 ///
@@ -34,16 +34,26 @@ class ZoneRecurrence {
   /// [yearOffset]: The year offset of when this period starts in a year.
   /// [fromYear]: The first year in which this recurrence is valid
   /// [toYear]: The last year in which this recurrence is valid
-  ZoneRecurrence(this.name, this.savings, this.yearOffset, this.fromYear, this.toYear)
-      : _minLocalInstant = fromYear == Platform.int32MinValue ? LocalInstant.beforeMinValue : yearOffset.getOccurrenceForYear(fromYear),
-        _maxLocalInstant = toYear == Platform.int32MaxValue ? LocalInstant.afterMaxValue : yearOffset.getOccurrenceForYear(toYear) {
+  ZoneRecurrence(
+      this.name, this.savings, this.yearOffset, this.fromYear, this.toYear)
+      : _minLocalInstant = fromYear == Platform.int32MinValue
+            ? LocalInstant.beforeMinValue
+            : yearOffset.getOccurrenceForYear(fromYear),
+        _maxLocalInstant = toYear == Platform.int32MaxValue
+            ? LocalInstant.afterMaxValue
+            : yearOffset.getOccurrenceForYear(toYear) {
     Preconditions.checkNotNull(name, 'name');
     Preconditions.checkNotNull(yearOffset, 'yearOffset');
 
     // todo: magic numbers
-    Preconditions.checkArgument(fromYear == Platform.int32MinValue || (fromYear >= -9998 && fromYear <= 9999), 'fromYear',
+    Preconditions.checkArgument(
+        fromYear == Platform.int32MinValue ||
+            (fromYear >= -9998 && fromYear <= 9999),
+        'fromYear',
         'fromYear must be in the range [-9998, 9999] or Int32.MinValue');
-    Preconditions.checkArgument(toYear == Platform.int32MaxValue || (toYear >= -9998 && toYear <= 9999), 'toYear',
+    Preconditions.checkArgument(
+        toYear == Platform.int32MaxValue || (toYear >= -9998 && toYear <= 9999),
+        'toYear',
         'toYear must be in the range [-9998, 9999] or Int32.MaxValue');
   }
 
@@ -67,11 +77,15 @@ class ZoneRecurrence {
     if (identical(this, other)) {
       return true;
     }
-    return savings == other.savings && fromYear == other.fromYear && toYear == other.toYear && name == other.name && yearOffset.equals(other.yearOffset);
+    return savings == other.savings &&
+        fromYear == other.fromYear &&
+        toYear == other.toYear &&
+        name == other.name &&
+        yearOffset.equals(other.yearOffset);
   }
 
   @override
-  bool operator==(Object other) => other is ZoneRecurrence && equals(other);
+  bool operator ==(Object other) => other is ZoneRecurrence && equals(other);
 
   /// Returns the first transition which occurs strictly after the given instant.
   ///
@@ -85,8 +99,10 @@ class ZoneRecurrence {
   /// [previousSavings]: The [Offset] savings adjustment at the given Instant.
   /// The next transition, or null if there is no next transition. The transition may be
   /// infinite, i.e. after the end of representable time.
-  Transition? next(Instant instant, Offset standardOffset, Offset previousSavings) {
-    Offset ruleOffset = yearOffset.getRuleOffset(standardOffset, previousSavings);
+  Transition? next(
+      Instant instant, Offset standardOffset, Offset previousSavings) {
+    Offset ruleOffset =
+        yearOffset.getRuleOffset(standardOffset, previousSavings);
     Offset newOffset = standardOffset + savings;
 
     LocalInstant safeLocal = IInstant.safePlus(instant, ruleOffset);
@@ -94,21 +110,20 @@ class ZoneRecurrence {
     if (safeLocal < _minLocalInstant) {
       // Asked for a transition after some point before the first transition: crop to first year (so we get the first transition)
       targetYear = fromYear;
-    }
-    else if (safeLocal >= _maxLocalInstant) {
+    } else if (safeLocal >= _maxLocalInstant) {
       // Asked for a transition after our final transition... or both are beyond the end of time (in which case
       // we can return an infinite transition). This branch will always be taken for transitions beyond the end
       // of time.
-      return _maxLocalInstant == LocalInstant.afterMaxValue ? Transition(IInstant.afterMaxValue, newOffset) : null;
-    }
-    else if (safeLocal == LocalInstant.beforeMinValue) {
+      return _maxLocalInstant == LocalInstant.afterMaxValue
+          ? Transition(IInstant.afterMaxValue, newOffset)
+          : null;
+    } else if (safeLocal == LocalInstant.beforeMinValue) {
       // We've been asked to find the next transition after some point which is a valid instant, but is before the
       // start of valid local time after applying the rule offset. For example, passing Instant.MinValue for a rule which says
       // 'transition uses wall time, which is UTC-5'. Proceed as if we'd been asked for something in -9998.
       // I *think* that works...
       targetYear = GregorianYearMonthDayCalculator.minGregorianYear;
-    }
-    else {
+    } else {
       // Simple case: we were asked for a 'normal' value in the range of years for which this recurrence is valid.
       // int ignoredDayOfYear;
       targetYear = ICalendarSystem.yearMonthDayCalculator(CalendarSystem.iso)
@@ -132,7 +147,8 @@ class ZoneRecurrence {
       return Transition(IInstant.afterMaxValue, newOffset);
     }
     // It's fine for this to be "end of time", and it can't be "start of time" because we're at least finding a transition in -9997.
-    safeTransition = yearOffset.getOccurrenceForYear(targetYear).safeMinus(ruleOffset);
+    safeTransition =
+        yearOffset.getOccurrenceForYear(targetYear).safeMinus(ruleOffset);
     return Transition(safeTransition, newOffset);
   }
 
@@ -143,8 +159,10 @@ class ZoneRecurrence {
   /// [previousSavings]: The [Offset] savings adjustment at the given Instant.
   /// The previous transition, or null if there is no previous transition. The transition may be
   /// infinite, i.e. before the start of representable time.
-  Transition? previousOrSame(Instant instant, Offset standardOffset, Offset previousSavings) {
-    Offset ruleOffset = yearOffset.getRuleOffset(standardOffset, previousSavings);
+  Transition? previousOrSame(
+      Instant instant, Offset standardOffset, Offset previousSavings) {
+    Offset ruleOffset =
+        yearOffset.getRuleOffset(standardOffset, previousSavings);
     Offset newOffset = standardOffset + savings;
 
     LocalInstant safeLocal = IInstant.safePlus(instant, ruleOffset);
@@ -157,24 +175,21 @@ class ZoneRecurrence {
     else if (safeLocal < _minLocalInstant) {
       // Asked for a transition before our first one
       return null;
-    }
-    else if (!safeLocal.isValid) {
+    } else if (!safeLocal.isValid) {
       if (safeLocal == LocalInstant.beforeMinValue) {
         // We've been asked to find the next transition before some point which is a valid instant, but is before the
         // start of valid local time after applying the rule offset.  It's possible that the next transition *would*
         // be representable as an instant (e.g. 1pm Dec 31st -9999 with an offset of -5) but it's reasonable to
         // just return an infinite transition.
         return Transition(IInstant.beforeMinValue, newOffset);
-      }
-      else {
+      } else {
         // We've been asked to find the next transition before some point which is a valid instant, but is after the
         // end of valid local time after applying the rule offset. For example, passing Instant.MaxValue for a rule which says
         // 'transition uses wall time, which is UTC+5'. Proceed as if we'd been asked for something in 9999.
         // I *think* that works...
         targetYear = GregorianYearMonthDayCalculator.maxGregorianYear;
       }
-    }
-    else {
+    } else {
       // Simple case: we were asked for a 'normal' value in the range of years for which this recurrence is valid.
       // int ignoredDayOfYear;
       targetYear = ICalendarSystem.yearMonthDayCalculator(CalendarSystem.iso)
@@ -198,12 +213,14 @@ class ZoneRecurrence {
       return Transition(IInstant.beforeMinValue, newOffset);
     }
     // It's fine for this to be "start of time", and it can't be "end of time" because we're at latest finding a transition in 9998.
-    safeTransition = yearOffset.getOccurrenceForYear(targetYear).safeMinus(ruleOffset);
+    safeTransition =
+        yearOffset.getOccurrenceForYear(targetYear).safeMinus(ruleOffset);
     return Transition(safeTransition, newOffset);
   }
 
   /// Piggy-backs onto Next, but fails with an InvalidOperationException if there's no such transition.
-  Transition nextOrFail(Instant instant, Offset standardOffset, Offset previousSavings) {
+  Transition nextOrFail(
+      Instant instant, Offset standardOffset, Offset previousSavings) {
     Transition? next = this.next(instant, standardOffset, previousSavings);
     if (next == null) {
       throw StateError(
@@ -213,8 +230,10 @@ class ZoneRecurrence {
   }
 
   /// Piggy-backs onto PreviousOrSame, but fails with a descriptive InvalidOperationException if there's no such transition.
-  Transition previousOrSameOrFail(Instant instant, Offset standardOffset, Offset previousSavings) {
-    Transition? previous = previousOrSame(instant, standardOffset, previousSavings);
+  Transition previousOrSameOrFail(
+      Instant instant, Offset standardOffset, Offset previousSavings) {
+    Transition? previous =
+        previousOrSame(instant, standardOffset, previousSavings);
     if (previous == null) {
       throw StateError(
           'Time Machine bug or bad data: Expected a transition earlier than $instant; standard offset = $standardOffset; previousSavings = $previousSavings; recurrence = $this');
@@ -228,7 +247,8 @@ class ZoneRecurrence {
   void write(IDateTimeZoneWriter writer) {
     Preconditions.checkNotNull(writer, 'writer');
     writer.writeString(name);
-    writer.writeOffsetSeconds2(savings); // Offset.fromSeconds(reader.readInt32());
+    writer.writeOffsetSeconds2(
+        savings); // Offset.fromSeconds(reader.readInt32());
     yearOffset.write(writer);
     writer.writeInt32(fromYear);
     writer.writeInt32(toYear);
@@ -242,7 +262,6 @@ class ZoneRecurrence {
     //    writer.WriteCount(toYear);
   }
 
-
   /// Reads a recurrence from the specified reader.
   ///
   /// [reader]: The reader.
@@ -250,7 +269,8 @@ class ZoneRecurrence {
   static ZoneRecurrence read(DateTimeZoneReader reader) {
     Preconditions.checkNotNull(reader, 'reader');
     var name = reader.readString();
-    var savings = reader.readOffsetSeconds2(); // Offset.fromSeconds(reader.readInt32());
+    var savings =
+        reader.readOffsetSeconds2(); // Offset.fromSeconds(reader.readInt32());
     var yearOffset = ZoneYearOffset.read(reader);
     var fromYear = reader.readInt32();
     var toYear = reader.readInt32();
@@ -276,16 +296,19 @@ class ZoneRecurrence {
   ///
   /// A hash code for this instance, suitable for use in hashing algorithms and data
   /// structures like a hash table.
-  @override int get hashCode => hash3(savings, name, yearOffset);
+  @override
+  int get hashCode => hash3(savings, name, yearOffset);
 
   /// Returns a [String] that represents this instance.
   ///
   /// A [String] that represents this instance.
-  @override String toString() => '$name $savings $yearOffset [$fromYear-$toYear]';
+  @override
+  String toString() => '$name $savings $yearOffset [$fromYear-$toYear]';
 
   /// Returns either 'this' (if this zone recurrence already has a from year of int.MinValue)
   /// or a new zone recurrence which is identical but with a from year of int.MinValue.
-  ZoneRecurrence toStartOfTime() =>
-      fromYear == Platform.int32MinValue ? this : ZoneRecurrence(name, savings, yearOffset, Platform.int32MinValue, toYear);
+  ZoneRecurrence toStartOfTime() => fromYear == Platform.int32MinValue
+      ? this
+      : ZoneRecurrence(
+          name, savings, yearOffset, Platform.int32MinValue, toYear);
 }
-

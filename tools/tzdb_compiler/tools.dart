@@ -4,8 +4,8 @@
 
 import 'dart:collection';
 
-import 'package:time_machine/src/timezones/tzdb_location.dart';
-import 'package:time_machine/src/timezones/tzdb_location_database.dart';
+import 'package:time_machine2/src/timezones/tzdb_location.dart';
+import 'package:time_machine2/src/timezones/tzdb_location_database.dart';
 import 'zicfile.dart';
 
 const commonLocations = [

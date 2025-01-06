@@ -2,10 +2,11 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 @internal
 @immutable
+
 /// Enumeration of calendar ordinal values. Used for converting between a compact integer representation and a calendar system.
 /// We use 7 bits to store the calendar ordinal in YearMonthDayCalendar, so we can have up to 128 calendars.
 class CalendarOrdinal {
@@ -13,19 +14,49 @@ class CalendarOrdinal {
   int get value => _value;
 
   static const List<String> _stringRepresentations = [
-    'Iso', 'Gregorian', 'Julian', 'Coptic', 'HebrewCivil', 'HebrewScriptural',
-    'PersianSimple', 'PersianArithmetic', 'PersianAstronomical',
-    'IslamicAstronomicalBase15', 'IslamicAstronomicalBase16', 'IslamicAstronomicalIndian', 'IslamicAstronomicalHabashAlHasib',
-    'IslamicCivilBase15', 'IslamicCivilBase16', 'IslamicCivilIndian', 'IslamicAstronomicalHabashAlHasib',
-    'UmAlQura', 'Wondrous', 'Size'
+    'Iso',
+    'Gregorian',
+    'Julian',
+    'Coptic',
+    'HebrewCivil',
+    'HebrewScriptural',
+    'PersianSimple',
+    'PersianArithmetic',
+    'PersianAstronomical',
+    'IslamicAstronomicalBase15',
+    'IslamicAstronomicalBase16',
+    'IslamicAstronomicalIndian',
+    'IslamicAstronomicalHabashAlHasib',
+    'IslamicCivilBase15',
+    'IslamicCivilBase16',
+    'IslamicCivilIndian',
+    'IslamicAstronomicalHabashAlHasib',
+    'UmAlQura',
+    'Wondrous',
+    'Size'
   ];
 
   static const List<CalendarOrdinal> _enumConstants = [
-    iso, gregorian, julian, coptic, hebrewCivil, hebrewScriptural,
-    persianSimple, persianArithmetic, persianAstronomical,
-    islamicAstronomicalBase15, islamicAstronomicalBase16, islamicAstronomicalIndian, islamicAstronomicalHabashAlHasib,
-    islamicCivilBase15, islamicCivilBase16, islamicCivilIndian, islamicAstronomicalHabashAlHasib,
-    umAlQura, badi, size
+    iso,
+    gregorian,
+    julian,
+    coptic,
+    hebrewCivil,
+    hebrewScriptural,
+    persianSimple,
+    persianArithmetic,
+    persianAstronomical,
+    islamicAstronomicalBase15,
+    islamicAstronomicalBase16,
+    islamicAstronomicalIndian,
+    islamicAstronomicalHabashAlHasib,
+    islamicCivilBase15,
+    islamicCivilBase16,
+    islamicCivilIndian,
+    islamicAstronomicalHabashAlHasib,
+    umAlQura,
+    badi,
+    size
   ];
 
   /// Value indicating no day of the week; this will never be returned
@@ -43,7 +74,8 @@ class CalendarOrdinal {
   static const CalendarOrdinal islamicAstronomicalBase15 = CalendarOrdinal(9);
   static const CalendarOrdinal islamicAstronomicalBase16 = CalendarOrdinal(10);
   static const CalendarOrdinal islamicAstronomicalIndian = CalendarOrdinal(11);
-  static const CalendarOrdinal islamicAstronomicalHabashAlHasib = CalendarOrdinal(12);
+  static const CalendarOrdinal islamicAstronomicalHabashAlHasib =
+      CalendarOrdinal(12);
   static const CalendarOrdinal islamicCivilBase15 = CalendarOrdinal(13);
   static const CalendarOrdinal islamicCivilBase16 = CalendarOrdinal(14);
   static const CalendarOrdinal islamicCivilIndian = CalendarOrdinal(15);
@@ -55,8 +87,12 @@ class CalendarOrdinal {
 
   const CalendarOrdinal(this._value);
 
-  @override int get hashCode => _value.hashCode;
-  @override bool operator ==(Object other) => other is CalendarOrdinal && other._value == _value || other is int && other == _value;
+  @override
+  int get hashCode => _value.hashCode;
+  @override
+  bool operator ==(Object other) =>
+      other is CalendarOrdinal && other._value == _value ||
+      other is int && other == _value;
 
   bool operator <(CalendarOrdinal other) => _value < other._value;
   bool operator <=(CalendarOrdinal other) => _value <= other._value;
@@ -67,12 +103,15 @@ class CalendarOrdinal {
   int operator +(CalendarOrdinal other) => _value + other._value;
 
   @override
-  String toString() => _stringRepresentations.length > _value ? _stringRepresentations[_value] : 'undefined';
+  String toString() => _stringRepresentations.length > _value
+      ? _stringRepresentations[_value]
+      : 'undefined';
 
   static CalendarOrdinal? parse(String text) {
     var token = text.trim().toLowerCase();
     for (int i = 0; i < _stringRepresentations.length; i++) {
-      if (stringOrdinalIgnoreCaseEquals(_stringRepresentations[i], token)) return _enumConstants[i];
+      if (stringOrdinalIgnoreCaseEquals(_stringRepresentations[i], token))
+        return _enumConstants[i];
     }
 
     return null;

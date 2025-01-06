@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
 //import 'package:matcher/matcher.dart';
@@ -43,8 +43,7 @@ void Indexer_Getter_ValidUnits() {
 void Call(Object ignored) {}
 
 @Test()
-void Index_Getter_InvalidUnits()
-{
+void Index_Getter_InvalidUnits() {
   var builder = PeriodBuilder();
   expect(() => Call(builder[const PeriodUnits(0)]), throwsArgumentError);
   expect(() => Call(builder[const PeriodUnits(-1)]), throwsArgumentError);
@@ -78,8 +77,7 @@ void Indexer_Setter_ValidUnits() {
 }
 
 @Test()
-void Index_Setter_InvalidUnits()
-{
+void Index_Setter_InvalidUnits() {
   var builder = PeriodBuilder();
   expect(() => builder[const PeriodUnits(0)] = 1, throwsArgumentError);
   expect(() => builder[const PeriodUnits(-1)] = 1, throwsArgumentError);
@@ -88,8 +86,7 @@ void Index_Setter_InvalidUnits()
 
 @Test()
 void Build_SingleUnit() {
-  Period period = (PeriodBuilder()
-    ..hours = 10).build();
+  Period period = (PeriodBuilder()..hours = 10).build();
   Period expected = const Period(hours: 10);
   expect(expected, period);
 }
@@ -97,15 +94,14 @@ void Build_SingleUnit() {
 @Test()
 void Build_MultipleUnits() {
   Period period = (PeriodBuilder()
-    ..days = 5
-    ..minutes = -10).build();
+        ..days = 5
+        ..minutes = -10)
+      .build();
   Period expected = const Period(days: 5) + const Period(minutes: -10);
   expect(expected, period);
 }
 
 @Test()
-void Build_Zero()
-{
+void Build_Zero() {
   expect(Period.zero, PeriodBuilder().build());
 }
-

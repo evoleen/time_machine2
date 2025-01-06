@@ -8,10 +8,10 @@ import 'dart:convert';
 import 'dart:io' as io;
 
 import 'dart:typed_data';
-import 'package:time_machine/src/platforms/dart_pure.dart';
-import 'package:time_machine/src/time_machine_internal.dart';
-import 'package:time_machine/src/timezones/datetimezone_providers.dart';
-import 'package:time_machine/time_machine.dart';
+import 'package:time_machine2/src/platforms/dart_pure.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
+import 'package:time_machine2/src/timezones/datetimezone_providers.dart';
+import 'package:time_machine2/time_machine2.dart';
 
 import 'platform_io.dart';
 import 'dart:isolate' show Isolate;
@@ -23,7 +23,7 @@ class _VirtualMachineIO implements PlatformIO {
   Future<ByteData> getBinary(String path, String? filename) async {
     if (filename == null) return ByteData(0);
 
-    var resource = Uri.parse('package:time_machine/data/$path/$filename');
+    var resource = Uri.parse('package:time_machine2/data/$path/$filename');
     final Uri resolved = (await Isolate.resolvePackageUri(resource))!;
     var binary = ByteData.view(
         Int8List.fromList(await io.File.fromUri(resolved).readAsBytes())
@@ -34,7 +34,7 @@ class _VirtualMachineIO implements PlatformIO {
   @override
   // may return Map<String, dynamic> or List
   Future getJson(String path, String filename) async {
-    var resource = Uri.parse('package:time_machine/data/$path/$filename');
+    var resource = Uri.parse('package:time_machine2/data/$path/$filename');
     final Uri resolved = (await Isolate.resolvePackageUri(resource))!;
     return json.decode(await io.File.fromUri(resolved).readAsString());
   }
@@ -50,7 +50,7 @@ class _FlutterMachineIO implements PlatformIO {
     if (filename == null) return ByteData(0);
 
     ByteData byteData =
-        await _rootBundle.load('packages/time_machine/data/$path/$filename');
+        await _rootBundle.load('packages/time_machine2/data/$path/$filename');
     return byteData;
   }
 
@@ -58,7 +58,7 @@ class _FlutterMachineIO implements PlatformIO {
   // may return Map<String, dynamic> or List
   Future getJson(String path, String filename) async {
     String text = await _rootBundle
-        .loadString('packages/time_machine/data/$path/$filename');
+        .loadString('packages/time_machine2/data/$path/$filename');
     return json.decode(text);
   }
 }
@@ -95,7 +95,7 @@ class TimeMachine {
     ICultures.loadAllCulturesInformation_SetFlag();
 
     // Default provider
-    var tzdb = await DateTimeZoneProviders.timezone;
+    var tzdb = await DateTimeZoneProviders.tzdb;
     IDateTimeZoneProviders.defaultProvider = tzdb;
 
     var local = timeZoneOverride != null

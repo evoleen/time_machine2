@@ -2,7 +2,7 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 /// Clock which can be constructed with an initial instant, and then advanced programmatically (and optionally,
 /// automatically advanced on each read).
@@ -38,8 +38,10 @@ class FakeClock extends Clock {
   /// [minuteOfHour]: The minute.
   /// [secondOfMinute]: The second.
   /// Returns: A [FakeClock] initialised to the given instant, with no auto-advance.
-  static FakeClock FromUtc(int year, int monthOfYear, int dayOfMonth, [int hourOfDay = 0, int minuteOfHour = 0, int secondOfMinute = 0]) {
-    return FakeClock(Instant.utc(year, monthOfYear, dayOfMonth, hourOfDay, minuteOfHour, secondOfMinute));
+  static FakeClock FromUtc(int year, int monthOfYear, int dayOfMonth,
+      [int hourOfDay = 0, int minuteOfHour = 0, int secondOfMinute = 0]) {
+    return FakeClock(Instant.utc(year, monthOfYear, dayOfMonth, hourOfDay,
+        minuteOfHour, secondOfMinute));
   }
 
   /// Advances the clock by the given duration.
@@ -57,7 +59,8 @@ class FakeClock extends Clock {
   ///
   /// [nanoseconds]: The number of nanoseconds to advance the clock by (or if negative, the number to move it back
   /// by).
-  void AdvanceNanoseconds(int nanoseconds) => Advance(Time(nanoseconds: nanoseconds));
+  void AdvanceNanoseconds(int nanoseconds) =>
+      Advance(Time(nanoseconds: nanoseconds));
 
   /// Advances the clock by the given number of ticks.
   ///
@@ -69,7 +72,8 @@ class FakeClock extends Clock {
   ///
   /// [milliseconds]: The number of milliseconds to advance the clock by (or if negative, the number
   /// to move it back by).
-  void AdvanceMilliseconds(int milliseconds) => Advance(Time(milliseconds: milliseconds));
+  void AdvanceMilliseconds(int milliseconds) =>
+      Advance(Time(milliseconds: milliseconds));
 
   /// Advances the clock by the given number of seconds.
   ///
@@ -139,4 +143,3 @@ class FakeClock extends Clock {
   // ignore: unnecessary_getters_setters
   set AutoAdvance(Time value) => _autoAdvance = value;
 }
-

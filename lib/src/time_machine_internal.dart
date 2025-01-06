@@ -52,13 +52,13 @@ export 'period.dart';
 export 'period_units.dart';
 export 'period_builder.dart';
 
-export 'package:time_machine/src/calendars/time_machine_calendars.dart';
-export 'package:time_machine/src/fields/time_machine_fields.dart';
-export 'package:time_machine/src/text/globalization/time_machine_globalization.dart';
-export 'package:time_machine/src/text/patterns/time_machine_patterns.dart';
-export 'package:time_machine/src/text/time_machine_text.dart';
-export 'package:time_machine/src/timezones/time_machine_timezones.dart';
-export 'package:time_machine/src/utility/time_machine_utilities.dart';
+export 'package:time_machine2/src/calendars/time_machine_calendars.dart';
+export 'package:time_machine2/src/fields/time_machine_fields.dart';
+export 'package:time_machine2/src/text/globalization/time_machine_globalization.dart';
+export 'package:time_machine2/src/text/patterns/time_machine_patterns.dart';
+export 'package:time_machine2/src/text/time_machine_text.dart';
+export 'package:time_machine2/src/timezones/time_machine_timezones.dart';
+export 'package:time_machine2/src/utility/time_machine_utilities.dart';
 
 class _Internal {
   const _Internal();

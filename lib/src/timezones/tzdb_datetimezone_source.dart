@@ -1,6 +1,6 @@
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
-import 'package:time_machine/src/timezones/tzdb_datetimezone_source_native_impl.dart'
+import 'package:time_machine2/src/timezones/tzdb_datetimezone_source_native_impl.dart'
     if (dart.library.html) 'tzdb_datetimezone_source_browser_impl.dart';
 
 import 'tzdb_io.dart';

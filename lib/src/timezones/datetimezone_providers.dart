@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 // todo: the Internal Classes here make me sad
 
@@ -18,10 +18,10 @@ abstract class IDateTimeZoneProviders {
 abstract class DateTimeZoneProviders {
   // todo: await ... await ... patterns are so ick.
 
-  static Future<DateTimeZoneProvider>? _timezone;
+  static Future<DateTimeZoneProvider>? _tzdb;
 
-  static Future<DateTimeZoneProvider> get timezone =>
-      _timezone ??= DateTimeZoneCache.getCache(TzdbDateTimeZoneSource());
+  static Future<DateTimeZoneProvider> get tzdb =>
+      _tzdb ??= DateTimeZoneCache.getCache(TzdbDateTimeZoneSource());
 
   static DateTimeZoneProvider? _defaultProvider;
 

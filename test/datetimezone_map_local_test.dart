@@ -3,7 +3,7 @@
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
 // import 'package:matcher/matcher.dart';
@@ -36,159 +36,144 @@ final Offset Plus10 = Offset.hours(10);
 
 final LocalDateTime NearStartOfTime = LocalDateTime(-9998, 1, 5, 0, 0, 0);
 final LocalDateTime NearEndOfTime = LocalDateTime(9999, 12, 25, 0, 0, 0);
-final LocalDateTime TransitionMinus5 = Transition.withOffset(Minus5).localDateTime;
-final LocalDateTime TransitionPlus10 = Transition.withOffset(Plus10).localDateTime;
-final LocalDateTime MidTransition = Transition.withOffset(Offset.zero).localDateTime;
+final LocalDateTime TransitionMinus5 =
+    Transition.withOffset(Minus5).localDateTime;
+final LocalDateTime TransitionPlus10 =
+    Transition.withOffset(Plus10).localDateTime;
+final LocalDateTime MidTransition =
+    Transition.withOffset(Offset.zero).localDateTime;
 
 final LocalDateTime YearBeforeTransition = LocalDateTime(1999, 1, 1, 0, 0, 0);
 final LocalDateTime YearAfterTransition = LocalDateTime(2001, 1, 1, 0, 0, 0);
 
-final SingleTransitionDateTimeZone ZoneWithGap = SingleTransitionDateTimeZone(Transition, Minus5, Plus10);
+final SingleTransitionDateTimeZone ZoneWithGap =
+    SingleTransitionDateTimeZone(Transition, Minus5, Plus10);
 final ZoneInterval IntervalBeforeGap = ZoneWithGap.EarlyInterval;
 final ZoneInterval IntervalAfterGap = ZoneWithGap.LateInterval;
 
-final SingleTransitionDateTimeZone ZoneWithAmbiguity = SingleTransitionDateTimeZone(Transition, Plus10, Minus5);
+final SingleTransitionDateTimeZone ZoneWithAmbiguity =
+    SingleTransitionDateTimeZone(Transition, Plus10, Minus5);
 final ZoneInterval IntervalBeforeAmbiguity = ZoneWithAmbiguity.EarlyInterval;
 final ZoneInterval IntervalAfterAmbiguity = ZoneWithAmbiguity.LateInterval;
 
 // Time zone with an ambiguity
 @Test()
-void ZoneWithAmbiguity_NearStartOfTime()
-{
+void ZoneWithAmbiguity_NearStartOfTime() {
   var mapping = ZoneWithAmbiguity.mapLocal(LocalDateTime(-9998, 1, 5, 0, 0, 0));
   CheckMapping(mapping, IntervalBeforeAmbiguity, IntervalBeforeAmbiguity, 1);
 }
 
 @Test()
-void ZoneWithAmbiguity_NearEndOfTime()
-{
+void ZoneWithAmbiguity_NearEndOfTime() {
   var mapping = ZoneWithAmbiguity.mapLocal(NearEndOfTime);
   CheckMapping(mapping, IntervalAfterAmbiguity, IntervalAfterAmbiguity, 1);
 }
 
 @Test()
-void ZoneWithAmbiguity_WellBeforeTransition()
-{
+void ZoneWithAmbiguity_WellBeforeTransition() {
   var mapping = ZoneWithAmbiguity.mapLocal(YearBeforeTransition);
   CheckMapping(mapping, IntervalBeforeAmbiguity, IntervalBeforeAmbiguity, 1);
 }
 
 @Test()
-void ZoneWithAmbiguity_WellAfterTransition()
-{
+void ZoneWithAmbiguity_WellAfterTransition() {
   var mapping = ZoneWithAmbiguity.mapLocal(YearAfterTransition);
   CheckMapping(mapping, IntervalAfterAmbiguity, IntervalAfterAmbiguity, 1);
 }
 
 @Test()
-void ZoneWithAmbiguity_JustBeforeAmbiguity()
-{
+void ZoneWithAmbiguity_JustBeforeAmbiguity() {
   var mapping = ZoneWithAmbiguity.mapLocal(TransitionMinus5.addNanoseconds(-1));
   CheckMapping(mapping, IntervalBeforeAmbiguity, IntervalBeforeAmbiguity, 1);
 }
 
 @Test()
-void ZoneWithAmbiguity_JustAfterTransition()
-{
+void ZoneWithAmbiguity_JustAfterTransition() {
   var mapping = ZoneWithAmbiguity.mapLocal(TransitionPlus10.addNanoseconds(1));
   CheckMapping(mapping, IntervalAfterAmbiguity, IntervalAfterAmbiguity, 1);
 }
 
 @Test()
-void ZoneWithAmbiguity_StartOfTransition()
-{
+void ZoneWithAmbiguity_StartOfTransition() {
   var mapping = ZoneWithAmbiguity.mapLocal(TransitionMinus5);
   CheckMapping(mapping, IntervalBeforeAmbiguity, IntervalAfterAmbiguity, 2);
 }
 
 @Test()
-void ZoneWithAmbiguity_MidTransition()
-{
+void ZoneWithAmbiguity_MidTransition() {
   var mapping = ZoneWithAmbiguity.mapLocal(MidTransition);
   CheckMapping(mapping, IntervalBeforeAmbiguity, IntervalAfterAmbiguity, 2);
 }
 
 @Test()
-void ZoneWithAmbiguity_LastTickOfTransition()
-{
+void ZoneWithAmbiguity_LastTickOfTransition() {
   var mapping = ZoneWithAmbiguity.mapLocal(TransitionPlus10.addNanoseconds(-1));
   CheckMapping(mapping, IntervalBeforeAmbiguity, IntervalAfterAmbiguity, 2);
 }
 
 @Test()
-void ZoneWithAmbiguity_FirstTickAfterTransition()
-{
+void ZoneWithAmbiguity_FirstTickAfterTransition() {
   var mapping = ZoneWithAmbiguity.mapLocal(TransitionPlus10);
   CheckMapping(mapping, IntervalAfterAmbiguity, IntervalAfterAmbiguity, 1);
 }
 
 // Time zone with a gap
 @Test()
-void ZoneWithGap_NearStartOfTime()
-{
+void ZoneWithGap_NearStartOfTime() {
   var mapping = ZoneWithGap.mapLocal(NearStartOfTime);
   CheckMapping(mapping, IntervalBeforeGap, IntervalBeforeGap, 1);
 }
 
 @Test()
-void ZoneWithGap_NearEndOfTime()
-{
+void ZoneWithGap_NearEndOfTime() {
   var mapping = ZoneWithGap.mapLocal(NearEndOfTime);
   CheckMapping(mapping, IntervalAfterGap, IntervalAfterGap, 1);
 }
 
 @Test()
-void ZoneWithGap_WellBeforeTransition()
-{
+void ZoneWithGap_WellBeforeTransition() {
   var mapping = ZoneWithGap.mapLocal(YearBeforeTransition);
   CheckMapping(mapping, IntervalBeforeGap, IntervalBeforeGap, 1);
 }
 
 @Test()
-void ZoneWithGap_WellAfterTransition()
-{
+void ZoneWithGap_WellAfterTransition() {
   var mapping = ZoneWithGap.mapLocal(YearAfterTransition);
   CheckMapping(mapping, IntervalAfterGap, IntervalAfterGap, 1);
 }
 
 @Test()
-void ZoneWithGap_JustBeforeGap()
-{
+void ZoneWithGap_JustBeforeGap() {
   var mapping = ZoneWithGap.mapLocal(TransitionMinus5.addNanoseconds(-1));
   CheckMapping(mapping, IntervalBeforeGap, IntervalBeforeGap, 1);
 }
 
 @Test()
-void ZoneWithGap_JustAfterTransition()
-{
+void ZoneWithGap_JustAfterTransition() {
   var mapping = ZoneWithGap.mapLocal(TransitionPlus10.addNanoseconds(1));
   CheckMapping(mapping, IntervalAfterGap, IntervalAfterGap, 1);
 }
 
 @Test()
-void ZoneWithGap_StartOfTransition()
-{
+void ZoneWithGap_StartOfTransition() {
   var mapping = ZoneWithGap.mapLocal(TransitionMinus5);
   CheckMapping(mapping, IntervalBeforeGap, IntervalAfterGap, 0);
 }
 
 @Test()
-void ZoneWithGap_MidTransition()
-{
+void ZoneWithGap_MidTransition() {
   var mapping = ZoneWithGap.mapLocal(MidTransition);
   CheckMapping(mapping, IntervalBeforeGap, IntervalAfterGap, 0);
 }
 
 @Test()
-void ZoneWithGap_LastTickOfTransition()
-{
+void ZoneWithGap_LastTickOfTransition() {
   var mapping = ZoneWithGap.mapLocal(TransitionPlus10.addNanoseconds(-1));
   CheckMapping(mapping, IntervalBeforeGap, IntervalAfterGap, 0);
 }
 
 @Test()
-void ZoneWithGap_FirstTickAfterTransition()
-{
+void ZoneWithGap_FirstTickAfterTransition() {
   var mapping = ZoneWithGap.mapLocal(TransitionPlus10);
   CheckMapping(mapping, IntervalAfterGap, IntervalAfterGap, 1);
 }
@@ -198,20 +183,17 @@ void ZoneWithGap_FirstTickAfterTransition()
 /// we want the *earlier* zone to include it. So, we want a zone with two
 /// positive offsets.
 @Test()
-void TrickyCase()
-{
+void TrickyCase() {
   // 1am occurs unambiguously in the early zone.
-  var zone = SingleTransitionDateTimeZone(Transition, Offset.hours(3), Offset.hours(5));
+  var zone = SingleTransitionDateTimeZone(
+      Transition, Offset.hours(3), Offset.hours(5));
   var mapping = zone.mapLocal(LocalDateTime(2000, 1, 1, 1, 0, 0));
   CheckMapping(mapping, zone.EarlyInterval, zone.EarlyInterval, 1);
 }
 
-void CheckMapping(ZoneLocalMapping mapping, ZoneInterval earlyInterval, ZoneInterval lateInterval, int count)
-{
+void CheckMapping(ZoneLocalMapping mapping, ZoneInterval earlyInterval,
+    ZoneInterval lateInterval, int count) {
   expect(earlyInterval, mapping.earlyInterval);
   expect(lateInterval, mapping.lateInterval);
   expect(count, mapping.count);
 }
-
-
-

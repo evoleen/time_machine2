@@ -1,5 +1,5 @@
 import 'package:meta/meta.dart';
-import 'package:time_machine/time_machine.dart';
+import 'package:time_machine2/time_machine2.dart';
 
 @internal
 abstract class IDateTimeZoneWriter {

@@ -5,7 +5,7 @@
 import 'dart:convert';
 import 'dart:math' as math;
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 /// See [CalendarSystem.badi] for details about the Badíʿ calendar.
 @internal

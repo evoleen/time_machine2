@@ -2,12 +2,12 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 /// The pattern of leap years to use when constructing an Islamic calendar.
 ///
 /// The Islamic, or Hijri, calendar is a lunar calendar of 12 months, each of 29 or 30 days.
-/// The calendar can be defined in either observational or tabular terms; 
+/// The calendar can be defined in either observational or tabular terms;
 /// Time Machine implements a tabular calendar, where a pattern of leap years (in which the last month has
 /// an extra day) repeats every 30 years, according to one of the patterns within this enum.
 ///
@@ -15,12 +15,11 @@ import 'package:time_machine/src/time_machine_internal.dart';
 /// [Wikipedia](http://en.wikipedia.org/wiki/Tabular_Islamic_calendar))
 /// there is little standardization in terms of naming the patterns. I hope the current names do not
 /// cause offence to anyone; suggestions for better names would be welcome.
-/// ( ^^^ this is a note from upstream NodaTime -- so if this comes up, we need to get 
+/// ( ^^^ this is a note from upstream NodaTime -- so if this comes up, we need to get
 /// everyone involved)
 ///
 /// [CalendarSystem.getIslamicCalendar]
-enum IslamicLeapYearPattern
-{
+enum IslamicLeapYearPattern {
   /// A pattern of leap years in 2, 5, 7, 10, 13, 15, 18, 21, 24, 26 and 29.
   /// This pattern and Base16 are the most commonly used ones,
   /// and only differ in whether the 15th or 16th year is deemed leap.

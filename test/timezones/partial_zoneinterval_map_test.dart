@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 import 'package:test/test.dart';
 
 import '../time_machine_testing.dart';
@@ -17,17 +17,16 @@ Future main() async {
 
 Future setup() async {
   expectedZone = (MtdtzBuilder.withName(-2, 'Start')
-    ..Add(instants['C']!, 2, 1, "Middle")
-    ..Add(instants['G']!, 1, 0, "End")
-  ).Build();
+        ..Add(instants['C']!, 2, 1, "Middle")
+        ..Add(instants['G']!, 1, 0, "End"))
+      .Build();
 }
 
 // Arbitrary instants which are useful for the tests. They happen to be a year
 // apart, but nothing in these tests actually cares.
 // Various tests use a time zone with transitions at C and G.
 // Using letter is (IMO) slightly more readable than just having an array and using indexes.
-Map<String /*char*/, Instant> instants =
-{
+Map<String /*char*/, Instant> instants = {
   'A': Instant.utc(2000, 1, 1, 0, 0),
   'B': Instant.utc(2001, 1, 1, 0, 0),
   'C': Instant.utc(2002, 1, 1, 0, 0),
@@ -67,11 +66,13 @@ void ConvertToFullMap(String intervalBreaks) {
   var maps = <PartialZoneIntervalMap>[];
   // We just reuse ExpectedZone as the IZoneIntervalMap; PartialZoneIntervalMap itself will clamp the ends.
   var current = IInstant.beforeMinValue;
-  for (var instant in intervalBreaks.codeUnits.map((c) => instants[String.fromCharCode(c)]!)) {
+  for (var instant in intervalBreaks.codeUnits
+      .map((c) => instants[String.fromCharCode(c)]!)) {
     maps.add(PartialZoneIntervalMap(current, instant, expectedZone));
     current = instant;
   }
-  maps.add(PartialZoneIntervalMap(current, IInstant.afterMaxValue, expectedZone));
+  maps.add(
+      PartialZoneIntervalMap(current, IInstant.afterMaxValue, expectedZone));
 
   var converted = PartialZoneIntervalMap.convertToFullMap(maps);
   // CollectionAssert.AreEqual(
@@ -82,15 +83,12 @@ void ConvertToFullMap(String intervalBreaks) {
 // It's just a copy from DateTimeZone, with the interval taken out.
 // It could be an extension method on IZoneIntervalMap, with optional interval.
 // On the other hand, IZoneIntervalMap is internal, so it would only be used by us.
-Iterable<ZoneInterval> getZoneIntervals(ZoneIntervalMap map) sync*
-{
+Iterable<ZoneInterval> getZoneIntervals(ZoneIntervalMap map) sync* {
   var current = Instant.minValue;
-  while (current < IInstant.afterMaxValue)
-  {
+  while (current < IInstant.afterMaxValue) {
     var zoneInterval = map.getZoneInterval(current);
     yield zoneInterval;
     // If this is the end of time, this will just fail on the next comparison.
     current = IZoneInterval.rawEnd(zoneInterval);
   }
 }
-

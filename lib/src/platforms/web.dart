@@ -7,88 +7,57 @@ import 'dart:typed_data';
 import 'dart:convert';
 import 'dart:js';
 
-// import 'package:resource/resource.dart';
-import 'dart:html';
+import 'package:http/browser_client.dart' as browser;
 
-import 'package:time_machine/src/time_machine_internal.dart';
-import 'package:time_machine/src/timezones/datetimezone_providers.dart';
-import 'package:time_machine/time_machine.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
+import 'package:time_machine2/src/timezones/datetimezone_providers.dart';
+import 'package:time_machine2/time_machine2.dart';
 
 import 'platform_io.dart';
-
-/// Resource package currently uses Isolate.resolvePackageUri (see: https://github.com/dart-lang/resource/issues/35)
-/// A fix is pending, but it is very slow coming (see: https://github.com/dart-lang/resource/pull/36)
-
-@ddcSupportHack
-Uri _resolveUri(Uri uri) {
-  if (uri.scheme == 'package') {
-    uri = Uri.parse('packages/${uri.path}');
-  }
-  return Uri.base.resolveUri(uri);
-}
-
-@ddcSupportHack
-Future<List<int>> _httpGetBytes(Uri uri) {
-  return HttpRequest.request(uri.toString(), responseType: 'arraybuffer')
-      .then((request) {
-    ByteBuffer data = request.response;
-    return data.asUint8List();
-  });
-}
-
-@ddcSupportHack
-
-/// Reads the bytes of a URI as a list of bytes.
-Future<List<int>> _readAsBytes(Uri uri) async {
-  if (uri.scheme == 'http' || uri.scheme == "https") {
-    return _httpGetBytes(uri);
-  }
-  if (uri.scheme == 'data') {
-    return uri.data!.contentAsBytes();
-  }
-  throw UnsupportedError('Unsupported scheme: $uri');
-}
-
-@ddcSupportHack
-
-/// Reads the bytes of a URI as a string.
-Future<String> _readAsString(Uri uri, Encoding? encoding) async {
-  if (uri.scheme == 'http' || uri.scheme == "https") {
-    // Fetch as string if the encoding is expected to be understood,
-    // otherwise fetch as bytes and do decoding using the encoding.
-    if (encoding != null) {
-      return encoding.decode(await _httpGetBytes(uri));
-    }
-    return HttpRequest.getString(uri.toString());
-  }
-  if (uri.scheme == 'data') {
-    return uri.data!.contentAsString(encoding: encoding);
-  }
-  throw UnsupportedError('Unsupported scheme: $uri');
-}
 
 class _WebMachineIO implements PlatformIO {
   @override
   Future<ByteData> getBinary(String path, String filename) async {
-    // var resource = new Resource('packages/time_machine/data/$path/$filename');
-    // // todo: probably a better way to do this
-    // var binary = new ByteData.view(new Int8List.fromList(await resource.readAsBytes()).buffer);
+    final client = browser.BrowserClient();
 
-    var resource = Uri.parse('packages/time_machine/data/$path/$filename');
-    var binary =
-        ByteData.view(Int8List.fromList(await _readAsBytes(resource)).buffer);
+    try {
+      final response = await client.get(
+        Uri.parse('packages/time_machine2/data/$path/$filename'),
+        headers: {'Accept': 'application/octet-stream'},
+      );
 
-    return binary;
+      if (response.statusCode == 200) {
+        var binary = ByteData.view(response.bodyBytes.buffer,
+            response.bodyBytes.offsetInBytes, response.contentLength);
+
+        return binary;
+      }
+
+      throw Exception('Unable to load resource $path/$filename');
+    } finally {
+      client.close();
+    }
   }
 
   @override
   Future /**<Map<String, dynamic>>*/ getJson(
       String path, String filename) async {
-    // var resource = new Resource('packages/time_machine/data/$path/$filename');
-    // return json.decode(await resource.readAsString());
+    final client = browser.BrowserClient();
 
-    var resource = Uri.parse('packages/time_machine/data/$path/$filename');
-    return json.decode(await _readAsString(_resolveUri(resource), null));
+    try {
+      final response = await client.get(
+        Uri.parse('packages/time_machine2/data/$path/$filename'),
+        headers: {'Accept': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      }
+
+      throw Exception('Unable to load resource $path/$filename');
+    } finally {
+      client.close();
+    }
   }
 }
 
@@ -103,7 +72,7 @@ class TimeMachine {
     PlatformIO.local = _WebMachineIO();
 
     // Default provider
-    var tzdb = await DateTimeZoneProviders.timezone;
+    var tzdb = await DateTimeZoneProviders.tzdb;
     IDateTimeZoneProviders.defaultProvider = tzdb;
 
     _readIntlObject();
@@ -116,9 +85,6 @@ class TimeMachine {
     var cultureId = _locale;
     var culture = await Cultures.getCulture(cultureId);
     ICultures.currentCulture = culture!;
-    // todo: remove Culture.currentCulture
-
-    // todo: set default calendar from [_calendar]
   }
 
   static late String _timeZoneId;

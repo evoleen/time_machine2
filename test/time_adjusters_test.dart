@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 import 'package:test/test.dart';
 
 import 'time_machine_testing.dart';
@@ -14,26 +14,25 @@ Future main() async {
 }
 
 @Test()
-void TruncateToSecond()
-{
-  var start = LocalTime(7, 4, 30, ns: 123 * TimeConstants.nanosecondsPerMillisecond + 4567 * 100);
+void TruncateToSecond() {
+  var start = LocalTime(7, 4, 30,
+      ns: 123 * TimeConstants.nanosecondsPerMillisecond + 4567 * 100);
   var end = LocalTime(7, 4, 30);
   expect(end, TimeAdjusters.truncateToSecond(start));
 }
 
 @Test()
-void TruncateToMinute()
-{
-  var start = LocalTime(7, 4, 30, ns: 123 * TimeConstants.nanosecondsPerMillisecond + 4567 * 100);
+void TruncateToMinute() {
+  var start = LocalTime(7, 4, 30,
+      ns: 123 * TimeConstants.nanosecondsPerMillisecond + 4567 * 100);
   var end = LocalTime(7, 4, 0);
   expect(end, TimeAdjusters.truncateToMinute(start));
 }
 
 @Test()
-void TruncateToHour()
-{
-  var start = LocalTime(7, 4, 30, ns: 123 * TimeConstants.nanosecondsPerMillisecond + 4567 * 100);
+void TruncateToHour() {
+  var start = LocalTime(7, 4, 30,
+      ns: 123 * TimeConstants.nanosecondsPerMillisecond + 4567 * 100);
   var end = LocalTime(7, 0, 0);
   expect(end, TimeAdjusters.truncateToHour(start));
 }
-

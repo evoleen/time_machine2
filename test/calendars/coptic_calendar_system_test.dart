@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
 
@@ -16,8 +16,7 @@ Future main() async {
 }
 
 @Test()
-void CopticEpoch()
-{
+void CopticEpoch() {
   CalendarSystem coptic = CalendarSystem.coptic;
   LocalDateTime copticEpoch = LocalDateTime(1, 1, 1, 0, 0, 0, calendar: coptic);
 
@@ -29,20 +28,20 @@ void CopticEpoch()
 }
 
 @Test()
-void UnixEpoch()
-{
+void UnixEpoch() {
   CalendarSystem coptic = CalendarSystem.coptic;
   // note: printing `unixEpoch` will call YearMonthDayCalculator.getStartOfYearInDays(int year) for -9998 and 10000 for VM, but not on JS -- and it appears to be a redundant call
   // todo: investigatge
   // print(TimeConstants.unixEpoch);
-  LocalDateTime unixEpochInCopticCalendar = TimeConstants.unixEpoch.inZone(DateTimeZone.utc, coptic).localDateTime;
-  LocalDateTime expected = LocalDateTime(1686, 4, 23, 0, 0, 0, calendar: coptic);
+  LocalDateTime unixEpochInCopticCalendar =
+      TimeConstants.unixEpoch.inZone(DateTimeZone.utc, coptic).localDateTime;
+  LocalDateTime expected =
+      LocalDateTime(1686, 4, 23, 0, 0, 0, calendar: coptic);
   expect(expected, unixEpochInCopticCalendar);
 }
 
 @Test()
-void SampleDate()
-{
+void SampleDate() {
   CalendarSystem copticCalendar = CalendarSystem.coptic;
   LocalDateTime iso = LocalDateTime(2004, 6, 9, 0, 0, 0);
   LocalDateTime coptic = iso.withCalendar(copticCalendar);
@@ -68,8 +67,8 @@ void SampleDate()
 
 // Really testing SingleEraCalculator...
 @Test()
-void InvalidEra()
-{
+void InvalidEra() {
   // expect(() => CalendarSystem.coptic.getAbsoluteYear(1720, null), throwsArgumentError);
-  expect(() => CalendarSystem.coptic.getAbsoluteYear(1720, Era.annoHegirae), throwsArgumentError);
+  expect(() => CalendarSystem.coptic.getAbsoluteYear(1720, Era.annoHegirae),
+      throwsArgumentError);
 }

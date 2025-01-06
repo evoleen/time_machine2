@@ -2,7 +2,7 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 @internal
 class ZonedDateTimePatternParser implements IPatternParser<ZonedDateTime> {
@@ -10,56 +10,115 @@ class ZonedDateTimePatternParser implements IPatternParser<ZonedDateTime> {
   final DateTimeZoneProvider? _zoneProvider;
   final ZoneLocalMappingResolver? _resolver;
 
-  static final Map<String /*char*/, CharacterHandler<ZonedDateTime, _ZonedDateTimeParseBucket>> _patternCharacterHandlers =
-  {
-    '%': SteppedPatternBuilder.handlePercent /**<ZonedDateTime, ZonedDateTimeParseBucket>*/,
-    '\'': SteppedPatternBuilder.handleQuote /**<ZonedDateTime, ZonedDateTimeParseBucket>*/,
-    '\"': SteppedPatternBuilder.handleQuote /**<ZonedDateTime, ZonedDateTimeParseBucket>*/,
-    '\\': SteppedPatternBuilder.handleBackslash /**<ZonedDateTime, ZonedDateTimeParseBucket>*/,
-    '/': (pattern, builder) => builder.addLiteral1(builder.formatInfo.dateSeparator, IParseResult.dateSeparatorMismatch /**<ZonedDateTime>*/),
-    'T': (pattern, builder) => builder.addLiteral2('T', IParseResult.mismatchedCharacter /**<ZonedDateTime>*/),
-    'y': DatePatternHelper.createYearOfEraHandler<ZonedDateTime, _ZonedDateTimeParseBucket>((value) => value.yearOfEra, (bucket, value) =>
-    bucket.date.yearOfEra = value),
-    'u': SteppedPatternBuilder.handlePaddedField<ZonedDateTime, _ZonedDateTimeParseBucket>(
-        4, PatternFields.year, -9999, 9999, (value) => value.year, (bucket, value) => bucket.date.year = value),
-    'M': DatePatternHelper.createMonthOfYearHandler<ZonedDateTime, _ZonedDateTimeParseBucket>((value) => value.monthOfYear, (bucket, value) =>
-    bucket.date.monthOfYearText = value, (bucket, value) => bucket.date.monthOfYearNumeric = value),
-    'd': DatePatternHelper.createDayHandler<ZonedDateTime, _ZonedDateTimeParseBucket>((value) => value.dayOfMonth, (value) => value.dayOfWeek.value, (bucket, value) =>
-    bucket.date.dayOfMonth = value, (bucket, value) => bucket.date.dayOfWeek = value),
-    '.': TimePatternHelper.createPeriodHandler<ZonedDateTime, _ZonedDateTimeParseBucket>(
-        9, (value) => value.nanosecondOfSecond, (bucket, value) => bucket.time.fractionalSeconds = value),
-    ';': TimePatternHelper.createCommaDotHandler<ZonedDateTime, _ZonedDateTimeParseBucket>(
-        9, (value) => value.nanosecondOfSecond, (bucket, value) => bucket.time.fractionalSeconds = value),
-    ':': (pattern, builder) => builder.addLiteral1(builder.formatInfo.timeSeparator, IParseResult.timeSeparatorMismatch /**<ZonedDateTime>*/),
-    'h': SteppedPatternBuilder.handlePaddedField<ZonedDateTime, _ZonedDateTimeParseBucket>(
-        2, PatternFields.hours12, 1, 12, (value) => value.hourOf12HourClock, (bucket, value) => bucket.time.hours12 = value),
-    'H': SteppedPatternBuilder.handlePaddedField<ZonedDateTime, _ZonedDateTimeParseBucket>(
-        2, PatternFields.hours24, 0, 24, (value) => value.hourOfDay, (bucket, value) => bucket.time.hours24 = value),
-    'm': SteppedPatternBuilder.handlePaddedField<ZonedDateTime, _ZonedDateTimeParseBucket>(
-        2, PatternFields.minutes, 0, 59, (value) => value.minuteOfHour, (bucket, value) => bucket.time.minutes = value),
-    's': SteppedPatternBuilder.handlePaddedField<ZonedDateTime, _ZonedDateTimeParseBucket>(
-        2, PatternFields.seconds, 0, 59, (value) => value.secondOfMinute, (bucket, value) => bucket.time.seconds = value),
-    'f': TimePatternHelper.createFractionHandler<ZonedDateTime, _ZonedDateTimeParseBucket>(
-        9, (value) => value.nanosecondOfSecond, (bucket, value) => bucket.time.fractionalSeconds = value),
-    'F': TimePatternHelper.createFractionHandler<ZonedDateTime, _ZonedDateTimeParseBucket>(
-        9, (value) => value.nanosecondOfSecond, (bucket, value) => bucket.time.fractionalSeconds = value),
-    't': TimePatternHelper.createAmPmHandler<ZonedDateTime, _ZonedDateTimeParseBucket>((time) => time.hourOfDay, (bucket, value) => bucket.time.amPm = value),
-    'c': DatePatternHelper.createCalendarHandler<ZonedDateTime, _ZonedDateTimeParseBucket>((value) => value.localDateTime.calendar, (bucket, value) =>
-    bucket.date.calendar = value),
-    'g': DatePatternHelper.createEraHandler<ZonedDateTime, _ZonedDateTimeParseBucket>((value) => value.era, (bucket) => bucket.date),
+  static final Map<String /*char*/,
+          CharacterHandler<ZonedDateTime, _ZonedDateTimeParseBucket>>
+      _patternCharacterHandlers = {
+    '%': SteppedPatternBuilder
+        .handlePercent /**<ZonedDateTime, ZonedDateTimeParseBucket>*/,
+    '\'': SteppedPatternBuilder
+        .handleQuote /**<ZonedDateTime, ZonedDateTimeParseBucket>*/,
+    '\"': SteppedPatternBuilder
+        .handleQuote /**<ZonedDateTime, ZonedDateTimeParseBucket>*/,
+    '\\': SteppedPatternBuilder
+        .handleBackslash /**<ZonedDateTime, ZonedDateTimeParseBucket>*/,
+    '/': (pattern, builder) => builder.addLiteral1(
+        builder.formatInfo.dateSeparator,
+        IParseResult.dateSeparatorMismatch /**<ZonedDateTime>*/),
+    'T': (pattern, builder) => builder.addLiteral2(
+        'T', IParseResult.mismatchedCharacter /**<ZonedDateTime>*/),
+    'y': DatePatternHelper.createYearOfEraHandler<ZonedDateTime,
+            _ZonedDateTimeParseBucket>((value) => value.yearOfEra,
+        (bucket, value) => bucket.date.yearOfEra = value),
+    'u': SteppedPatternBuilder.handlePaddedField<ZonedDateTime,
+            _ZonedDateTimeParseBucket>(4, PatternFields.year, -9999, 9999,
+        (value) => value.year, (bucket, value) => bucket.date.year = value),
+    'M': DatePatternHelper.createMonthOfYearHandler<ZonedDateTime,
+            _ZonedDateTimeParseBucket>(
+        (value) => value.monthOfYear,
+        (bucket, value) => bucket.date.monthOfYearText = value,
+        (bucket, value) => bucket.date.monthOfYearNumeric = value),
+    'd': DatePatternHelper.createDayHandler<ZonedDateTime,
+            _ZonedDateTimeParseBucket>(
+        (value) => value.dayOfMonth,
+        (value) => value.dayOfWeek.value,
+        (bucket, value) => bucket.date.dayOfMonth = value,
+        (bucket, value) => bucket.date.dayOfWeek = value),
+    '.': TimePatternHelper.createPeriodHandler<ZonedDateTime,
+            _ZonedDateTimeParseBucket>(9, (value) => value.nanosecondOfSecond,
+        (bucket, value) => bucket.time.fractionalSeconds = value),
+    ';': TimePatternHelper.createCommaDotHandler<ZonedDateTime,
+            _ZonedDateTimeParseBucket>(9, (value) => value.nanosecondOfSecond,
+        (bucket, value) => bucket.time.fractionalSeconds = value),
+    ':': (pattern, builder) => builder.addLiteral1(
+        builder.formatInfo.timeSeparator,
+        IParseResult.timeSeparatorMismatch /**<ZonedDateTime>*/),
+    'h': SteppedPatternBuilder.handlePaddedField<ZonedDateTime,
+            _ZonedDateTimeParseBucket>(
+        2,
+        PatternFields.hours12,
+        1,
+        12,
+        (value) => value.hourOf12HourClock,
+        (bucket, value) => bucket.time.hours12 = value),
+    'H': SteppedPatternBuilder.handlePaddedField<ZonedDateTime,
+            _ZonedDateTimeParseBucket>(
+        2,
+        PatternFields.hours24,
+        0,
+        24,
+        (value) => value.hourOfDay,
+        (bucket, value) => bucket.time.hours24 = value),
+    'm': SteppedPatternBuilder.handlePaddedField<ZonedDateTime,
+            _ZonedDateTimeParseBucket>(
+        2,
+        PatternFields.minutes,
+        0,
+        59,
+        (value) => value.minuteOfHour,
+        (bucket, value) => bucket.time.minutes = value),
+    's': SteppedPatternBuilder.handlePaddedField<ZonedDateTime,
+            _ZonedDateTimeParseBucket>(
+        2,
+        PatternFields.seconds,
+        0,
+        59,
+        (value) => value.secondOfMinute,
+        (bucket, value) => bucket.time.seconds = value),
+    'f': TimePatternHelper.createFractionHandler<ZonedDateTime,
+            _ZonedDateTimeParseBucket>(9, (value) => value.nanosecondOfSecond,
+        (bucket, value) => bucket.time.fractionalSeconds = value),
+    'F': TimePatternHelper.createFractionHandler<ZonedDateTime,
+            _ZonedDateTimeParseBucket>(9, (value) => value.nanosecondOfSecond,
+        (bucket, value) => bucket.time.fractionalSeconds = value),
+    't': TimePatternHelper.createAmPmHandler<ZonedDateTime,
+            _ZonedDateTimeParseBucket>(
+        (time) => time.hourOfDay, (bucket, value) => bucket.time.amPm = value),
+    'c': DatePatternHelper.createCalendarHandler<ZonedDateTime,
+            _ZonedDateTimeParseBucket>((value) => value.localDateTime.calendar,
+        (bucket, value) => bucket.date.calendar = value),
+    'g': DatePatternHelper.createEraHandler<ZonedDateTime,
+            _ZonedDateTimeParseBucket>(
+        (value) => value.era, (bucket) => bucket.date),
     'z': _handleZone,
     'x': _handleZoneAbbreviation,
     'o': _handleOffset,
     'l': (cursor, builder) => builder.addEmbeddedLocalPartial(
-        cursor, (bucket) => bucket.date, (bucket) => bucket.time, (value) => value.calendarDate, (value) => value.clockTime, (value) => value.localDateTime),
+        cursor,
+        (bucket) => bucket.date,
+        (bucket) => bucket.time,
+        (value) => value.calendarDate,
+        (value) => value.clockTime,
+        (value) => value.localDateTime),
   };
 
-  ZonedDateTimePatternParser(this._templateValue, this._resolver, this._zoneProvider);
+  ZonedDateTimePatternParser(
+      this._templateValue, this._resolver, this._zoneProvider);
 
   // Note: public to implement the interface. It does no harm, and it's simpler than using explicit
   // interface implementation.
   @override
-  IPattern<ZonedDateTime> parsePattern(String patternText, TimeMachineFormatInfo formatInfo) {
+  IPattern<ZonedDateTime> parsePattern(
+      String patternText, TimeMachineFormatInfo formatInfo) {
     // Nullity check is performed in ZonedDateTimePattern.
     if (patternText.isEmpty) {
       throw InvalidPatternError(TextErrorMessages.formatStringEmpty);
@@ -77,12 +136,17 @@ class ZonedDateTimePatternParser implements IPatternParser<ZonedDateTime> {
               .withZoneProvider(_zoneProvider)
               .withResolver(_resolver);
         default:
-          throw IInvalidPatternError.format(TextErrorMessages.unknownStandardFormat, [patternText[0], 'ZonedDateTime']);
+          throw IInvalidPatternError.format(
+              TextErrorMessages.unknownStandardFormat,
+              [patternText[0], 'ZonedDateTime']);
       }
     }
 
-    var patternBuilder = SteppedPatternBuilder<ZonedDateTime, _ZonedDateTimeParseBucket>(formatInfo,
-            () => _ZonedDateTimeParseBucket(_templateValue, _resolver, _zoneProvider));
+    var patternBuilder =
+        SteppedPatternBuilder<ZonedDateTime, _ZonedDateTimeParseBucket>(
+            formatInfo,
+            () => _ZonedDateTimeParseBucket(
+                _templateValue, _resolver, _zoneProvider));
     if (_zoneProvider == null || _resolver == null) {
       patternBuilder.setFormatOnly();
     }
@@ -102,39 +166,44 @@ class ZonedDateTimePatternParser implements IPatternParser<ZonedDateTime> {
       SteppedPatternBuilder<ZonedDateTime, _ZonedDateTimeParseBucket> builder) {
     builder.addField(PatternFields.zoneAbbreviation, pattern.current);
     builder.setFormatOnly();
-    builder.addFormatAction((value, sb) =>
-        sb.write(value
-            .getZoneInterval()
-            .name));
+    builder
+        .addFormatAction((value, sb) => sb.write(value.getZoneInterval().name));
   }
 
   static void _handleOffset(PatternCursor pattern,
       SteppedPatternBuilder<ZonedDateTime, _ZonedDateTimeParseBucket> builder) {
     builder.addField(PatternFields.embeddedOffset, pattern.current);
     String embeddedPattern = pattern.getEmbeddedPattern();
-    var offsetPattern = OffsetPatterns.underlyingPattern(OffsetPatterns.create(embeddedPattern, builder.formatInfo));
-    builder.addEmbeddedPattern<Offset>(offsetPattern, (bucket, offset) => bucket.offset = offset, (zdt) => zdt.offset);
+    var offsetPattern = OffsetPatterns.underlyingPattern(
+        OffsetPatterns.create(embeddedPattern, builder.formatInfo));
+    builder.addEmbeddedPattern<Offset>(offsetPattern,
+        (bucket, offset) => bucket.offset = offset, (zdt) => zdt.offset);
   }
 
-  static ParseResult<ZonedDateTime>? _parseZone(ValueCursor value, _ZonedDateTimeParseBucket bucket) => bucket.parseZone(value);
+  static ParseResult<ZonedDateTime>? _parseZone(
+          ValueCursor value, _ZonedDateTimeParseBucket bucket) =>
+      bucket.parseZone(value);
 }
 
 class _ZonedDateTimeParseBucket extends ParseBucket<ZonedDateTime> {
-  final /*LocalDatePatternParser.*/LocalDateParseBucket date;
-  final /*LocalTimePatternParser.*/LocalTimeParseBucket time;
+  final /*LocalDatePatternParser.*/ LocalDateParseBucket date;
+  final /*LocalTimePatternParser.*/ LocalTimeParseBucket time;
   DateTimeZone _zone;
   late Offset offset;
   final ZoneLocalMappingResolver? _resolver;
   final DateTimeZoneProvider? _zoneProvider;
 
-  _ZonedDateTimeParseBucket(ZonedDateTime templateValue, this._resolver, this._zoneProvider)
-      : date = /*LocalDatePatternParser.*/LocalDateParseBucket(templateValue.calendarDate),
-        time = /*LocalTimePatternParser.*/LocalTimeParseBucket(templateValue.clockTime),
+  _ZonedDateTimeParseBucket(
+      ZonedDateTime templateValue, this._resolver, this._zoneProvider)
+      : date = /*LocalDatePatternParser.*/
+            LocalDateParseBucket(templateValue.calendarDate),
+        time = /*LocalTimePatternParser.*/
+            LocalTimeParseBucket(templateValue.clockTime),
         _zone = templateValue.zone;
 
-
   ParseResult<ZonedDateTime>? parseZone(ValueCursor value) {
-    DateTimeZone? zone = _tryParseFixedZone(value) ?? _tryParseProviderZone(value);
+    DateTimeZone? zone =
+        _tryParseFixedZone(value) ?? _tryParseProviderZone(value);
 
     if (zone == null) {
       return IParseResult.noMatchingZoneId<ZonedDateTime>(value);
@@ -153,9 +222,12 @@ class _ZonedDateTimeParseBucket extends ParseBucket<ZonedDateTime> {
       return null;
     }
     value.move(value.index + 3);
-    var pattern = OffsetPatterns.underlyingPattern(OffsetPattern.generalInvariant);
+    var pattern =
+        OffsetPatterns.underlyingPattern(OffsetPattern.generalInvariant);
     var parseResult = pattern.parsePartial(value);
-    return parseResult.success ? DateTimeZone.forOffset(parseResult.value) : DateTimeZone.utc;
+    return parseResult.success
+        ? DateTimeZone.forOffset(parseResult.value)
+        : DateTimeZone.utc;
   }
 
   /// Tries to parse a time zone ID from the provider. Returns the zone
@@ -173,12 +245,10 @@ class _ZonedDateTimeParseBucket extends ParseBucket<ZonedDateTime> {
       if (result < 0) {
         // Guess is later than our text: lower the upper bound
         upperBound = guess;
-      }
-      else if (result > 0) {
+      } else if (result > 0) {
         // Guess is earlier than our text: raise the lower bound
         lowerBound = guess + 1;
-      }
-      else {
+      } else {
         // We've found a match! But it may not be as long as it
         // could be. Keep track of a 'longest match so far' (starting with the match we've found),
         // and keep looking through the IDs until we find an ID which doesn't start with that "longest
@@ -199,7 +269,9 @@ class _ZonedDateTimeParseBucket extends ParseBucket<ZonedDateTime> {
           if (candidate.length < longestSoFar.length) {
             break;
           }
-          if (stringOrdinalCompare(longestSoFar, 0, candidate, 0, longestSoFar.length) != 0) {
+          if (stringOrdinalCompare(
+                  longestSoFar, 0, candidate, 0, longestSoFar.length) !=
+              0) {
             break;
           }
           if (value.compareOrdinal(candidate) == 0) {
@@ -207,15 +279,18 @@ class _ZonedDateTimeParseBucket extends ParseBucket<ZonedDateTime> {
           }
         }
         value.move(value.index + longestSoFar.length);
-        return _zoneProvider!.getDateTimeZoneSync(longestSoFar); // [longestSoFar];
+        return _zoneProvider!
+            .getDateTimeZoneSync(longestSoFar); // [longestSoFar];
       }
     }
     return null;
   }
 
   @override
-  ParseResult<ZonedDateTime> calculateValue(PatternFields usedFields, String text) {
-    var localResult = /*LocalDateTimePatternParser.*/LocalDateTimeParseBucket.combineBuckets(usedFields, date, time, text);
+  ParseResult<ZonedDateTime> calculateValue(
+      PatternFields usedFields, String text) {
+    var localResult = /*LocalDateTimePatternParser.*/
+        LocalDateTimeParseBucket.combineBuckets(usedFields, date, time, text);
     if (!localResult.success) {
       return localResult.convertError<ZonedDateTime>();
     }
@@ -225,12 +300,11 @@ class _ZonedDateTimeParseBucket extends ParseBucket<ZonedDateTime> {
     // No offset - so just use the resolver
     if ((usedFields & PatternFields.embeddedOffset).value == 0) {
       try {
-        return ParseResult.forValue<ZonedDateTime>(ZonedDateTime.resolve(localDateTime, _zone, _resolver!));
-      }
-      on SkippedTimeError {
+        return ParseResult.forValue<ZonedDateTime>(
+            ZonedDateTime.resolve(localDateTime, _zone, _resolver!));
+      } on SkippedTimeError {
         return IParseResult.skippedLocalTime<ZonedDateTime>(text);
-      }
-      on AmbiguousTimeError {
+      } on AmbiguousTimeError {
         return IParseResult.ambiguousLocalTime<ZonedDateTime>(text);
       }
     }
@@ -246,12 +320,12 @@ class _ZonedDateTimeParseBucket extends ParseBucket<ZonedDateTime> {
         result = mapping.first(); // We'll validate in a minute
         break;
       case 2:
-        result = mapping
-            .first()
-            .offset == offset ? mapping.first() : mapping.last();
+        result =
+            mapping.first().offset == offset ? mapping.first() : mapping.last();
         break;
       default:
-        throw /*InvalidOperationException*/ StateError('Mapping has count outside range 0-2; should not happen.');
+        throw /*InvalidOperationException*/ StateError(
+            'Mapping has count outside range 0-2; should not happen.');
     }
     if (result.offset != offset) {
       return IParseResult.invalidOffset<ZonedDateTime>(text);
@@ -259,4 +333,3 @@ class _ZonedDateTimeParseBucket extends ParseBucket<ZonedDateTime> {
     return ParseResult.forValue<ZonedDateTime>(result);
   }
 }
-

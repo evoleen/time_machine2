@@ -2,20 +2,24 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 @internal
 abstract class InstantPatterns {
   /// Class whose existence is solely to avoid type initialization order issues, most of which stem
   /// from needing NodaFormatInfo.InvariantInfo...
-  static final InstantPattern extendedIsoPatternImpl = InstantPattern.createWithInvariantCulture("uuuu'-'MM'-'dd'T'HH':'mm':'ss;FFFFFFFFF'Z'");
-  static final InstantPattern generalPatternImpl = InstantPattern.createWithInvariantCulture("uuuu-MM-ddTHH:mm:ss'Z'");
+  static final InstantPattern extendedIsoPatternImpl =
+      InstantPattern.createWithInvariantCulture(
+          "uuuu'-'MM'-'dd'T'HH':'mm':'ss;FFFFFFFFF'Z'");
+  static final InstantPattern generalPatternImpl =
+      InstantPattern.createWithInvariantCulture("uuuu-MM-ddTHH:mm:ss'Z'");
 
-  static IPattern<Instant> patternOf(InstantPattern instantPattern) => instantPattern._pattern;
+  static IPattern<Instant> patternOf(InstantPattern instantPattern) =>
+      instantPattern._pattern;
 
-  static String format(Instant instant, String? patternText, Culture? culture) =>
-      TimeMachineFormatInfo
-          .getInstance(culture)
+  static String format(
+          Instant instant, String? patternText, Culture? culture) =>
+      TimeMachineFormatInfo.getInstance(culture)
           .instantPatternParser
           .parsePattern(patternText ?? InstantPatternParser.generalPatternText)
           .format(instant);
@@ -31,7 +35,8 @@ class InstantPattern implements IPattern<Instant> {
   /// Gets an invariant instant pattern which is ISO-8601 compatible, providing up to 9 decimal places
   /// of sub-second accuracy. (These digits are omitted when unnecessary.)
   /// This corresponds to the text pattern "uuuu'-'MM'-'dd'T'HH':'mm':'ss;FFFFFFFFF'Z'".
-  static InstantPattern get extendedIso => InstantPatterns.extendedIsoPatternImpl;
+  static InstantPattern get extendedIso =>
+      InstantPatterns.extendedIsoPatternImpl;
 
   // ignore: unused_field
   static const String _defaultFormatPattern = 'g';
@@ -70,7 +75,8 @@ class InstantPattern implements IPattern<Instant> {
   ///
   /// Returns: The builder passed in as [builder].
   @override
-  StringBuffer appendFormat(Instant value, StringBuffer builder) => _pattern.appendFormat(value, builder);
+  StringBuffer appendFormat(Instant value, StringBuffer builder) =>
+      _pattern.appendFormat(value, builder);
 
   /// Creates a pattern for the given pattern text and format info.
   ///
@@ -80,7 +86,8 @@ class InstantPattern implements IPattern<Instant> {
   /// Returns: A pattern for parsing and formatting instants.
   ///
   /// * [InvalidPatternError]: The pattern text was invalid.
-  static InstantPattern _create(String patternText, TimeMachineFormatInfo formatInfo) {
+  static InstantPattern _create(
+      String patternText, TimeMachineFormatInfo formatInfo) {
     Preconditions.checkNotNull(patternText, 'patternText');
     Preconditions.checkNotNull(formatInfo, 'formatInfo');
     var pattern = formatInfo.instantPatternParser.parsePattern(patternText);
@@ -98,7 +105,8 @@ class InstantPattern implements IPattern<Instant> {
   /// Returns: A pattern for parsing and formatting instants.
   ///
   /// * [InvalidPatternError]: The pattern text was invalid.
-  static InstantPattern createWithCulture(String patternText, Culture culture) =>
+  static InstantPattern createWithCulture(
+          String patternText, Culture culture) =>
       _create(patternText, TimeMachineFormatInfo.getFormatInfo(culture));
 
   /// Creates a pattern for the given pattern text in the current thread's current culture.
@@ -135,7 +143,8 @@ class InstantPattern implements IPattern<Instant> {
   /// * [formatInfo]: The localization information to use in the new pattern.
   ///
   /// Returns: A new pattern with the given localization information.
-  InstantPattern _withFormatInfo(TimeMachineFormatInfo formatInfo) => _create(patternText, formatInfo);
+  InstantPattern _withFormatInfo(TimeMachineFormatInfo formatInfo) =>
+      _create(patternText, formatInfo);
 
   /// Creates a pattern for the same original pattern text as this pattern, but with the specified
   /// culture.
@@ -146,4 +155,3 @@ class InstantPattern implements IPattern<Instant> {
   InstantPattern withCulture(Culture culture) =>
       _withFormatInfo(TimeMachineFormatInfo.getFormatInfo(culture));
 }
-
