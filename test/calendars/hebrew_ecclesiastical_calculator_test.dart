@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
 
@@ -21,7 +21,8 @@ void DaysInYear() {
   var maxYear = 5999; // bcl.GetYear(bcl.MaxSupportedDateTime);
 
   for (int year = minYear; year <= maxYear; year++) {
-    expect(daysInYear[year - minYear], HebrewScripturalCalculator.daysInYear(year));
+    expect(daysInYear[year - minYear],
+        HebrewScripturalCalculator.daysInYear(year));
   }
 }
 
@@ -37,7 +38,8 @@ void DaysInMonth() {
     for (int month = 1; month <= months; month++) {
       int scripturalMonth = HebrewMonthConverter.civilToScriptural(year, month);
       int bclDays = daysInMonthYear[year - 5343][month - 1];
-      int nodaDays = HebrewScripturalCalculator.daysInMonth(year, scripturalMonth);
+      int nodaDays =
+          HebrewScripturalCalculator.daysInMonth(year, scripturalMonth);
       expect(bclDays, nodaDays);
     }
   }

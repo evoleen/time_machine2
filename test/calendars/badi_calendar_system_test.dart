@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
 
@@ -21,8 +21,7 @@ Future main() async {
 const int AyyamiHaMonth = 0;
 
 @Test()
-void BadiEpoch()
-{
+void BadiEpoch() {
   LocalDate badiEpoch = CreateBadiDate(1, 1, 1);
 
   CalendarSystem gregorian = CalendarSystem.gregorian;
@@ -34,17 +33,18 @@ void BadiEpoch()
 }
 
 @Test()
-void UnixEpoch()
-{
+void UnixEpoch() {
   CalendarSystem badi = CalendarSystem.badi;
-  LocalDate unixEpochInBadiCalendar = TimeConstants.unixEpoch.inZone(DateTimeZone.utc, badi).localDateTime.calendarDate;
+  LocalDate unixEpochInBadiCalendar = TimeConstants.unixEpoch
+      .inZone(DateTimeZone.utc, badi)
+      .localDateTime
+      .calendarDate;
   LocalDate expected = CreateBadiDate(126, 16, 2);
   expect(expected, unixEpochInBadiCalendar);
 }
 
 @Test()
-void SampleDate()
-{
+void SampleDate() {
   CalendarSystem badiCalendar = CalendarSystem.badi;
   LocalDate iso = LocalDate(2017, 3, 4);
   LocalDate badi = iso.withCalendar(badiCalendar);
@@ -118,8 +118,8 @@ void SampleDate()
 @TestCase([2062, 3, 20, 219, 1, 1])
 @TestCase([2063, 3, 20, 220, 1, 1])
 @TestCase([2064, 3, 20, 221, 1, 1])
-void GeneralConversionNearNawRuz(int gYear, int gMonth, int gDay, int bYear, int bMonth, int bDay)
-{
+void GeneralConversionNearNawRuz(
+    int gYear, int gMonth, int gDay, int bYear, int bMonth, int bDay) {
   // create in the Badíʿ calendar
   var bDate = CreateBadiDate(bYear, bMonth, bDay);
   var gDate = bDate.withCalendar(CalendarSystem.gregorian);
@@ -148,22 +148,24 @@ void GeneralConversionNearNawRuz(int gYear, int gMonth, int gDay, int bYear, int
 @TestCase([2018, 3, 1, 174, AyyamiHaMonth, 5])
 @TestCase([2018, 3, 2, 174, 19, 1])
 @TestCase([2018, 3, 19, 174, 19, 18])
-void SpecialCases(int gYear, int gMonth, int gDay, int bYear, int bMonth, int bDay)
-{
+void SpecialCases(
+    int gYear, int gMonth, int gDay, int bYear, int bMonth, int bDay) {
   // create in test calendar
   var bDate = CreateBadiDate(bYear, bMonth, bDay);
 
   // convert to gregorian
   var gDate = bDate.withCalendar(CalendarSystem.gregorian);
 
-  expect('$gYear-$gMonth-$gDay', "${gDate.year}-${gDate.monthOfYear}-${gDate.dayOfMonth}");
+  expect('$gYear-$gMonth-$gDay',
+      "${gDate.year}-${gDate.monthOfYear}-${gDate.dayOfMonth}");
 
   // create in gregorian
   // convert to test calendar
   var gDate2 = LocalDate(gYear, gMonth, gDay);
   var bDate2 = gDate2.withCalendar(CalendarSystem.badi);
 
-  expect('$bYear-$bMonth-$bDay', "${bDate2.year}-${BadiMonth(bDate2)}-${BadiDay(bDate2)}");
+  expect('$bYear-$bMonth-$bDay',
+      "${bDate2.year}-${BadiMonth(bDate2)}-${BadiDay(bDate2)}");
 }
 
 @Test()
@@ -232,8 +234,8 @@ void SpecialCases(int gYear, int gMonth, int gDay, int bYear, int bMonth, int bD
 @TestCase([219, 1, 1, 2062, 3, 20])
 @TestCase([220, 1, 1, 2063, 3, 20])
 @TestCase([221, 1, 1, 2064, 3, 20])
-void GeneralWtoG(int bYear, int bMonth, int bDay, int gYear, int gMonth, int gDay)
-{
+void GeneralWtoG(
+    int bYear, int bMonth, int bDay, int gYear, int gMonth, int gDay) {
   // create in this calendar
   var bDate = CreateBadiDate(bYear, bMonth, bDay);
   var gDate = bDate.withCalendar(CalendarSystem.gregorian);
@@ -299,8 +301,7 @@ void GeneralWtoG(int bYear, int bMonth, int bDay, int gYear, int gMonth, int gDa
 @TestCase([219, 4])
 @TestCase([220, 5])
 @TestCase([221, 4])
-void DaysInAyyamiHa(int bYear, int days)
-{
+void DaysInAyyamiHa(int bYear, int days) {
   expect(days, BadiYearMonthDayCalculator.getDaysInAyyamiHa(bYear));
 }
 
@@ -316,10 +317,12 @@ void DaysInAyyamiHa(int bYear, int days)
 @TestCase([220, AyyamiHaMonth, 1, 18 * 19 + 1])
 @TestCase([220, AyyamiHaMonth, 5, 18 * 19 + 5])
 @TestCase([220, 19, 1, 18 * 19 + 6])
-void DayOfYear(int bYear, int bMonth, int bDay, int dayOfYear)
-{
+void DayOfYear(int bYear, int bMonth, int bDay, int dayOfYear) {
   var badi = BadiYearMonthDayCalculator();
-  expect(dayOfYear, badi.getDayOfYear(ILocalDate.yearMonthDay(CreateBadiDate(bYear, bMonth, bDay))));
+  expect(
+      dayOfYear,
+      badi.getDayOfYear(
+          ILocalDate.yearMonthDay(CreateBadiDate(bYear, bMonth, bDay))));
 }
 
 // Cannot use EndOfMonth with Ayyam-i-Ha because they are internally stored as days in month 18.
@@ -334,16 +337,14 @@ void DayOfYear(int bYear, int bMonth, int bDay, int dayOfYear)
 @TestCase([220, 4, 5, 4, 19])
 @TestCase([220, 18, 1, AyyamiHaMonth, 5])
 @TestCase([220, AyyamiHaMonth, 1, AyyamiHaMonth, 5])
-void EndOfMonth(int year, int month, int day, int eomMonth, int eomDay)
-{
+void EndOfMonth(int year, int month, int day, int eomMonth, int eomDay) {
   var start = CreateBadiDate(year, month, day);
   var end = CreateBadiDate(year, eomMonth, eomDay);
   expect(AsBadiString(end), AsBadiString(DateAdjusters.endOfMonth(start)));
 }
 
 @Test()
-void LeapYear()
-{
+void LeapYear() {
   var calendar = CalendarSystem.badi;
   expect(calendar.isLeapYear(172), isFalse);
   expect(calendar.isLeapYear(173), isFalse);
@@ -352,8 +353,7 @@ void LeapYear()
 }
 
 @Test()
-void GetMonthsInYear()
-{
+void GetMonthsInYear() {
   var calendar = CalendarSystem.badi;
   expect(19, calendar.getMonthsInYear(180));
 }
@@ -361,15 +361,13 @@ void GetMonthsInYear()
 @Test()
 @TestCase([180, 1, 19])
 @TestCase([180, 18, 23])
-void GetDaysInMonth(int year, int month, int expectedDays)
-{
+void GetDaysInMonth(int year, int month, int expectedDays) {
   var calendar = CalendarSystem.badi;
   expect(expectedDays, calendar.getDaysInMonth(year, month));
 }
 
 @Test()
-void CreateDate_InAyyamiHa()
-{
+void CreateDate_InAyyamiHa() {
   var d1 = CreateBadiDate(180, 0, 3);
   var d3 = CreateBadiDate(180, 18, 22);
 
@@ -385,8 +383,7 @@ void CreateDate_InAyyamiHa()
 @TestCase([180, 1, 0])
 @TestCase([180, 1, 20])
 @TestCase([180, 20, 1])
-void CreateDate_Invalid(int year, int month, int day)
-{
+void CreateDate_Invalid(int year, int month, int day) {
   expect(() => CreateBadiDate(year, month, day), throwsRangeError);
 }
 
@@ -397,17 +394,27 @@ final LocalDate TestDate2_167_Ayyam_4 = CreateBadiDate(167, AyyamiHaMonth, 4);
 final LocalDate TestDate3_168_Ayyam_5 = CreateBadiDate(168, AyyamiHaMonth, 5);
 
 @Test()
-void BetweenLocalDates_InvalidUnits()
-{
-  expect(() => Period.differenceBetweenDates(TestDate1_167_5_15, TestDate2_167_Ayyam_4, PeriodUnits.none), throwsArgumentError);
-  expect(() => Period.differenceBetweenDates(TestDate1_167_5_15, TestDate2_167_Ayyam_4, const PeriodUnits(-1)), throwsArgumentError);
-  expect(() => Period.differenceBetweenDates(TestDate1_167_5_15, TestDate2_167_Ayyam_4, PeriodUnits.allTimeUnits), throwsArgumentError);
-  expect(() => Period.differenceBetweenDates(TestDate1_167_5_15, TestDate2_167_Ayyam_4, PeriodUnits.years | PeriodUnits.hours), throwsArgumentError);
+void BetweenLocalDates_InvalidUnits() {
+  expect(
+      () => Period.differenceBetweenDates(
+          TestDate1_167_5_15, TestDate2_167_Ayyam_4, PeriodUnits.none),
+      throwsArgumentError);
+  expect(
+      () => Period.differenceBetweenDates(
+          TestDate1_167_5_15, TestDate2_167_Ayyam_4, const PeriodUnits(-1)),
+      throwsArgumentError);
+  expect(
+      () => Period.differenceBetweenDates(
+          TestDate1_167_5_15, TestDate2_167_Ayyam_4, PeriodUnits.allTimeUnits),
+      throwsArgumentError);
+  expect(
+      () => Period.differenceBetweenDates(TestDate1_167_5_15,
+          TestDate2_167_Ayyam_4, PeriodUnits.years | PeriodUnits.hours),
+      throwsArgumentError);
 }
 
 @Test()
-void SetYear()
-{
+void SetYear() {
   // crafted to test SetYear with 0
   var d1 = CreateBadiDate(180, 1, 1);
   LocalDate result = d1 + const Period(years: 0);
@@ -415,79 +422,82 @@ void SetYear()
 }
 
 @Test()
-void BetweenLocalDates_MovingForwardNoLeapYears_WithExactResults()
-{
-  Period actual = Period.differenceBetweenDates(TestDate1_167_5_15, TestDate1_167_6_7);
+void BetweenLocalDates_MovingForwardNoLeapYears_WithExactResults() {
+  Period actual =
+      Period.differenceBetweenDates(TestDate1_167_5_15, TestDate1_167_6_7);
   Period expected = const Period(days: 11);
   expect(expected, actual);
 }
 
 @Test()
-void BetweenLocalDates_MovingForwardNoLeapYears_WithExactResults_2()
-{
-  Period actual = Period.differenceBetweenDates(TestDate1_167_5_15, TestDate2_167_Ayyam_4);
+void BetweenLocalDates_MovingForwardNoLeapYears_WithExactResults_2() {
+  Period actual =
+      Period.differenceBetweenDates(TestDate1_167_5_15, TestDate2_167_Ayyam_4);
   Period expected = const Period(months: 13) + const Period(days: 8);
   expect(expected, actual);
 }
 
 @Test()
-void BetweenLocalDates_MovingForwardInLeapYear_WithExactResults()
-{
-  Period actual = Period.differenceBetweenDates(TestDate1_167_5_15, TestDate3_168_Ayyam_5);
-  Period expected = const Period(years: 1) + const Period(months: 13) + const Period(days: 9);
+void BetweenLocalDates_MovingForwardInLeapYear_WithExactResults() {
+  Period actual =
+      Period.differenceBetweenDates(TestDate1_167_5_15, TestDate3_168_Ayyam_5);
+  Period expected =
+      const Period(years: 1) + const Period(months: 13) + const Period(days: 9);
   expect(expected, actual);
 }
 
 @Test()
-void BetweenLocalDates_MovingBackwardNoLeapYears_WithExactResults()
-{
-  Period actual = Period.differenceBetweenDates(TestDate2_167_Ayyam_4, TestDate1_167_5_15);
+void BetweenLocalDates_MovingBackwardNoLeapYears_WithExactResults() {
+  Period actual =
+      Period.differenceBetweenDates(TestDate2_167_Ayyam_4, TestDate1_167_5_15);
   Period expected = const Period(months: -13) + const Period(days: -8);
   expect(expected, actual);
 }
 
 @Test()
-void BetweenLocalDates_MovingBackward_WithExactResults()
-{
+void BetweenLocalDates_MovingBackward_WithExactResults() {
   // should be -1y -13m -9d
   // but system first moves back a year, and in that year, the last day of Ayyam-i-Ha is day 4
   // from there, it is -13m -8d
 
-  Period expected = const Period(years: -1) + const Period(months: -13) + const Period(days: -8);
-  Period actual = Period.differenceBetweenDates(TestDate3_168_Ayyam_5, TestDate1_167_5_15);
+  Period expected = const Period(years: -1) +
+      const Period(months: -13) +
+      const Period(days: -8);
+  Period actual =
+      Period.differenceBetweenDates(TestDate3_168_Ayyam_5, TestDate1_167_5_15);
   expect(expected, actual);
 }
 
 @Test()
-void BetweenLocalDates_MovingForward_WithJustMonths()
-{
-  Period actual = Period.differenceBetweenDates(TestDate1_167_5_15, TestDate3_168_Ayyam_5, PeriodUnits.months);
+void BetweenLocalDates_MovingForward_WithJustMonths() {
+  Period actual = Period.differenceBetweenDates(
+      TestDate1_167_5_15, TestDate3_168_Ayyam_5, PeriodUnits.months);
   Period expected = const Period(months: 32);
   expect(expected, actual);
 }
 
 @Test()
-void BetweenLocalDates_MovingBackward_WithJustMonths()
-{
-  Period actual = Period.differenceBetweenDates(TestDate3_168_Ayyam_5, TestDate1_167_5_15, PeriodUnits.months);
+void BetweenLocalDates_MovingBackward_WithJustMonths() {
+  Period actual = Period.differenceBetweenDates(
+      TestDate3_168_Ayyam_5, TestDate1_167_5_15, PeriodUnits.months);
   Period expected = const Period(months: -32);
   expect(expected, actual);
 }
 
 @Test()
-void BetweenLocalDates_AsymmetricForwardAndBackward()
-{
+void BetweenLocalDates_AsymmetricForwardAndBackward() {
   LocalDate d1 = CreateBadiDate(166, 18, 4);
   LocalDate d2 = CreateBadiDate(167, 1, 10);
 
   // spanning Ayyam-i-Ha - not counted as a month
-  expect(const Period(months: 2) + const Period(days: 6), Period.differenceBetweenDates(d1, d2));
-  expect(const Period(months: -2) + const Period(days: -6), Period.differenceBetweenDates(d2, d1));
+  expect(const Period(months: 2) + const Period(days: 6),
+      Period.differenceBetweenDates(d1, d2));
+  expect(const Period(months: -2) + const Period(days: -6),
+      Period.differenceBetweenDates(d2, d1));
 }
 
 @Test()
-void BetweenLocalDates_EndOfMonth()
-{
+void BetweenLocalDates_EndOfMonth() {
   LocalDate d1 = CreateBadiDate(171, 5, 19);
   LocalDate d2 = CreateBadiDate(171, 6, 19);
   expect(const Period(months: 1), Period.differenceBetweenDates(d1, d2));
@@ -495,38 +505,34 @@ void BetweenLocalDates_EndOfMonth()
 }
 
 @Test()
-void BetweenLocalDates_OnLeapYear()
-{
+void BetweenLocalDates_OnLeapYear() {
   LocalDate d1 = LocalDate(2012, 2, 29).withCalendar(CalendarSystem.badi);
   LocalDate d2 = LocalDate(2013, 2, 28).withCalendar(CalendarSystem.badi);
 
   expect('168-0-4', AsBadiString(d1));
   expect('169-0-3', AsBadiString(d2));
 
-  expect(const Period(months: 19) + const Period(days: 18), Period.differenceBetweenDates(d1, d2));
+  expect(const Period(months: 19) + const Period(days: 18),
+      Period.differenceBetweenDates(d1, d2));
 }
 
 @Test()
-void BetweenLocalDates_AfterLeapYear()
-{
+void BetweenLocalDates_AfterLeapYear() {
   LocalDate d1 = CreateBadiDate(180, 19, 5);
   LocalDate d2 = CreateBadiDate(181, 19, 5);
   expect(const Period(years: 1), Period.differenceBetweenDates(d1, d2));
   expect(const Period(years: -1), Period.differenceBetweenDates(d2, d1));
 }
 
-
 @Test()
-void Addition_DayCrossingMonthBoundary()
-{
+void Addition_DayCrossingMonthBoundary() {
   LocalDate start = CreateBadiDate(182, 4, 13);
   LocalDate result = start + const Period(days: 10);
   expect(CreateBadiDate(182, 5, 4), result);
 }
 
 @Test()
-void Addition()
-{
+void Addition() {
   var start = CreateBadiDate(182, 1, 1);
 
   var result = start + const Period(days: 3);
@@ -537,8 +543,7 @@ void Addition()
 }
 
 @Test()
-void Addition_DayCrossingMonthBoundaryFromAyyamiHa()
-{
+void Addition_DayCrossingMonthBoundaryFromAyyamiHa() {
   var start = CreateBadiDate(182, AyyamiHaMonth, 3);
 
   var result = start + const Period(days: 10);
@@ -547,8 +552,7 @@ void Addition_DayCrossingMonthBoundaryFromAyyamiHa()
 }
 
 @Test()
-void Addition_OneYearOnLeapDay()
-{
+void Addition_OneYearOnLeapDay() {
   LocalDate start = CreateBadiDate(182, AyyamiHaMonth, 5);
   LocalDate result = start + const Period(years: 1);
   // Ayyam-i-Ha 5 becomes Ayyam-i-Ha 4
@@ -556,18 +560,17 @@ void Addition_OneYearOnLeapDay()
 }
 
 @Test()
-void Addition_FiveYearsOnLeapDay()
-{
+void Addition_FiveYearsOnLeapDay() {
   LocalDate start = CreateBadiDate(182, AyyamiHaMonth, 5);
   LocalDate result = start + const Period(years: 5);
   expect(CreateBadiDate(187, AyyamiHaMonth, 5), result);
 }
 
 @Test()
-void Addition_YearMonthDay()
-{
+void Addition_YearMonthDay() {
   // One year, one month, two days
-  Period period = const Period(years: 1) + const Period(months: 1) + const Period(days: 2);
+  Period period =
+      const Period(years: 1) + const Period(months: 1) + const Period(days: 2);
   LocalDate start = CreateBadiDate(171, 1, 19);
   // Periods are added in order, so this becomes...
   // Add one year: 172.1.19
@@ -584,11 +587,10 @@ void Addition_YearMonthDay()
 /// <param name='year'>Year in the Badíʿ calendar</param>
 /// <param name='month'>Month (use 0 for Ayyam-i-Ha)</param>
 /// <param name='day'>Day in month</param>
-LocalDate CreateBadiDate(int year, int month, int day)
-{
-  if (month == AyyamiHaMonth)
-  {
-    Preconditions.checkArgumentRange('day', day, 1, BadiYearMonthDayCalculator.getDaysInAyyamiHa(year));
+LocalDate CreateBadiDate(int year, int month, int day) {
+  if (month == AyyamiHaMonth) {
+    Preconditions.checkArgumentRange(
+        'day', day, 1, BadiYearMonthDayCalculator.getDaysInAyyamiHa(year));
     // Move Ayyam-i-Ha days to fall after the last day of month 18.
     month = BadiYearMonthDayCalculator.month18;
     day += BadiYearMonthDayCalculator.daysInMonth;
@@ -599,13 +601,12 @@ LocalDate CreateBadiDate(int year, int month, int day)
 /// <summary>
 /// Return the day of this month, treating Ayyam-i-Ha as a separate month.
 /// </summary>
-int BadiDay(LocalDate input)
-{
-  Preconditions.checkArgument(input.calendar == CalendarSystem.badi, 'input', "Only valid when using the Badíʿ calendar");
+int BadiDay(LocalDate input) {
+  Preconditions.checkArgument(input.calendar == CalendarSystem.badi, 'input',
+      "Only valid when using the Badíʿ calendar");
 
   if (input.monthOfYear == BadiYearMonthDayCalculator.month18 &&
-      input.dayOfMonth > BadiYearMonthDayCalculator.daysInMonth)
-  {
+      input.dayOfMonth > BadiYearMonthDayCalculator.daysInMonth) {
     return input.dayOfMonth - BadiYearMonthDayCalculator.daysInMonth;
   }
   return input.dayOfMonth;
@@ -614,13 +615,12 @@ int BadiDay(LocalDate input)
 /// <summary>
 /// Return the month of this date. If in Ayyam-i-Ha, returns 0.
 /// </summary>
-int BadiMonth(LocalDate input)
-{
-  Preconditions.checkArgument(input.calendar == CalendarSystem.badi, 'input', "Only valid when using the Badíʿ calendar");
+int BadiMonth(LocalDate input) {
+  Preconditions.checkArgument(input.calendar == CalendarSystem.badi, 'input',
+      "Only valid when using the Badíʿ calendar");
 
   if (input.monthOfYear == BadiYearMonthDayCalculator.month18 &&
-      input.dayOfMonth > BadiYearMonthDayCalculator.daysInMonth)
-  {
+      input.dayOfMonth > BadiYearMonthDayCalculator.daysInMonth) {
     return AyyamiHaMonth;
   }
   return input.monthOfYear;
@@ -629,8 +629,8 @@ int BadiMonth(LocalDate input)
 /// <summary>
 /// Get a text representation of the date.
 /// </summary>
-@internal String AsBadiString(LocalDate input)
-{
+@internal
+String AsBadiString(LocalDate input) {
   var year = input.year;
   var month = BadiMonth(input);
   var day = BadiDay(input);
@@ -639,8 +639,7 @@ int BadiMonth(LocalDate input)
 }
 
 @Test()
-void HelperMethod_BadiDay()
-{
+void HelperMethod_BadiDay() {
   // ensure that this helper method is working
   expect(BadiDay(CreateBadiDate(180, 10, 10)), 10);
   expect(BadiDay(CreateBadiDate(180, 18, 19)), 19);
@@ -649,8 +648,7 @@ void HelperMethod_BadiDay()
 }
 
 @Test()
-void HelperMethod_BadiMonth()
-{
+void HelperMethod_BadiMonth() {
   // ensure that this helper method is working
   expect(BadiMonth(CreateBadiDate(180, 10, 10)), 10);
   expect(BadiMonth(CreateBadiDate(180, 18, 19)), 18);
@@ -659,8 +657,7 @@ void HelperMethod_BadiMonth()
 }
 
 @Test()
-void HelperMethod_AsBadiString()
-{
+void HelperMethod_AsBadiString() {
   // ensure that this helper method is working
   expect(AsBadiString(CreateBadiDate(180, 10, 10)), '180-10-10');
   expect(AsBadiString(CreateBadiDate(180, 18, 19)), '180-18-19');

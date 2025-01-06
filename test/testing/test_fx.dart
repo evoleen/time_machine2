@@ -6,7 +6,7 @@ import 'dart:mirrors';
 import 'dart:io';
 
 import 'package:test/test.dart';
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 import '../text/pattern_test_data.dart';
 import 'test_fx_attributes.dart';
 
@@ -131,7 +131,7 @@ void _writeTestGenFile() {
   sb.writeln();
   sb.writeln("import 'package:test/test.dart';");
   sb.writeln();
-  sb.writeln("import 'package:time_machine/src/time_machine_internal.dart';");
+  sb.writeln("import 'package:time_machine2/src/time_machine_internal.dart';");
   sb.writeln("import '../time_machine_testing.dart';");
   if (_includeTestCulturesImport) {
     sb.writeln("import '../text/test_cultures.dart';");

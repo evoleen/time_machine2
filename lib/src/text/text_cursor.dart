@@ -2,8 +2,7 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 /// Provides a cursor over text being parsed. None of the methods in this class throw exceptions (unless
 /// there is a bug in Time Machine, in which case an exception is appropriate) and none of the methods
@@ -24,7 +23,8 @@ abstract class TextCursor {
 
   /// Initializes a new instance to parse the given value.
   // Validated by caller.
-  @protected TextCursor(this.value) : length = value.length {
+  @protected
+  TextCursor(this.value) : length = value.length {
     move(-1);
   }
 
@@ -49,11 +49,12 @@ abstract class TextCursor {
   ///   Returns a [String] that represents this instance.
   ///
   ///   A [String] that represents this instance.
-  @override String toString() => stringInsert(value, index, '^');
+  @override
+  String toString() => stringInsert(value, index, '^');
 
   /// Returns the next character if there is one or [nul] if there isn't.
   ///
-  /// Returns: 
+  /// Returns:
   String peekNext() => (hasMoreCharacters ? value[index + 1] : nul);
 
   /// Moves the specified target index. If the new index is out of range of the valid indicies
@@ -68,8 +69,7 @@ abstract class TextCursor {
         index = targetIndex;
         _current = value[index];
         return true;
-      }
-      else {
+      } else {
         _current = nul;
         index = length;
         return false;

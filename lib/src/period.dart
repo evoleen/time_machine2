@@ -3,7 +3,7 @@
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
 // import 'package:quiver_hashcode/hashcode.dart';
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 @immutable
 class _DateComponentsBetweenResult {
@@ -16,7 +16,8 @@ class _DateComponentsBetweenResult {
   final int weeks;
   final int days;
 
-  const _DateComponentsBetweenResult(this.date, this.years, this.months, this.weeks, this.days);
+  const _DateComponentsBetweenResult(
+      this.date, this.years, this.months, this.weeks, this.days);
 }
 
 // @private static void TimeComponentsBetween(int totalNanoseconds, PeriodUnits units,
@@ -30,24 +31,47 @@ class _TimeComponentsBetweenResult {
   final int microseconds;
   final int nanoseconds;
 
-  const _TimeComponentsBetweenResult(this.hours, this.minutes, this.seconds, this.milliseconds, this.microseconds, this.nanoseconds);
+  const _TimeComponentsBetweenResult(this.hours, this.minutes, this.seconds,
+      this.milliseconds, this.microseconds, this.nanoseconds);
 }
 
 @internal
 abstract class IPeriod {
-  static int daysBetween(LocalDate start, LocalDate end) => Period._daysBetween(start, end);
+  static int daysBetween(LocalDate start, LocalDate end) =>
+      Period._daysBetween(start, end);
 
-  static Period period({int years = 0, int months = 0, int weeks = 0, int days = 0,
-    int hours = 0, int minutes = 0, int seconds = 0,
-    int milliseconds = 0, int microseconds = 0, int nanoseconds = 0}) =>
-      Period(years: years, months: months, weeks: weeks, days: days, hours: hours, minutes: minutes, seconds: seconds,
-          milliseconds: milliseconds, microseconds: microseconds, nanoseconds: nanoseconds);
+  static Period period(
+          {int years = 0,
+          int months = 0,
+          int weeks = 0,
+          int days = 0,
+          int hours = 0,
+          int minutes = 0,
+          int seconds = 0,
+          int milliseconds = 0,
+          int microseconds = 0,
+          int nanoseconds = 0}) =>
+      Period(
+          years: years,
+          months: months,
+          weeks: weeks,
+          days: days,
+          hours: hours,
+          minutes: minutes,
+          seconds: seconds,
+          milliseconds: milliseconds,
+          microseconds: microseconds,
+          nanoseconds: nanoseconds);
 
-  static LocalTime addTimeTo(Period period, LocalTime time, int scalar) => period._addTimeTo(time, scalar);
+  static LocalTime addTimeTo(Period period, LocalTime time, int scalar) =>
+      period._addTimeTo(time, scalar);
 
-  static LocalDate addDateTo(Period period, LocalDate date, int scalar) => period._addDateTo(date, scalar);
+  static LocalDate addDateTo(Period period, LocalDate date, int scalar) =>
+      period._addDateTo(date, scalar);
 
-  static LocalDateTime addDateTimeTo(Period period, LocalDate date, LocalTime time, int scalar) => period._addDateTimeTo(date, time, scalar);
+  static LocalDateTime addDateTimeTo(
+          Period period, LocalDate date, LocalTime time, int scalar) =>
+      period._addDateTimeTo(date, time, scalar);
 }
 
 /// Represents a period of time expressed in human chronological terms: hours, days,
@@ -79,15 +103,14 @@ class Period {
   /// A period containing only zero-valued properties.
   static const Period zero = Period();
 
-
   /// Returns an equality comparer which compares periods by first normalizing them - so 24 hours is deemed equal to 1 day, and so on.
   /// Note that as per the [normalize] method, years and months are unchanged by normalization - so 12 months does not
   /// equal 1 year.
   // todo: what to do about this? .. was: IEqualityComparer
-  static dynamic get NormalizingEqualityComparer => NormalizingPeriodEqualityComparer.instance;
+  static dynamic get NormalizingEqualityComparer =>
+      NormalizingPeriodEqualityComparer.instance;
 
   // The fields that make up this period.
-
 
   /// Gets the number of nanoseconds within this period.
   ///
@@ -95,13 +118,11 @@ class Period {
   /// contain this property.
   final int nanoseconds;
 
-
   /// Gets the number of microseconds within this period.
   ///
   /// This property returns zero both when the property has been explicitly set to zero and when the period does not
   /// contain this property.
   final int microseconds;
-
 
   /// Gets the number of milliseconds within this period.
   ///
@@ -109,13 +130,11 @@ class Period {
   /// contain this property.
   final int milliseconds;
 
-
   /// Gets the number of seconds within this period.
   ///
   /// This property returns zero both when the property has been explicitly set to zero and when the period does not
   /// contain this property.
   final int seconds;
-
 
   /// Gets the number of minutes within this period.
   ///
@@ -123,13 +142,11 @@ class Period {
   /// contain this property.
   final int minutes;
 
-
   /// Gets the number of hours within this period.
   ///
   /// This property returns zero both when the property has been explicitly set to zero and when the period does not
   /// contain this property.
   final int hours;
-
 
   /// Gets the number of days within this period.
   ///
@@ -137,20 +154,17 @@ class Period {
   /// contain this property.
   final int days;
 
-
   /// Gets the number of weeks within this period.
   ///
   /// This property returns zero both when the property has been explicitly set to zero and when the period does not
   /// contain this property.
   final int weeks;
 
-
   /// Gets the number of months within this period.
   ///
   /// This property returns zero both when the property has been explicitly set to zero and when the period does not
   /// contain this property.
   final int months;
-
 
   /// Gets the number of years within this period.
   ///
@@ -159,10 +173,17 @@ class Period {
   final int years;
 
   /// Creates a period with the given time values.
-  const Period({this.years = 0, this.months = 0, this.weeks = 0, this.days = 0,
-    this.hours = 0, this.minutes = 0, this.seconds = 0,
-    this.milliseconds = 0, this.microseconds = 0, this.nanoseconds = 0});
-
+  const Period(
+      {this.years = 0,
+      this.months = 0,
+      this.weeks = 0,
+      this.days = 0,
+      this.hours = 0,
+      this.minutes = 0,
+      this.seconds = 0,
+      this.milliseconds = 0,
+      this.microseconds = 0,
+      this.nanoseconds = 0});
 
   /// Adds two periods together, by simply adding the values for each property.
   ///
@@ -173,7 +194,8 @@ class Period {
   /// periods.
   Period operator +(Period other) {
     Preconditions.checkNotNull(other, 'right');
-    return Period(years: years + other.years,
+    return Period(
+        years: years + other.years,
         months: months + other.months,
         weeks: weeks + other.weeks,
         days: days + other.days,
@@ -184,7 +206,6 @@ class Period {
         microseconds: microseconds + other.microseconds,
         nanoseconds: nanoseconds + other.nanoseconds);
   }
-
 
   /// Creates an [Comparer] for periods, using the given 'base' local date/time.
   ///
@@ -199,8 +220,8 @@ class Period {
   /// Returns: The new comparer.
   // todo: what to do abuot IComparer?
   // static IComparer<Period> CreateComparer(LocalDateTime baseDateTime) => new PeriodComparer(baseDateTime);
-  static _PeriodComparer createComparer(LocalDateTime baseDateTime) => _PeriodComparer(baseDateTime);
-
+  static _PeriodComparer createComparer(LocalDateTime baseDateTime) =>
+      _PeriodComparer(baseDateTime);
 
   /// Subtracts one period from another, by simply subtracting each property value.
   ///
@@ -242,11 +263,18 @@ class Period {
   ///
   /// * [ArgumentError]: [units] is empty or contained unknown values.
   /// * [ArgumentError]: [start] and [end] use different calendars.
-  static Period differenceBetweenDateTime(LocalDateTime start, LocalDateTime end, [PeriodUnits units = PeriodUnits.dateAndTime]) {
-    Preconditions.checkArgument(units != PeriodUnits.none, 'units', "Units must not be empty");
-    Preconditions.checkArgument((units.value & ~PeriodUnits.allUnits.value) == 0, 'units', "Units contains an unknown value: $units");
+  static Period differenceBetweenDateTime(
+      LocalDateTime start, LocalDateTime end,
+      [PeriodUnits units = PeriodUnits.dateAndTime]) {
+    Preconditions.checkArgument(
+        units != PeriodUnits.none, 'units', "Units must not be empty");
+    Preconditions.checkArgument(
+        (units.value & ~PeriodUnits.allUnits.value) == 0,
+        'units',
+        "Units contains an unknown value: $units");
     CalendarSystem calendar = start.calendar;
-    Preconditions.checkArgument(calendar == end.calendar, 'end', "start and end must use the same calendar system");
+    Preconditions.checkArgument(calendar == end.calendar, 'end',
+        "start and end must use the same calendar system");
 
     if (start == end) {
       return zero;
@@ -262,27 +290,40 @@ class Period {
       if (start.clockTime > end.clockTime) {
         endDate = endDate.addDays(-1);
       }
-    }
-    else if (start > end && start.clockTime < end.clockTime) {
+    } else if (start > end && start.clockTime < end.clockTime) {
       endDate = endDate.addDays(1);
     }
 
     // Optimization for single field
     // todo: optimize me?
     Map _betweenFunctionMap = {
-      PeriodUnits.years:  () => Period(years: DatePeriodFields.yearsField.unitsBetween(start.calendarDate, endDate)),
-      PeriodUnits.months: () => Period(months: DatePeriodFields.monthsField.unitsBetween(start.calendarDate, endDate)),
-      PeriodUnits.weeks: () => Period(weeks: DatePeriodFields.weeksField.unitsBetween(start.calendarDate, endDate)),
-      PeriodUnits.days: () => Period(days: _daysBetween(start.calendarDate, endDate)),
-      PeriodUnits.hours: () => Period(hours: TimePeriodField.hours.unitsBetween(start, end)),
-      PeriodUnits.minutes: () => Period(minutes: TimePeriodField.minutes.unitsBetween(start, end)),
-      PeriodUnits.seconds: () => Period(seconds: TimePeriodField.seconds.unitsBetween(start, end)),
-      PeriodUnits.milliseconds: () => Period(milliseconds: TimePeriodField.milliseconds.unitsBetween(start, end)),
-      PeriodUnits.microseconds: () => Period(microseconds: TimePeriodField.microseconds.unitsBetween(start, end)),
-      PeriodUnits.nanoseconds: () => Period(nanoseconds: TimePeriodField.nanoseconds.unitsBetween(start, end))
+      PeriodUnits.years: () => Period(
+          years: DatePeriodFields.yearsField
+              .unitsBetween(start.calendarDate, endDate)),
+      PeriodUnits.months: () => Period(
+          months: DatePeriodFields.monthsField
+              .unitsBetween(start.calendarDate, endDate)),
+      PeriodUnits.weeks: () => Period(
+          weeks: DatePeriodFields.weeksField
+              .unitsBetween(start.calendarDate, endDate)),
+      PeriodUnits.days: () =>
+          Period(days: _daysBetween(start.calendarDate, endDate)),
+      PeriodUnits.hours: () =>
+          Period(hours: TimePeriodField.hours.unitsBetween(start, end)),
+      PeriodUnits.minutes: () =>
+          Period(minutes: TimePeriodField.minutes.unitsBetween(start, end)),
+      PeriodUnits.seconds: () =>
+          Period(seconds: TimePeriodField.seconds.unitsBetween(start, end)),
+      PeriodUnits.milliseconds: () => Period(
+          milliseconds: TimePeriodField.milliseconds.unitsBetween(start, end)),
+      PeriodUnits.microseconds: () => Period(
+          microseconds: TimePeriodField.microseconds.unitsBetween(start, end)),
+      PeriodUnits.nanoseconds: () => Period(
+          nanoseconds: TimePeriodField.nanoseconds.unitsBetween(start, end))
     };
 
-    if (_betweenFunctionMap.containsKey(units)) return _betweenFunctionMap[units]();
+    if (_betweenFunctionMap.containsKey(units))
+      return _betweenFunctionMap[units]();
 
 //    switch (units) {
 //      case PeriodUnits.years:
@@ -309,10 +350,7 @@ class Period {
 
     // Multiple fields
     LocalDateTime remaining = start;
-    int years = 0,
-        months = 0,
-        weeks = 0,
-        days = 0;
+    int years = 0, months = 0, weeks = 0, days = 0;
     if ((units.value & PeriodUnits.allDateUnits.value) != 0) {
       // LocalDate remainingDate = DateComponentsBetween(
       //  start.Date, endDate, units, out years, out months, out weeks, out days);
@@ -335,8 +373,8 @@ class Period {
     // Where we can optimize, do everything with int arithmetic (as we do for Between(LocalTime, LocalTime)).
     // Otherwise (rare case), use duration arithmetic.
     int hours, minutes, seconds, milliseconds, microseconds, nanoseconds;
-    var span = ILocalDateTime.toLocalInstant(end).timeSinceLocalEpoch
-        - ILocalDateTime.toLocalInstant(remaining).timeSinceLocalEpoch;
+    var span = ILocalDateTime.toLocalInstant(end).timeSinceLocalEpoch -
+        ILocalDateTime.toLocalInstant(remaining).timeSinceLocalEpoch;
     if (span.canNanosecondsBeInteger) {
       var result = _timeComponentsBetween(span.inNanoseconds, units);
       hours = result.hours;
@@ -347,8 +385,7 @@ class Period {
       nanoseconds = result.nanoseconds;
 
       // TimeComponentsBetween(duration.ToInt64Nanoseconds(), units, out hours, out minutes, out seconds, out milliseconds, out ticks, out nanoseconds);
-    }
-    else {
+    } else {
       int unitsBetween(PeriodUnits mask, TimePeriodField timeField) {
         if ((mask.value & units.value) == 0) {
           return 0;
@@ -361,12 +398,16 @@ class Period {
       hours = unitsBetween(PeriodUnits.hours, TimePeriodField.hours);
       minutes = unitsBetween(PeriodUnits.minutes, TimePeriodField.minutes);
       seconds = unitsBetween(PeriodUnits.seconds, TimePeriodField.seconds);
-      milliseconds = unitsBetween(PeriodUnits.milliseconds, TimePeriodField.milliseconds);
-      microseconds = unitsBetween(PeriodUnits.microseconds, TimePeriodField.microseconds);
-      nanoseconds = unitsBetween(PeriodUnits.microseconds, TimePeriodField.nanoseconds);
+      milliseconds =
+          unitsBetween(PeriodUnits.milliseconds, TimePeriodField.milliseconds);
+      microseconds =
+          unitsBetween(PeriodUnits.microseconds, TimePeriodField.microseconds);
+      nanoseconds =
+          unitsBetween(PeriodUnits.microseconds, TimePeriodField.nanoseconds);
     }
 
-    return Period(years: years,
+    return Period(
+        years: years,
         months: months,
         weeks: weeks,
         days: days,
@@ -377,7 +418,6 @@ class Period {
         microseconds: microseconds,
         nanoseconds: nanoseconds);
   }
-
 
   /// Common code to perform the date parts of the Between methods.
   ///
@@ -391,7 +431,8 @@ class Period {
   ///
   /// The resulting date after adding the result components to [start] (to
   /// allow further computations to be made)
-  static _DateComponentsBetweenResult _dateComponentsBetween(LocalDate start, LocalDate end, PeriodUnits units) {
+  static _DateComponentsBetweenResult _dateComponentsBetween(
+      LocalDate start, LocalDate end, PeriodUnits units) {
     // var result = new OutBox(start);
     LocalDate startDate = start;
 
@@ -409,7 +450,8 @@ class Period {
   * */
 
     // this is PeriodUnits maskedUnits in nodatime... but, it's nicer for dart this way
-    int unitsBetween(int maskedUnits, /*OutBox<LocalDate> startDate,*/ IDatePeriodField dateField) {
+    int unitsBetween(int maskedUnits,
+        /*OutBox<LocalDate> startDate,*/ IDatePeriodField dateField) {
       if (maskedUnits == 0) {
         return 0;
       }
@@ -419,14 +461,17 @@ class Period {
       return value;
     }
 
-    var years = unitsBetween(units.value & PeriodUnits.years.value, DatePeriodFields.yearsField);
-    var months = unitsBetween(units.value & PeriodUnits.months.value, DatePeriodFields.monthsField);
-    var weeks = unitsBetween(units.value & PeriodUnits.weeks.value, DatePeriodFields.weeksField);
-    var days = unitsBetween(units.value & PeriodUnits.days.value, DatePeriodFields.daysField);
+    var years = unitsBetween(
+        units.value & PeriodUnits.years.value, DatePeriodFields.yearsField);
+    var months = unitsBetween(
+        units.value & PeriodUnits.months.value, DatePeriodFields.monthsField);
+    var weeks = unitsBetween(
+        units.value & PeriodUnits.weeks.value, DatePeriodFields.weeksField);
+    var days = unitsBetween(
+        units.value & PeriodUnits.days.value, DatePeriodFields.daysField);
 
     return _DateComponentsBetweenResult(startDate, years, months, weeks, days);
   }
-
 
   /// Common code to perform the time parts of the Between methods for long-representable nanos.
   ///
@@ -438,7 +483,8 @@ class Period {
   /// * [milliseconds]: (Out) Milliseconds component of result
   /// * [ticks]: (Out) Ticks component of result
   /// * [nanoseconds]: (Out) Nanoseconds component of result
-  static _TimeComponentsBetweenResult _timeComponentsBetween(int totalNanoseconds, PeriodUnits units) {
+  static _TimeComponentsBetweenResult _timeComponentsBetween(
+      int totalNanoseconds, PeriodUnits units) {
     int UnitsBetween(PeriodUnits mask, int nanosecondsPerUnit) {
       if ((mask.value & units.value) == 0) {
         return 0;
@@ -451,60 +497,68 @@ class Period {
       return value;
     }
 
-    var hours = UnitsBetween(PeriodUnits.hours, TimeConstants.nanosecondsPerHour);
-    var minutes = UnitsBetween(PeriodUnits.minutes, TimeConstants.nanosecondsPerMinute);
-    var seconds = UnitsBetween(PeriodUnits.seconds, TimeConstants.nanosecondsPerSecond);
-    var milliseconds = UnitsBetween(PeriodUnits.milliseconds, TimeConstants.nanosecondsPerMillisecond);
-    var microseconds = UnitsBetween(PeriodUnits.microseconds, TimeConstants.nanosecondsPerMicrosecond);
+    var hours =
+        UnitsBetween(PeriodUnits.hours, TimeConstants.nanosecondsPerHour);
+    var minutes =
+        UnitsBetween(PeriodUnits.minutes, TimeConstants.nanosecondsPerMinute);
+    var seconds =
+        UnitsBetween(PeriodUnits.seconds, TimeConstants.nanosecondsPerSecond);
+    var milliseconds = UnitsBetween(
+        PeriodUnits.milliseconds, TimeConstants.nanosecondsPerMillisecond);
+    var microseconds = UnitsBetween(
+        PeriodUnits.microseconds, TimeConstants.nanosecondsPerMicrosecond);
     var nanoseconds = UnitsBetween(PeriodUnits.nanoseconds, 1);
 
-    return _TimeComponentsBetweenResult(hours, minutes, seconds, milliseconds, microseconds, nanoseconds);
+    return _TimeComponentsBetweenResult(
+        hours, minutes, seconds, milliseconds, microseconds, nanoseconds);
   }
 
 // TODO(optimization): These three methods are only ever used with scalar values of 1 or -1. Unlikely that
 // the multiplications are going to be relevant, but may be worth testing. (Easy enough to break out
 // code for the two values separately.)
 
-
   /// Adds the time components of this period to the given time, scaled accordingly.
-  LocalTime _addTimeTo(LocalTime time, int scalar) =>
-      time.addHours(hours * scalar)
-          .addMinutes(minutes * scalar)
-          .addSeconds(seconds * scalar)
-          .addMilliseconds(milliseconds * scalar)
-          .addMicroseconds(microseconds * scalar)
-          .addNanoseconds(nanoseconds * scalar);
-
+  LocalTime _addTimeTo(LocalTime time, int scalar) => time
+      .addHours(hours * scalar)
+      .addMinutes(minutes * scalar)
+      .addSeconds(seconds * scalar)
+      .addMilliseconds(milliseconds * scalar)
+      .addMicroseconds(microseconds * scalar)
+      .addNanoseconds(nanoseconds * scalar);
 
   /// Adds the date components of this period to the given time, scaled accordingly.
-  LocalDate _addDateTo(LocalDate date, int scalar) =>
-      date.addYears(years * scalar)
-          .addMonths(months * scalar)
-          .addWeeks(weeks * scalar)
-          .addDays(days * scalar);
-
+  LocalDate _addDateTo(LocalDate date, int scalar) => date
+      .addYears(years * scalar)
+      .addMonths(months * scalar)
+      .addWeeks(weeks * scalar)
+      .addDays(days * scalar);
 
   /// Adds the contents of this period to the given date and time, with the given scale (either 1 or -1, usually).
   LocalDateTime _addDateTimeTo(LocalDate date, LocalTime time, int scalar) {
     date = _addDateTo(date, scalar);
 
     var calc = AddTimeCalc(time, 0);
-    calc.addTimeAndDays(TimePeriodField.hours, hours*scalar);
-    calc.addTimeAndDays(TimePeriodField.minutes, minutes*scalar);
-    calc.addTimeAndDays(TimePeriodField.seconds, seconds*scalar);
-    calc.addTimeAndDays(TimePeriodField.milliseconds, milliseconds*scalar);
-    calc.addTimeAndDays(TimePeriodField.microseconds, microseconds*scalar);
-    calc.addTimeAndDays(TimePeriodField.nanoseconds, nanoseconds*scalar);
+    calc.addTimeAndDays(TimePeriodField.hours, hours * scalar);
+    calc.addTimeAndDays(TimePeriodField.minutes, minutes * scalar);
+    calc.addTimeAndDays(TimePeriodField.seconds, seconds * scalar);
+    calc.addTimeAndDays(TimePeriodField.milliseconds, milliseconds * scalar);
+    calc.addTimeAndDays(TimePeriodField.microseconds, microseconds * scalar);
+    calc.addTimeAndDays(TimePeriodField.nanoseconds, nanoseconds * scalar);
 
     // TODO(optimization): Investigate the performance impact of us calling PlusDays twice.
     // Could optimize by including that in a single call...
-    return LocalDateTime.localDateAtTime(date.addDays(calc.extraDays), calc.localTime);
+    return LocalDateTime.localDateAtTime(
+        date.addDays(calc.extraDays), calc.localTime);
   }
 
-  static final Map<PeriodUnits, Period Function(LocalDate, LocalDate)> _functionMapBetweenDates = {
-    PeriodUnits.years: (start, end) => Period(years: DatePeriodFields.yearsField.unitsBetween(start, end)),
-    PeriodUnits.months: (start, end) => Period(months: DatePeriodFields.monthsField.unitsBetween(start, end)),
-    PeriodUnits.weeks: (start, end) => Period(weeks: DatePeriodFields.weeksField.unitsBetween(start, end)),
+  static final Map<PeriodUnits, Period Function(LocalDate, LocalDate)>
+      _functionMapBetweenDates = {
+    PeriodUnits.years: (start, end) =>
+        Period(years: DatePeriodFields.yearsField.unitsBetween(start, end)),
+    PeriodUnits.months: (start, end) =>
+        Period(months: DatePeriodFields.monthsField.unitsBetween(start, end)),
+    PeriodUnits.weeks: (start, end) =>
+        Period(weeks: DatePeriodFields.weeksField.unitsBetween(start, end)),
     PeriodUnits.days: (start, end) => Period(days: _daysBetween(start, end))
   };
 
@@ -524,12 +578,21 @@ class Period {
   ///
   /// * [ArgumentError]: [units] contains time units, is empty or contains unknown values.
   /// * [ArgumentError]: [start] and [end] use different calendars.
-  static Period differenceBetweenDates(LocalDate start, LocalDate end, [PeriodUnits units = PeriodUnits.yearMonthDay]) {
-    Preconditions.checkArgument((units.value & PeriodUnits.allTimeUnits.value) == 0, 'units', "Units contains time units: $units");
-    Preconditions.checkArgument(units.value != 0, 'units', "Units must not be empty");
-    Preconditions.checkArgument((units.value & ~PeriodUnits.allUnits.value) == 0, 'units', "Units contains an unknown value: $units");
+  static Period differenceBetweenDates(LocalDate start, LocalDate end,
+      [PeriodUnits units = PeriodUnits.yearMonthDay]) {
+    Preconditions.checkArgument(
+        (units.value & PeriodUnits.allTimeUnits.value) == 0,
+        'units',
+        "Units contains time units: $units");
+    Preconditions.checkArgument(
+        units.value != 0, 'units', "Units must not be empty");
+    Preconditions.checkArgument(
+        (units.value & ~PeriodUnits.allUnits.value) == 0,
+        'units',
+        "Units contains an unknown value: $units");
     CalendarSystem calendar = start.calendar;
-    Preconditions.checkArgument(calendar == end.calendar, 'end', "start and end must use the same calendar system");
+    Preconditions.checkArgument(calendar == end.calendar, 'end',
+        "start and end must use the same calendar system");
 
     if (start == end) {
       return zero;
@@ -541,15 +604,25 @@ class Period {
 
     // Multiple fields todo: if these result_type functions are just used to make periods, we can simply them
     var result = _dateComponentsBetween(start, end, units);
-    return Period(years: result.years, months: result.months, weeks: result.weeks, days: result.days);
+    return Period(
+        years: result.years,
+        months: result.months,
+        weeks: result.weeks,
+        days: result.days);
   }
 
-  static final Map<PeriodUnits, Period Function(int)> _functionMapBetweenTimes = {
-    PeriodUnits.hours: (remaining) => Period(hours: remaining ~/ TimeConstants.nanosecondsPerHour),
-    PeriodUnits.minutes: (remaining) => Period(minutes: remaining ~/ TimeConstants.nanosecondsPerMinute),
-    PeriodUnits.seconds: (remaining) => Period(seconds: remaining ~/ TimeConstants.nanosecondsPerSecond),
-    PeriodUnits.milliseconds: (remaining) => Period(milliseconds: remaining ~/ TimeConstants.nanosecondsPerMillisecond),
-    PeriodUnits.microseconds: (remaining) => Period(microseconds: remaining ~/ TimeConstants.nanosecondsPerMicrosecond),
+  static final Map<PeriodUnits, Period Function(int)> _functionMapBetweenTimes =
+      {
+    PeriodUnits.hours: (remaining) =>
+        Period(hours: remaining ~/ TimeConstants.nanosecondsPerHour),
+    PeriodUnits.minutes: (remaining) =>
+        Period(minutes: remaining ~/ TimeConstants.nanosecondsPerMinute),
+    PeriodUnits.seconds: (remaining) =>
+        Period(seconds: remaining ~/ TimeConstants.nanosecondsPerSecond),
+    PeriodUnits.milliseconds: (remaining) => Period(
+        milliseconds: remaining ~/ TimeConstants.nanosecondsPerMillisecond),
+    PeriodUnits.microseconds: (remaining) => Period(
+        microseconds: remaining ~/ TimeConstants.nanosecondsPerMicrosecond),
     PeriodUnits.nanoseconds: (remaining) => Period(nanoseconds: remaining)
   };
 
@@ -569,22 +642,32 @@ class Period {
   ///
   /// * [ArgumentError]: [units] contains date units, is empty or contains unknown values.
   /// * [ArgumentError]: [start] and [end] use different calendars.
-  static Period differenceBetweenTimes(LocalTime start, LocalTime end, [PeriodUnits units = PeriodUnits.allTimeUnits]) {
-    Preconditions.checkArgument((units.value & PeriodUnits.allDateUnits.value) == 0, 'units', "Units contains date units: $units");
-    Preconditions.checkArgument(units.value != 0, 'units', "Units must not be empty");
-    Preconditions.checkArgument((units.value & ~PeriodUnits.allUnits.value) == 0, 'units', "Units contains an unknown value: $units");
+  static Period differenceBetweenTimes(LocalTime start, LocalTime end,
+      [PeriodUnits units = PeriodUnits.allTimeUnits]) {
+    Preconditions.checkArgument(
+        (units.value & PeriodUnits.allDateUnits.value) == 0,
+        'units',
+        "Units contains date units: $units");
+    Preconditions.checkArgument(
+        units.value != 0, 'units', "Units must not be empty");
+    Preconditions.checkArgument(
+        (units.value & ~PeriodUnits.allUnits.value) == 0,
+        'units',
+        "Units contains an unknown value: $units");
 
     // We know that the difference is in the range of +/- 1 day, which is a relatively small
     // number of nanoseconds. All the operations can be done with simple int division/remainder ops,
     // so we don't need to delegate to TimePeriodField.
-    int remaining = (end.timeSinceMidnight.inNanoseconds - start.timeSinceMidnight.inNanoseconds);
+    int remaining = (end.timeSinceMidnight.inNanoseconds -
+        start.timeSinceMidnight.inNanoseconds);
 
     // Optimization for a single unit
     var singleFieldFunction = _functionMapBetweenTimes[units];
     if (singleFieldFunction != null) return singleFieldFunction(remaining);
 
     var result = _timeComponentsBetween(remaining, units);
-    return Period(hours: result.hours,
+    return Period(
+        hours: result.hours,
         minutes: result.minutes,
         seconds: result.seconds,
         milliseconds: result.milliseconds,
@@ -609,10 +692,17 @@ class Period {
   }
 
   /// Returns whether or not this period contains any non-zero-valued time-based properties (hours or lower).
-  bool get hasTimeComponent => hours != 0 || minutes != 0 || seconds != 0 || milliseconds != 0 || microseconds != 0 || nanoseconds != 0;
+  bool get hasTimeComponent =>
+      hours != 0 ||
+      minutes != 0 ||
+      seconds != 0 ||
+      milliseconds != 0 ||
+      microseconds != 0 ||
+      nanoseconds != 0;
 
   /// Returns whether or not this period contains any non-zero date-based properties (days or higher).
-  bool get hasDateComponent => years != 0 || months != 0 || weeks != 0 || days != 0;
+  bool get hasDateComponent =>
+      years != 0 || months != 0 || weeks != 0 || days != 0;
 
   // todo: verify Overflow
 
@@ -629,7 +719,8 @@ class Period {
   Time toTime() {
     if (months != 0 || years != 0) {
       // we can't do this because months and years have undefined amounts of times.
-      throw StateError('Cannot construct span of period with non-zero months or years.');
+      throw StateError(
+          'Cannot construct span of period with non-zero months or years.');
     }
     return Time(nanoseconds: _totalNanoseconds);
   }
@@ -637,13 +728,13 @@ class Period {
   /// Gets the total number of nanoseconds duration for the 'standard' properties (all bar years and months).
   int get _totalNanoseconds =>
       nanoseconds +
-          microseconds * TimeConstants.nanosecondsPerMicrosecond +
-          milliseconds * TimeConstants.nanosecondsPerMillisecond +
-          seconds * TimeConstants.nanosecondsPerSecond +
-          minutes * TimeConstants.nanosecondsPerMinute +
-          hours * TimeConstants.nanosecondsPerHour +
-          days * TimeConstants.nanosecondsPerDay +
-          weeks * TimeConstants.nanosecondsPerWeek;
+      microseconds * TimeConstants.nanosecondsPerMicrosecond +
+      milliseconds * TimeConstants.nanosecondsPerMillisecond +
+      seconds * TimeConstants.nanosecondsPerSecond +
+      minutes * TimeConstants.nanosecondsPerMinute +
+      hours * TimeConstants.nanosecondsPerHour +
+      days * TimeConstants.nanosecondsPerDay +
+      weeks * TimeConstants.nanosecondsPerWeek;
 
   /// Creates a [PeriodBuilder] from this instance. The new builder
   /// is populated with the values from this period, but is then detached from it:
@@ -682,21 +773,35 @@ class Period {
     int hours, minutes, seconds, milliseconds, nanoseconds;
 
     if (totalNanoseconds >= 0) {
-      hours = (totalNanoseconds ~/ TimeConstants.nanosecondsPerHour) % TimeConstants.hoursPerDay;
-      minutes = (totalNanoseconds ~/ TimeConstants.nanosecondsPerMinute) % TimeConstants.minutesPerHour;
-      seconds = (totalNanoseconds ~/ TimeConstants.nanosecondsPerSecond) % TimeConstants.secondsPerMinute;
-      milliseconds = (totalNanoseconds ~/ TimeConstants.nanosecondsPerMillisecond) % TimeConstants.millisecondsPerSecond;
+      hours = (totalNanoseconds ~/ TimeConstants.nanosecondsPerHour) %
+          TimeConstants.hoursPerDay;
+      minutes = (totalNanoseconds ~/ TimeConstants.nanosecondsPerMinute) %
+          TimeConstants.minutesPerHour;
+      seconds = (totalNanoseconds ~/ TimeConstants.nanosecondsPerSecond) %
+          TimeConstants.secondsPerMinute;
+      milliseconds =
+          (totalNanoseconds ~/ TimeConstants.nanosecondsPerMillisecond) %
+              TimeConstants.millisecondsPerSecond;
       nanoseconds = totalNanoseconds % TimeConstants.nanosecondsPerMillisecond;
-    }
-    else {
-      hours = arithmeticMod((totalNanoseconds ~/ TimeConstants.nanosecondsPerHour), TimeConstants.hoursPerDay);
-      minutes = arithmeticMod((totalNanoseconds ~/ TimeConstants.nanosecondsPerMinute), TimeConstants.minutesPerHour);
-      seconds = arithmeticMod((totalNanoseconds ~/ TimeConstants.nanosecondsPerSecond), TimeConstants.secondsPerMinute);
-      milliseconds = arithmeticMod((totalNanoseconds ~/ TimeConstants.nanosecondsPerMillisecond), TimeConstants.millisecondsPerSecond);
-      nanoseconds = arithmeticMod(totalNanoseconds, TimeConstants.nanosecondsPerMillisecond);
+    } else {
+      hours = arithmeticMod(
+          (totalNanoseconds ~/ TimeConstants.nanosecondsPerHour),
+          TimeConstants.hoursPerDay);
+      minutes = arithmeticMod(
+          (totalNanoseconds ~/ TimeConstants.nanosecondsPerMinute),
+          TimeConstants.minutesPerHour);
+      seconds = arithmeticMod(
+          (totalNanoseconds ~/ TimeConstants.nanosecondsPerSecond),
+          TimeConstants.secondsPerMinute);
+      milliseconds = arithmeticMod(
+          (totalNanoseconds ~/ TimeConstants.nanosecondsPerMillisecond),
+          TimeConstants.millisecondsPerSecond);
+      nanoseconds = arithmeticMod(
+          totalNanoseconds, TimeConstants.nanosecondsPerMillisecond);
     }
 
-    return Period(years: years,
+    return Period(
+        years: years,
         months: months,
         weeks: 0 /* weeks */,
         days: days,
@@ -709,10 +814,23 @@ class Period {
   }
 
   /// Returns this string formatted according to the [PeriodPattern.roundtrip].
-  @override String toString() => PeriodPattern.roundtrip.format(this);
+  @override
+  String toString() => PeriodPattern.roundtrip.format(this);
 
   /// Returns the hash code for this period.
-  @override int get hashCode => hashObjects([years, months, weeks, days, hours, minutes, seconds, milliseconds, microseconds, nanoseconds]);
+  @override
+  int get hashCode => hashObjects([
+        years,
+        months,
+        weeks,
+        days,
+        hours,
+        minutes,
+        seconds,
+        milliseconds,
+        microseconds,
+        nanoseconds
+      ]);
 
   /// Compares the given period for equality with this one.
   ///
@@ -722,25 +840,28 @@ class Period {
   /// [other]: The period to compare this one with.
   /// Returns: True if this period has the same values for the same properties as the one specified.
   bool equals(Period other) =>
-          years == other.years &&
-          months == other.months &&
-          weeks == other.weeks &&
-          days == other.days &&
-          hours == other.hours &&
-          minutes == other.minutes &&
-          seconds == other.seconds &&
-          milliseconds == other.milliseconds &&
-          microseconds == other.microseconds &&
-          nanoseconds == other.nanoseconds;
+      years == other.years &&
+      months == other.months &&
+      weeks == other.weeks &&
+      days == other.days &&
+      hours == other.hours &&
+      minutes == other.minutes &&
+      seconds == other.seconds &&
+      milliseconds == other.milliseconds &&
+      microseconds == other.microseconds &&
+      nanoseconds == other.nanoseconds;
 
   @override
-  bool operator==(Object other) => other is Period && equals(other);
+  bool operator ==(Object other) => other is Period && equals(other);
 }
 
 // todo: why is this private, it's used in period_tests?
 /// Equality comparer which simply normalizes periods before comparing them.
-@private class NormalizingPeriodEqualityComparer {
-  @internal static final NormalizingPeriodEqualityComparer instance = NormalizingPeriodEqualityComparer._();
+@private
+class NormalizingPeriodEqualityComparer {
+  @internal
+  static final NormalizingPeriodEqualityComparer instance =
+      NormalizingPeriodEqualityComparer._();
 
   NormalizingPeriodEqualityComparer._();
 
@@ -752,15 +873,12 @@ class Period {
   }
 
   int getHashCode(Period obj) =>
-      Preconditions
-          .checkNotNull(obj, 'obj')
-          .normalize()
-          .hashCode;
+      Preconditions.checkNotNull(obj, 'obj').normalize().hashCode;
 }
 
 // todo: implements Comparer
 class _PeriodComparer // implements Comparer<Period>
-    {
+{
   final LocalDateTime _baseDateTime;
 
   _PeriodComparer(this._baseDateTime);
@@ -775,8 +893,7 @@ class _PeriodComparer // implements Comparer<Period>
     if (y == null) {
       return 1;
     }
-    if (x.months == 0 && y.months == 0 &&
-        x.years == 0 && y.years == 0) {
+    if (x.months == 0 && y.months == 0 && x.years == 0 && y.years == 0) {
       // Note: this *could* throw an OverflowException when the normal approach
       // wouldn't, but it's highly unlikely
       return x.toTime().compareTo(y.toTime());

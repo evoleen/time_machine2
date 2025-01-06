@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
 
@@ -23,7 +23,8 @@ class OffsetPatternTest extends PatternTestBase<Offset> {
   static const String Nbsp = "\u00a0";
 
   /// Test data that can only be used to test formatting.
-  @internal final List<Data> FormatOnlyData = [
+  @internal
+  final List<Data> FormatOnlyData = [
     Data.hms(3, 0, 0)
       ..culture = TestCultures.EnUs
       ..text = ''
@@ -130,7 +131,8 @@ class OffsetPatternTest extends PatternTestBase<Offset> {
   ];
 
   /// Test data that can only be used to test successful parsing.
-  @internal final List<Data> ParseOnlyData = [
+  @internal
+  final List<Data> ParseOnlyData = [
     Data(Offset.zero)
       ..culture = TestCultures.EnUs
       ..text = '*'
@@ -169,7 +171,8 @@ class OffsetPatternTest extends PatternTestBase<Offset> {
   ];
 
   /// Test data for invalid patterns
-  @internal final List<Data> InvalidPatternData = [
+  @internal
+  final List<Data> InvalidPatternData = [
     Data(Offset.zero)
       ..pattern = ''
       ..message = TextErrorMessages.formatStringEmpty,
@@ -257,7 +260,8 @@ class OffsetPatternTest extends PatternTestBase<Offset> {
   ];
 
   /// Tests for parsing failures (of values)
-  @internal final List<Data> ParseFailureData = [
+  @internal
+  final List<Data> ParseFailureData = [
     Data(Offset.zero)
       ..culture = TestCultures.EnUs
       ..text = ''
@@ -377,7 +381,8 @@ class OffsetPatternTest extends PatternTestBase<Offset> {
 
   /// Common test data for both formatting and parsing. A test should be placed here unless is truly
   /// cannot be run both ways. This ensures that as many round-trip type tests are performed as possible.
-  @internal final List<Data> FormatAndParseData = [
+  @internal
+  final List<Data> FormatAndParseData = [
 /*XXX*/ Data(Offset.zero)
       ..culture = TestCultures.EnUs
       ..text = '.'
@@ -650,9 +655,13 @@ class OffsetPatternTest extends PatternTestBase<Offset> {
       ..pattern = 'Z+HH:mm',
   ];
 
-  @internal Iterable<Data> get ParseData => [ParseOnlyData, FormatAndParseData].expand((x) => x);
+  @internal
+  Iterable<Data> get ParseData =>
+      [ParseOnlyData, FormatAndParseData].expand((x) => x);
 
-  @internal Iterable<Data> get FormatData => [FormatOnlyData, FormatAndParseData].expand((x) => x);
+  @internal
+  Iterable<Data> get FormatData =>
+      [FormatOnlyData, FormatAndParseData].expand((x) => x);
 
   @Test()
   @TestCaseSource(#ParseData)
@@ -691,15 +700,20 @@ class OffsetPatternTest extends PatternTestBase<Offset> {
 }
 
 /// A container for test data for formatting and parsing [Offset] objects.
-/*sealed*/class Data extends PatternTestData<Offset> {
+/*sealed*/ class Data extends PatternTestData<Offset> {
   // Ignored anyway...
-  /*protected*/ @override Offset get defaultTemplate => Offset.zero;
+  /*protected*/ @override
+  Offset get defaultTemplate => Offset.zero;
 
   Data(Offset value) : super(value);
 
-  Data.hms(int hours, int minutes, [int seconds = 0, bool negative = false]) // : this(Offset.FromHoursAndMinutes(hours, minutes))
-      : this(negative ? TestObjects.CreateNegativeOffset(hours, minutes, seconds) :
-  TestObjects.CreatePositiveOffset(hours, minutes, seconds));
+  Data.hms(int hours, int minutes,
+      [int seconds = 0,
+      bool negative =
+          false]) // : this(Offset.FromHoursAndMinutes(hours, minutes))
+      : this(negative
+            ? TestObjects.CreateNegativeOffset(hours, minutes, seconds)
+            : TestObjects.CreatePositiveOffset(hours, minutes, seconds));
 
   /*
   Data(int hours, int minutes, int seconds)
@@ -723,10 +737,6 @@ class OffsetPatternTest extends PatternTestBase<Offset> {
   @override
   IPartialPattern<Offset> CreatePartialPattern() =>
       OffsetPatterns.underlyingPattern(
-      OffsetPattern
-          .createWithInvariantCulture(super.pattern)
-          .withCulture(culture));
+          OffsetPattern.createWithInvariantCulture(super.pattern)
+              .withCulture(culture));
 }
-
-
-

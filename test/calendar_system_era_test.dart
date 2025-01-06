@@ -3,7 +3,7 @@
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
 import 'time_machine_testing.dart';
@@ -17,8 +17,7 @@ final CalendarSystem CopticCalendar = CalendarSystem.coptic;
 
 // Tests using CopticCalendar as a simple example which doesn't override anything.
 @Test()
-void GetAbsoluteYear()
-{
+void GetAbsoluteYear() {
   expect(5, CopticCalendar.getAbsoluteYear(5, Era.annoMartyrum));
   // Prove it's right...
   LocalDate localDate = LocalDate(5, 1, 1, CopticCalendar);
@@ -28,15 +27,12 @@ void GetAbsoluteYear()
 }
 
 @Test()
-void GetMinYearOfEra()
-{
+void GetMinYearOfEra() {
   expect(1, CopticCalendar.getMinYearOfEra(Era.annoMartyrum));
 }
 
 @Test()
-void GetMaxYearOfEra()
-{
-  expect(CopticCalendar.maxYear, CopticCalendar.getMaxYearOfEra(Era.annoMartyrum));
+void GetMaxYearOfEra() {
+  expect(
+      CopticCalendar.maxYear, CopticCalendar.getMaxYearOfEra(Era.annoMartyrum));
 }
-
-

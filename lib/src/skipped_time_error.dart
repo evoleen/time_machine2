@@ -2,7 +2,7 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 /// Exception thrown to indicate that the specified local time doesn't
 /// exist in a particular time zone due to daylight saving time changes.
@@ -36,5 +36,6 @@ class SkippedTimeError extends Error {
   /// * [localDateTime]: The local date/time which is skipped in the specified time zone.
   /// * [zone]: The time zone in which the local date/time does not exist.
   SkippedTimeError(this.localDateTime, this.zone)
-      : message = "Local time $localDateTime is invalid in time zone ${zone.id}";
+      : message =
+            "Local time $localDateTime is invalid in time zone ${zone.id}";
 }

@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
 // import 'package:matcher/matcher.dart';
@@ -17,21 +17,20 @@ Future main() async {
 
 /// Using the default constructor is equivalent to January 1st 1970, UTC, ISO calendar
 @Test()
-void DefaultConstructor()
-{
+void DefaultConstructor() {
   // todo: new LocalDate()
   var actual = LocalDate(1, 1, 1);
   expect(LocalDate(1, 1, 1), actual);
 }
 
 @Test()
-void CombinationWithTime()
-{
+void CombinationWithTime() {
   // Test all three approaches in the same test - they're logically equivalent.
   var calendar = CalendarSystem.julian;
   LocalDate date = LocalDate(2014, 3, 28, calendar);
   LocalTime time = LocalTime(20, 17, 30);
-  LocalDateTime expected = LocalDateTime(2014, 3, 28, 20, 17, 30, calendar: calendar);
+  LocalDateTime expected =
+      LocalDateTime(2014, 3, 28, 20, 17, 30, calendar: calendar);
   // expect(expected, date + time);
   expect(expected, date.at(time));
   expect(expected, time.atDate(date));
@@ -46,16 +45,14 @@ void Construction_NullCalendar_Throws()
 }*/
 
 @Test()
-void MaxIsoValue()
-{
+void MaxIsoValue() {
   var value = LocalDate.maxIsoValue;
   expect(CalendarSystem.iso, value.calendar);
   expect(() => value.addDays(1), throwsRangeError);
 }
 
 @Test()
-void MinIsoValue()
-{
+void MinIsoValue() {
   var value = LocalDate.minIsoValue;
   expect(CalendarSystem.iso, value.calendar);
   expect(() => value.addDays(-1), throwsRangeError);

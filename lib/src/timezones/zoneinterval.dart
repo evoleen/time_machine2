@@ -3,7 +3,7 @@
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
 // import 'package:quiver_hashcode/hashcode.dart';
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 // todo: thought: should I adopt the *of() Pattern from flutter?
 @internal
@@ -11,22 +11,29 @@ abstract class IZoneInterval {
   static Instant rawStart(ZoneInterval zoneInterval) => zoneInterval._rawStart;
   static Instant rawEnd(ZoneInterval zoneInterval) => zoneInterval._rawEnd;
 
-  static ZoneInterval newZoneInterval(String name, Instant? rawStart, Instant? rawEnd, Offset wallOffset, Offset savings) =>
+  static ZoneInterval newZoneInterval(String name, Instant? rawStart,
+          Instant? rawEnd, Offset wallOffset, Offset savings) =>
       ZoneInterval._(name, rawStart, rawEnd, wallOffset, savings);
 
-  static ZoneInterval? withStart(ZoneInterval? zoneInterval, Instant newStart) => zoneInterval?._withStart(newStart);
+  static ZoneInterval? withStart(
+          ZoneInterval? zoneInterval, Instant newStart) =>
+      zoneInterval?._withStart(newStart);
 
-  static ZoneInterval? withEnd(ZoneInterval? zoneInterval, Instant newEnd) => zoneInterval?._withEnd(newEnd);
+  static ZoneInterval? withEnd(ZoneInterval? zoneInterval, Instant newEnd) =>
+      zoneInterval?._withEnd(newEnd);
 
-  static bool containsLocal(ZoneInterval zoneInterval, LocalInstant localInstant) => zoneInterval._containsLocal(localInstant);
+  static bool containsLocal(
+          ZoneInterval zoneInterval, LocalInstant localInstant) =>
+      zoneInterval._containsLocal(localInstant);
 
-  static bool equalIgnoreBounds(ZoneInterval zoneInterval, ZoneInterval other) => zoneInterval._equalIgnoreBounds(other);
+  static bool equalIgnoreBounds(
+          ZoneInterval zoneInterval, ZoneInterval other) =>
+      zoneInterval._equalIgnoreBounds(other);
 }
 
 /// Represents a range of time for which a particular Offset applies.
 @immutable
 class ZoneInterval {
-
   /// Returns the underlying start instant of this zone interval. If the zone interval extends to the
   /// beginning of time, the return value will be [IInstant.beforeMinValue]; this value
   /// should *not* be exposed publicly.
@@ -61,7 +68,8 @@ class ZoneInterval {
   ///
   /// [InvalidOperationException]: The zone interval extends to the end of time
   Instant get end {
-    Preconditions.checkState(_rawEnd.isValid, 'Zone interval extends to the end of time');
+    Preconditions.checkState(
+        _rawEnd.isValid, 'Zone interval extends to the end of time');
     return _rawEnd;
   }
 
@@ -83,11 +91,11 @@ class ZoneInterval {
   /// [OverflowException]: The interval starts too early to represent as a `LocalDateTime`.
   /// [InvalidOperationException]: The interval extends to the start of time.
   LocalDateTime get isoLocalStart =>
-  // Use the Start property to trigger the appropriate end-of-time exception.
-  // Call Plus to trigger an appropriate out-of-range exception.
-  // todo: check this -- I'm not sure how I got so confused on this
-  ILocalDateTime.fromInstant(IInstant.safePlus(start, wallOffset)); // .WithOffset(wallOffset));
-
+      // Use the Start property to trigger the appropriate end-of-time exception.
+      // Call Plus to trigger an appropriate out-of-range exception.
+      // todo: check this -- I'm not sure how I got so confused on this
+      ILocalDateTime.fromInstant(
+          IInstant.safePlus(start, wallOffset)); // .WithOffset(wallOffset));
 
   /// Gets the local end time of the interval, as a [LocalDateTime]
   /// in the ISO calendar.
@@ -99,10 +107,9 @@ class ZoneInterval {
   /// [OverflowException]: The interval ends too late to represent as a `LocalDateTime`.
   /// [InvalidOperationException]: The interval extends to the end of time.
   LocalDateTime get isoLocalEnd =>
-  // Use the End property to trigger the appropriate end-of-time exception.
-  // Call Plus to trigger an appropriate out-of-range exception.
-  ILocalDateTime.fromInstant(IInstant.plusOffset(end, wallOffset));
-
+      // Use the End property to trigger the appropriate end-of-time exception.
+      // Call Plus to trigger an appropriate out-of-range exception.
+      ILocalDateTime.fromInstant(IInstant.plusOffset(end, wallOffset));
 
   /// Gets the name of this offset period (e.g. PST or PDT).
   final String name;
@@ -130,7 +137,8 @@ class ZoneInterval {
 
   /// Gets the first Instant that the Offset applies.
   Instant get start {
-    Preconditions.checkState(_rawStart.isValid, 'Zone interval extends to the beginning of time');
+    Preconditions.checkState(
+        _rawStart.isValid, 'Zone interval extends to the beginning of time');
     return _rawStart;
   }
 
@@ -144,17 +152,20 @@ class ZoneInterval {
   /// [wallOffset]: The [wallOffset] from UTC for this period including any daylight savings.
   /// [savings]: The [wallOffset] daylight savings contribution to the offset.
   /// [ArgumentError]: If `<paramref name = 'start' /> &gt;= <paramref name = "end" />`.
-  factory ZoneInterval._(String name, Instant? rawStart, Instant? rawEnd, Offset wallOffset, Offset savings) {
+  factory ZoneInterval._(String name, Instant? rawStart, Instant? rawEnd,
+      Offset wallOffset, Offset savings) {
     rawStart ??= IInstant.beforeMinValue;
     rawEnd ??= IInstant.afterMaxValue;
     // Work out the corresponding local instants, taking care to 'go infinite' appropriately.
     Preconditions.checkNotNull(name, 'name');
-    Preconditions.checkArgument(rawStart < rawEnd, 'start', "The start Instant must be less than the end Instant");
+    Preconditions.checkArgument(rawStart < rawEnd, 'start',
+        "The start Instant must be less than the end Instant");
     return ZoneInterval._new(name, rawStart, rawEnd, wallOffset, savings);
   }
 
-  ZoneInterval._new(this.name, this._rawStart, this._rawEnd, this.wallOffset, this.savings) :
-        _localStart = IInstant.safePlus(_rawStart, wallOffset),
+  ZoneInterval._new(
+      this.name, this._rawStart, this._rawEnd, this.wallOffset, this.savings)
+      : _localStart = IInstant.safePlus(_rawStart, wallOffset),
         _localEnd = IInstant.safePlus(_rawEnd, wallOffset);
 
   /// Returns a copy of this zone interval, but with the given start instant.
@@ -182,13 +193,16 @@ class ZoneInterval {
   /// [localInstant]: The local instant to test.
   ///
   /// `true` if this period contains the given LocalInstant in its range; otherwise, `false`.
-  bool _containsLocal(LocalInstant localInstant) => _localStart <= localInstant && localInstant < _localEnd;
+  bool _containsLocal(LocalInstant localInstant) =>
+      _localStart <= localInstant && localInstant < _localEnd;
 
   /// Returns whether this zone interval has the same offsets and name as another.
   bool _equalIgnoreBounds(ZoneInterval other) {
     // todo: debug check only
     Preconditions.checkNotNull(other, 'other');
-    return other.wallOffset == wallOffset && other.savings == savings && other.name == name;
+    return other.wallOffset == wallOffset &&
+        other.savings == savings &&
+        other.name == name;
   }
 
   /// Indicates whether the current object is equal to another object of the same type.
@@ -203,21 +217,28 @@ class ZoneInterval {
     if (identical(this, other)) {
       return true;
     }
-    return name == other.name && _rawStart == other._rawStart && _rawEnd == other._rawEnd
-        && wallOffset == other.wallOffset && savings == other.savings;
+    return name == other.name &&
+        _rawStart == other._rawStart &&
+        _rawEnd == other._rawEnd &&
+        wallOffset == other.wallOffset &&
+        savings == other.savings;
   }
 
-  @override bool operator==(Object other) => other is ZoneInterval ? equals(other) : false;
+  @override
+  bool operator ==(Object other) =>
+      other is ZoneInterval ? equals(other) : false;
 
   /// Serves as a hash function for a particular type.
-  @override int get hashCode => hashObjects([name, _rawStart, _rawEnd, wallOffset, savings]);
+  @override
+  int get hashCode =>
+      hashObjects([name, _rawStart, _rawEnd, wallOffset, savings]);
 
   /// Returns a [String] that represents this instance.
   ///
   /// A [String] that represents this instance.
-  @override String toString() => '$name: [$_rawStart, $_rawEnd) $wallOffset ($savings)';
+  @override
+  String toString() => '$name: [$_rawStart, $_rawEnd) $wallOffset ($savings)';
 
 // @override String toString() => '${name}: [$RawStart, $RawEnd) $wallOffset ($savings)';
 // @override String toString() => '${name}: [$IsoLocalStart, $IsoLocalEnd) $wallOffset ($savings)';
-
 }

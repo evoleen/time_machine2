@@ -3,8 +3,8 @@
 
 import 'dart:async';
 
-import 'package:time_machine/time_machine.dart';
-import 'package:time_machine/time_machine_text_patterns.dart';
+import 'package:time_machine2/time_machine2.dart';
+import 'package:time_machine2/time_machine_text_patterns.dart';
 
 Future main() async {
   try {

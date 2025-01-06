@@ -2,23 +2,27 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 /// todo: investigate, probably not needed for Dart
 /// Class whose existence is solely to avoid type initialization order issues, most of which stem
 /// from needing TimeFormatInfo.InvariantInfo...
 @internal
 abstract class AnnualDatePatterns {
-  static AnnualDatePattern create(String patternText, TimeMachineFormatInfo formatInfo, AnnualDate templateValue) =>
+  static AnnualDatePattern create(String patternText,
+          TimeMachineFormatInfo formatInfo, AnnualDate templateValue) =>
       AnnualDatePattern._create(patternText, formatInfo, templateValue);
   static final AnnualDate defaultTemplateValue = AnnualDate(1, 1);
 
-  static IPartialPattern<AnnualDate> underlyingPattern(AnnualDatePattern annualDatePattern) => annualDatePattern._underlyingPattern;
+  static IPartialPattern<AnnualDate> underlyingPattern(
+          AnnualDatePattern annualDatePattern) =>
+      annualDatePattern._underlyingPattern;
 
-  static final AnnualDatePattern isoPatternImpl = AnnualDatePattern.createWithInvariantCulture("MM'-'dd");
-  static String format(AnnualDate annualDate, String? patternText, Culture? culture) =>
-      TimeMachineFormatInfo
-          .getInstance(culture ?? Culture.current)
+  static final AnnualDatePattern isoPatternImpl =
+      AnnualDatePattern.createWithInvariantCulture("MM'-'dd");
+  static String format(
+          AnnualDate annualDate, String? patternText, Culture? culture) =>
+      TimeMachineFormatInfo.getInstance(culture ?? Culture.current)
           .annualDatePatternParser
           .parsePattern(patternText ?? isoPatternImpl.patternText)
           .format(annualDate);
@@ -48,7 +52,8 @@ class AnnualDatePattern implements IPattern<AnnualDate> {
   /// in the pattern are taken from the template.
   final AnnualDate templateValue;
 
-  const AnnualDatePattern._(this.patternText, this._formatInfo, this.templateValue, this._underlyingPattern);
+  const AnnualDatePattern._(this.patternText, this._formatInfo,
+      this.templateValue, this._underlyingPattern);
 
   /// Parses the given text value according to the rules of this pattern.
   ///
@@ -77,7 +82,8 @@ class AnnualDatePattern implements IPattern<AnnualDate> {
   ///
   /// Returns: The builder passed in as [builder].
   @override
-  StringBuffer appendFormat(AnnualDate value, StringBuffer builder) => _underlyingPattern.appendFormat(value, builder);
+  StringBuffer appendFormat(AnnualDate value, StringBuffer builder) =>
+      _underlyingPattern.appendFormat(value, builder);
 
   /// Creates a pattern for the given pattern text, format info, and template value.
   ///
@@ -88,17 +94,21 @@ class AnnualDatePattern implements IPattern<AnnualDate> {
   /// Returns: A pattern for parsing and formatting annual dates.
   ///
   /// * [InvalidPatternError]: The pattern text was invalid.
-  static AnnualDatePattern _create(String patternText, TimeMachineFormatInfo formatInfo, AnnualDate templateValue) {
+  static AnnualDatePattern _create(String patternText,
+      TimeMachineFormatInfo formatInfo, AnnualDate templateValue) {
     Preconditions.checkNotNull(patternText, 'patternText');
     Preconditions.checkNotNull(formatInfo, 'formatInfo');
     // Use the 'fixed' parser for the common case of the default template value.
     var pattern = templateValue == AnnualDatePatterns.defaultTemplateValue
         ? formatInfo.annualDatePatternParser.parsePattern(patternText)
-        : AnnualDatePatternParser(templateValue).parsePattern(patternText, formatInfo);
+        : AnnualDatePatternParser(templateValue)
+            .parsePattern(patternText, formatInfo);
     // If ParsePattern returns a standard pattern instance, we need to get the underlying partial pattern.
-    pattern = pattern is AnnualDatePattern ? pattern._underlyingPattern : pattern;
+    pattern =
+        pattern is AnnualDatePattern ? pattern._underlyingPattern : pattern;
     var partialPattern = pattern as IPartialPattern<AnnualDate>;
-    return AnnualDatePattern._(patternText, formatInfo, templateValue, partialPattern);
+    return AnnualDatePattern._(
+        patternText, formatInfo, templateValue, partialPattern);
   }
 
   /// Creates a pattern for the given pattern text, culture, and template value.
@@ -113,8 +123,10 @@ class AnnualDatePattern implements IPattern<AnnualDate> {
   /// Returns: A pattern for parsing and formatting annual dates.
   ///
   /// * [InvalidPatternError]: The pattern text was invalid.
-  static AnnualDatePattern createWithCulture(String patternText, Culture culture, [AnnualDate? templateValue]) =>
-      _create(patternText, TimeMachineFormatInfo.getFormatInfo(culture), templateValue ?? AnnualDatePatterns.defaultTemplateValue);
+  static AnnualDatePattern createWithCulture(
+          String patternText, Culture culture, [AnnualDate? templateValue]) =>
+      _create(patternText, TimeMachineFormatInfo.getFormatInfo(culture),
+          templateValue ?? AnnualDatePatterns.defaultTemplateValue);
 
   /// Creates a pattern for the given pattern text in the current thread's current culture.
   ///
@@ -129,7 +141,8 @@ class AnnualDatePattern implements IPattern<AnnualDate> {
   ///
   /// * [InvalidPatternError]: The pattern text was invalid.
   static AnnualDatePattern createWithCurrentCulture(String patternText) =>
-      _create(patternText, TimeMachineFormatInfo.currentInfo, AnnualDatePatterns.defaultTemplateValue);
+      _create(patternText, TimeMachineFormatInfo.currentInfo,
+          AnnualDatePatterns.defaultTemplateValue);
 
   /// Creates a pattern for the given pattern text in the invariant culture.
   ///
@@ -144,7 +157,8 @@ class AnnualDatePattern implements IPattern<AnnualDate> {
   ///
   /// * [InvalidPatternError]: The pattern text was invalid.
   static AnnualDatePattern createWithInvariantCulture(String patternText) =>
-      _create(patternText, TimeMachineFormatInfo.invariantInfo, AnnualDatePatterns.defaultTemplateValue);
+      _create(patternText, TimeMachineFormatInfo.invariantInfo,
+          AnnualDatePatterns.defaultTemplateValue);
 
   /// Creates a pattern for the same original pattern text as this pattern, but with the specified
   /// localization information.

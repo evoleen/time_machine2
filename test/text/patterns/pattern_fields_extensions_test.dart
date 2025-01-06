@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
 
@@ -15,44 +15,54 @@ Future main() async {
 }
 
 @Test()
-void IsUsed_NoMatch()
-{
-  expect((PatternFields.hours12 | PatternFields.minutes).hasAny(PatternFields.hours24), isFalse);
+void IsUsed_NoMatch() {
+  expect(
+      (PatternFields.hours12 | PatternFields.minutes)
+          .hasAny(PatternFields.hours24),
+      isFalse);
 }
 
 @Test()
-void IsUsed_SingleValueMatch()
-{
+void IsUsed_SingleValueMatch() {
   expect(PatternFields.hours24.hasAny(PatternFields.hours24), isTrue);
 }
 
 @Test()
-void IsFieldUsed_MultiValueMatch()
-{
-  expect((PatternFields.hours24 | PatternFields.minutes).hasAny(PatternFields.hours24), isTrue);
+void IsFieldUsed_MultiValueMatch() {
+  expect(
+      (PatternFields.hours24 | PatternFields.minutes)
+          .hasAny(PatternFields.hours24),
+      isTrue);
 }
 
 @Test()
-void AllAreUsed_NoMatch()
-{
-  expect((PatternFields.hours12 | PatternFields.minutes).hasAll(PatternFields.hours24 | PatternFields.seconds), isFalse);
+void AllAreUsed_NoMatch() {
+  expect(
+      (PatternFields.hours12 | PatternFields.minutes)
+          .hasAll(PatternFields.hours24 | PatternFields.seconds),
+      isFalse);
 }
 
 @Test()
-void AllAreUsed_PartialMatch()
-{
-  expect((PatternFields.hours12 | PatternFields.minutes).hasAll(PatternFields.hours12 | PatternFields.seconds), isFalse);
+void AllAreUsed_PartialMatch() {
+  expect(
+      (PatternFields.hours12 | PatternFields.minutes)
+          .hasAll(PatternFields.hours12 | PatternFields.seconds),
+      isFalse);
 }
 
 @Test()
-void AllAreUsed_CompleteMatch()
-{
-  expect((PatternFields.hours12 | PatternFields.minutes).hasAll(PatternFields.hours12 | PatternFields.minutes), isTrue);
+void AllAreUsed_CompleteMatch() {
+  expect(
+      (PatternFields.hours12 | PatternFields.minutes)
+          .hasAll(PatternFields.hours12 | PatternFields.minutes),
+      isTrue);
 }
 
 @Test()
-void AllAreUsed_CompleteMatchWithMore()
-{
-  expect((PatternFields.hours24 | PatternFields.minutes | PatternFields.hours12).hasAll(PatternFields.hours24 | PatternFields.minutes), isTrue);
+void AllAreUsed_CompleteMatchWithMore() {
+  expect(
+      (PatternFields.hours24 | PatternFields.minutes | PatternFields.hours12)
+          .hasAll(PatternFields.hours24 | PatternFields.minutes),
+      isTrue);
 }
-

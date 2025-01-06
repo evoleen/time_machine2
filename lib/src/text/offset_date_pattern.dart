@@ -2,27 +2,32 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 /// Class whose existence is solely to avoid type initialization order issues, most of which stem
 /// from needing NodaFormatInfo.InvariantInfo...
 @internal
 abstract class OffsetDatePatterns {
-  static final OffsetDatePattern generalIsoPatternImpl = OffsetDatePattern._create(
-      "uuuu'-'MM'-'ddo<G>", TimeMachineFormatInfo.invariantInfo, defaultTemplateValue);
-  static final OffsetDatePattern fullRoundtripPatternImpl = OffsetDatePattern._create(
-      "uuuu'-'MM'-'ddo<G> '('c')'", TimeMachineFormatInfo.invariantInfo, defaultTemplateValue);
+  static final OffsetDatePattern generalIsoPatternImpl =
+      OffsetDatePattern._create("uuuu'-'MM'-'ddo<G>",
+          TimeMachineFormatInfo.invariantInfo, defaultTemplateValue);
+  static final OffsetDatePattern fullRoundtripPatternImpl =
+      OffsetDatePattern._create("uuuu'-'MM'-'ddo<G> '('c')'",
+          TimeMachineFormatInfo.invariantInfo, defaultTemplateValue);
 
-  static String format(OffsetDate offsetDate, String? patternText, Culture? culture) =>
-      TimeMachineFormatInfo
-          .getInstance(culture)
+  static String format(
+          OffsetDate offsetDate, String? patternText, Culture? culture) =>
+      TimeMachineFormatInfo.getInstance(culture)
           .offsetDatePatternParser
           .parsePattern(patternText ?? generalIsoPatternImpl.patternText)
           .format(offsetDate);
 
-  static final OffsetDate defaultTemplateValue = LocalDate(2000, 1, 1).withOffset(Offset.zero);
+  static final OffsetDate defaultTemplateValue =
+      LocalDate(2000, 1, 1).withOffset(Offset.zero);
 
-  static TimeMachineFormatInfo formatInfo(OffsetDatePattern offsetDatePattern) => offsetDatePattern._formatInfo;
+  static TimeMachineFormatInfo formatInfo(
+          OffsetDatePattern offsetDatePattern) =>
+      offsetDatePattern._formatInfo;
 }
 
 /// Represents a pattern for parsing and formatting [OffsetDate] values.
@@ -32,7 +37,8 @@ class OffsetDatePattern implements IPattern<OffsetDate> {
   ///
   /// The calendar system is not parsed or formatted as part of this pattern. It corresponds to a custom pattern of
   /// "uuuu'-'MM'-'ddo&lt;G&gt;". This pattern is available as the "G" standard pattern (even though it is invariant).
-  static OffsetDatePattern get generalIso => OffsetDatePatterns.generalIsoPatternImpl;
+  static OffsetDatePattern get generalIso =>
+      OffsetDatePatterns.generalIsoPatternImpl;
 
   /// Gets an invariant offset date pattern based on ISO-8601
   /// including offset from UTC and calendar ID.
@@ -40,7 +46,8 @@ class OffsetDatePattern implements IPattern<OffsetDate> {
   /// The returned pattern corresponds to a custom pattern of
   /// "uuuu'-'MM'-'dd'o&lt;G&gt; '('c')'". This will round-trip any value in any calendar,
   /// and is available as the 'r' standard pattern.
-  static OffsetDatePattern get fullRoundtrip => OffsetDatePatterns.fullRoundtripPatternImpl;
+  static OffsetDatePattern get fullRoundtrip =>
+      OffsetDatePatterns.fullRoundtripPatternImpl;
 
   final IPattern<OffsetDate> _pattern;
 
@@ -54,7 +61,8 @@ class OffsetDatePattern implements IPattern<OffsetDate> {
   /// in the pattern are taken from the template.
   final OffsetDate templateValue;
 
-  const OffsetDatePattern._(this.patternText, this._formatInfo, this.templateValue, this._pattern);
+  const OffsetDatePattern._(
+      this.patternText, this._formatInfo, this.templateValue, this._pattern);
 
   /// Parses the given text value according to the rules of this pattern.
   ///
@@ -83,7 +91,8 @@ class OffsetDatePattern implements IPattern<OffsetDate> {
   ///
   /// Returns: The builder passed in as [builder].
   @override
-  StringBuffer appendFormat(OffsetDate value, StringBuffer builder) => _pattern.appendFormat(value, builder);
+  StringBuffer appendFormat(OffsetDate value, StringBuffer builder) =>
+      _pattern.appendFormat(value, builder);
 
   /// Creates a pattern for the given pattern text, format info, and template value.
   ///
@@ -94,11 +103,12 @@ class OffsetDatePattern implements IPattern<OffsetDate> {
   /// Returns: A pattern for parsing and formatting zoned dates.
   ///
   /// * [InvalidPatternError]: The pattern text was invalid.
-  static OffsetDatePattern _create(String patternText, TimeMachineFormatInfo formatInfo,
-      OffsetDate templateValue) {
+  static OffsetDatePattern _create(String patternText,
+      TimeMachineFormatInfo formatInfo, OffsetDate templateValue) {
     Preconditions.checkNotNull(patternText, 'patternText');
     Preconditions.checkNotNull(formatInfo, 'formatInfo');
-    var pattern = OffsetDatePatternParser(templateValue).parsePattern(patternText, formatInfo);
+    var pattern = OffsetDatePatternParser(templateValue)
+        .parsePattern(patternText, formatInfo);
     return OffsetDatePattern._(patternText, formatInfo, templateValue, pattern);
   }
 
@@ -114,8 +124,10 @@ class OffsetDatePattern implements IPattern<OffsetDate> {
   /// Returns: A pattern for parsing and formatting local dates.
   ///
   /// * [InvalidPatternError]: The pattern text was invalid.
-  static OffsetDatePattern createWithCulture(String patternText, Culture culture, OffsetDate templateValue) =>
-      _create(patternText, TimeMachineFormatInfo.getFormatInfo(culture), templateValue);
+  static OffsetDatePattern createWithCulture(
+          String patternText, Culture culture, OffsetDate templateValue) =>
+      _create(patternText, TimeMachineFormatInfo.getFormatInfo(culture),
+          templateValue);
 
   /// Creates a pattern for the given pattern text in the invariant culture, using the default
   /// template value of midnight January 1st 2000 at an offset of 0.
@@ -129,7 +141,8 @@ class OffsetDatePattern implements IPattern<OffsetDate> {
   ///
   /// * [InvalidPatternError]: The pattern text was invalid.
   static OffsetDatePattern createWithInvariantCulture(String patternText) =>
-      _create(patternText, TimeMachineFormatInfo.invariantInfo, OffsetDatePatterns.defaultTemplateValue);
+      _create(patternText, TimeMachineFormatInfo.invariantInfo,
+          OffsetDatePatterns.defaultTemplateValue);
 
   /// Creates a pattern for the given pattern text in the current culture, using the default
   /// template value of midnight January 1st 2000 at an offset of 0.
@@ -145,7 +158,8 @@ class OffsetDatePattern implements IPattern<OffsetDate> {
   ///
   /// * [InvalidPatternError]: The pattern text was invalid.
   static OffsetDatePattern createWithCurrentCulture(String patternText) =>
-      _create(patternText, TimeMachineFormatInfo.currentInfo, OffsetDatePatterns.defaultTemplateValue);
+      _create(patternText, TimeMachineFormatInfo.currentInfo,
+          OffsetDatePatterns.defaultTemplateValue);
 
   /// Creates a pattern for the same original localization information as this pattern, but with the specified
   /// pattern text.

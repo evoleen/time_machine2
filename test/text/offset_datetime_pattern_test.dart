@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
 
@@ -21,15 +21,22 @@ Future main() async {
 class OffsetDateTimePatternTest extends PatternTestBase<OffsetDateTime> {
   // The standard example date/time used in all the MSDN samples, which means we can just cut and paste
   // the expected results of the standard patterns. We've got an offset of 1 hour though.
-  @private static final OffsetDateTime MsdnStandardExample = TestLocalDateTimes.MsdnStandardExample.withOffset(Offset.hours(1));
-  @private static final OffsetDateTime MsdnStandardExampleNoMillis = TestLocalDateTimes.MsdnStandardExampleNoMillis.withOffset(Offset.hours(1));
+  @private
+  static final OffsetDateTime MsdnStandardExample =
+      TestLocalDateTimes.MsdnStandardExample.withOffset(Offset.hours(1));
+  @private
+  static final OffsetDateTime MsdnStandardExampleNoMillis =
+      TestLocalDateTimes.MsdnStandardExampleNoMillis.withOffset(
+          Offset.hours(1));
 
 // todo: @SkipMe().unimplemented
 // @private static final OffsetDateTime SampleOffsetDateTimeCoptic = LocalDateTimePatternTest.SampleLocalDateTimeCoptic.WithOffset(Offset.zero);
 
-  @private static final Offset AthensOffset = Offset.hours(3);
+  @private
+  static final Offset AthensOffset = Offset.hours(3);
 
-  @internal final List<Data> InvalidPatternData = [
+  @internal
+  final List<Data> InvalidPatternData = [
     Data()
       ..pattern = ''
       ..message = TextErrorMessages.formatStringEmpty,
@@ -91,7 +98,8 @@ class OffsetDateTimePatternTest extends PatternTestBase<OffsetDateTime> {
       ..message = TextErrorMessages.escapeAtEndOfString,
   ];
 
-  @internal List<Data> ParseFailureData = [
+  @internal
+  List<Data> ParseFailureData = [
     // Failures copied from LocalDateTimePatternTest
     Data()
       ..pattern = 'dd MM yyyy HH:mm:ss'
@@ -132,36 +140,24 @@ class OffsetDateTimePatternTest extends PatternTestBase<OffsetDateTime> {
       ..message = TextErrorMessages.timeSeparatorMismatch,
   ];
 
-  @internal List<Data> ParseOnlyData = [
+  @internal
+  List<Data> ParseOnlyData = [
     // Parse-only tests from LocalDateTimeTest.
     Data.c(2011, 10, 19, 16, 05, 20)
       ..pattern = 'dd MM yyyy'
       ..text = '19 10 2011'
-      ..template = LocalDateTime(2000, 1, 1, 16, 05, 20).withOffset(Offset.zero),
+      ..template =
+          LocalDateTime(2000, 1, 1, 16, 05, 20).withOffset(Offset.zero),
     Data.c(2011, 10, 19, 16, 05, 20)
       ..pattern = 'HH:mm:ss'
       ..text = '16:05:20'
       ..template = LocalDateTime(2011, 10, 19, 0, 0, 0).withOffset(Offset.zero),
 
     // Parsing using the semi-colon 'comma dot' specifier
-    Data.e(
-        2011,
-        10,
-        19,
-        16,
-        05,
-        20,
-        352)
+    Data.e(2011, 10, 19, 16, 05, 20, 352)
       ..pattern = 'yyyy-MM-dd HH:mm:ss;fff'
       ..text = '2011-10-19 16:05:20,352',
-    Data.e(
-        2011,
-        10,
-        19,
-        16,
-        05,
-        20,
-        352)
+    Data.e(2011, 10, 19, 16, 05, 20, 352)
       ..pattern = 'yyyy-MM-dd HH:mm:ss;FFF'
       ..text = '2011-10-19 16:05:20,352',
 
@@ -172,7 +168,8 @@ class OffsetDateTimePatternTest extends PatternTestBase<OffsetDateTime> {
     Data.b(2011, 10, 20, 0, 0, Offset.hours(1))
       ..pattern = 'yyyy-MM-dd HH:mm:ss o<+HH>'
       ..text = '2011-10-19 24:00:00 +01'
-      ..template = LocalDateTime(1970, 1, 1, 0, 5, 0).withOffset(Offset.hours(-5)),
+      ..template =
+          LocalDateTime(1970, 1, 1, 0, 5, 0).withOffset(Offset.hours(-5)),
     Data.a(2011, 10, 20)
       ..pattern = 'yyyy-MM-dd HH:mm'
       ..text = '2011-10-19 24:00',
@@ -181,7 +178,8 @@ class OffsetDateTimePatternTest extends PatternTestBase<OffsetDateTime> {
       ..text = '2011-10-19 24',
   ];
 
-  @internal List<Data> FormatOnlyData = [
+  @internal
+  List<Data> FormatOnlyData = [
     Data.c(2011, 10, 19, 16, 05, 20)
       ..pattern = 'ddd yyyy'
       ..text = 'Wed 2011',
@@ -192,7 +190,8 @@ class OffsetDateTimePatternTest extends PatternTestBase<OffsetDateTime> {
       ..text = '2009-06-15 13:45:30.09'
   ];
 
-  @internal List<Data> FormatAndParseData = [
+  @internal
+  List<Data> FormatAndParseData = [
     // Copied from LocalDateTimePatternTest
     // Calendar patterns are invariant
     Data(MsdnStandardExample)
@@ -237,128 +236,44 @@ class OffsetDateTimePatternTest extends PatternTestBase<OffsetDateTime> {
       ..culture = TestCultures.FrFr,
 
     // Custom embedded patterns (or mixture of custom and standard)
-    Data.d(
-        2015,
-        10,
-        24,
-        11,
-        55,
-        30,
-        AthensOffset)
+    Data.d(2015, 10, 24, 11, 55, 30, AthensOffset)
       ..pattern = "ld<yyyy*MM*dd>'X'lt<HH_mm_ss> o<g>"
       ..text = '2015*10*24X11_55_30 +03',
-    Data.d(
-        2015,
-        10,
-        24,
-        11,
-        55,
-        30,
-        AthensOffset)
+    Data.d(2015, 10, 24, 11, 55, 30, AthensOffset)
       ..pattern = "lt<HH_mm_ss>'Y'ld<yyyy*MM*dd> o<g>"
       ..text = '11_55_30Y2015*10*24 +03',
-    Data.d(
-        2015,
-        10,
-        24,
-        11,
-        55,
-        30,
-        AthensOffset)
+    Data.d(2015, 10, 24, 11, 55, 30, AthensOffset)
       ..pattern = "l<HH_mm_ss'Y'yyyy*MM*dd> o<g>"
       ..text = '11_55_30Y2015*10*24 +03',
-    Data.d(
-        2015,
-        10,
-        24,
-        11,
-        55,
-        30,
-        AthensOffset)
+    Data.d(2015, 10, 24, 11, 55, 30, AthensOffset)
       ..pattern = "ld<d>'X'lt<HH_mm_ss> o<g>"
       ..text = '10/24/2015X11_55_30 +03',
-    Data.d(
-        2015,
-        10,
-        24,
-        11,
-        55,
-        30,
-        AthensOffset)
+    Data.d(2015, 10, 24, 11, 55, 30, AthensOffset)
       ..pattern = "ld<yyyy*MM*dd>'X'lt<T> o<g>"
       ..text = '2015*10*24X11:55:30 +03',
 
     // Standard embedded patterns. Short time versions have a seconds value of 0 so they can round-trip.
-    Data.d(
-        2015,
-        10,
-        24,
-        11,
-        55,
-        30,
-        AthensOffset)
+    Data.d(2015, 10, 24, 11, 55, 30, AthensOffset)
       ..pattern = 'ld<D> lt<r> o<g>'
       ..text = 'Saturday, 24 October 2015 11:55:30 +03',
-    Data.d(
-        2015,
-        10,
-        24,
-        11,
-        55,
-        0,
-        AthensOffset)
+    Data.d(2015, 10, 24, 11, 55, 0, AthensOffset)
       ..pattern = 'l<f> o<g>'
       ..text = 'Saturday, 24 October 2015 11:55 +03',
-    Data.d(
-        2015,
-        10,
-        24,
-        11,
-        55,
-        30,
-        AthensOffset)
+    Data.d(2015, 10, 24, 11, 55, 30, AthensOffset)
       ..pattern = 'l<F> o<g>'
       ..text = 'Saturday, 24 October 2015 11:55:30 +03',
-    Data.d(
-        2015,
-        10,
-        24,
-        11,
-        55,
-        0,
-        AthensOffset)
+    Data.d(2015, 10, 24, 11, 55, 0, AthensOffset)
       ..pattern = 'l<g> o<g>'
       ..text = '10/24/2015 11:55 +03',
-    Data.d(
-        2015,
-        10,
-        24,
-        11,
-        55,
-        30,
-        AthensOffset)
+    Data.d(2015, 10, 24, 11, 55, 30, AthensOffset)
       ..pattern = 'l<G> o<g>'
       ..text = '10/24/2015 11:55:30 +03',
 
     // Nested embedded patterns
-    Data.d(
-        2015,
-        10,
-        24,
-        11,
-        55,
-        30,
-        AthensOffset)
+    Data.d(2015, 10, 24, 11, 55, 30, AthensOffset)
       ..pattern = 'l<ld<D> lt<r>> o<g>'
       ..text = 'Saturday, 24 October 2015 11:55:30 +03',
-    Data.d(
-        2015,
-        10,
-        24,
-        11,
-        55,
-        30,
-        AthensOffset)
+    Data.d(2015, 10, 24, 11, 55, 30, AthensOffset)
       ..pattern = "l<'X'lt<HH_mm_ss>'Y'ld<yyyy*MM*dd>'X'> o<g>"
       ..text = 'X11_55_30Y2015*10*24X +03',
 
@@ -373,45 +288,58 @@ class OffsetDateTimePatternTest extends PatternTestBase<OffsetDateTime> {
       ..text = '15 June 2009 (A.D.) 1:45:30.09 PM +01',
   ];
 
-  @internal Iterable<Data> get ParseData => [ParseOnlyData, FormatAndParseData].expand((x) => x);
+  @internal
+  Iterable<Data> get ParseData =>
+      [ParseOnlyData, FormatAndParseData].expand((x) => x);
 
-  @internal Iterable<Data> get FormatData => [FormatOnlyData, FormatAndParseData].expand((x) => x);
+  @internal
+  Iterable<Data> get FormatData =>
+      [FormatOnlyData, FormatAndParseData].expand((x) => x);
 
   @Test()
   void CreateWithInvariantCulture() {
-    var pattern = OffsetDateTimePattern.createWithInvariantCulture("yyyy-MM-dd'T'HH:mm:sso<g>");
-    expect(identical(TimeMachineFormatInfo.invariantInfo, OffsetDateTimePatterns.formatInfo(pattern)), isTrue);
-    var odt = LocalDateTime(2017, 8, 23, 12, 34, 56).withOffset(Offset.hours(2));
+    var pattern = OffsetDateTimePattern.createWithInvariantCulture(
+        "yyyy-MM-dd'T'HH:mm:sso<g>");
+    expect(
+        identical(TimeMachineFormatInfo.invariantInfo,
+            OffsetDateTimePatterns.formatInfo(pattern)),
+        isTrue);
+    var odt =
+        LocalDateTime(2017, 8, 23, 12, 34, 56).withOffset(Offset.hours(2));
     expect('2017-08-23T12:34:56+02', pattern.format(odt));
   }
 
   @Test()
   void CreateWithCurrentCulture() {
-    var odt = LocalDateTime(2017, 8, 23, 12, 34, 56).withOffset(Offset.hours(2));
+    var odt =
+        LocalDateTime(2017, 8, 23, 12, 34, 56).withOffset(Offset.hours(2));
     Culture.current = TestCultures.FrFr;
     {
       var pattern = OffsetDateTimePattern.createWithCurrentCulture('l<g> o<g>');
       expect('23/08/2017 12:34 +02', pattern.format(odt));
     }
 
-  // todo: @SkipMe() -- This is the same FrCA we've been seeing (.netCore ICU culture is different than windows culture)
-  //    Cultures.currentCulture = TestCultures.FrCa;
-  //    {
-  //      var pattern = OffsetDateTimePattern.CreateWithCurrentCulture('l<g> o<g>');
-  //      expect('2017-08-23 12:34 +02', pattern.Format(odt));
-  //    }
+    // todo: @SkipMe() -- This is the same FrCA we've been seeing (.netCore ICU culture is different than windows culture)
+    //    Cultures.currentCulture = TestCultures.FrCa;
+    //    {
+    //      var pattern = OffsetDateTimePattern.CreateWithCurrentCulture('l<g> o<g>');
+    //      expect('2017-08-23 12:34 +02', pattern.Format(odt));
+    //    }
   }
 
   @Test()
   void WithCulture() {
-    var pattern = OffsetDateTimePattern.createWithInvariantCulture('HH:mm').withCulture(TestCultures.DotTimeSeparator);
-    var text = pattern.format(Instant.utc(2000, 1, 1, 19, 30).withOffset(Offset.zero));
+    var pattern = OffsetDateTimePattern.createWithInvariantCulture('HH:mm')
+        .withCulture(TestCultures.DotTimeSeparator);
+    var text =
+        pattern.format(Instant.utc(2000, 1, 1, 19, 30).withOffset(Offset.zero));
     expect('19.30', text);
   }
 
   @Test()
   void WithPatternText() {
-    var pattern = OffsetDateTimePattern.createWithInvariantCulture('yyyy-MM-dd').withPatternText("HH:mm");
+    var pattern = OffsetDateTimePattern.createWithInvariantCulture('yyyy-MM-dd')
+        .withPatternText("HH:mm");
     var value = Instant.utc(1970, 1, 1, 11, 30).withOffset(Offset.hours(2));
     var text = pattern.format(value);
     expect('13:30', text);
@@ -420,10 +348,9 @@ class OffsetDateTimePatternTest extends PatternTestBase<OffsetDateTime> {
   @Test()
   void WithTemplateValue() {
     var pattern = OffsetDateTimePattern.createWithInvariantCulture('yyyy-MM-dd')
-        .withTemplateValue(Instant.utc(1970, 1, 1, 11, 30).withOffset(Offset.hours(2)));
-    var parsed = pattern
-        .parse('2017-08-23')
-        .value;
+        .withTemplateValue(
+            Instant.utc(1970, 1, 1, 11, 30).withOffset(Offset.hours(2)));
+    var parsed = pattern.parse('2017-08-23').value;
     // Local time of template value was 13:30
     expect(LocalDateTime(2017, 8, 23, 13, 30, 0), parsed.localDateTime);
     expect(Offset.hours(2), parsed.offset);
@@ -433,51 +360,58 @@ class OffsetDateTimePatternTest extends PatternTestBase<OffsetDateTime> {
   void WithCalendar() {
     var pattern = OffsetDateTimePattern.createWithInvariantCulture('yyyy-MM-dd')
         .withCalendar(CalendarSystem.coptic);
-    var parsed = pattern
-        .parse('0284-08-29')
-        .value;
-    expect(LocalDateTime(284, 8, 29, 0, 0, 0, calendar: CalendarSystem.coptic), parsed.localDateTime);
+    var parsed = pattern.parse('0284-08-29').value;
+    expect(LocalDateTime(284, 8, 29, 0, 0, 0, calendar: CalendarSystem.coptic),
+        parsed.localDateTime);
   }
 
   // @Test()
   // void ParseNull() => AssertParseNull(OffsetDateTimePattern.extendedIso);
 }
 
-@internal /*sealed*/ class Data extends PatternTestData<OffsetDateTime> {
+@internal
+/*sealed*/ class Data extends PatternTestData<OffsetDateTime> {
   // Default to the start of the year 2000 UTC
-  /*protected*/ @override OffsetDateTime get defaultTemplate => OffsetDateTimePatterns.defaultTemplateValue;
+  /*protected*/ @override
+  OffsetDateTime get defaultTemplate =>
+      OffsetDateTimePatterns.defaultTemplateValue;
 
   /// Initializes a new instance of the [Data] class.
   ///
   /// [value]: The value.
-  @internal Data([OffsetDateTime? value]) : super(value ?? OffsetDateTimePatterns.defaultTemplateValue);
+  @internal
+  Data([OffsetDateTime? value])
+      : super(value ?? OffsetDateTimePatterns.defaultTemplateValue);
 
-  @internal Data.a(int year, int month, int day)
+  @internal
+  Data.a(int year, int month, int day)
       : super(LocalDateTime(year, month, day, 0, 0, 0).withOffset(Offset.zero));
 
-  @internal Data.b(int year, int month, int day, int hour, int minute, Offset offset)
-      : super(LocalDateTime(year, month, day, hour, minute, 0).withOffset(offset));
+  @internal
+  Data.b(int year, int month, int day, int hour, int minute, Offset offset)
+      : super(LocalDateTime(year, month, day, hour, minute, 0)
+            .withOffset(offset));
 
-  @internal Data.c(int year, int month, int day, int hour, int minute, int second)
-      : super(LocalDateTime(year, month, day, hour, minute, second).withOffset(Offset.zero));
+  @internal
+  Data.c(int year, int month, int day, int hour, int minute, int second)
+      : super(LocalDateTime(year, month, day, hour, minute, second)
+            .withOffset(Offset.zero));
 
-  @internal Data.d(int year, int month, int day, int hour, int minute, int second, Offset offset)
-      : super(LocalDateTime(year, month, day, hour, minute, second).withOffset(offset));
+  @internal
+  Data.d(int year, int month, int day, int hour, int minute, int second,
+      Offset offset)
+      : super(LocalDateTime(year, month, day, hour, minute, second)
+            .withOffset(offset));
 
-  @internal Data.e(int year, int month, int day, int hour, int minute, int second, int millis)
-      : super(LocalDateTime(
-      year,
-      month,
-      day,
-      hour,
-      minute,
-      second,
-      ms: millis).withOffset(Offset.zero));
-
+  @internal
+  Data.e(int year, int month, int day, int hour, int minute, int second,
+      int millis)
+      : super(LocalDateTime(year, month, day, hour, minute, second, ms: millis)
+            .withOffset(Offset.zero));
 
   @internal
   @override
   IPattern<OffsetDateTime> CreatePattern() =>
-      OffsetDateTimePattern.createWithCulture(super.pattern, super.culture, template);
+      OffsetDateTimePattern.createWithCulture(
+          super.pattern, super.culture, template);
 }
-

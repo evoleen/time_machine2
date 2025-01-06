@@ -6,16 +6,19 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 import 'dart:typed_data';
 
-// import 'package:time_machine/src/time_machine_internal.dart';
+// import 'package:time_machine2/src/time_machine_internal.dart';
 
 /// This class packages platform specific input-output functions that are initialized by the appropriate Platform Provider
 @internal
 abstract class PlatformIO {
-  @internal Future<ByteData> getBinary(String path, String filename);
+  @internal
+  Future<ByteData> getBinary(String path, String filename);
   // JSON.decode returns a dynamic -- will this change in Dart 2.0?
-  @internal Future<dynamic> getJson(String path, String filename);
+  @internal
+  Future<dynamic> getJson(String path, String filename);
 
-  @internal static late PlatformIO local;
+  @internal
+  static late PlatformIO local;
 }
 
 Future initialize(dynamic arg) {

@@ -2,7 +2,7 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 /// Commonly-used implementations of the delegates used in resolving a [LocalDateTime] to a
 /// [ZonedDateTime], and a method to combine two 'partial' resolvers into a full one.
@@ -11,23 +11,26 @@ import 'package:time_machine/src/time_machine_internal.dart';
 /// [AmbiguousTimeResolver], and [SkippedTimeResolver], along with
 /// [createMappingResolver], which produces a `ZoneLocalMappingResolver` from instances of the
 /// other two.
-abstract class Resolvers
-{
+abstract class Resolvers {
   /// An [AmbiguousTimeResolver] which returns the earlier of the two matching times.
-  static final AmbiguousTimeResolver returnEarlier = (earlier, later) => earlier;
+  static final AmbiguousTimeResolver returnEarlier =
+      (earlier, later) => earlier;
 
   /// An [AmbiguousTimeResolver] which returns the later of the two matching times.
   static final AmbiguousTimeResolver returnLater = (earlier, later) => later;
 
   /// An [AmbiguousTimeResolver] which simply throws an [AmbiguousTimeException].
-  static final AmbiguousTimeResolver throwWhenAmbiguous = (earlier, later) => throw AmbiguousTimeError(earlier, later);
+  static final AmbiguousTimeResolver throwWhenAmbiguous =
+      (earlier, later) => throw AmbiguousTimeError(earlier, later);
 
   /// A [SkippedTimeResolver] which returns the final tick of the time zone interval
   /// before the 'gap'.
   ///
   /// <value>A [SkippedTimeResolver] which returns the final tick of the time zone interval
   /// before the 'gap'.</value>
-  static final SkippedTimeResolver returnEndOfIntervalBefore = (LocalDateTime local, DateTimeZone zone, ZoneInterval before, ZoneInterval after) {
+  static final SkippedTimeResolver returnEndOfIntervalBefore =
+      (LocalDateTime local, DateTimeZone zone, ZoneInterval before,
+          ZoneInterval after) {
     Preconditions.checkNotNull(zone, 'zone');
     Preconditions.checkNotNull(before, 'before');
     Preconditions.checkNotNull(after, 'after');
@@ -42,7 +45,9 @@ abstract class Resolvers
   /// A [SkippedTimeResolver] which returns the first tick of the time zone interval
   /// after the 'gap'.
   /// </value>
-  static final SkippedTimeResolver returnStartOfIntervalAfter = (LocalDateTime local, DateTimeZone zone, ZoneInterval before, ZoneInterval after) {
+  static final SkippedTimeResolver returnStartOfIntervalAfter =
+      (LocalDateTime local, DateTimeZone zone, ZoneInterval before,
+          ZoneInterval after) {
     Preconditions.checkNotNull(zone, 'zone');
     Preconditions.checkNotNull(before, 'before');
     Preconditions.checkNotNull(after, 'after');
@@ -57,15 +62,19 @@ abstract class Resolvers
   /// A [SkippedTimeResolver] which shifts values in the 'gap' forward by the duration
   /// of the gap (which is usually 1 hour).
   /// </value>
-  static final SkippedTimeResolver returnForwardShifted = (LocalDateTime local, DateTimeZone zone, ZoneInterval before, ZoneInterval after) {
+  static final SkippedTimeResolver returnForwardShifted = (LocalDateTime local,
+      DateTimeZone zone, ZoneInterval before, ZoneInterval after) {
     Preconditions.checkNotNull(zone, 'zone');
     Preconditions.checkNotNull(before, 'before');
     Preconditions.checkNotNull(after, 'after');
-    return IZonedDateTime.trusted(OffsetDateTime(local, before.wallOffset).withOffset(after.wallOffset), zone);
+    return IZonedDateTime.trusted(
+        OffsetDateTime(local, before.wallOffset).withOffset(after.wallOffset),
+        zone);
   };
 
   /// A [SkippedTimeResolver] which simply throws a [SkippedTimeException].
-  static final SkippedTimeResolver throwWhenSkipped = (LocalDateTime local, DateTimeZone zone, ZoneInterval before, ZoneInterval after) {
+  static final SkippedTimeResolver throwWhenSkipped = (LocalDateTime local,
+      DateTimeZone zone, ZoneInterval before, ZoneInterval after) {
     Preconditions.checkNotNull(zone, 'zone');
     Preconditions.checkNotNull(before, 'before');
     Preconditions.checkNotNull(after, 'after');
@@ -82,7 +91,8 @@ abstract class Resolvers
   /// <seealso cref='DateTimeZone.AtStrictly'/>
   /// <value>A [ZoneLocalMappingResolver] which only ever succeeds in the (usual) case where the result
   /// of the mapping is unambiguous.</value>
-  static final ZoneLocalMappingResolver strictResolver = createMappingResolver(throwWhenAmbiguous, throwWhenSkipped);
+  static final ZoneLocalMappingResolver strictResolver =
+      createMappingResolver(throwWhenAmbiguous, throwWhenSkipped);
 
   /// A [ZoneLocalMappingResolver] which never throws an exception due to ambiguity or skipped time.
   ///
@@ -93,7 +103,8 @@ abstract class Resolvers
   /// resolvers, which can still be used separately if desired.
   ///
   /// <seealso cref='DateTimeZone.AtLeniently'/>
-  static final ZoneLocalMappingResolver lenientResolver = createMappingResolver(returnEarlier, returnForwardShifted);
+  static final ZoneLocalMappingResolver lenientResolver =
+      createMappingResolver(returnEarlier, returnForwardShifted);
 
   /// Combines an [ambiguousTimeResolver] and a [SkippedTimeResolver] to create a
   /// [ZoneLocalMappingResolver].
@@ -105,7 +116,9 @@ abstract class Resolvers
   /// [ambiguousTimeResolver]: Resolver to use for ambiguous mappings.
   /// [skippedTimeResolver]: Resolver to use for 'skipped' mappings.
   /// Returns: The logical combination of the two resolvers.
-  static ZoneLocalMappingResolver createMappingResolver(AmbiguousTimeResolver ambiguousTimeResolver, SkippedTimeResolver skippedTimeResolver) {
+  static ZoneLocalMappingResolver createMappingResolver(
+      AmbiguousTimeResolver ambiguousTimeResolver,
+      SkippedTimeResolver skippedTimeResolver) {
     // typedef ZoneLocalMappingResolver = ZonedDateTime Function(ZoneLocalMapping mapping);
     Preconditions.checkNotNull(ambiguousTimeResolver, 'ambiguousTimeResolver');
     Preconditions.checkNotNull(skippedTimeResolver, 'skippedTimeResolver');
@@ -114,13 +127,15 @@ abstract class Resolvers
       Preconditions.checkNotNull(mapping, 'mapping');
       switch (mapping.count) {
         case 0:
-          return skippedTimeResolver(mapping.localDateTime, mapping.zone, mapping.earlyInterval, mapping.lateInterval);
+          return skippedTimeResolver(mapping.localDateTime, mapping.zone,
+              mapping.earlyInterval, mapping.lateInterval);
         case 1:
           return mapping.first();
         case 2:
           return ambiguousTimeResolver(mapping.first(), mapping.last());
         default:
-          throw StateError('Mapping has count outside range 0-2; should not happen.');
+          throw StateError(
+              'Mapping has count outside range 0-2; should not happen.');
       }
     }
 

@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 import 'package:test/test.dart';
 
 import '../time_machine_testing.dart';
@@ -17,17 +17,16 @@ CalendarSystem Julian = CalendarSystem.julian;
 
 /// The Unix epoch is equivalent to December 19th 1969 in the Julian calendar.
 @Test()
-void Epoch()
-{
-  LocalDateTime julianEpoch = TimeConstants.unixEpoch.inZone(DateTimeZone.utc, Julian).localDateTime;
+void Epoch() {
+  LocalDateTime julianEpoch =
+      TimeConstants.unixEpoch.inZone(DateTimeZone.utc, Julian).localDateTime;
   expect(1969, julianEpoch.year);
   expect(12, julianEpoch.monthOfYear);
   expect(19, julianEpoch.dayOfMonth);
 }
 
 @Test()
-void LeapYears()
-{
+void LeapYears() {
   expect(Julian.isLeapYear(1900), isTrue); // No 100 year rule...
   expect(Julian.isLeapYear(1901), isFalse);
   expect(Julian.isLeapYear(1904), isTrue);
@@ -38,4 +37,3 @@ void LeapYears()
   expect(Julian.isLeapYear(0), isTrue);
   expect(Julian.isLeapYear(-4), isTrue);
 }
-

@@ -3,7 +3,7 @@
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
 // import 'package:quiver_hashcode/hashcode.dart';
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 // todo: bit packing didn't work on JS -- I feel like it should though (getting the class functional now, will investigate later)
 @internal
@@ -26,21 +26,19 @@ class YearMonthDay implements Comparable<YearMonthDay> {
 
     var bits = text.split('-');
     return YearMonthDay(
-        int.parse(bits[0]),
-        int.parse(bits[1]),
-        int.parse(bits[2]));
+        int.parse(bits[0]), int.parse(bits[1]), int.parse(bits[2]));
   }
 
   // todo: padding doesn't work well with '-'s)
   @override
-  String toString() => '${StringFormatUtilities.zeroPadNumber(year, 4)}-${StringFormatUtilities.zeroPadNumber(month, 2)}-${StringFormatUtilities.zeroPadNumber(day, 2)}';
+  String toString() =>
+      '${StringFormatUtilities.zeroPadNumber(year, 4)}-${StringFormatUtilities.zeroPadNumber(month, 2)}-${StringFormatUtilities.zeroPadNumber(day, 2)}';
 
   YearMonthDayCalendar withCalendar(CalendarSystem calendar) =>
       YearMonthDayCalendar.ymd(this, ICalendarSystem.ordinal(calendar));
 
   YearMonthDayCalendar withCalendarOrdinal(CalendarOrdinal calendarOrdinal) =>
       YearMonthDayCalendar.ymd(this, calendarOrdinal);
-
 
   @override
   int compareTo(YearMonthDay? other) {
@@ -56,7 +54,9 @@ class YearMonthDay implements Comparable<YearMonthDay> {
   int get hashCode => hash3(year, month, day);
 
   @override
-  bool operator==(Object other) => other is YearMonthDay ? (year == other.year && month == other.month && day == other.day) : false;
+  bool operator ==(Object other) => other is YearMonthDay
+      ? (year == other.year && month == other.month && day == other.day)
+      : false;
 
   bool operator <(YearMonthDay? other) {
     if (other == null) return false;

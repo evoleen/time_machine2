@@ -3,7 +3,7 @@
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
 
@@ -16,8 +16,7 @@ Future main() async {
 final CalendarSystem JulianCalendar = CalendarSystem.julian;
 
 @Test()
-void Construction_DifferentCalendars()
-{
+void Construction_DifferentCalendars() {
   LocalDate start = LocalDate(1600, 1, 1);
   LocalDate end = LocalDate(1800, 1, 1, JulianCalendar);
   expect(() => DateInterval(start, end), throwsArgumentError);
@@ -25,8 +24,7 @@ void Construction_DifferentCalendars()
 }
 
 @Test()
-void Construction_EndBeforeStart()
-{
+void Construction_EndBeforeStart() {
   LocalDate start = LocalDate(1600, 1, 1);
   LocalDate end = LocalDate(1500, 1, 1);
   expect(() => DateInterval(start, end), throwsArgumentError);
@@ -34,16 +32,14 @@ void Construction_EndBeforeStart()
 }
 
 @Test()
-void Construction_EqualStartAndEnd()
-{
+void Construction_EqualStartAndEnd() {
   LocalDate start = LocalDate(2000, 1, 1);
   // Assert.DoesNotThrow(() => new DateInterval(start, start));
   expect(() => DateInterval(start, start), isNotNull);
 }
 
 @Test()
-void Construction_Properties()
-{
+void Construction_Properties() {
   LocalDate start = LocalDate(2000, 1, 1);
   LocalDate end = LocalDate(2001, 6, 19);
   var interval = DateInterval(start, end);
@@ -52,8 +48,7 @@ void Construction_Properties()
 }
 
 @Test()
-void Equals_SameInstance()
-{
+void Equals_SameInstance() {
   LocalDate start = LocalDate(2000, 1, 1);
   LocalDate end = LocalDate(2001, 6, 19);
   var interval = DateInterval(start, end);
@@ -69,8 +64,7 @@ void Equals_SameInstance()
 }
 
 @Test()
-void Equals_EqualValues()
-{
+void Equals_EqualValues() {
   LocalDate start = LocalDate(2000, 1, 1);
   LocalDate end = LocalDate(2001, 6, 19);
   var interval1 = DateInterval(start, end);
@@ -84,8 +78,7 @@ void Equals_EqualValues()
 }
 
 @Test()
-void Equals_DifferentCalendars()
-{
+void Equals_DifferentCalendars() {
   LocalDate start1 = LocalDate(2000, 1, 1);
   LocalDate end1 = LocalDate(2001, 6, 19);
   // This is a really, really similar calendar to ISO, but we do distinguish.
@@ -102,8 +95,7 @@ void Equals_DifferentCalendars()
 }
 
 @Test()
-void Equals_DifferentStart()
-{
+void Equals_DifferentStart() {
   LocalDate start1 = LocalDate(2000, 1, 1);
   LocalDate start2 = LocalDate(2000, 1, 2);
   LocalDate end = LocalDate(2001, 6, 19);
@@ -118,8 +110,7 @@ void Equals_DifferentStart()
 }
 
 @Test()
-void Equals_DifferentEnd()
-{
+void Equals_DifferentEnd() {
   LocalDate start = LocalDate(2000, 1, 1);
   LocalDate end1 = LocalDate(2001, 6, 19);
   LocalDate end2 = LocalDate(2001, 6, 20);
@@ -134,8 +125,7 @@ void Equals_DifferentEnd()
 }
 
 @Test()
-void Equals_DifferentToOtherType()
-{
+void Equals_DifferentToOtherType() {
   LocalDate start = LocalDate(2000, 1, 1);
   LocalDate end = LocalDate(2001, 6, 19);
   var interval = DateInterval(start, end);
@@ -145,8 +135,7 @@ void Equals_DifferentToOtherType()
 }
 
 @Test()
-void StringRepresentation()
-{
+void StringRepresentation() {
   LocalDate start = LocalDate(2000, 1, 1);
   LocalDate end = LocalDate(2001, 6, 19);
   var interval = DateInterval(start, end);
@@ -154,8 +143,7 @@ void StringRepresentation()
 }
 
 @Test()
-void Length()
-{
+void Length() {
   LocalDate start = LocalDate(2000, 1, 1);
   LocalDate end = LocalDate(2000, 2, 10);
   var interval = DateInterval(start, end);
@@ -163,8 +151,7 @@ void Length()
 }
 
 @Test()
-void Calendar()
-{
+void Calendar() {
   var calendar = CalendarSystem.julian;
   LocalDate start = LocalDate(2000, 1, 1, calendar);
   LocalDate end = LocalDate(2000, 2, 10, calendar);
@@ -178,8 +165,7 @@ void Calendar()
 @TestCase(['2005-06-06', true], "In middle")
 @TestCase(['2014-06-30', true], "On end")
 @TestCase(['2014-07-01', false], "After end")
-void Contains(String candidateText, bool expected)
-{
+void Contains(String candidateText, bool expected) {
   var start = LocalDate(2000, 1, 1);
   var end = LocalDate(2014, 06, 30);
   var candidate = LocalDatePattern.iso.parse(candidateText).value;
@@ -188,8 +174,7 @@ void Contains(String candidateText, bool expected)
 }
 
 @Test()
-void Contains_DifferentCalendar()
-{
+void Contains_DifferentCalendar() {
   var start = LocalDate(2000, 1, 1);
   var end = LocalDate(2014, 06, 30);
   var interval = DateInterval(start, end);
@@ -225,14 +210,11 @@ void Contains_DifferentCalendar()
 // }
 
 @Test()
-void Contains_IntervalWithinAnotherCalendar_Throws()
-{
-  var value = DateInterval(
-      LocalDate(2017, 11, 6, CalendarSystem.gregorian),
+void Contains_IntervalWithinAnotherCalendar_Throws() {
+  var value = DateInterval(LocalDate(2017, 11, 6, CalendarSystem.gregorian),
       LocalDate(2017, 11, 10, CalendarSystem.gregorian));
 
-  var other = DateInterval(
-      LocalDate(2017, 11, 6, CalendarSystem.coptic),
+  var other = DateInterval(LocalDate(2017, 11, 6, CalendarSystem.coptic),
       LocalDate(2017, 11, 10, CalendarSystem.coptic));
 
   // Assert.Throws<ArgumentException>(() => value.Contains(other));
@@ -248,8 +230,8 @@ void Contains_IntervalWithinAnotherCalendar_Throws()
 @TestCase(['2014-03-07,2014-03-31', "2014-03-05,2014-03-09", false])
 @TestCase(['2014-03-07,2014-03-31', "2014-03-20,2014-04-07", false])
 @TestCase(['2014-11-01,2014-11-30', "2014-01-01,2014-12-31", false])
-void Contains_IntervalOverload(String firstInterval, String secondInterval, bool expectedResult)
-{
+void Contains_IntervalOverload(
+    String firstInterval, String secondInterval, bool expectedResult) {
   DateInterval value = ParseInterval(firstInterval);
   DateInterval other = ParseInterval(secondInterval);
   expect(expectedResult, value.containsInterval(other));
@@ -264,31 +246,35 @@ void Contains_IntervalOverload(String firstInterval, String secondInterval, bool
 // }
 
 @Test()
-void Intersection_IntervalInDifferentCalendar_Throws()
-{
-  var value = DateInterval(
-      LocalDate(2017, 11, 6, CalendarSystem.gregorian),
+void Intersection_IntervalInDifferentCalendar_Throws() {
+  var value = DateInterval(LocalDate(2017, 11, 6, CalendarSystem.gregorian),
       LocalDate(2017, 11, 10, CalendarSystem.gregorian));
 
-  var other = DateInterval(
-      LocalDate(2017, 11, 6, CalendarSystem.coptic),
+  var other = DateInterval(LocalDate(2017, 11, 6, CalendarSystem.coptic),
       LocalDate(2017, 11, 10, CalendarSystem.coptic));
 
   // Assert.Throws<ArgumentException>(() => value.Intersection(other));
   expect(() => value.intersection(other), throwsArgumentError);
 }
 
-@TestCase(['2014-03-07,2014-03-07', "2014-03-07,2014-03-07", "2014-03-07,2014-03-07"])
+@TestCase(
+    ['2014-03-07,2014-03-07', "2014-03-07,2014-03-07", "2014-03-07,2014-03-07"])
 @TestCase(['2014-03-07,2014-03-10', "2015-01-01,2015-04-01", null])
 @TestCase(['2015-01-01,2015-04-01', "2014-03-07,2014-03-10", null])
-@TestCase(['2014-03-07,2014-03-31', "2014-03-07,2014-03-15", "2014-03-07,2014-03-15"])
-@TestCase(['2014-03-07,2014-03-31', "2014-03-10,2014-03-31", "2014-03-10,2014-03-31"])
-@TestCase(['2014-03-07,2014-03-31', "2014-03-10,2014-03-15", "2014-03-10,2014-03-15"])
-@TestCase(['2014-03-07,2014-03-31', "2014-03-05,2014-03-09", "2014-03-07,2014-03-09"])
-@TestCase(['2014-03-07,2014-03-31', "2014-03-20,2014-04-07", "2014-03-20,2014-03-31"])
-@TestCase(['2014-11-01,2014-11-30', "2014-01-01,2014-12-31", "2014-11-01,2014-11-30"])
-void Intersection(String firstInterval, String secondInterval, String expectedInterval)
-{
+@TestCase(
+    ['2014-03-07,2014-03-31', "2014-03-07,2014-03-15", "2014-03-07,2014-03-15"])
+@TestCase(
+    ['2014-03-07,2014-03-31', "2014-03-10,2014-03-31", "2014-03-10,2014-03-31"])
+@TestCase(
+    ['2014-03-07,2014-03-31', "2014-03-10,2014-03-15", "2014-03-10,2014-03-15"])
+@TestCase(
+    ['2014-03-07,2014-03-31', "2014-03-05,2014-03-09", "2014-03-07,2014-03-09"])
+@TestCase(
+    ['2014-03-07,2014-03-31', "2014-03-20,2014-04-07", "2014-03-20,2014-03-31"])
+@TestCase(
+    ['2014-11-01,2014-11-30', "2014-01-01,2014-12-31", "2014-11-01,2014-11-30"])
+void Intersection(
+    String firstInterval, String secondInterval, String expectedInterval) {
   var value = ParseInterval(firstInterval);
   var other = ParseInterval(secondInterval);
   var expectedResult = ParseInterval(expectedInterval);
@@ -304,37 +290,43 @@ void Intersection(String firstInterval, String secondInterval, String expectedIn
 // }
 
 @Test()
-void Union_DifferentCalendar_Throws()
-{
-  var value = DateInterval(
-      LocalDate(2017, 11, 6, CalendarSystem.gregorian),
+void Union_DifferentCalendar_Throws() {
+  var value = DateInterval(LocalDate(2017, 11, 6, CalendarSystem.gregorian),
       LocalDate(2017, 11, 10, CalendarSystem.gregorian));
 
-  var other = DateInterval(
-      LocalDate(2017, 11, 6, CalendarSystem.coptic),
+  var other = DateInterval(LocalDate(2017, 11, 6, CalendarSystem.coptic),
       LocalDate(2017, 11, 10, CalendarSystem.coptic));
 
   // Assert.Throws<ArgumentException>(() => value.Union(other));
   expect(() => value.union(other), throwsArgumentError);
 }
 
-@TestCase(['2014-03-07,2014-03-20', "2015-03-07,2015-03-20", null], "Disjointed intervals")
-@TestCase(['2014-03-07,2014-03-20', "2014-03-21,2014-03-30", "2014-03-07,2014-03-30"], "Abutting intervals")
-@TestCase(['2014-03-07,2014-03-20', "2014-03-07,2014-03-20", "2014-03-07,2014-03-20"], "Equal intervals")
-@TestCase(['2014-03-07,2014-03-20', "2014-03-15,2014-03-23", "2014-03-07,2014-03-23"], "Overlapping intervals")
-@TestCase(['2014-03-07,2014-03-20', "2014-03-10,2014-03-15", "2014-03-07,2014-03-20"], "Interval completely contained in another")
-void Union(String first, String second, String expected)
-{
+@TestCase(['2014-03-07,2014-03-20', "2015-03-07,2015-03-20", null],
+    "Disjointed intervals")
+@TestCase(
+    ['2014-03-07,2014-03-20', "2014-03-21,2014-03-30", "2014-03-07,2014-03-30"],
+    "Abutting intervals")
+@TestCase(
+    ['2014-03-07,2014-03-20', "2014-03-07,2014-03-20", "2014-03-07,2014-03-20"],
+    "Equal intervals")
+@TestCase(
+    ['2014-03-07,2014-03-20', "2014-03-15,2014-03-23", "2014-03-07,2014-03-23"],
+    "Overlapping intervals")
+@TestCase(
+    ['2014-03-07,2014-03-20', "2014-03-10,2014-03-15", "2014-03-07,2014-03-20"],
+    "Interval completely contained in another")
+void Union(String first, String second, String expected) {
   DateInterval firstInterval = ParseInterval(first);
   DateInterval secondInterval = ParseInterval(second);
   DateInterval expectedResult = ParseInterval(expected);
 
-  expect(expectedResult, firstInterval.union(secondInterval), reason: 'First union failed.');
-  expect(expectedResult, secondInterval.union(firstInterval), reason: 'Second union failed.');
+  expect(expectedResult, firstInterval.union(secondInterval),
+      reason: 'First union failed.');
+  expect(expectedResult, secondInterval.union(firstInterval),
+      reason: 'Second union failed.');
 }
 
-DateInterval ParseInterval(String textualInterval)
-{
+DateInterval ParseInterval(String textualInterval) {
   // if (textualInterval == null)
   // {
   //   return null;

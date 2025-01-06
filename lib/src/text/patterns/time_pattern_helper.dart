@@ -2,19 +2,22 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 /// Common methods used when parsing dates - these are used from LocalDateTimePatternParser,
 /// OffsetPatternParser and LocalTimePatternParser.
 @internal
-abstract class TimePatternHelper
-{
+abstract class TimePatternHelper {
   /// Creates a character handler for a dot (period). This is *not* culture sensitive - it is
   /// always treated as a literal, but with the additional behaviour that if it's followed by an 'F' pattern,
   /// that makes the period optional.
-  static CharacterHandler<TResult, TBucket> createPeriodHandler<TResult, TBucket extends ParseBucket<TResult>>
-      (int maxCount, int Function(TResult) getter, Function(TBucket, int) setter) {
-    return(PatternCursor pattern, SteppedPatternBuilder<TResult, TBucket> builder) {
+  static CharacterHandler<TResult, TBucket>
+      createPeriodHandler<TResult, TBucket extends ParseBucket<TResult>>(
+          int maxCount,
+          int Function(TResult) getter,
+          Function(TBucket, int) setter) {
+    return (PatternCursor pattern,
+        SteppedPatternBuilder<TResult, TBucket> builder) {
       // Note: Deliberately *not* using the decimal separator of the culture - see issue 21.
 
       // If the next part of the pattern is an F, then this decimal separator is effectively optional.
@@ -35,7 +38,8 @@ abstract class TimePatternHelper
           // Last argument is 1 because we need at least one digit after the decimal separator
           var fractionalSeconds = valueCursor.parseFraction(count, maxCount, 1);
           if (fractionalSeconds == null) {
-            return IParseResult.mismatchedNumber<TResult>(valueCursor, stringFilled('F', count));
+            return IParseResult.mismatchedNumber<TResult>(
+                valueCursor, stringFilled('F', count));
           }
           // No need to validate the value - we've got one to three digits, so the range 0-999 is guaranteed.
           setter(bucket, fractionalSeconds);
@@ -43,8 +47,7 @@ abstract class TimePatternHelper
         });
         builder.addFormatAction((localTime, StringBuffer sb) => sb.write('.'));
         builder.addFormatFractionTruncate(count, maxCount, getter);
-      }
-      else {
+      } else {
         builder.addLiteral2('.', IParseResult.mismatchedCharacter);
       }
     };
@@ -53,9 +56,13 @@ abstract class TimePatternHelper
   /// Creates a character handler for a dot (period) or comma, which have the same meaning.
   /// Formatting always uses a dot, but parsing will allow a comma instead, to conform with
   /// ISO-8601. This is *not* culture sensitive.
-  static CharacterHandler<TResult, TBucket> createCommaDotHandler<TResult, TBucket extends ParseBucket<TResult>>
-      (int maxCount, int Function(TResult) getter, Function(TBucket, int) setter) {
-    return (PatternCursor pattern, SteppedPatternBuilder<TResult, TBucket> builder) {
+  static CharacterHandler<TResult, TBucket>
+      createCommaDotHandler<TResult, TBucket extends ParseBucket<TResult>>(
+          int maxCount,
+          int Function(TResult) getter,
+          Function(TBucket, int) setter) {
+    return (PatternCursor pattern,
+        SteppedPatternBuilder<TResult, TBucket> builder) {
 // Note: Deliberately *not* using the decimal separator of the culture - see issue 21.
 
       // If the next part of the pattern is an F, then this decimal separator is effectively optional.
@@ -70,47 +77,58 @@ abstract class TimePatternHelper
           // If the next token isn't a dot or comma, we assume
           // it's part of the next token in the pattern
           // todo: dart: look for this in other places; had to add 'valueCursor.Index >= valueCursor.Length' because our Match's stringOrdinalCompare doesn't work quite the same
-          if (valueCursor.index >= valueCursor.length || (!valueCursor.matchSingle('.') && !valueCursor.matchSingle(','))) {
+          if (valueCursor.index >= valueCursor.length ||
+              (!valueCursor.matchSingle('.') &&
+                  !valueCursor.matchSingle(','))) {
             return null;
           }
 
           // If there *was* a decimal separator, we should definitely have a number.
-          int? fractionalSeconds = valueCursor.parseFraction(count, maxCount, 1);
+          int? fractionalSeconds =
+              valueCursor.parseFraction(count, maxCount, 1);
           // Last argument is 1 because we need at least one digit to be present after a decimal separator
           if (fractionalSeconds == null) {
-            return IParseResult.mismatchedNumber<TResult>(valueCursor, stringFilled('F', count));
+            return IParseResult.mismatchedNumber<TResult>(
+                valueCursor, stringFilled('F', count));
           }
           // No need to validate the value - we've got an appropriate number of digits, so the range is guaranteed.
           setter(bucket, fractionalSeconds);
           return null;
         });
-        builder.addFormatAction((TResult localTime, StringBuffer sb) => sb.write('.'));
+        builder.addFormatAction(
+            (TResult localTime, StringBuffer sb) => sb.write('.'));
         builder.addFormatFractionTruncate(count, maxCount, getter);
-      }
-      else {
+      } else {
         builder.addParseAction((ValueCursor str, ParseBucket bucket) =>
-        str.matchSingle('.') || str.matchSingle(',')
-            ? null
-            : IParseResult.mismatchedCharacter<TResult>(str, ';'));
-        builder.addFormatAction((TResult value, StringBuffer sb) => sb.write('.'));
+            str.matchSingle('.') || str.matchSingle(',')
+                ? null
+                : IParseResult.mismatchedCharacter<TResult>(str, ';'));
+        builder
+            .addFormatAction((TResult value, StringBuffer sb) => sb.write('.'));
       }
     };
   }
 
   /// Creates a character handler to handle the 'fraction of a second' specifier (f or F).
-  static CharacterHandler<TResult, TBucket> createFractionHandler<TResult, TBucket extends ParseBucket<TResult>>
-      (int maxCount, int Function(TResult) getter, Function(TBucket, int) setter) {
-    return (PatternCursor pattern, SteppedPatternBuilder<TResult, TBucket> builder) {
+  static CharacterHandler<TResult, TBucket>
+      createFractionHandler<TResult, TBucket extends ParseBucket<TResult>>(
+          int maxCount,
+          int Function(TResult) getter,
+          Function(TBucket, int) setter) {
+    return (PatternCursor pattern,
+        SteppedPatternBuilder<TResult, TBucket> builder) {
       String patternCharacter = pattern.current;
       int count = pattern.getRepeatCount(maxCount);
       builder.addField(PatternFields.fractionalSeconds, pattern.current);
 
       builder.addParseAction((ValueCursor str, TBucket bucket) {
-        int? fractionalSeconds = str.parseFraction(count, maxCount, patternCharacter == 'f' ? count : 0);
+        int? fractionalSeconds = str.parseFraction(
+            count, maxCount, patternCharacter == 'f' ? count : 0);
         // If the pattern is 'f', we need exactly "count" digits. Otherwise ('F') we need
         // 'up to count' digits.
         if (fractionalSeconds == null) {
-          return IParseResult.mismatchedNumber<TResult>(str, stringFilled(patternCharacter, count));
+          return IParseResult.mismatchedNumber<TResult>(
+              str, stringFilled(patternCharacter, count));
         }
         // No need to validate the value - we've got an appropriate number of digits, so the range is guaranteed.
         setter(bucket, fractionalSeconds);
@@ -118,16 +136,18 @@ abstract class TimePatternHelper
       });
       if (patternCharacter == 'f') {
         builder.addFormatFraction(count, maxCount, getter);
-      }
-      else {
+      } else {
         builder.addFormatFractionTruncate(count, maxCount, getter);
       }
     };
   }
 
-  static CharacterHandler<TResult, TBucket> createAmPmHandler<TResult, TBucket extends ParseBucket<TResult>>
-      (int Function(TResult) hourOfDayGetter, Function(TBucket, int) amPmSetter) {
-    return(PatternCursor pattern, SteppedPatternBuilder<TResult, TBucket> builder) {
+  static CharacterHandler<TResult, TBucket>
+      createAmPmHandler<TResult, TBucket extends ParseBucket<TResult>>(
+          int Function(TResult) hourOfDayGetter,
+          Function(TBucket, int) amPmSetter) {
+    return (PatternCursor pattern,
+        SteppedPatternBuilder<TResult, TBucket> builder) {
       int count = pattern.getRepeatCount(2);
       builder.addField(PatternFields.amPm, pattern.current);
 
@@ -149,8 +169,10 @@ abstract class TimePatternHelper
       // Delegate to a separate method to keep this clearer...
       if (amDesignator == '' || pmDesignator == "") {
         int specifiedDesignatorValue = amDesignator == '' ? 1 : 0;
-        String specifiedDesignator = specifiedDesignatorValue == 1 ? pmDesignator : amDesignator;
-        TimePatternHelper._handleHalfAmPmDesignator(count, specifiedDesignator, specifiedDesignatorValue, hourOfDayGetter, amPmSetter, builder);
+        String specifiedDesignator =
+            specifiedDesignatorValue == 1 ? pmDesignator : amDesignator;
+        TimePatternHelper._handleHalfAmPmDesignator(count, specifiedDesignator,
+            specifiedDesignatorValue, hourOfDayGetter, amPmSetter, builder);
         return;
       }
 
@@ -173,7 +195,8 @@ abstract class TimePatternHelper
           }
           return IParseResult.missingAmPmDesignator<TResult>(str);
         });
-        builder.addFormatAction((value, sb) => sb.write(hourOfDayGetter(value) > 11 ? pmDesignator[0] : amDesignator[0]));
+        builder.addFormatAction((value, sb) => sb.write(
+            hourOfDayGetter(value) > 11 ? pmDesignator[0] : amDesignator[0]));
         return;
       }
 
@@ -194,19 +217,27 @@ abstract class TimePatternHelper
         }
         return IParseResult.missingAmPmDesignator<TResult>(str);
       });
-      builder.addFormatAction((TResult value, StringBuffer sb) => sb.write(hourOfDayGetter(value) > 11 ? pmDesignator : amDesignator));
+      builder.addFormatAction((TResult value, StringBuffer sb) =>
+          sb.write(hourOfDayGetter(value) > 11 ? pmDesignator : amDesignator));
     };
   }
 
-  static void _handleHalfAmPmDesignator<TResult, TBucket extends ParseBucket<TResult>>
-      (int count, String specifiedDesignator, int specifiedDesignatorValue, int Function(TResult) hourOfDayGetter, Function(TBucket, int) amPmSetter,
-      SteppedPatternBuilder<TResult, TBucket> builder) {
+  static void
+      _handleHalfAmPmDesignator<TResult, TBucket extends ParseBucket<TResult>>(
+          int count,
+          String specifiedDesignator,
+          int specifiedDesignatorValue,
+          int Function(TResult) hourOfDayGetter,
+          Function(TBucket, int) amPmSetter,
+          SteppedPatternBuilder<TResult, TBucket> builder) {
     CompareInfo? compareInfo = builder.formatInfo.compareInfo;
     if (count == 1) {
       String abbreviation = specifiedDesignator.substring(0, 1);
 
       builder.addParseAction((ValueCursor str, TBucket bucket) {
-        int value = str.matchCaseInsensitive(abbreviation, compareInfo, true) ? specifiedDesignatorValue : 1 - specifiedDesignatorValue;
+        int value = str.matchCaseInsensitive(abbreviation, compareInfo, true)
+            ? specifiedDesignatorValue
+            : 1 - specifiedDesignatorValue;
         amPmSetter(bucket, value);
         return null;
       });
@@ -221,7 +252,10 @@ abstract class TimePatternHelper
     }
 
     builder.addParseAction((ValueCursor str, TBucket bucket) {
-      int value = str.matchCaseInsensitive(specifiedDesignator, compareInfo, true) ? specifiedDesignatorValue : 1 - specifiedDesignatorValue;
+      int value =
+          str.matchCaseInsensitive(specifiedDesignator, compareInfo, true)
+              ? specifiedDesignatorValue
+              : 1 - specifiedDesignatorValue;
       amPmSetter(bucket, value);
       return null;
     });

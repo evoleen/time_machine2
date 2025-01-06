@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
 
@@ -17,8 +17,10 @@ Future main() async {
 
 @Test()
 class ValueCursorTest extends TextCursorTestBase {
-  void ValidateCurrentCharacter(TextCursor cursor, int expectedCurrentIndex, String /*char*/ expectedCurrentCharacter) =>
-      TextCursorTestBase.ValidateCurrentCharacter(cursor, expectedCurrentIndex, expectedCurrentCharacter);
+  void ValidateCurrentCharacter(TextCursor cursor, int expectedCurrentIndex,
+          String /*char*/ expectedCurrentCharacter) =>
+      TextCursorTestBase.ValidateCurrentCharacter(
+          cursor, expectedCurrentIndex, expectedCurrentCharacter);
 
   @internal
   @override
@@ -64,7 +66,9 @@ class ValueCursorTest extends TextCursorTestBase {
   void MatchCaseInsensitive_MatchAndMove() {
     var value = ValueCursor('abcd');
     expect(value.moveNext(), isTrue, reason: 'GetNext() 1');
-    expect(value.matchCaseInsensitive('AbC', Culture.invariant.compareInfo, true), isTrue);
+    expect(
+        value.matchCaseInsensitive('AbC', Culture.invariant.compareInfo, true),
+        isTrue);
     ValidateCurrentCharacter(value, 3, 'd');
   }
 
@@ -72,7 +76,9 @@ class ValueCursorTest extends TextCursorTestBase {
   void MatchCaseInsensitive_MatchWithoutMoving() {
     var value = ValueCursor('abcd');
     expect(value.moveNext(), isTrue, reason: 'GetNext() 1');
-    expect(value.matchCaseInsensitive('AbC', Culture.invariant.compareInfo, false), isTrue);
+    expect(
+        value.matchCaseInsensitive('AbC', Culture.invariant.compareInfo, false),
+        isTrue);
     // We're still looking at the start
     ValidateCurrentCharacter(value, 0, 'a');
   }
@@ -81,7 +87,9 @@ class ValueCursorTest extends TextCursorTestBase {
   void MatchCaseInsensitive_StringNotMatched() {
     var value = ValueCursor('xabcdef');
     expect(value.moveNext(), isTrue, reason: 'GetNext() 1');
-    expect(value.matchCaseInsensitive('abc', Culture.invariant.compareInfo, true), isFalse);
+    expect(
+        value.matchCaseInsensitive('abc', Culture.invariant.compareInfo, true),
+        isFalse);
     ValidateCurrentCharacter(value, 0, 'x');
   }
 
@@ -89,7 +97,10 @@ class ValueCursorTest extends TextCursorTestBase {
   void MatchCaseInsensitive_StringOverLongStringToMatch() {
     var value = ValueCursor('x');
     expect(value.moveNext(), isTrue);
-    expect(value.matchCaseInsensitive('long String', Culture.invariant.compareInfo, true), isFalse);
+    expect(
+        value.matchCaseInsensitive(
+            'long String', Culture.invariant.compareInfo, true),
+        isFalse);
     ValidateCurrentCharacter(value, 0, 'x');
   }
 
@@ -446,7 +457,3 @@ class ValueCursorTest extends TextCursorTestBase {
     expect(0, value.index); // Cursor hasn't moved
   }
 }
-
-
-
-

@@ -5,7 +5,7 @@
 //import 'dart:core' as core show Duration;
 //import 'dart:core' hide Duration;
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 @internal
 abstract class ITime {

@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 import 'package:test/test.dart';
 
 import '../time_machine_testing.dart';
@@ -20,13 +20,13 @@ DateTime UnixEpochDateTime = DateTime.utc(1970, 1, 1, 0, 0, 0);
 // This was when I was writing the tests, having finally made everything work - several thousand lines
 // of shockingly untested code.
 DateTime TimeOfGreatAchievement = DateTime.utc(2009, 11, 27, 18, 38, 25, 345)
-    .add(const Duration(microseconds: extraMicroseconds)); // + TimeSpan.FromTicks(8765);
+    .add(const Duration(
+        microseconds: extraMicroseconds)); // + TimeSpan.FromTicks(8765);
 
 CalendarSystem Iso = CalendarSystem.iso;
 
 @Test()
-void FieldsOf_UnixEpoch()
-{
+void FieldsOf_UnixEpoch() {
   // It's easiest to test this using a LocalDateTime in the ISO calendar system.
   // LocalDateTime just passes everything through anyway.
   LocalDateTime epoch = TimeConstants.unixEpoch.inUtc().localDateTime;
@@ -49,12 +49,12 @@ void FieldsOf_UnixEpoch()
 }
 
 @Test()
-void FieldsOf_GreatAchievement()
-{
+void FieldsOf_GreatAchievement() {
   // LocalDateTime now = new Instant.fromUnixTimeTicks((TimeOfGreatAchievement.difference(UnixEpochDateTime)).Ticks).InUtc().LocalDateTime;
-  LocalDateTime now = Instant.fromEpochMicroseconds((
-      TimeOfGreatAchievement.difference(UnixEpochDateTime))
-      .inMicroseconds).inUtc().localDateTime;
+  LocalDateTime now = Instant.fromEpochMicroseconds(
+          (TimeOfGreatAchievement.difference(UnixEpochDateTime)).inMicroseconds)
+      .inUtc()
+      .localDateTime;
 
   expect(2009, now.year);
   expect(2009, now.yearOfEra);
@@ -73,32 +73,40 @@ void FieldsOf_GreatAchievement()
   // DartWeb only does millisecond precision in dart:core (which TimeOfGreatAchievement is funnelled through)
   if (Platform.isVM) {
     expect(345876, now.microsecondOfSecond); // 3458765
-    expect(18 * TimeConstants.microsecondsPerHour +
-        38 * TimeConstants.microsecondsPerMinute +
-        25 * TimeConstants.microsecondsPerSecond +
-        345876, // 3458765
+    expect(
+        18 * TimeConstants.microsecondsPerHour +
+            38 * TimeConstants.microsecondsPerMinute +
+            25 * TimeConstants.microsecondsPerSecond +
+            345876, // 3458765
         now.clockTime.timeSinceMidnight.inMicroseconds);
   }
 }
 
 @Test()
-void ConstructLocalInstant_WithAllFields()
-{
-  LocalInstant localAchievement = ILocalDateTime.toLocalInstant(LocalDateTime(2009, 11, 27, 18, 38, 25, ms: 345).addMicroseconds(extraMicroseconds));
-  int bclMicroseconds = (TimeOfGreatAchievement.difference(UnixEpochDateTime)).inMicroseconds;
+void ConstructLocalInstant_WithAllFields() {
+  LocalInstant localAchievement = ILocalDateTime.toLocalInstant(
+      LocalDateTime(2009, 11, 27, 18, 38, 25, ms: 345)
+          .addMicroseconds(extraMicroseconds));
+  int bclMicroseconds =
+      (TimeOfGreatAchievement.difference(UnixEpochDateTime)).inMicroseconds;
   int bclDays = (bclMicroseconds ~/ TimeConstants.microsecondsPerDay);
   int bclMicrosecondOfDay = bclMicroseconds % TimeConstants.microsecondsPerDay;
   expect(bclDays, localAchievement.daysSinceEpoch);
   if (Platform.isVM) {
-    expect(bclMicrosecondOfDay, localAchievement.nanosecondOfDay / TimeConstants.nanosecondsPerMicrosecond);
+    expect(
+        bclMicrosecondOfDay,
+        localAchievement.nanosecondOfDay /
+            TimeConstants.nanosecondsPerMicrosecond);
   } else {
-    expect(bclMicrosecondOfDay / TimeConstants.microsecondsPerMillisecond, localAchievement.nanosecondOfDay ~/ TimeConstants.nanosecondsPerMillisecond);
+    expect(
+        bclMicrosecondOfDay / TimeConstants.microsecondsPerMillisecond,
+        localAchievement.nanosecondOfDay ~/
+            TimeConstants.nanosecondsPerMillisecond);
   }
 }
 
 @Test()
-void IsLeapYear()
-{
+void IsLeapYear() {
   expect(CalendarSystem.iso.isLeapYear(2012), isTrue); // 4 year rule
   expect(CalendarSystem.iso.isLeapYear(2011), isFalse); // 4 year rule
   expect(CalendarSystem.iso.isLeapYear(2100), isFalse); // 100 year rule
@@ -106,8 +114,7 @@ void IsLeapYear()
 }
 
 @Test()
-void GetDaysInMonth()
-{
+void GetDaysInMonth() {
   expect(30, CalendarSystem.iso.getDaysInMonth(2010, 9));
   expect(31, CalendarSystem.iso.getDaysInMonth(2010, 1));
   expect(28, CalendarSystem.iso.getDaysInMonth(2010, 2));
@@ -115,8 +122,7 @@ void GetDaysInMonth()
 }
 
 @Test()
-void BeforeCommonEra()
-{
+void BeforeCommonEra() {
   // Year -1 in absolute terms is 2BCE
   LocalDate localDate = LocalDate(-1, 1, 1);
   expect(Era.beforeCommon, localDate.era);
@@ -125,12 +131,11 @@ void BeforeCommonEra()
 }
 
 @Test()
-void BeforeCommonEra_BySpecifyingEra()
-{
+void BeforeCommonEra_BySpecifyingEra() {
   // Year -1 in absolute terms is 2BCE
-  LocalDate localDate = LocalDate(2, 1, 1, CalendarSystem.iso, Era.beforeCommon);
+  LocalDate localDate =
+      LocalDate(2, 1, 1, CalendarSystem.iso, Era.beforeCommon);
   expect(Era.beforeCommon, localDate.era);
   expect(-1, localDate.year);
   expect(2, localDate.yearOfEra);
 }
-

@@ -3,7 +3,7 @@
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 import 'dart:math' as math;
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 @internal
 class ValueCursor extends TextCursor {
@@ -14,8 +14,7 @@ class ValueCursor extends TextCursor {
   /// Initializes a new instance of the [ValueCursor] class.
   ///
   /// [value]: The string to parse.
-  ValueCursor(String value)
-      : super(value);
+  ValueCursor(String value) : super(value);
 
   /// Attempts to match the specified character with the current character of the string. If the
   /// character matches then the index is moved passed the character.
@@ -48,14 +47,16 @@ class ValueCursor extends TextCursor {
 
   /// Attempts to match the specified string with the current point in the string in a case-insensitive
   /// manner, according to the given comparison info. The cursor is optionally updated to the end of the match.
-  bool matchCaseInsensitive(String match, CompareInfo? compareInfo, bool moveOnSuccess) {
+  bool matchCaseInsensitive(
+      String match, CompareInfo? compareInfo, bool moveOnSuccess) {
     if (match.length > value.length - index) {
       return false;
     }
     // Note: This will fail if the length in the input string is different to the length in the
     // match string for culture-specific reasons. It's not clear how to handle that...
     // See issue 210 for details - we're not intending to fix this, but it's annoying.
-    if (stringOrdinalIgnoreCaseCompare(value, index, match, 0, match.length) == 0) {
+    if (stringOrdinalIgnoreCaseCompare(value, index, match, 0, match.length) ==
+        0) {
       if (moveOnSuccess) {
         move(index + match.length);
       }
@@ -94,7 +95,8 @@ class ValueCursor extends TextCursor {
     int remaining = value.length - index;
     if (match.length > remaining) {
       // string.CompareOrdinal(Value, Index, match, 0, remaining);
-      int ret = stringOrdinalCompare(value, index, match, 0, remaining); // Value.startsWith(match, Index);
+      int ret = stringOrdinalCompare(
+          value, index, match, 0, remaining); // Value.startsWith(match, Index);
       return ret == 0 ? -1 : ret;
     }
     // string.CompareOrdinal(Value, Index, match, 0, match.length);
@@ -112,7 +114,8 @@ class ValueCursor extends TextCursor {
   /// to be anything specific if the return value is non-null.
   /// todo: update
   /// Returns: null if the digits were parsed, or the appropriate parse failure
-  ParseResult<int> parseInt64<T>(String tType) { ///*out*/ int result) {
+  ParseResult<int> parseInt64<T>(String tType) {
+    ///*out*/ int result) {
     int result = 0;
     int startIndex = index;
     bool negative = current == '-';
@@ -124,7 +127,8 @@ class ValueCursor extends TextCursor {
     }
     int count = 0;
     int digit;
-    while (result < Platform.valueCursorPrediction && (digit = _getDigit()) != -1) {
+    while (result < Platform.valueCursorPrediction &&
+        (digit = _getDigit()) != -1) {
       result = result * 10 + digit;
       count++;
       if (!moveNext()) {
@@ -137,7 +141,8 @@ class ValueCursor extends TextCursor {
       return IParseResult.missingNumber<int>(this);
     }
 
-    if (result >= Platform.valueCursorPrediction && (digit = _getDigit()) != -1) {
+    if (result >= Platform.valueCursorPrediction &&
+        (digit = _getDigit()) != -1) {
       if (result > Platform.valueCursorPrediction) {
         return _buildNumberOutOfRangeResult<int>(startIndex, tType);
       }

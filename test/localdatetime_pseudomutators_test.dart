@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
 
@@ -15,8 +15,7 @@ Future main() async {
 }
 
 @Test()
-void PlusYear_Simple()
-{
+void PlusYear_Simple() {
   LocalDateTime start = LocalDateTime(2011, 6, 26, 12, 15, 8);
   LocalDateTime expected = LocalDateTime(2016, 6, 26, 12, 15, 8);
   expect(expected, start.addYears(5));
@@ -26,8 +25,7 @@ void PlusYear_Simple()
 }
 
 @Test()
-void PlusYear_LeapToNonLeap()
-{
+void PlusYear_LeapToNonLeap() {
   LocalDateTime start = LocalDateTime(2012, 2, 29, 12, 15, 8);
   LocalDateTime expected = LocalDateTime(2013, 2, 28, 12, 15, 8);
   expect(expected, start.addYears(1));
@@ -37,40 +35,35 @@ void PlusYear_LeapToNonLeap()
 }
 
 @Test()
-void PlusYear_LeapToLeap()
-{
+void PlusYear_LeapToLeap() {
   LocalDateTime start = LocalDateTime(2012, 2, 29, 12, 15, 8);
   LocalDateTime expected = LocalDateTime(2016, 2, 29, 12, 15, 8);
   expect(expected, start.addYears(4));
 }
 
 @Test()
-void PlusMonth_Simple()
-{
+void PlusMonth_Simple() {
   LocalDateTime start = LocalDateTime(2012, 4, 15, 12, 15, 8);
   LocalDateTime expected = LocalDateTime(2012, 8, 15, 12, 15, 8);
   expect(expected, start.addMonths(4));
 }
 
 @Test()
-void PlusMonth_ChangingYear()
-{
+void PlusMonth_ChangingYear() {
   LocalDateTime start = LocalDateTime(2012, 10, 15, 12, 15, 8);
   LocalDateTime expected = LocalDateTime(2013, 2, 15, 12, 15, 8);
   expect(expected, start.addMonths(4));
 }
 
 @Test()
-void PlusMonth_WithTruncation()
-{
+void PlusMonth_WithTruncation() {
   LocalDateTime start = LocalDateTime(2011, 1, 30, 12, 15, 8);
   LocalDateTime expected = LocalDateTime(2011, 2, 28, 12, 15, 8);
   expect(expected, start.addMonths(1));
 }
 
 @Test()
-void PlusDays_Simple()
-{
+void PlusDays_Simple() {
   LocalDateTime start = LocalDateTime(2011, 1, 15, 12, 15, 8);
   LocalDateTime expected = LocalDateTime(2011, 1, 23, 12, 15, 8);
   expect(expected, start.addDays(8));
@@ -80,8 +73,7 @@ void PlusDays_Simple()
 }
 
 @Test()
-void PlusDays_MonthBoundary()
-{
+void PlusDays_MonthBoundary() {
   LocalDateTime start = LocalDateTime(2011, 1, 26, 12, 15, 8);
   LocalDateTime expected = LocalDateTime(2011, 2, 3, 12, 15, 8);
   expect(expected, start.addDays(8));
@@ -91,8 +83,7 @@ void PlusDays_MonthBoundary()
 }
 
 @Test()
-void PlusDays_YearBoundary()
-{
+void PlusDays_YearBoundary() {
   LocalDateTime start = LocalDateTime(2011, 12, 26, 12, 15, 8);
   LocalDateTime expected = LocalDateTime(2012, 1, 3, 12, 15, 8);
   expect(expected, start.addDays(8));
@@ -102,8 +93,7 @@ void PlusDays_YearBoundary()
 }
 
 @Test()
-void PlusDays_EndOfFebruary_InLeapYear()
-{
+void PlusDays_EndOfFebruary_InLeapYear() {
   LocalDateTime start = LocalDateTime(2012, 2, 26, 12, 15, 8);
   LocalDateTime expected = LocalDateTime(2012, 3, 5, 12, 15, 8);
   expect(expected, start.addDays(8));
@@ -112,8 +102,7 @@ void PlusDays_EndOfFebruary_InLeapYear()
 }
 
 @Test()
-void PlusDays_EndOfFebruary_NotInLeapYear()
-{
+void PlusDays_EndOfFebruary_NotInLeapYear() {
   LocalDateTime start = LocalDateTime(2011, 2, 26, 12, 15, 8);
   LocalDateTime expected = LocalDateTime(2011, 3, 6, 12, 15, 8);
   expect(expected, start.addDays(8));
@@ -123,8 +112,7 @@ void PlusDays_EndOfFebruary_NotInLeapYear()
 }
 
 @Test()
-void PlusWeeks_Simple()
-{
+void PlusWeeks_Simple() {
   LocalDateTime start = LocalDateTime(2011, 4, 2, 12, 15, 8);
   LocalDateTime expectedForward = LocalDateTime(2011, 4, 23, 12, 15, 8);
   LocalDateTime expectedBackward = LocalDateTime(2011, 3, 12, 12, 15, 8);
@@ -133,8 +121,7 @@ void PlusWeeks_Simple()
 }
 
 @Test()
-void PlusHours_Simple()
-{
+void PlusHours_Simple() {
   LocalDateTime start = LocalDateTime(2011, 4, 2, 12, 15, 8);
   LocalDateTime expectedForward = LocalDateTime(2011, 4, 2, 14, 15, 8);
   LocalDateTime expectedBackward = LocalDateTime(2011, 4, 2, 10, 15, 8);
@@ -143,8 +130,7 @@ void PlusHours_Simple()
 }
 
 @Test()
-void PlusHours_CrossingDayBoundary()
-{
+void PlusHours_CrossingDayBoundary() {
   LocalDateTime start = LocalDateTime(2011, 4, 2, 12, 15, 8);
   LocalDateTime expected = LocalDateTime(2011, 4, 3, 8, 15, 8);
   expect(expected, start.addHours(20));
@@ -152,8 +138,7 @@ void PlusHours_CrossingDayBoundary()
 }
 
 @Test()
-void PlusHours_CrossingYearBoundary()
-{
+void PlusHours_CrossingYearBoundary() {
   // Christmas day + 10 days and 1 hour
   LocalDateTime start = LocalDateTime(2011, 12, 25, 12, 15, 8);
   LocalDateTime expected = LocalDateTime(2012, 1, 4, 13, 15, 8);
@@ -164,8 +149,7 @@ void PlusHours_CrossingYearBoundary()
 // Having tested that hours cross boundaries correctly, the other time unit
 // tests are straightforward
 @Test()
-void PlusMinutes_Simple()
-{
+void PlusMinutes_Simple() {
   LocalDateTime start = LocalDateTime(2011, 4, 2, 12, 15, 8);
   LocalDateTime expectedForward = LocalDateTime(2011, 4, 2, 12, 17, 8);
   LocalDateTime expectedBackward = LocalDateTime(2011, 4, 2, 12, 13, 8);
@@ -174,8 +158,7 @@ void PlusMinutes_Simple()
 }
 
 @Test()
-void PlusSeconds_Simple()
-{
+void PlusSeconds_Simple() {
   LocalDateTime start = LocalDateTime(2011, 4, 2, 12, 15, 8);
   LocalDateTime expectedForward = LocalDateTime(2011, 4, 2, 12, 15, 18);
   LocalDateTime expectedBackward = LocalDateTime(2011, 4, 2, 12, 14, 58);
@@ -184,57 +167,67 @@ void PlusSeconds_Simple()
 }
 
 @Test()
-void PlusMilliseconds_Simple()
-{
+void PlusMilliseconds_Simple() {
   LocalDateTime start = LocalDateTime(2011, 4, 2, 12, 15, 8, ms: 300);
   LocalDateTime expectedForward = LocalDateTime(2011, 4, 2, 12, 15, 8, ms: 700);
-  LocalDateTime expectedBackward = LocalDateTime(2011, 4, 2, 12, 15, 7, ms: 900);
+  LocalDateTime expectedBackward =
+      LocalDateTime(2011, 4, 2, 12, 15, 7, ms: 900);
   expect(expectedForward, start.addMilliseconds(400));
   expect(expectedBackward, start.addMilliseconds(-400));
 }
 
 @Test()
-void PlusTicks_Simple()
-{
+void PlusTicks_Simple() {
   LocalDate date = LocalDate(2011, 4, 2);
-  LocalTime startTime = LocalTime(12, 15, 8, ns:300 * TimeConstants.nanosecondsPerMillisecond + 7500 * 100);
-  LocalTime expectedForwardTime = LocalTime(12, 15, 8, ns:301 * TimeConstants.nanosecondsPerMillisecond + 1500 * 100);
-  LocalTime expectedBackwardTime = LocalTime(12, 15, 8, ns: 300 * TimeConstants.nanosecondsPerMillisecond + 3500 * 100);
-  expect(date.at(expectedForwardTime), (date.at(startTime)).addMicroseconds(400));
-  expect(date.at(expectedBackwardTime), (date.at(startTime)).addMicroseconds(-400));
+  LocalTime startTime = LocalTime(12, 15, 8,
+      ns: 300 * TimeConstants.nanosecondsPerMillisecond + 7500 * 100);
+  LocalTime expectedForwardTime = LocalTime(12, 15, 8,
+      ns: 301 * TimeConstants.nanosecondsPerMillisecond + 1500 * 100);
+  LocalTime expectedBackwardTime = LocalTime(12, 15, 8,
+      ns: 300 * TimeConstants.nanosecondsPerMillisecond + 3500 * 100);
+  expect(
+      date.at(expectedForwardTime), (date.at(startTime)).addMicroseconds(400));
+  expect(date.at(expectedBackwardTime),
+      (date.at(startTime)).addMicroseconds(-400));
 }
 
 @Test()
-void PlusTicks_Long()
-{
+void PlusTicks_Long() {
   expect(TimeConstants.microsecondsPerDay > Platform.int32MaxValue, isTrue);
   LocalDateTime start = LocalDateTime(2011, 4, 2, 12, 15, 8);
   LocalDateTime expectedForward = LocalDateTime(2011, 4, 3, 12, 15, 8);
   LocalDateTime expectedBackward = LocalDateTime(2011, 4, 1, 12, 15, 8);
-  expect(expectedForward, start.addMicroseconds(TimeConstants.microsecondsPerDay));
-  expect(expectedBackward, start.addMicroseconds(-TimeConstants.microsecondsPerDay));
+  expect(
+      expectedForward, start.addMicroseconds(TimeConstants.microsecondsPerDay));
+  expect(expectedBackward,
+      start.addMicroseconds(-TimeConstants.microsecondsPerDay));
 }
 
 @Test()
-void PlusNanoseconds_Simple()
-{
+void PlusNanoseconds_Simple() {
   // Just use the ticks values
   LocalDate date = LocalDate(2011, 4, 2);
-  LocalTime startTime = LocalTime(12, 15, 8, ns: 300 * TimeConstants.nanosecondsPerMillisecond + 7500 * 100);
-  LocalTime expectedForwardTime = LocalTime(12, 15, 8, ns: 300 * TimeConstants.nanosecondsPerMillisecond + 7540 * 100);
-  LocalTime expectedBackwardTime = LocalTime(12, 15, 8, ns: 300 * TimeConstants.nanosecondsPerMillisecond + 7460 * 100);
-  expect(date.at(expectedForwardTime), (date.at(startTime)).addNanoseconds(4000));
-  expect(date.at(expectedBackwardTime), (date.at(startTime)).addNanoseconds(-4000));
+  LocalTime startTime = LocalTime(12, 15, 8,
+      ns: 300 * TimeConstants.nanosecondsPerMillisecond + 7500 * 100);
+  LocalTime expectedForwardTime = LocalTime(12, 15, 8,
+      ns: 300 * TimeConstants.nanosecondsPerMillisecond + 7540 * 100);
+  LocalTime expectedBackwardTime = LocalTime(12, 15, 8,
+      ns: 300 * TimeConstants.nanosecondsPerMillisecond + 7460 * 100);
+  expect(
+      date.at(expectedForwardTime), (date.at(startTime)).addNanoseconds(4000));
+  expect(date.at(expectedBackwardTime),
+      (date.at(startTime)).addNanoseconds(-4000));
 }
 
 @Test()
-void PlusTicks_CrossingDay()
-{
+void PlusTicks_CrossingDay() {
   LocalDateTime start = LocalDateTime(2011, 4, 2, 12, 15, 8);
   LocalDateTime expectedForward = LocalDateTime(2011, 4, 3, 12, 15, 8);
   LocalDateTime expectedBackward = LocalDateTime(2011, 4, 1, 12, 15, 8);
-  expect(expectedForward, start.addNanoseconds(TimeConstants.nanosecondsPerDay));
-  expect(expectedBackward, start.addNanoseconds(-TimeConstants.nanosecondsPerDay));
+  expect(
+      expectedForward, start.addNanoseconds(TimeConstants.nanosecondsPerDay));
+  expect(
+      expectedBackward, start.addNanoseconds(-TimeConstants.nanosecondsPerDay));
 }
 
 @Test()
@@ -256,7 +249,9 @@ void Plus_FullPeriod() {
   var actual = start.add(period);
   var expected = LocalDateTime(2012, 6, 27, 17, 21, 15).addNanoseconds(8009011);
 
-  expect(expected, actual, reason: "${expected.toString('yyyy-MM-dd HH:mm:ss.fffffffff')} != ${actual.toString('yyyy-MM-dd HH:mm:ss.fffffffff')}");
+  expect(expected, actual,
+      reason:
+          "${expected.toString('yyyy-MM-dd HH:mm:ss.fffffffff')} != ${actual.toString('yyyy-MM-dd HH:mm:ss.fffffffff')}");
 }
 
 // Each test case gives a day-of-month in November 2011 and a target 'next day of week';
@@ -272,9 +267,9 @@ void Plus_FullPeriod() {
 @TestCase([11, DayOfWeek.sunday, 13])
 @TestCase([12, DayOfWeek.friday, 18])
 @TestCase([13, DayOfWeek.friday, 18])
-void Next(int dayOfMonth, DayOfWeek targetDayOfWeek, int expectedResult)
-{
-  LocalDateTime start = LocalDateTime(2011, 11, dayOfMonth, 15, 25, 30).addNanoseconds(123456789);
+void Next(int dayOfMonth, DayOfWeek targetDayOfWeek, int expectedResult) {
+  LocalDateTime start =
+      LocalDateTime(2011, 11, dayOfMonth, 15, 25, 30).addNanoseconds(123456789);
   LocalDateTime target = start.next(targetDayOfWeek);
   expect(2011, target.year);
   expect(11, target.monthOfYear);
@@ -285,9 +280,9 @@ void Next(int dayOfMonth, DayOfWeek targetDayOfWeek, int expectedResult)
 @TestCase([0])
 @TestCase([-1])
 @TestCase([8])
-void Next_InvalidArgument(DayOfWeek targetDayOfWeek)
-{
-  LocalDateTime start = LocalDateTime(2011, 1, 1, 15, 25, 30).addNanoseconds(123456789);
+void Next_InvalidArgument(DayOfWeek targetDayOfWeek) {
+  LocalDateTime start =
+      LocalDateTime(2011, 1, 1, 15, 25, 30).addNanoseconds(123456789);
   expect(() => start.next(targetDayOfWeek), throwsRangeError);
 }
 
@@ -303,9 +298,9 @@ void Next_InvalidArgument(DayOfWeek targetDayOfWeek)
 @TestCase([11, DayOfWeek.sunday, 6])
 @TestCase([12, DayOfWeek.friday, 11])
 @TestCase([13, DayOfWeek.friday, 11])
-void Previous(int dayOfMonth, DayOfWeek targetDayOfWeek, int expectedResult)
-{
-  LocalDateTime start = LocalDateTime(2011, 11, dayOfMonth, 15, 25, 30).addNanoseconds(123456789);
+void Previous(int dayOfMonth, DayOfWeek targetDayOfWeek, int expectedResult) {
+  LocalDateTime start =
+      LocalDateTime(2011, 11, dayOfMonth, 15, 25, 30).addNanoseconds(123456789);
   LocalDateTime target = start.previous(targetDayOfWeek);
   expect(2011, target.year);
   expect(11, target.monthOfYear);
@@ -315,18 +310,18 @@ void Previous(int dayOfMonth, DayOfWeek targetDayOfWeek, int expectedResult)
 @TestCase([0])
 @TestCase([-1])
 @TestCase([8])
-void Previous_InvalidArgument(DayOfWeek targetDayOfWeek)
-{
-  LocalDateTime start = LocalDateTime(2011, 1, 1, 15, 25, 30).addNanoseconds(123456789);
+void Previous_InvalidArgument(DayOfWeek targetDayOfWeek) {
+  LocalDateTime start =
+      LocalDateTime(2011, 1, 1, 15, 25, 30).addNanoseconds(123456789);
   expect(() => start.previous(targetDayOfWeek), throwsRangeError);
 }
 
 // No tests for non-ISO-day-of-week calendars as we don't have any yet.
 
 @Test()
-void Operator_MethodEquivalents()
-{
-  LocalDateTime start = LocalDateTime(2011, 1, 1, 15, 25, 30).addNanoseconds(123456789);
+void Operator_MethodEquivalents() {
+  LocalDateTime start =
+      LocalDateTime(2011, 1, 1, 15, 25, 30).addNanoseconds(123456789);
   Period period = const Period(hours: 1) + const Period(days: 1);
   LocalDateTime end = start + period;
   expect(start + period, LocalDateTime.plus(start, period));
@@ -339,18 +334,19 @@ void Operator_MethodEquivalents()
 }
 
 @Test()
-void With_TimeAdjuster()
-{
-  LocalDateTime start = LocalDateTime(2014, 6, 27, 12, 15, 8).addNanoseconds(123456789);
+void With_TimeAdjuster() {
+  LocalDateTime start =
+      LocalDateTime(2014, 6, 27, 12, 15, 8).addNanoseconds(123456789);
   LocalDateTime expected = LocalDateTime(2014, 6, 27, 12, 15, 8);
   expect(expected, start.adjustTime(TimeAdjusters.truncateToSecond));
 }
 
 @Test()
-void With_DateAdjuster()
-{
-  LocalDateTime start = LocalDateTime(2014, 6, 27, 12, 5, 8).addNanoseconds(123456789);
-  LocalDateTime expected = LocalDateTime(2014, 6, 30, 12, 5, 8).addNanoseconds(123456789);
+void With_DateAdjuster() {
+  LocalDateTime start =
+      LocalDateTime(2014, 6, 27, 12, 5, 8).addNanoseconds(123456789);
+  LocalDateTime expected =
+      LocalDateTime(2014, 6, 30, 12, 5, 8).addNanoseconds(123456789);
   expect(expected, start.adjustDate(DateAdjusters.endOfMonth));
 }
 
@@ -359,9 +355,7 @@ void With_DateAdjuster()
 @TestCase([9999, 12, 31, 24])
 @TestCase([1970, 1, 1, Platform.int64MaxValue])
 @TestCase([1970, 1, 1, Platform.int64MinValue])
-void PlusHours_Overflow(int year, int month, int day, int hours)
-{
-  TestHelper.AssertOverflow<int, LocalDateTime>(LocalDateTime(year, month, day, 0, 0, 01).addHours, hours);
+void PlusHours_Overflow(int year, int month, int day, int hours) {
+  TestHelper.AssertOverflow<int, LocalDateTime>(
+      LocalDateTime(year, month, day, 0, 0, 01).addHours, hours);
 }
-
-

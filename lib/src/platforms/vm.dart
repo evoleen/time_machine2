@@ -8,10 +8,10 @@ import 'dart:convert';
 import 'dart:io' as io;
 
 import 'dart:typed_data';
-import 'package:time_machine/src/platforms/dart_pure.dart';
-import 'package:time_machine/src/time_machine_internal.dart';
-import 'package:time_machine/src/timezones/datetimezone_providers.dart';
-import 'package:time_machine/time_machine.dart';
+import 'package:time_machine2/src/platforms/dart_pure.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
+import 'package:time_machine2/src/timezones/datetimezone_providers.dart';
+import 'package:time_machine2/time_machine2.dart';
 
 import 'platform_io.dart';
 import 'dart:isolate' show Isolate;

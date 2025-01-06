@@ -2,7 +2,7 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 ///  Provides a [DateTimeZone] wrapper class that implements a simple cache to
 ///  speed up the lookup of transitions.
@@ -28,7 +28,8 @@ class CachedDateTimeZone extends DateTimeZone {
   ///
   /// [timeZone]: The time zone to cache.
   /// [map]: The caching map
-  CachedDateTimeZone._(this.timeZone, this._map) : super(timeZone.id, false, timeZone.minOffset, timeZone.maxOffset);
+  CachedDateTimeZone._(this.timeZone, this._map)
+      : super(timeZone.id, false, timeZone.minOffset, timeZone.maxOffset);
 
   /// Returns a cached time zone for the given time zone.
   ///
@@ -42,11 +43,13 @@ class CachedDateTimeZone extends DateTimeZone {
     if (timeZone is CachedDateTimeZone || IDateTimeZone.isFixed(timeZone)) {
       return timeZone;
     }
-    return CachedDateTimeZone._(timeZone, CachingZoneIntervalMap.cacheMap(timeZone));
+    return CachedDateTimeZone._(
+        timeZone, CachingZoneIntervalMap.cacheMap(timeZone));
   }
 
   /// Delegates fetching a zone interval to the caching map.
-  @override ZoneInterval getZoneInterval(Instant instant) {
+  @override
+  ZoneInterval getZoneInterval(Instant instant) {
     return _map.getZoneInterval(instant);
   }
 }

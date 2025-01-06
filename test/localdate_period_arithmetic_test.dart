@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 import 'package:test/test.dart';
 
 import 'time_machine_testing.dart';
@@ -14,8 +14,7 @@ Future main() async {
 }
 
 @Test()
-void Addition_WithPeriod()
-{
+void Addition_WithPeriod() {
   LocalDate start = LocalDate(2010, 6, 19);
   Period period = const Period(months: 3) + const Period(days: 10);
   LocalDate expected = LocalDate(2010, 9, 29);
@@ -23,8 +22,7 @@ void Addition_WithPeriod()
 }
 
 @Test()
-void Addition_TruncatesOnShortMonth()
-{
+void Addition_TruncatesOnShortMonth() {
   LocalDate start = LocalDate(2010, 1, 30);
   Period period = const Period(months: 1);
   LocalDate expected = LocalDate(2010, 2, 28);
@@ -42,8 +40,7 @@ void Addition_TruncatesOnShortMonth()
 // }
 
 @Test()
-void Subtraction_WithPeriod()
-{
+void Subtraction_WithPeriod() {
   LocalDate start = LocalDate(2010, 9, 29);
   Period period = const Period(months: 3) + const Period(days: 10);
   LocalDate expected = LocalDate(2010, 6, 19);
@@ -51,8 +48,7 @@ void Subtraction_WithPeriod()
 }
 
 @Test()
-void Subtraction_TruncatesOnShortMonth()
-{
+void Subtraction_TruncatesOnShortMonth() {
   LocalDate start = LocalDate(2010, 3, 30);
   Period period = const Period(months: 1);
   LocalDate expected = LocalDate(2010, 2, 28);
@@ -70,8 +66,7 @@ void Subtraction_TruncatesOnShortMonth()
 // }
 
 @Test()
-void Addition_PeriodWithTime()
-{
+void Addition_PeriodWithTime() {
   LocalDate date = LocalDate(2010, 1, 1);
   Period period = const Period(hours: 1);
   // Use method not operator here to form a valid statement
@@ -80,8 +75,7 @@ void Addition_PeriodWithTime()
 }
 
 @Test()
-void Subtraction_PeriodWithTime()
-{
+void Subtraction_PeriodWithTime() {
   LocalDate date = LocalDate(2010, 1, 1);
   Period period = const Period(hours: 1);
   // Use method not operator here to form a valid statement
@@ -90,8 +84,7 @@ void Subtraction_PeriodWithTime()
 }
 
 @Test()
-void PeriodAddition_MethodEquivalents()
-{
+void PeriodAddition_MethodEquivalents() {
   LocalDate start = LocalDate(2010, 6, 19);
   Period period = const Period(months: 3) + const Period(days: 10);
   expect(start + period, LocalDate.plus(start, period));
@@ -99,14 +92,14 @@ void PeriodAddition_MethodEquivalents()
 }
 
 @Test()
-void PeriodSubtraction_MethodEquivalents()
-{
+void PeriodSubtraction_MethodEquivalents() {
   LocalDate start = LocalDate(2010, 6, 19);
   Period period = const Period(months: 3) + const Period(days: 10);
   LocalDate end = start + period;
   expect(start - period, LocalDate.minus(start, period));
   expect(start - period, start.subtract(period));
   // expect(period, end - start);
-  expect(period, LocalDate.difference(end, start)); // LocalDate.Minus(end, start)
+  expect(
+      period, LocalDate.difference(end, start)); // LocalDate.Minus(end, start)
   expect(period, end.periodSince(start));
 }

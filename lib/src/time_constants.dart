@@ -2,7 +2,7 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 /// Useful constants, mostly along the lines of 'number of milliseconds in an hour'.
 // https://www.dartlang.org/guides/language/effective-dart/design#avoid-defining-a-class-that-contains-only-static-members
@@ -25,27 +25,34 @@ class TimeConstants {
   static const int daysPerWeek = 7;
 
   static const int microsecondsPerMillisecond = 1000;
-  static const int microsecondsPerSecond = microsecondsPerMillisecond * millisecondsPerSecond;
-  static const int microsecondsPerMinute = microsecondsPerSecond * secondsPerMinute;
+  static const int microsecondsPerSecond =
+      microsecondsPerMillisecond * millisecondsPerSecond;
+  static const int microsecondsPerMinute =
+      microsecondsPerSecond * secondsPerMinute;
   static const int microsecondsPerHour = microsecondsPerMinute * minutesPerHour;
   static const int microsecondsPerDay = microsecondsPerHour * hoursPerDay;
   static const int microsecondsPerWeek = microsecondsPerDay * daysPerWeek;
 
   static const int millisecondsPerSecond = 1000;
-  static const int millisecondsPerMinute = millisecondsPerSecond * secondsPerMinute;
+  static const int millisecondsPerMinute =
+      millisecondsPerSecond * secondsPerMinute;
   static const int millisecondsPerHour = millisecondsPerMinute * minutesPerHour;
   static const int millisecondsPerDay = millisecondsPerHour * hoursPerDay;
   static const int millisecondsPerWeek = millisecondsPerDay * daysPerWeek;
 
   static const int nanosecondsPerMicrosecond = 1000;
-  static const int nanosecondsPerSecond = nanosecondsPerMillisecond * millisecondsPerSecond;
-  static const int nanosecondsPerMillisecond = nanosecondsPerMicrosecond * microsecondsPerMillisecond;
-  static const int nanosecondsPerMinute = nanosecondsPerSecond * secondsPerMinute;
+  static const int nanosecondsPerSecond =
+      nanosecondsPerMillisecond * millisecondsPerSecond;
+  static const int nanosecondsPerMillisecond =
+      nanosecondsPerMicrosecond * microsecondsPerMillisecond;
+  static const int nanosecondsPerMinute =
+      nanosecondsPerSecond * secondsPerMinute;
   static const int nanosecondsPerHour = nanosecondsPerMinute * minutesPerHour;
   static const int nanosecondsPerDay = nanosecondsPerHour * hoursPerDay;
   static const int nanosecondsPerWeek = nanosecondsPerDay * daysPerWeek;
-  
-  static final BigInt nanosecondsPerMillisecondBigInt = BigInt.from(nanosecondsPerMillisecond);
+
+  static final BigInt nanosecondsPerMillisecondBigInt =
+      BigInt.from(nanosecondsPerMillisecond);
 
   /// The instant at the Unix epoch of midnight 1st January 1970 UTC.
   static final Instant unixEpoch = Instant();

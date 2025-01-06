@@ -2,7 +2,7 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 /// The epoch to use when constructing an Islamic calendar.
 ///
@@ -11,8 +11,7 @@ import 'package:time_machine/src/time_machine_internal.dart';
 /// The former is the 'astronomical' or "Thursday" epoch; the latter is the "civil" or "Friday" epoch.
 ///
 /// [CalendarSystem.getIslamicCalendar]
-enum IslamicEpoch
-{
+enum IslamicEpoch {
   /// Epoch beginning on July 15th 622CE (Julian), which is July 18th 622 CE in the Gregorian calendar.
   /// This is the epoch used by the BCL HijriCalendar.
   astronomical, // = 1,

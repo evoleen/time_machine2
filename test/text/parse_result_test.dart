@@ -3,7 +3,7 @@
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
 
@@ -13,46 +13,43 @@ Future main() async {
   await runTests();
 }
 
-final ParseResult<int> _failureResult = IParseResult.forInvalidValue<int>(ValueCursor('text'), "text");
+final ParseResult<int> _failureResult =
+    IParseResult.forInvalidValue<int>(ValueCursor('text'), "text");
 
 @Test()
-void Value_Success()
-{
+void Value_Success() {
   ParseResult<int> result = ParseResult.forValue<int>(5);
   expect(5, result.value);
 }
 
 @Test()
-void Value_Failure()
-{
-  expect(() => _failureResult.value.hashCode, willThrow<UnparsableValueError>());
+void Value_Failure() {
+  expect(
+      () => _failureResult.value.hashCode, willThrow<UnparsableValueError>());
 }
 
 @Test()
-void Exception_Success()
-{
+void Exception_Success() {
   ParseResult<int> result = ParseResult.forValue<int>(5);
   expect(() => result.error.hashCode, throwsStateError);
 }
 
 @Test()
-void Exception_Failure()
-{
+void Exception_Failure() {
   // Assert.IsInstanceOf<UnparsableValueError>(FailureResult.Exception);
   expect(_failureResult.error, const TypeMatcher<UnparsableValueError>());
 }
 
 @Test()
-void GetValueOrThrow_Success()
-{
+void GetValueOrThrow_Success() {
   ParseResult<int> result = ParseResult.forValue<int>(5);
   expect(5, result.getValueOrThrow());
 }
 
 @Test()
-void GetValueOrThrow_Failure()
-{
-  expect(() => _failureResult.getValueOrThrow(), willThrow<UnparsableValueError>());
+void GetValueOrThrow_Failure() {
+  expect(() => _failureResult.getValueOrThrow(),
+      willThrow<UnparsableValueError>());
 }
 
 @Test()
@@ -65,8 +62,7 @@ void TryGetValue_Success() {
 }
 
 @Test()
-void TryGetValue_Failure()
-{
+void TryGetValue_Failure() {
 // expect(FailureResult.TryGetValue(-1, out int actual), isFalse);
 
   int actual;
@@ -75,32 +71,28 @@ void TryGetValue_Failure()
 }
 
 @Test()
-void Convert_ForFailureResult()
-{
+void Convert_ForFailureResult() {
   ParseResult<String> converted = _failureResult.convert((x) => 'xx${x}xx');
   expect(() => converted.getValueOrThrow(), willThrow<UnparsableValueError>());
 }
 
 @Test()
-void Convert_ForSuccessResult()
-{
+void Convert_ForSuccessResult() {
   ParseResult<int> original = ParseResult.forValue<int>(10);
   ParseResult<String> converted = original.convert((x) => 'xx${x}xx');
   expect('xx10xx', converted.value);
 }
 
 @Test()
-void ConvertError_ForFailureResult()
-{
+void ConvertError_ForFailureResult() {
   ParseResult<String> converted = _failureResult.convertError<String>();
   expect(() => converted.getValueOrThrow(), willThrow<UnparsableValueError>());
 }
 
 @Test()
-void ConvertError_ForSuccessResult()
-{
+void ConvertError_ForSuccessResult() {
   ParseResult<int> original = ParseResult.forValue<int>(10);
-expect(() => original.convertError<String>(), throwsStateError);
+  expect(() => original.convertError<String>(), throwsStateError);
 }
 
 @Test()
@@ -110,5 +102,3 @@ void ForException() {
   expect(result.success, isFalse);
   expect(identical(e, result.error), isTrue);
 }
-
-

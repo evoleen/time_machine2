@@ -2,8 +2,7 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'package:time_machine/src/time_machine_internal.dart';
-
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 /// Extends [TextCursor] to simplify parsing patterns such as 'uuuu-MM-dd'.
 @internal
@@ -14,8 +13,7 @@ class PatternCursor extends TextCursor {
   /// The character signifying the end of an embedded pattern.
   static const String embeddedPatternEnd = '>';
 
-  PatternCursor(String pattern)
-      : super(pattern);
+  PatternCursor(String pattern) : super(pattern);
 
   /// Gets the quoted string.
   ///
@@ -39,7 +37,8 @@ class PatternCursor extends TextCursor {
       builder.write(current);
     }
     if (!endQuoteFound) {
-      throw IInvalidPatternError.format(TextErrorMessages.missingEndQuote, [closeQuote]);
+      throw IInvalidPatternError.format(
+          TextErrorMessages.missingEndQuote, [closeQuote]);
     }
     movePrevious();
     return builder.toString();
@@ -58,7 +57,8 @@ class PatternCursor extends TextCursor {
     // Move the cursor back to the last character of the repeated pattern
     movePrevious();
     if (repeatLength > maximumCount) {
-      throw IInvalidPatternError.format(TextErrorMessages.repeatCountExceeded, [patternCharacter, maximumCount]);
+      throw IInvalidPatternError.format(TextErrorMessages.repeatCountExceeded,
+          [patternCharacter, maximumCount]);
     }
     return repeatLength;
   }
@@ -78,7 +78,9 @@ class PatternCursor extends TextCursor {
   /// Returns: The embedded pattern, not including the start/end pattern characters.
   String getEmbeddedPattern() {
     if (!moveNext() || current != embeddedPatternStart) {
-      throw InvalidPatternError(stringFormat(TextErrorMessages.missingEmbeddedPatternStart, [embeddedPatternStart]));
+      throw InvalidPatternError(stringFormat(
+          TextErrorMessages.missingEmbeddedPatternStart,
+          [embeddedPatternStart]));
     }
     int startIndex = index + 1;
     int depth = 1; // For nesting
@@ -89,22 +91,20 @@ class PatternCursor extends TextCursor {
         if (depth == 0) {
           return value.substring(startIndex, index /*- startIndex*/);
         }
-      }
-      else if (current == embeddedPatternStart) {
+      } else if (current == embeddedPatternStart) {
         depth++;
-      }
-      else if (current == '\\') {
+      } else if (current == '\\') {
         if (!moveNext()) {
           throw InvalidPatternError(TextErrorMessages.escapeAtEndOfString);
         }
-      }
-      else if (current == '\'' || current == '\"') {
+      } else if (current == '\'' || current == '\"') {
         // We really don't care about the value here. It's slightly inefficient to
         // create the substring and then ignore it, but it's unlikely to be significant.
         getQuotedString(current);
       }
     }
     // We've reached the end of the enclosing pattern without reaching the end of the embedded pattern. Oops.
-    throw InvalidPatternError(stringFormat(TextErrorMessages.missingEmbeddedPatternEnd, [embeddedPatternEnd]));
+    throw InvalidPatternError(stringFormat(
+        TextErrorMessages.missingEmbeddedPatternEnd, [embeddedPatternEnd]));
   }
 }

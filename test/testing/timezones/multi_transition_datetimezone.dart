@@ -2,7 +2,7 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 T min<T extends Comparable>(x, y) => x < y ? x : y;
 T max<T extends Comparable>(x, y) => x > y ? x : y;
@@ -18,12 +18,15 @@ class MultiTransitionDateTimeZone extends DateTimeZone {
   MultiTransitionDateTimeZone(String id, List<ZoneInterval> intervals)
       : Intervals = intervals.toList(),
         Transitions = intervals.skip(1).map((x) => x.start).toList(),
-        super(id, intervals.length == 1,
-          intervals.map((x) => x.wallOffset).reduce(min),
-          intervals.map((x) => x.wallOffset).reduce(max));
+        super(
+            id,
+            intervals.length == 1,
+            intervals.map((x) => x.wallOffset).reduce(min),
+            intervals.map((x) => x.wallOffset).reduce(max));
 
   /// <inheritdoc />
-  @override ZoneInterval getZoneInterval(Instant instant) {
+  @override
+  ZoneInterval getZoneInterval(Instant instant) {
     int lower = 0; // Inclusive
     int upper = Intervals.length; // Exclusive
 
@@ -32,11 +35,9 @@ class MultiTransitionDateTimeZone extends DateTimeZone {
       var candidate = Intervals[current];
       if (candidate.hasStart && candidate.start > instant) {
         upper = current;
-      }
-      else if (candidate.hasEnd && candidate.end <= instant) {
+      } else if (candidate.hasEnd && candidate.end <= instant) {
         lower = current + 1;
-      }
-      else {
+      } else {
         return candidate;
       }
     }
@@ -86,7 +87,10 @@ class MtdtzBuilder {
   /// [firstStandardOffsetHours]: Standard offset in hours in the first zone interval.
   /// [firstSavingOffsetHours]: Daylight saving offset in hours in the first zone interval.
   /// [firstName]: Name of the first zone interval.
-  MtdtzBuilder([int firstStandardOffsetHours = 0, int firstSavingOffsetHours = 0, String firstName = 'First']) {
+  MtdtzBuilder(
+      [int firstStandardOffsetHours = 0,
+      int firstSavingOffsetHours = 0,
+      String firstName = 'First']) {
     id = 'MultiZone';
     currentName = firstName;
     currentStandardOffset = Offset.hours(firstStandardOffsetHours);
@@ -100,13 +104,15 @@ class MtdtzBuilder {
   /// [newStandardOffsetHours]: The new standard offset, in hours.
   /// [newSavingOffsetHours]: The new daylight saving offset, in hours.
   /// [newName]: The new zone interval name.
-  void Add(Instant transition, int newStandardOffsetHours, [int newSavingOffsetHours = 0, String? newName]) {
+  void Add(Instant transition, int newStandardOffsetHours,
+      [int newSavingOffsetHours = 0, String? newName]) {
     newName ??= 'Interval from $transition';
 
     EnsureNotBuilt();
     Instant? previousStart = intervals.isEmpty ? null : intervals.last.end;
     // The ZoneInterval constructor will perform validation.
-    intervals.add(IZoneInterval.newZoneInterval(currentName, previousStart, transition, currentStandardOffset + currentSavings, currentSavings));
+    intervals.add(IZoneInterval.newZoneInterval(currentName, previousStart,
+        transition, currentStandardOffset + currentSavings, currentSavings));
     currentName = newName;
     currentStandardOffset = Offset.hours(newStandardOffsetHours);
     currentSavings = Offset.hours(newSavingOffsetHours);
@@ -119,7 +125,8 @@ class MtdtzBuilder {
     EnsureNotBuilt();
     built = true;
     Instant? previousStart = intervals.isEmpty ? null : intervals.last.end;
-    intervals.add(IZoneInterval.newZoneInterval(currentName, previousStart, null, currentStandardOffset + currentSavings, currentSavings));
+    intervals.add(IZoneInterval.newZoneInterval(currentName, previousStart,
+        null, currentStandardOffset + currentSavings, currentSavings));
     return MultiTransitionDateTimeZone(id, intervals);
   }
 

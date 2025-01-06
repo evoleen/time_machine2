@@ -3,7 +3,7 @@
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
 // import 'package:matcher/matcher.dart';
@@ -17,12 +17,12 @@ Future main() async {
   await runTests();
 }
 
-@private final IPartialPattern<Offset> SimpleOffsetPattern =
-OffsetPatternParser().parsePattern('HH:mm', TimeMachineFormatInfo.invariantInfo);
+@private
+final IPartialPattern<Offset> SimpleOffsetPattern = OffsetPatternParser()
+    .parsePattern('HH:mm', TimeMachineFormatInfo.invariantInfo);
 
 @Test()
-void ParsePartial_ValidInMiddle()
-{
+void ParsePartial_ValidInMiddle() {
   var value = ValueCursor('x17:30y');
   value.moveNext();
   value.moveNext();
@@ -35,8 +35,7 @@ void ParsePartial_ValidInMiddle()
 }
 
 @Test()
-void ParsePartial_ValidAtEnd()
-{
+void ParsePartial_ValidAtEnd() {
   var value = ValueCursor('x17:30');
   value.moveNext();
   value.moveNext();
@@ -47,8 +46,7 @@ void ParsePartial_ValidAtEnd()
 }
 
 @Test()
-void Parse_Partial_Invalid()
-{
+void Parse_Partial_Invalid() {
   var value = ValueCursor('x17:y');
   value.moveNext();
   value.moveNext();
@@ -57,8 +55,7 @@ void Parse_Partial_Invalid()
 }
 
 @Test()
-void AppendFormat()
-{
+void AppendFormat() {
   var builder = StringBuffer('x');
   var offset = Offset.hoursAndMinutes(17, 30);
   SimpleOffsetPattern.appendFormat(offset, builder);
@@ -71,26 +68,27 @@ void AppendFormat()
 @TestCase(['<aBaB', false]) // < is reserved
 @TestCase(['aBaB>', false]) // > is reserved
 void UnhandledLiteral(String text, bool valid) {
-  CharacterHandler<LocalDate, SampleBucket> handler = (PatternCursor x, SteppedPatternBuilder<LocalDate, SampleBucket> y) => null; // = delegate { };
+  CharacterHandler<LocalDate, SampleBucket> handler =
+      (PatternCursor x, SteppedPatternBuilder<LocalDate, SampleBucket> y) =>
+          null; // = delegate { };
   var handlers = Map<String, CharacterHandler<LocalDate, SampleBucket>>.from(
-      {
-        'a': handler,
-        'B': handler
-      });
-  var builder = SteppedPatternBuilder<LocalDate, SampleBucket>(TimeMachineFormatInfo.invariantInfo, () => SampleBucket());
+      {'a': handler, 'B': handler});
+  var builder = SteppedPatternBuilder<LocalDate, SampleBucket>(
+      TimeMachineFormatInfo.invariantInfo, () => SampleBucket());
   if (valid) {
     builder.parseCustomPattern(text, handlers);
-  }
-  else {
-    expect(() => builder.parseCustomPattern(text, handlers), willThrow<InvalidPatternError>());
+  } else {
+    expect(() => builder.parseCustomPattern(text, handlers),
+        willThrow<InvalidPatternError>());
   }
 }
 
-@private class SampleBucket extends ParseBucket<LocalDate> {
+@private
+class SampleBucket extends ParseBucket<LocalDate> {
   @internal
   @override
-  ParseResult<LocalDate> calculateValue(PatternFields usedFields, String value) {
+  ParseResult<LocalDate> calculateValue(
+      PatternFields usedFields, String value) {
     throw UnimplementedError();
   }
 }
-

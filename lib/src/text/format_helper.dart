@@ -2,7 +2,7 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 ///   Provides helper methods for formatting values using pattern strings.
 @internal
@@ -21,8 +21,7 @@ abstract class FormatHelper {
   /// Formats the given value to two digits, left-padding with '0' if necessary.
   /// It is assumed that the value is in the range [0, 100). This is usually
   /// used for month, day-of-month, hour, minute, second and year-of-century values.
-  static void format2DigitsNonNegative(int value, StringBuffer outputBuffer)
-  {
+  static void format2DigitsNonNegative(int value, StringBuffer outputBuffer) {
     Preconditions.debugCheckArgumentRange('value', value, 0, 99);
     outputBuffer.writeCharCode(_zeroCodeUnit + value ~/ 10);
     outputBuffer.writeCharCode(_zeroCodeUnit + value % 10);
@@ -53,7 +52,8 @@ abstract class FormatHelper {
   /// [length]: The length to fill.
   /// [outputBuffer]: The output buffer to add the digits to.
   static void leftPad(int value, int length, StringBuffer outputBuffer) {
-    Preconditions.debugCheckArgumentRange('length', length, 1, _maximumPaddingLength);
+    Preconditions.debugCheckArgumentRange(
+        'length', length, 1, _maximumPaddingLength);
     if (value >= 0) {
       leftPadNonNegative(value, length, outputBuffer);
       return;
@@ -79,9 +79,12 @@ abstract class FormatHelper {
   /// [value]: The value to format.
   /// [length]: The length to fill.
   /// [outputBuffer]: The output buffer to add the digits to.
-  static void leftPadNonNegative(int value, int length, StringBuffer outputBuffer) {
-    Preconditions.debugCheckArgumentRange('value', value, 0, Platform.int32MaxValue);
-    Preconditions.debugCheckArgumentRange('length', length, 1, _maximumPaddingLength);
+  static void leftPadNonNegative(
+      int value, int length, StringBuffer outputBuffer) {
+    Preconditions.debugCheckArgumentRange(
+        'value', value, 0, Platform.int32MaxValue);
+    Preconditions.debugCheckArgumentRange(
+        'length', length, 1, _maximumPaddingLength);
     // Special handling for common cases, because we really don't want a heap allocation
     // if we can help it...
     if (length == 1) {
@@ -93,38 +96,58 @@ abstract class FormatHelper {
       if (value < 100) {
         String digit1 = String.fromCharCode(_zeroCodeUnit + (value ~/ 10));
         String digit2 = String.fromCharCode(_zeroCodeUnit + (value % 10));
-        outputBuffer..write(digit1)..write(digit2);
+        outputBuffer
+          ..write(digit1)
+          ..write(digit2);
         return;
       }
     }
     if (length == 2 && value < 100) {
       String digit1 = String.fromCharCode(_zeroCodeUnit + (value ~/ 10));
       String digit2 = String.fromCharCode(_zeroCodeUnit + (value % 10));
-      outputBuffer..write(digit1)..write(digit2);
+      outputBuffer
+        ..write(digit1)
+        ..write(digit2);
       return;
     }
     if (length == 3 && value < 1000) {
-      String digit1 = String.fromCharCode(_zeroCodeUnit + ((value ~/ 100) % 10));
+      String digit1 =
+          String.fromCharCode(_zeroCodeUnit + ((value ~/ 100) % 10));
       String digit2 = String.fromCharCode(_zeroCodeUnit + ((value ~/ 10) % 10));
       String digit3 = String.fromCharCode(_zeroCodeUnit + (value % 10));
-      outputBuffer..write(digit1)..write(digit2)..write(digit3);
+      outputBuffer
+        ..write(digit1)
+        ..write(digit2)
+        ..write(digit3);
       return;
     }
     if (length == 4 && value < 10000) {
       String digit1 = String.fromCharCode(_zeroCodeUnit + (value ~/ 1000));
-      String digit2 = String.fromCharCode(_zeroCodeUnit + ((value ~/ 100) % 10));
+      String digit2 =
+          String.fromCharCode(_zeroCodeUnit + ((value ~/ 100) % 10));
       String digit3 = String.fromCharCode(_zeroCodeUnit + ((value ~/ 10) % 10));
       String digit4 = String.fromCharCode(_zeroCodeUnit + (value % 10));
-      outputBuffer..write(digit1)..write(digit2)..write(digit3)..write(digit4);
+      outputBuffer
+        ..write(digit1)
+        ..write(digit2)
+        ..write(digit3)
+        ..write(digit4);
       return;
     }
     if (length == 5 && value < 100000) {
       String digit1 = String.fromCharCode(_zeroCodeUnit + (value ~/ 10000));
-      String digit2 = String.fromCharCode(_zeroCodeUnit + ((value ~/ 1000) % 10));
-      String digit3 = String.fromCharCode(_zeroCodeUnit + ((value ~/ 100) % 10));
+      String digit2 =
+          String.fromCharCode(_zeroCodeUnit + ((value ~/ 1000) % 10));
+      String digit3 =
+          String.fromCharCode(_zeroCodeUnit + ((value ~/ 100) % 10));
       String digit4 = String.fromCharCode(_zeroCodeUnit + ((value ~/ 10) % 10));
       String digit5 = String.fromCharCode(_zeroCodeUnit + (value % 10));
-      outputBuffer..write(digit1)..write(digit2)..write(digit3)..write(digit4)..write(digit5);
+      outputBuffer
+        ..write(digit1)
+        ..write(digit2)
+        ..write(digit3)
+        ..write(digit4)
+        ..write(digit5);
       return;
     }
 
@@ -139,7 +162,8 @@ abstract class FormatHelper {
       digits[--pos] = '0';
     }
 
-    outputBuffer.writeAll(digits.skip(pos).take(_maximumPaddingLength - pos)); //.write(digits, pos, MaximumPaddingLength - pos);
+    outputBuffer.writeAll(digits.skip(pos).take(_maximumPaddingLength -
+        pos)); //.write(digits, pos, MaximumPaddingLength - pos);
   }
 
   /// Formats the given Int64 value left padded with zeros. The value is assumed to be non-negative.
@@ -151,9 +175,12 @@ abstract class FormatHelper {
   /// [value]: The value to format.
   /// [length]: The length to fill.
   /// [outputBuffer]: The output buffer to add the digits to.
-  static void leftPadNonNegativeInt64(int value, int length, StringBuffer outputBuffer) {
-    Preconditions.debugCheckArgumentRange('value', value, 0, Platform.int64MaxValue);
-    Preconditions.debugCheckArgumentRange('length', length, 1, _maximumPaddingLength);
+  static void leftPadNonNegativeInt64(
+      int value, int length, StringBuffer outputBuffer) {
+    Preconditions.debugCheckArgumentRange(
+        'value', value, 0, Platform.int64MaxValue);
+    Preconditions.debugCheckArgumentRange(
+        'length', length, 1, _maximumPaddingLength);
     // Special handling for common cases, because we really don't want a heap allocation
     // if we can help it...
     if (length == 1) {
@@ -165,38 +192,58 @@ abstract class FormatHelper {
       if (value < 100) {
         String digit1 = String.fromCharCode(_zeroCodeUnit + (value ~/ 10));
         String digit2 = String.fromCharCode(_zeroCodeUnit + (value % 10));
-        outputBuffer..write(digit1)..write(digit2);
+        outputBuffer
+          ..write(digit1)
+          ..write(digit2);
         return;
       }
     }
     if (length == 2 && value < 100) {
       String digit1 = String.fromCharCode(_zeroCodeUnit + (value ~/ 10));
       String digit2 = String.fromCharCode(_zeroCodeUnit + (value % 10));
-      outputBuffer..write(digit1)..write(digit2);
+      outputBuffer
+        ..write(digit1)
+        ..write(digit2);
       return;
     }
     if (length == 3 && value < 1000) {
-      String digit1 = String.fromCharCode(_zeroCodeUnit + ((value ~/ 100) % 10));
+      String digit1 =
+          String.fromCharCode(_zeroCodeUnit + ((value ~/ 100) % 10));
       String digit2 = String.fromCharCode(_zeroCodeUnit + ((value ~/ 10) % 10));
       String digit3 = String.fromCharCode(_zeroCodeUnit + (value % 10));
-      outputBuffer..write(digit1)..write(digit2)..write(digit3);
+      outputBuffer
+        ..write(digit1)
+        ..write(digit2)
+        ..write(digit3);
       return;
     }
     if (length == 4 && value < 10000) {
       String digit1 = String.fromCharCode(_zeroCodeUnit + (value ~/ 1000));
-      String digit2 = String.fromCharCode(_zeroCodeUnit + ((value ~/ 100) % 10));
+      String digit2 =
+          String.fromCharCode(_zeroCodeUnit + ((value ~/ 100) % 10));
       String digit3 = String.fromCharCode(_zeroCodeUnit + ((value ~/ 10) % 10));
       String digit4 = String.fromCharCode(_zeroCodeUnit + (value % 10));
-      outputBuffer..write(digit1)..write(digit2)..write(digit3)..write(digit4);
+      outputBuffer
+        ..write(digit1)
+        ..write(digit2)
+        ..write(digit3)
+        ..write(digit4);
       return;
     }
     if (length == 5 && value < 100000) {
       String digit1 = String.fromCharCode(_zeroCodeUnit + (value ~/ 10000));
-      String digit2 = String.fromCharCode(_zeroCodeUnit + ((value ~/ 1000) % 10));
-      String digit3 = String.fromCharCode(_zeroCodeUnit + ((value ~/ 100) % 10));
+      String digit2 =
+          String.fromCharCode(_zeroCodeUnit + ((value ~/ 1000) % 10));
+      String digit3 =
+          String.fromCharCode(_zeroCodeUnit + ((value ~/ 100) % 10));
       String digit4 = String.fromCharCode(_zeroCodeUnit + ((value ~/ 10) % 10));
       String digit5 = String.fromCharCode(_zeroCodeUnit + (value % 10));
-      outputBuffer..write(digit1)..write(digit2)..write(digit3)..write(digit4)..write(digit5);
+      outputBuffer
+        ..write(digit1)
+        ..write(digit2)
+        ..write(digit3)
+        ..write(digit4)
+        ..write(digit5);
       return;
     }
 
@@ -211,7 +258,8 @@ abstract class FormatHelper {
       digits[--pos] = '0';
     }
 
-    outputBuffer.writeAll(digits.skip(pos).take(_maximumPaddingLength - pos)); //.write(digits, pos, MaximumPaddingLength - pos);
+    outputBuffer.writeAll(digits.skip(pos).take(_maximumPaddingLength -
+        pos)); //.write(digits, pos, MaximumPaddingLength - pos);
   }
 
   /// Formats the given value, which is an integer representation of a fraction.
@@ -226,10 +274,10 @@ abstract class FormatHelper {
   /// [length]: The length to fill. Must be at most [scale].
   /// [scale]: The scale of the value i.e. the number of significant digits is the range of the value. Must be in the range [1, 7].
   /// [outputBuffer]: The output buffer to add the digits to.
-  static void appendFraction(int value, int length, int scale, StringBuffer outputBuffer) {
+  static void appendFraction(
+      int value, int length, int scale, StringBuffer outputBuffer) {
     int relevantDigits = value;
-    while (scale > length)
-    {
+    while (scale > length) {
       relevantDigits ~/= 10;
       scale--;
     }
@@ -238,9 +286,9 @@ abstract class FormatHelper {
     var myOutputBuffer = List<String>.filled(length, '0');
     // for (int i = 0; i < length; i++) outputBuffer.write('0'); //, length);
     int index = myOutputBuffer.length - 1;
-    while (relevantDigits > 0)
-    {
-      myOutputBuffer[index--] = String.fromCharCode(_zeroCodeUnit + (relevantDigits % 10));
+    while (relevantDigits > 0) {
+      myOutputBuffer[index--] =
+          String.fromCharCode(_zeroCodeUnit + (relevantDigits % 10));
       relevantDigits ~/= 10;
     }
 
@@ -262,18 +310,16 @@ abstract class FormatHelper {
   /// [length]: The length to fill. Must be at most [scale].
   /// [scale]: The scale of the value i.e. the number of significant digits is the range of the value. Must be in the range [1, 7].
   /// [outputBuffer]: The output buffer to add the digits to.
-  static void appendFractionTruncate(int value, int length, int scale, StringBuffer outputBuffer) {
+  static void appendFractionTruncate(
+      int value, int length, int scale, StringBuffer outputBuffer) {
     int relevantDigits = value;
-    while (scale > length)
-    {
+    while (scale > length) {
       relevantDigits ~/= 10;
       scale--;
     }
     int relevantLength = length;
-    while (relevantLength > 0)
-    {
-      if ((relevantDigits % 10) != 0)
-      {
+    while (relevantLength > 0) {
+      if ((relevantDigits % 10) != 0) {
         break;
       }
       relevantDigits ~/= 10;
@@ -282,26 +328,24 @@ abstract class FormatHelper {
 
     // note: StringBuffer doesn't have [index] semantics and can't be contracted
     // so... we have to go through some gymnastics here, todo: definitely some optimization is possible here
-    if (relevantLength > 0)
-    {
+    if (relevantLength > 0) {
       var buffer = List<String>.filled(relevantLength, '0', growable: false);
 
       // outputBuffer.Append('0', relevantLength);
-      int index = /*outputBuffer*/buffer.length - 1;
-      while (relevantDigits > 0)
-      {
-        buffer[index--] = String.fromCharCode(_zeroCodeUnit + (relevantDigits % 10));
+      int index = /*outputBuffer*/ buffer.length - 1;
+      while (relevantDigits > 0) {
+        buffer[index--] =
+            String.fromCharCode(_zeroCodeUnit + (relevantDigits % 10));
         relevantDigits ~/= 10;
       }
 
       outputBuffer.writeAll(buffer);
-    }
-    else if (outputBuffer.length > 0) {
+    } else if (outputBuffer.length > 0) {
       var buffer = outputBuffer.toString();
       if (buffer.endsWith('.')) {
         // buffer.length--;
         outputBuffer.clear();
-        outputBuffer.write(buffer.substring(0, buffer.length-1));
+        outputBuffer.write(buffer.substring(0, buffer.length - 1));
       }
     }
   }
@@ -332,14 +376,20 @@ abstract class FormatHelper {
     if (value < 100) {
       String digit1 = String.fromCharCode(_zeroCodeUnit + (value ~/ 10));
       String digit2 = String.fromCharCode(_zeroCodeUnit + (value % 10));
-      outputBuffer..write(digit1)..write(digit2);
+      outputBuffer
+        ..write(digit1)
+        ..write(digit2);
       return;
     }
     if (value < 1000) {
-      String digit1 = String.fromCharCode(_zeroCodeUnit + ((value ~/ 100) % 10));
+      String digit1 =
+          String.fromCharCode(_zeroCodeUnit + ((value ~/ 100) % 10));
       String digit2 = String.fromCharCode(_zeroCodeUnit + ((value ~/ 10) % 10));
       String digit3 = String.fromCharCode(_zeroCodeUnit + (value % 10));
-      outputBuffer..write(digit1)..write(digit2)..write(digit3);
+      outputBuffer
+        ..write(digit1)
+        ..write(digit2)
+        ..write(digit3);
       return;
     }
 

@@ -10,9 +10,9 @@ import 'dart:js';
 // import 'package:resource/resource.dart';
 import 'dart:html';
 
-import 'package:time_machine/src/time_machine_internal.dart';
-import 'package:time_machine/src/timezones/datetimezone_providers.dart';
-import 'package:time_machine/time_machine.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
+import 'package:time_machine2/src/timezones/datetimezone_providers.dart';
+import 'package:time_machine2/time_machine2.dart';
 
 import 'platform_io.dart';
 

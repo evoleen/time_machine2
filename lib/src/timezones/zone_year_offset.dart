@@ -3,7 +3,7 @@
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
 // import 'package:quiver_hashcode/hashcode.dart';
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 /// Defines an offset within a year as an expression that can be used to reference multiple
 /// years.
@@ -25,7 +25,8 @@ import 'package:time_machine/src/time_machine_internal.dart';
 @internal
 class ZoneYearOffset {
   /// An offset that specifies the beginning of the year.
-  static final ZoneYearOffset StartOfYear = ZoneYearOffset(TransitionMode.wall, 1, 1, 0, false, LocalTime.midnight);
+  static final ZoneYearOffset StartOfYear =
+      ZoneYearOffset(TransitionMode.wall, 1, 1, 0, false, LocalTime.midnight);
 
   final int _dayOfMonth;
   // todo: should this be [DayOfWeek]?
@@ -51,7 +52,9 @@ class ZoneYearOffset {
   /// [advance]: if set to `true` [advance].
   /// [timeOfDay]: The time of day at which the transition occurs.
   /// [addDay]: Whether to add an extra day (for 24:00 handling). Default is false.
-  ZoneYearOffset(this.mode, this._monthOfYear, this._dayOfMonth, this._dayOfWeek, this.advanceDayOfWeek, this.timeOfDay, [this._addDay = false]) {
+  ZoneYearOffset(this.mode, this._monthOfYear, this._dayOfMonth,
+      this._dayOfWeek, this.advanceDayOfWeek, this.timeOfDay,
+      [this._addDay = false]) {
     _verifyFieldValue(1, 12, 'monthOfYear', _monthOfYear, false);
     _verifyFieldValue(1, 31, 'dayOfMonth', _dayOfMonth, true);
     if (_dayOfWeek != 0) {
@@ -69,21 +72,24 @@ class ZoneYearOffset {
   /// [value]: The value to check.
   /// [allowNegated]: if set to `true` all the range of value to be the negative as well.
   /// [ArgumentOutOfRangeException]: If the given value is not in the valid range of the given calendar field.
-  static void _verifyFieldValue(int minimum, int maximum, String name, int value, bool allowNegated) {
+  static void _verifyFieldValue(
+      int minimum, int maximum, String name, int value, bool allowNegated) {
     bool failed = false;
     if (allowNegated && value < 0) {
       if (value < -maximum || -minimum < value) {
         failed = true;
       }
-    }
-    else {
+    } else {
       if (value < minimum || maximum < value) {
         failed = true;
       }
     }
     if (failed) {
-      String range = allowNegated ? '[$minimum, $maximum] or [${-maximum}, ${-minimum}]' : "[$minimum, $maximum]";
-      throw ArgumentError.value(value, name, '$name is not in the valid range: $range');
+      String range = allowNegated
+          ? '[$minimum, $maximum] or [${-maximum}, ${-minimum}]'
+          : "[$minimum, $maximum]";
+      throw ArgumentError.value(
+          value, name, '$name is not in the valid range: $range');
     }
   }
 
@@ -106,10 +112,11 @@ class ZoneYearOffset {
   }
 
   @override
-  bool operator==(Object other) => other is ZoneYearOffset && equals(other);
+  bool operator ==(Object other) => other is ZoneYearOffset && equals(other);
 
   // todo: timeOfDay:{5:r} <-- recreate the format?
-  @override String toString() =>
+  @override
+  String toString() =>
       'ZoneYearOffset[mode:$mode monthOfYear:$_monthOfYear dayOfMonth:$_dayOfMonth dayOfWeek:$_dayOfWeek advance:$advanceDayOfWeek timeOfDay:$timeOfDay addDay:$_addDay]';
 
   /// Returns the occurrence of this rule within the given year, as a LocalInstant.
@@ -117,14 +124,21 @@ class ZoneYearOffset {
   /// LocalInstant is used here so that we can use the representation of 'AfterMaxValue'
   /// for December 31st 9999 24:00.
   LocalInstant getOccurrenceForYear(int year) {
-    int actualDayOfMonth = _dayOfMonth > 0 ? _dayOfMonth : CalendarSystem.iso.getDaysInMonth(year, _monthOfYear) + _dayOfMonth + 1;
-    if (_monthOfYear == 2 && _dayOfMonth == 29 && !CalendarSystem.iso.isLeapYear(year)) {
+    int actualDayOfMonth = _dayOfMonth > 0
+        ? _dayOfMonth
+        : CalendarSystem.iso.getDaysInMonth(year, _monthOfYear) +
+            _dayOfMonth +
+            1;
+    if (_monthOfYear == 2 &&
+        _dayOfMonth == 29 &&
+        !CalendarSystem.iso.isLeapYear(year)) {
       // In zic.c, this would result in an error if dayOfWeek is 0 or AdvanceDayOfWeek is true.
       // However, it's very convenient to be able to ask any rule for its occurrence in any year.
       // We rely on genuine rules being well-written - and before releasing an nzd file we always
       // check that it's in line with zic anyway. Ignoring the brokenness is simpler than fixing
       // rules that are only in force for a single year.
-      actualDayOfMonth = 28; // We'll now look backwards for the right day-of-week.
+      actualDayOfMonth =
+          28; // We'll now look backwards for the right day-of-week.
     }
     LocalDate date = LocalDate(year, _monthOfYear, actualDayOfMonth);
     if (_dayOfWeek != 0) {
@@ -137,8 +151,7 @@ class ZoneYearOffset {
           if (!advanceDayOfWeek) {
             diff -= 7;
           }
-        }
-        else if (advanceDayOfWeek) {
+        } else if (advanceDayOfWeek) {
           diff += 7;
         }
         date = date.addDays(diff);
@@ -165,11 +178,11 @@ class ZoneYearOffset {
     // - DDD is the day of week (0-7)
     // - A is the AdvanceDayOfWeek
     // - P is the 'addDay' (24:00) flag
-    int flags = (_dayOfMonth.sign == -1 ? 1 << 7 : 0)
-    | (mode.value << 5)
-    | (_dayOfWeek << 2)
-    | (advanceDayOfWeek ? 2 : 0)
-    | (_addDay ? 1 : 0);
+    int flags = (_dayOfMonth.sign == -1 ? 1 << 7 : 0) |
+        (mode.value << 5) |
+        (_dayOfWeek << 2) |
+        (advanceDayOfWeek ? 2 : 0) |
+        (_addDay ? 1 : 0);
     writer.writeUint8(flags /*as byte*/);
 
     writer.write7BitEncodedInt(_dayOfMonth.abs());
@@ -195,11 +208,20 @@ class ZoneYearOffset {
 //  var mode = new TransitionMode(reader.readUint8());
 //  var advanceDayOfWeek = reader.readBool();
 
-    var dayOfMonth = reader.read7BitEncodedInt() * dayOfMonthSign; //.readInt32();
+    var dayOfMonth =
+        reader.read7BitEncodedInt() * dayOfMonthSign; //.readInt32();
     var monthOfYear = reader.read7BitEncodedInt(); //.readInt32();
-    var timeOfDay = ILocalTime.trustedNanoseconds(reader.readInt32() * TimeConstants.nanosecondsPerSecond);
+    var timeOfDay = ILocalTime.trustedNanoseconds(
+        reader.readInt32() * TimeConstants.nanosecondsPerSecond);
 
-    return ZoneYearOffset(mode, monthOfYear, dayOfMonth, dayOfWeek, advanceDayOfWeek, timeOfDay, addDay);//Preconditions.checkNotNull(reader, 'reader');
+    return ZoneYearOffset(
+        mode,
+        monthOfYear,
+        dayOfMonth,
+        dayOfWeek,
+        advanceDayOfWeek,
+        timeOfDay,
+        addDay); //Preconditions.checkNotNull(reader, 'reader');
     //int flags = reader.ReadByte();
     //var mode = new TransitionMode(flags >> 5);
     //var dayOfWeek = (flags >> 2) & 7;
@@ -221,7 +243,8 @@ class ZoneYearOffset {
   /// Returns: The base time offset as a [Duration].
   Offset getRuleOffset(Offset standardOffset, Offset savings) {
     // note: switch statements in Dart 1.25 don't work with constant classes
-    if (mode == TransitionMode.wall) return standardOffset + savings;
+    if (mode == TransitionMode.wall)
+      return standardOffset + savings;
     else if (mode == TransitionMode.standard) return standardOffset;
     return Offset.zero;
   }
@@ -230,5 +253,14 @@ class ZoneYearOffset {
   ///
   /// A hash code for this instance, suitable for use in hashing algorithms and data
   /// structures like a hash table.
-  @override int get hashCode => hashObjects([mode, _monthOfYear, _dayOfMonth, _dayOfWeek, advanceDayOfWeek, timeOfDay, _addDay]);
+  @override
+  int get hashCode => hashObjects([
+        mode,
+        _monthOfYear,
+        _dayOfMonth,
+        _dayOfWeek,
+        advanceDayOfWeek,
+        timeOfDay,
+        _addDay
+      ]);
 }

@@ -2,8 +2,7 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 // todo: look at the name for this, with-respect-to, Culture && DateTimeFormatInfo
 /// A [IIFormatProvider] for Time Machine types, usually initialised from a [Culture].
@@ -32,8 +31,7 @@ class TimeMachineFormatInfo {
   FixedFormatInfoPatternParser<LocalTime>? _localTimePatternParser;
   FixedFormatInfoPatternParser<LocalDate>? _localDatePatternParser;
   FixedFormatInfoPatternParser<LocalDateTime>? _localDateTimePatternParser;
-  FixedFormatInfoPatternParser<OffsetDateTime>?
-      _offsetDateTimePatternParser;
+  FixedFormatInfoPatternParser<OffsetDateTime>? _offsetDateTimePatternParser;
   FixedFormatInfoPatternParser<OffsetDate>? _offsetDatePatternParser;
   FixedFormatInfoPatternParser<OffsetTime>? _offsetTimePatternParser;
   FixedFormatInfoPatternParser<ZonedDateTime>? _zonedDateTimePatternParser;

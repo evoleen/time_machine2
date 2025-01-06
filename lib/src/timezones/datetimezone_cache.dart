@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 /// Provides an implementation of [DateTimeZoneProvider] that caches results from an
 /// [DateTimeZoneSource].

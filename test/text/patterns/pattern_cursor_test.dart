@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
 
@@ -29,7 +29,8 @@ class PatternCursorTest extends TextCursorTestBase {
   void GetQuotedString_Invalid(String pattern) {
     var cursor = PatternCursor(pattern);
     expect('\'', GetNextCharacter(cursor));
-    expect(() => cursor.getQuotedString('\''), willThrow<InvalidPatternError>());
+    expect(
+        () => cursor.getQuotedString('\''), willThrow<InvalidPatternError>());
   }
 
   @Test()
@@ -99,7 +100,8 @@ class PatternCursorTest extends TextCursorTestBase {
     cursor.moveNext();
     String embedded = cursor.getEmbeddedPattern();
     expect(expectedEmbedded, embedded);
-    TextCursorTestBase.ValidateCurrentCharacter(cursor, expectedEmbedded.length + 2, '>');
+    TextCursorTestBase.ValidateCurrentCharacter(
+        cursor, expectedEmbedded.length + 2, '>');
   }
 
   @Test()

@@ -2,7 +2,7 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 /// A clock with an associated time zone and calendar. This is effectively a convenience
 /// class decorating an [Clock].
@@ -32,21 +32,24 @@ class ZonedClock extends Clock {
   ///
   /// The current instant provided by the underlying clock, adjusted to the
   /// time zone of this object.
-  ZonedDateTime getCurrentZonedDateTime() => getCurrentInstant().inZone(_zone, _calendar);
+  ZonedDateTime getCurrentZonedDateTime() =>
+      getCurrentInstant().inZone(_zone, _calendar);
 
   /// Returns the local date/time of the current instant provided by the underlying clock, adjusted
   /// to the time zone of this object.
   ///
   /// The local date/time of the current instant provided by the underlying clock, adjusted to the
   /// time zone of this object.
-  LocalDateTime getCurrentLocalDateTime() => getCurrentZonedDateTime().localDateTime;
+  LocalDateTime getCurrentLocalDateTime() =>
+      getCurrentZonedDateTime().localDateTime;
 
   /// Returns the offset date/time of the current instant provided by the underlying clock, adjusted
   /// to the time zone of this object.
   ///
   /// The offset date/time of the current instant provided by the underlying clock, adjusted to the
   /// time zone of this object.
-  OffsetDateTime getCurrentOffsetDateTime() => getCurrentZonedDateTime().toOffsetDateTime();
+  OffsetDateTime getCurrentOffsetDateTime() =>
+      getCurrentZonedDateTime().toOffsetDateTime();
 
   /// Returns the local date of the current instant provided by the underlying clock, adjusted
   /// to the time zone of this object.

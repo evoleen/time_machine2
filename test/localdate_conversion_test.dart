@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 import 'package:test/test.dart';
 
 import 'time_machine_testing.dart';
@@ -14,16 +14,14 @@ Future main() async {
 }
 
 @Test()
-void AtMidnight()
-{
+void AtMidnight() {
   LocalDate date = LocalDate(2011, 6, 29);
   LocalDateTime expected = LocalDateTime(2011, 6, 29, 0, 0, 0);
   expect(date.atMidnight(), expected);
 }
 
 @Test()
-void WithCalendar()
-{
+void WithCalendar() {
   LocalDate isoEpoch = LocalDate(1970, 1, 1);
   LocalDate julianEpoch = isoEpoch.withCalendar(CalendarSystem.julian);
   expect(1969, julianEpoch.year);
@@ -32,8 +30,7 @@ void WithCalendar()
 }
 
 @Test()
-void WithOffset()
-{
+void WithOffset() {
   var date = LocalDate(2011, 6, 29);
   var offset = Offset.hours(5);
   var expected = OffsetDate(date, offset);
@@ -41,8 +38,7 @@ void WithOffset()
 }
 
 @Test()
-void ToDateTimeUnspecified()
-{
+void ToDateTimeUnspecified() {
   LocalDate noda = LocalDate(2015, 4, 2);
   DateTime bcl = DateTime(2015, 4, 2, 0, 0, 0); //, DateTimeKind.Unspecified);
   // todo: this needs to be redefined as toDateTimeUtc or toDateTimeLocal or something?
@@ -75,9 +71,9 @@ void ToDateTimeUnspecified()
 //}
 
 @Test()
-void WithCalendar_OutOfRange()
-{
+void WithCalendar_OutOfRange() {
   LocalDate start = LocalDate(1, 1, 1);
   // Assert.Throws<ArgumentOutOfRangeException>
-  expect(() => start.withCalendar(CalendarSystem.persianSimple), throwsRangeError);
+  expect(
+      () => start.withCalendar(CalendarSystem.persianSimple), throwsRangeError);
 }

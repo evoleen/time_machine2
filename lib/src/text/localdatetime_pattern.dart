@@ -2,30 +2,44 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'package:time_machine/src/time_machine_internal.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 /// Class whose existence is solely to avoid type initialization order issues, most of which stem
 /// from needing TimeMachineFormatInfo.InvariantInfo... (todo: does this affect us in Dart Land?)
 @internal
-abstract class LocalDateTimePatterns
-{
-  static final LocalDateTimePattern generalIsoPatternImpl = LocalDateTimePattern.createWithInvariantCulture("uuuu'-'MM'-'dd'T'HH':'mm':'ss");
-  static final LocalDateTimePattern extendedIsoPatternImpl = LocalDateTimePattern.createWithInvariantCulture("uuuu'-'MM'-'dd'T'HH':'mm':'ss;FFFFFFFFF");
-  static final LocalDateTimePattern roundtripPatternImpl = LocalDateTimePattern.createWithInvariantCulture("uuuu'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff");
-  static final LocalDateTimePattern fullRoundtripWithoutCalendarImpl = LocalDateTimePattern.createWithInvariantCulture("uuuu'-'MM'-'dd'T'HH':'mm':'ss'.'fffffffff");
-  static final LocalDateTimePattern fullRoundtripPatternImpl = LocalDateTimePattern.createWithInvariantCulture("uuuu'-'MM'-'dd'T'HH':'mm':'ss'.'fffffffff '('c')'");
+abstract class LocalDateTimePatterns {
+  static final LocalDateTimePattern generalIsoPatternImpl =
+      LocalDateTimePattern.createWithInvariantCulture(
+          "uuuu'-'MM'-'dd'T'HH':'mm':'ss");
+  static final LocalDateTimePattern extendedIsoPatternImpl =
+      LocalDateTimePattern.createWithInvariantCulture(
+          "uuuu'-'MM'-'dd'T'HH':'mm':'ss;FFFFFFFFF");
+  static final LocalDateTimePattern roundtripPatternImpl =
+      LocalDateTimePattern.createWithInvariantCulture(
+          "uuuu'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff");
+  static final LocalDateTimePattern fullRoundtripWithoutCalendarImpl =
+      LocalDateTimePattern.createWithInvariantCulture(
+          "uuuu'-'MM'-'dd'T'HH':'mm':'ss'.'fffffffff");
+  static final LocalDateTimePattern fullRoundtripPatternImpl =
+      LocalDateTimePattern.createWithInvariantCulture(
+          "uuuu'-'MM'-'dd'T'HH':'mm':'ss'.'fffffffff '('c')'");
 
-  static final LocalDateTime defaultTemplateValue = LocalDateTime(2000, 1, 1, 0, 0, 0);
-  static String format(LocalDateTime localDateTime, String? patternText, Culture? culture) =>
-      TimeMachineFormatInfo
-          .getInstance(culture)
+  static final LocalDateTime defaultTemplateValue =
+      LocalDateTime(2000, 1, 1, 0, 0, 0);
+  static String format(
+          LocalDateTime localDateTime, String? patternText, Culture? culture) =>
+      TimeMachineFormatInfo.getInstance(culture)
           .localDateTimePatternParser
-          .parsePattern(patternText ?? LocalDateTimePattern._defaultFormatPattern)
+          .parsePattern(
+              patternText ?? LocalDateTimePattern._defaultFormatPattern)
           .format(localDateTime);
 
-  static IPartialPattern<LocalDateTime> underlyingPattern(LocalDateTimePattern localDateTimePattern) => localDateTimePattern._underlyingPattern;
+  static IPartialPattern<LocalDateTime> underlyingPattern(
+          LocalDateTimePattern localDateTimePattern) =>
+      localDateTimePattern._underlyingPattern;
 
-  static LocalDateTimePattern create(String patternText, TimeMachineFormatInfo formatInfo, LocalDateTime templateValue) =>
+  static LocalDateTimePattern create(String patternText,
+          TimeMachineFormatInfo formatInfo, LocalDateTime templateValue) =>
       LocalDateTimePattern._create(patternText, formatInfo, templateValue);
 }
 
@@ -37,12 +51,14 @@ class LocalDateTimePattern implements IPattern<LocalDateTime> {
   /// Gets an invariant local date/time pattern which is ISO-8601 compatible, down to the second.
   /// This corresponds to the text pattern "uuuu'-'MM'-'dd'T'HH':'mm':'ss", and is also used as the "sortable"
   /// standard pattern.
-  static LocalDateTimePattern get generalIso => LocalDateTimePatterns.generalIsoPatternImpl;
+  static LocalDateTimePattern get generalIso =>
+      LocalDateTimePatterns.generalIsoPatternImpl;
 
   /// Gets an invariant local date/time pattern which is ISO-8601 compatible, providing up to 9 decimal places
   /// of sub-second accuracy. (These digits are omitted when unnecessary.)
   /// This corresponds to the text pattern "uuuu'-'MM'-'dd'T'HH':'mm':'ss;FFFFFFFFF".
-  static LocalDateTimePattern get extendedIso => LocalDateTimePatterns.extendedIsoPatternImpl;
+  static LocalDateTimePattern get extendedIso =>
+      LocalDateTimePatterns.extendedIsoPatternImpl;
 
   /// Gets an invariant local date/time pattern which is ISO-8601 compatible, providing up to 7 decimal places
   /// of sub-second accuracy which are always present (including trailing zeroes). This is compatible with the
@@ -50,18 +66,21 @@ class LocalDateTimePattern implements IPattern<LocalDateTime> {
   /// This corresponds to the text pattern "uuuu'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff". It does not necessarily
   /// round-trip all `LocalDateTime` values as it will lose sub-tick information. Use
   /// [fullRoundtripWithoutCalendar]
-  static LocalDateTimePattern get roundtrip => LocalDateTimePatterns.roundtripPatternImpl;
+  static LocalDateTimePattern get roundtrip =>
+      LocalDateTimePatterns.roundtripPatternImpl;
 
   /// Gets an invariant local date/time pattern which round trips values, but doesn't include the calendar system.
   /// It provides up to 9 decimal places of sub-second accuracy which are always present (including trailing zeroes).
   /// This corresponds to the text pattern "uuuu'-'MM'-'dd'T'HH':'mm':'ss'.'fffffffff". It will
   /// round-trip all [LocalDateTime] values if the calendar system of the template value is the same
   /// as the calendar system of the original value.
-  static LocalDateTimePattern get fullRoundtripWithoutCalendar => LocalDateTimePatterns.fullRoundtripWithoutCalendarImpl;
+  static LocalDateTimePattern get fullRoundtripWithoutCalendar =>
+      LocalDateTimePatterns.fullRoundtripWithoutCalendarImpl;
 
   /// Gets an invariant local date/time pattern which round trips values including the calendar system.
   /// This corresponds to the text pattern "uuuu'-'MM'-'dd'T'HH':'mm':'ss'.'fffffffff '('c')'".
-  static LocalDateTimePattern get fullRoundtrip => LocalDateTimePatterns.fullRoundtripPatternImpl;
+  static LocalDateTimePattern get fullRoundtrip =>
+      LocalDateTimePatterns.fullRoundtripPatternImpl;
 
   /// Gets the pattern text for this pattern, as supplied on creation.
   final String patternText;
@@ -77,7 +96,8 @@ class LocalDateTimePattern implements IPattern<LocalDateTime> {
   /// implementing an internal interface.
   final IPartialPattern<LocalDateTime> _underlyingPattern;
 
-  const LocalDateTimePattern._(this.patternText, this._formatInfo, this.templateValue, this._underlyingPattern);
+  const LocalDateTimePattern._(this.patternText, this._formatInfo,
+      this.templateValue, this._underlyingPattern);
 
   /// Parses the given text value according to the rules of this pattern.
   ///
@@ -88,7 +108,8 @@ class LocalDateTimePattern implements IPattern<LocalDateTime> {
   ///
   /// Returns: The result of parsing, which may be successful or unsuccessful.
   @override
-  ParseResult<LocalDateTime> parse(String text) => _underlyingPattern.parse(text);
+  ParseResult<LocalDateTime> parse(String text) =>
+      _underlyingPattern.parse(text);
 
   /// Formats the given local date/time as text according to the rules of this pattern.
   ///
@@ -106,7 +127,8 @@ class LocalDateTimePattern implements IPattern<LocalDateTime> {
   ///
   /// Returns: The builder passed in as [builder].
   @override
-  StringBuffer appendFormat(LocalDateTime value, StringBuffer builder) => _underlyingPattern.appendFormat(value, builder);
+  StringBuffer appendFormat(LocalDateTime value, StringBuffer builder) =>
+      _underlyingPattern.appendFormat(value, builder);
 
   /// Creates a pattern for the given pattern text, format info, and template value.
   ///
@@ -117,18 +139,21 @@ class LocalDateTimePattern implements IPattern<LocalDateTime> {
   /// Returns: A pattern for parsing and formatting local date/times.
   ///
   /// * [InvalidPatternError]: The pattern text was invalid.
-  static LocalDateTimePattern _create(String patternText, TimeMachineFormatInfo formatInfo,
-      LocalDateTime templateValue) {
+  static LocalDateTimePattern _create(String patternText,
+      TimeMachineFormatInfo formatInfo, LocalDateTime templateValue) {
     Preconditions.checkNotNull(patternText, 'patternText');
     Preconditions.checkNotNull(formatInfo, 'formatInfo');
     // Use the 'fixed' parser for the common case of the default template value.
     var pattern = templateValue == LocalDateTimePatterns.defaultTemplateValue
         ? formatInfo.localDateTimePatternParser.parsePattern(patternText)
-        : LocalDateTimePatternParser(templateValue).parsePattern(patternText, formatInfo);
+        : LocalDateTimePatternParser(templateValue)
+            .parsePattern(patternText, formatInfo);
     // If ParsePattern returns a standard pattern instance, we need to get the underlying partial pattern.
-    pattern = pattern is LocalDateTimePattern ? pattern._underlyingPattern : pattern;
+    pattern =
+        pattern is LocalDateTimePattern ? pattern._underlyingPattern : pattern;
     var partialPattern = pattern as IPartialPattern<LocalDateTime>;
-    return LocalDateTimePattern._(patternText, formatInfo, templateValue, partialPattern);
+    return LocalDateTimePattern._(
+        patternText, formatInfo, templateValue, partialPattern);
   }
 
   // todo: do factories
@@ -145,8 +170,11 @@ class LocalDateTimePattern implements IPattern<LocalDateTime> {
   /// Returns: A pattern for parsing and formatting local date/times.
   ///
   /// * [InvalidPatternError]: The pattern text was invalid.
-  static LocalDateTimePattern createWithCulture(String patternText, Culture culture, [LocalDateTime? templateValue]) =>
-      _create(patternText, TimeMachineFormatInfo.getFormatInfo(culture), templateValue ?? LocalDateTimePatterns.defaultTemplateValue);
+  static LocalDateTimePattern createWithCulture(
+          String patternText, Culture culture,
+          [LocalDateTime? templateValue]) =>
+      _create(patternText, TimeMachineFormatInfo.getFormatInfo(culture),
+          templateValue ?? LocalDateTimePatterns.defaultTemplateValue);
 
   /// Creates a pattern for the given pattern text in the current thread's current culture.
   ///
@@ -160,7 +188,8 @@ class LocalDateTimePattern implements IPattern<LocalDateTime> {
   ///
   /// * [InvalidPatternError]: The pattern text was invalid.
   static LocalDateTimePattern createWithCurrentCulture(String patternText) =>
-      _create(patternText, TimeMachineFormatInfo.currentInfo, LocalDateTimePatterns.defaultTemplateValue);
+      _create(patternText, TimeMachineFormatInfo.currentInfo,
+          LocalDateTimePatterns.defaultTemplateValue);
 
   /// Creates a pattern for the given pattern text in the invariant culture.
   ///
@@ -173,7 +202,8 @@ class LocalDateTimePattern implements IPattern<LocalDateTime> {
   ///
   /// * [InvalidPatternError]: The pattern text was invalid.
   static LocalDateTimePattern createWithInvariantCulture(String patternText) =>
-      _create(patternText, TimeMachineFormatInfo.invariantInfo, LocalDateTimePatterns.defaultTemplateValue);
+      _create(patternText, TimeMachineFormatInfo.invariantInfo,
+          LocalDateTimePatterns.defaultTemplateValue);
 
   /// Creates a pattern for the same original pattern text as this pattern, but with the specified
   /// localization information.
