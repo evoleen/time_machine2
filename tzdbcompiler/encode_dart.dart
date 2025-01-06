@@ -25,9 +25,12 @@ String bytesAsString(Uint8List bytes) {
 String generateDartFile({required String name, required String data}) =>
     '''// This is a generated file. Do not edit.
 import 'dart:typed_data';
+import 'package:archive/archive.dart';
 
 Future<List<int>> getTzdbData(String path) async {
-  return Uint16List.fromList(_embeddedData.codeUnits).buffer.asUint8List();
+  const zipDecoder = GZipDecoder();
+
+  return zipDecoder.decodeBytes(Uint16List.fromList(_embeddedData.codeUnits).buffer.asUint8List());
 }
 
 const _embeddedData =

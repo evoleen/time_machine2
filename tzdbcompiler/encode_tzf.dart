@@ -6,6 +6,7 @@
 /// pub run tool/encode_tzf --zoneinfo path/to/zoneinfo
 /// ```
 import 'dart:io';
+import 'package:archive/archive.dart';
 import 'package:args/args.dart';
 import 'package:file/file.dart' as pkg_file;
 import 'package:glob/glob.dart';
@@ -77,9 +78,11 @@ Future<void> main(List<String> arguments) async {
       locations: commonLocations);
   logReport(common_10y_Db.report);
 
+  const zipEncoder = GZipEncoder();
+
   log.info('Serializing location databases');
-  Future<void> write(String file, TzdbLocationDatabase db) =>
-      File(file).writeAsBytes(tzdbSerialize(db), flush: true);
+  Future<void> write(String file, TzdbLocationDatabase db) => File(file)
+      .writeAsBytes(zipEncoder.encode(tzdbSerialize(db)), flush: true);
   await write(args['output-all'] as String, allDb.db);
   await write(args['output-common'] as String, commonDb.db);
   await write(args['output-10y'] as String, common_10y_Db.db);
