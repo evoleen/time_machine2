@@ -96,7 +96,7 @@ class TimeMachine {
     PlatformIO.local = _WebMachineIO();
 
     // Default provider
-    var tzdb = await DateTimeZoneProviders.timezone;
+    var tzdb = await DateTimeZoneProviders.tzdb;
     IDateTimeZoneProviders.defaultProvider = tzdb;
 
     _readIntlObject();

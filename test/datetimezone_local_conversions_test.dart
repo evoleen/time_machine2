@@ -318,7 +318,7 @@ void MapLocalDateTime_SkippedDateReturnsSkippedMapping() {
 @TestCase(['Pacific/Kwajalein', "1993-08-21"])
 Future AtStartOfDay_DayDoesntExist(String zoneId, String localDate) async {
   LocalDate badDate = LocalDatePattern.iso.parse(localDate).value;
-  DateTimeZone zone = await (await DateTimeZoneProviders.timezone)[zoneId];
+  DateTimeZone zone = await (await DateTimeZoneProviders.tzdb)[zoneId];
   SkippedTimeError
       exception; //  = Assert.Throws<SkippedTimeException>(() => zone.AtStartOfDay(badDate));
   expect(

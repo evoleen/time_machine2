@@ -12,7 +12,7 @@ Future main() async {
     await TimeMachine.initialize({'rootBundle': ''});
     print('Hello, ${DateTimeZone.local} from the Dart Time Machine!\n');
 
-    var tzdb = await DateTimeZoneProviders.timezone;
+    var tzdb = await DateTimeZoneProviders.tzdb;
     var paris = await tzdb['Europe/Paris'];
 
     var now = Instant.now();

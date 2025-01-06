@@ -95,7 +95,7 @@ class TimeMachine {
     ICultures.loadAllCulturesInformation_SetFlag();
 
     // Default provider
-    var tzdb = await DateTimeZoneProviders.timezone;
+    var tzdb = await DateTimeZoneProviders.tzdb;
     IDateTimeZoneProviders.defaultProvider = tzdb;
 
     var local = timeZoneOverride != null

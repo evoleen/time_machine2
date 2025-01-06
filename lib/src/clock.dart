@@ -60,7 +60,7 @@ abstract class Clock {
   ///
   /// see: [DateTimeZoneProviders.Tzdb]
   Future<ZonedClock> inTzdbSystemDefaultZone() async {
-    var zone = await (await DateTimeZoneProviders.timezone).getSystemDefault();
+    var zone = await (await DateTimeZoneProviders.tzdb).getSystemDefault();
     return ZonedClock(this, zone, CalendarSystem.iso);
   }
 
