@@ -59,9 +59,7 @@ class TzdbDateTimeZoneSource extends DateTimeZoneSource {
               zoneStart,
               zoneEnd,
               Offset(zone.offset ~/ 1000),
-              Offset(
-                zone.offset ~/ 1000 + (zone.isDst ? 3600 : 0),
-              ),
+              zone.isDst ? Offset(3600) : Offset.zero,
             );
 
             zoneIntervals.add(zoneInterval);
