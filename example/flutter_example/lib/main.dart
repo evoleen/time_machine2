@@ -38,25 +38,25 @@ Future example() async {
 
     sb.writeln('\nFormatted');
     sb.writeln('UTC Time: ${now.toString('dddd yyyy-MM-dd HH:mm')}');
-    sb.writeln('Local Time: ${now.inLocalZone().toString('dddd yyyy-MM-dd HH:mm')}');
+    sb.writeln(
+        'Local Time: ${now.inLocalZone().toString('dddd yyyy-MM-dd HH:mm')}');
 
-    var culture = await Cultures.getCulture('fr-FR');
+    var culture = (await Cultures.getCulture('fr-FR'))!;
     sb.writeln('\nFormatted and French ($culture)');
     sb.writeln('UTC Time: ${now.toString('dddd yyyy-MM-dd HH:mm', culture)}');
-    sb.writeln('Local Time: ${now.inLocalZone().toString('dddd yyyy-MM-dd HH:mm', culture)}');
+    sb.writeln(
+        'Local Time: ${now.inLocalZone().toString('dddd yyyy-MM-dd HH:mm', culture)}');
 
     sb.writeln('\nParse French Formatted DateTimeZone');
     // without the 'z' parsing will be forced to interpret the timezone as UTC
-    var localText = now
-        .inLocalZone()
-        .toString('dddd yyyy-MM-dd HH:mm z', culture);
+    var localText =
+        now.inLocalZone().toString('dddd yyyy-MM-dd HH:mm z', culture);
 
-    var localClone = ZonedDateTimePattern
-        .createWithCulture('dddd yyyy-MM-dd HH:mm z', culture)
+    var localClone = ZonedDateTimePattern.createWithCulture(
+            'dddd yyyy-MM-dd HH:mm z', culture)
         .parse(localText);
     sb.writeln(localClone.value);
-  }
-  catch (error, stack) {
+  } catch (error, stack) {
     sb.writeln(error);
     sb.writeln(stack);
   }
@@ -87,7 +87,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  MyHomePage({Key? key, required this.title}) : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -156,7 +156,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             new Text(
               '$_counter',
-              style: Theme.of(context).textTheme.display1,
+              style: Theme.of(context).textTheme.displayLarge,
             ),
             new Text(timeMachineText),
           ],
