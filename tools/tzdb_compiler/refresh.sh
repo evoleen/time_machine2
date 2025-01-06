@@ -1,7 +1,7 @@
 #! /bin/bash
 set -e
 
-[[ $0 != 'tzdbcompiler/refresh.sh' ]] && echo "Must be run as tzdbcompiler/refresh.sh" && exit
+[[ $0 != 'tools/tzdb_compiler/refresh.sh' ]] && echo "Must be run as tools/tzdb_compiler/refresh.sh" && exit
 
 dart pub get
 
