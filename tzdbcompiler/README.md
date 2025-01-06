@@ -12,7 +12,7 @@ Time Machine will ship with the "all" variant when compiled to native code and w
 
 ## Updating time zone databases
 
-Script for updating Time Zone database, it will automatically download the [IANA time zone database] and compile into Time Machine's internal format:
+Script for updating Time Zone database, it will automatically download the [IANA Time Zone Database](http://www.iana.org/time-zones) and compile into Time Machine's internal format:
 
 ```sh
 $ chmod +x tzdbcompiler/refresh.sh
