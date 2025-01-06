@@ -33,7 +33,6 @@ class CultureLoader {
 
     while (reader.isMore) {
       var zone = reader.readCulture();
-      print(zone.name);
       cache[zone.name] = zone;
       cultureIds.add(zone.name);
     }
