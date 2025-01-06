@@ -32,7 +32,7 @@ Time Machine provides a simple, intuitive and type safe API to work with global 
 
 The last two/three are generic library goals.
 
-Time Machine is a port of [Noda Time](https://www.nodatime.org).
+Time Machine is a port of [Noda Time](https://www.nodatime.org). The original version of this package was created by [Dana Ferguson](https://github.com/Dana-Ferguson/time_machine).
 
 ### Example Code:
 
