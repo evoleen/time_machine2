@@ -70,10 +70,6 @@ Future<String> _readAsString(Uri uri, Encoding? encoding) async {
 class _WebMachineIO implements PlatformIO {
   @override
   Future<ByteData> getBinary(String path, String filename) async {
-    // var resource = new Resource('packages/time_machine/data/$path/$filename');
-    // // todo: probably a better way to do this
-    // var binary = new ByteData.view(new Int8List.fromList(await resource.readAsBytes()).buffer);
-
     var resource = Uri.parse('packages/time_machine2/data/$path/$filename');
     var binary =
         ByteData.view(Int8List.fromList(await _readAsBytes(resource)).buffer);
@@ -84,9 +80,6 @@ class _WebMachineIO implements PlatformIO {
   @override
   Future /**<Map<String, dynamic>>*/ getJson(
       String path, String filename) async {
-    // var resource = new Resource('packages/time_machine/data/$path/$filename');
-    // return json.decode(await resource.readAsString());
-
     var resource = Uri.parse('packages/time_machine2/data/$path/$filename');
     return json.decode(await _readAsString(_resolveUri(resource), null));
   }

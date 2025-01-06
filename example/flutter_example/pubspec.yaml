@@ -2,7 +2,7 @@ name: time_machine_test_app
 description: A new Flutter application.
 
 environment:
-  sdk: '^3.5.0'
+  sdk: "^3.5.0"
 
 dependencies:
   flutter:
@@ -17,23 +17,21 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
-
 # For information on the generic Dart part of this file, see the
 # following page: https://www.dartlang.org/tools/pub/pubspec
 
 # The following section is specific to Flutter.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
 
-  # Dangling the last / doesn't seem to work.. :(
-  # e.g. `- packages/time_machine/data/cultures/` fails
   assets:
-    - packages/time_machine/data/cultures/cultures.bin
-    - packages/time_machine/data/tzdb/tzdb.bin
+    - packages/time_machine2/data/cultures/cultures.bin
+    - packages/time_machine2/data/tzdb/latest.tzf
+    - packages/time_machine2/data/tzdb/latest_all.tzf
+    - packages/time_machine2/data/tzdb/latest_10y.tzf
   # To add assets to your application, add an assets section, like this:
   # assets:
   #  - images/a_dot_burr.jpeg
