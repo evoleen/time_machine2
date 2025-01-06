@@ -15,8 +15,8 @@ Time Machine will ship with the "all" variant when compiled to native code and w
 Script for updating Time Zone database, it will automatically download the [IANA Time Zone Database](http://www.iana.org/time-zones) and compile into Time Machine's internal format:
 
 ```sh
-$ chmod +x tzdbcompiler/refresh.sh
-$ tzdbcompiler/refresh.sh
+$ chmod +x tools/tzdb_compiler/refresh.sh
+$ tools/tzdb_compiler/refresh.sh
 ```
 
 After updating, ensure that the `id` property in `tzdb_datetimezone_source.dart` reflects the new TZDB version.

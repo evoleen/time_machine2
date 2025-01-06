@@ -117,6 +117,11 @@ class TimeMachine {
     }
 
     Culture? culture = await Cultures.getCulture(cultureId);
+
+    // fall back to en-US if system's culture doesn't exist (can happen if a
+    // system is configured to something unusual, such as de-EN)
+    culture ??= await Cultures.getCulture("en-US");
+
     ICultures.currentCulture = culture!;
     // todo: remove Culture.currentCulture
   }

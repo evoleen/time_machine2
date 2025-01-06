@@ -6,26 +6,28 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'dart:collection';
 
+import 'package:archive/archive.dart';
 import 'package:time_machine/src/time_machine_internal.dart';
 import 'package:time_machine/src/platforms/platform_io.dart';
 
 @internal
 class CultureLoader {
-  static Future<CultureLoader> load() async {
-    var map = await _loadCultureMapping();
-    return CultureLoader._(HashSet.from(map));
-  }
-
   static Future<CultureLoader> loadAll() async {
     // This won't have any filenames in it.
     // It's just a dummy object that will also give [zoneIds] and [zoneIdExists] functionality
     var cultureIds = HashSet<String>();
-    var cache = <String, Culture>{
-      Culture.invariantId: Culture.invariant
-    };
+    var cache = <String, Culture>{Culture.invariantId: Culture.invariant};
 
-    var binary = await PlatformIO.local.getBinary('cultures', 'cultures.bin');
-    var reader = CultureReader(binary);
+    const zipDecoder = GZipDecoder();
+
+    var binary = zipDecoder
+        .decodeBytes(
+            (await PlatformIO.local.getBinary('cultures', 'cultures.bin'))
+                .buffer
+                .asUint8List())
+        .buffer;
+
+    var reader = CultureReader(ByteData.view(binary));
 
     while (reader.isMore) {
       var zone = reader.readCulture();
@@ -43,21 +45,8 @@ class CultureLoader {
 
   CultureLoader._(this._cultureIds);
 
-  static Future<List<String>> _loadCultureMapping() async {
-    var json = await PlatformIO.local.getJson('cultures', 'cultures.json');
-    // todo: replace with .cast<String> in Dart 2.0
-    // #hack: Flutter is very angry about making sure this is a 100% List<String>
-    // map((x) => x as String)
-    // return json.toList<String>();
-    var list = <String>[];
-    for (var item in json) {
-      list.add(item as String);
-    }
-    return list;
-  }
-
   final HashSet<String> _cultureIds;
-  final Map<String, Culture> _cache = { };
+  final Map<String, Culture> _cache = {};
 
   Iterable<String> get cultureIds => _cultureIds;
   bool zoneIdExists(String zoneId) => _cultureIds.contains(zoneId);
@@ -69,18 +58,15 @@ class CultureLoader {
   Future<Culture?> getCulture(String? cultureId) async {
     if (cultureId == null) return null;
 
-    if (ICultures.allCulturesLoaded) {
-      // todo: I think there is a more graceful way to handle this
-      // Perform a quick check to make sure the CultureID exists;
-      // see: https://github.com/Dana-Ferguson/time_machine/issues/13
-      if (!_cache.containsKey(cultureId)) {
-        cultureId = cultureId.split('-').first;
-      }
-
-      if (!_cache.containsKey(cultureId)) return null;
+    if (_cache.containsKey(cultureId)) {
+      return _cache[cultureId];
     }
 
-    return _cache[cultureId] ??= _cultureFromBinary(await PlatformIO.local.getBinary('cultures', '$cultureId.bin'));
+    if (_cache.containsKey(cultureId.split('-').first)) {
+      return _cache[cultureId.split('-').first];
+    }
+
+    return null;
   }
 
   // static String get locale => Platform.localeName;
@@ -98,26 +84,23 @@ class CultureReader extends BinaryReader {
 
   DateTimeFormat readDateTimeFormatInfo() {
     return (DateTimeFormatBuilder()
-      ..amDesignator = readString()
-      ..pmDesignator = readString()
-      ..timeSeparator = readString()
-      ..dateSeparator = readString()
-
-      ..abbreviatedDayNames = readStringList()
-      ..dayNames = readStringList()
-      ..monthNames = readStringList()
-      ..abbreviatedMonthNames = readStringList()
-      ..monthGenitiveNames = readStringList()
-      ..abbreviatedMonthGenitiveNames = readStringList()
-
-      ..eraNames = readStringList()
-      ..calendar = CalendarType.values[read7BitEncodedInt()]
-
-      ..fullDateTimePattern = readString()
-      ..shortDatePattern = readString()
-      ..longDatePattern = readString()
-      ..shortTimePattern = readString()
-      ..longTimePattern = readString())
-      .Build();
+          ..amDesignator = readString()
+          ..pmDesignator = readString()
+          ..timeSeparator = readString()
+          ..dateSeparator = readString()
+          ..abbreviatedDayNames = readStringList()
+          ..dayNames = readStringList()
+          ..monthNames = readStringList()
+          ..abbreviatedMonthNames = readStringList()
+          ..monthGenitiveNames = readStringList()
+          ..abbreviatedMonthGenitiveNames = readStringList()
+          ..eraNames = readStringList()
+          ..calendar = CalendarType.values[read7BitEncodedInt()]
+          ..fullDateTimePattern = readString()
+          ..shortDatePattern = readString()
+          ..longDatePattern = readString()
+          ..shortTimePattern = readString()
+          ..longTimePattern = readString())
+        .Build();
   }
 }
