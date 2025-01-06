@@ -32,7 +32,7 @@ Future<void> main(List<String> arguments) async {
     ..addOption('output-all', defaultsTo: 'lib/data/tzdb/latest_all.tzf')
     ..addOption('output-common', defaultsTo: 'lib/data/tzdb/latest.tzf')
     ..addOption('output-10y', defaultsTo: 'lib/data/tzdb/latest_10y.tzf')
-    ..addOption('zoneinfo', defaultsTo: 'tmp/zoneinfo');
+    ..addOption('zoneinfo');
   final args = parser.parse(arguments);
 
   final zoneinfoPath = args['zoneinfo'] as String?;
