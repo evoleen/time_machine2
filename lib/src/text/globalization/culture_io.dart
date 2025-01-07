@@ -6,9 +6,10 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'dart:collection';
 
-import 'package:archive/archive.dart';
 import 'package:time_machine2/src/time_machine_internal.dart';
-import 'package:time_machine2/src/platforms/platform_io.dart';
+
+import 'culture_native_loader.dart'
+    if (dart.library.html) 'culture_web_loader.dart';
 
 @internal
 class CultureLoader {
@@ -18,12 +19,7 @@ class CultureLoader {
     var cultureIds = HashSet<String>();
     var cache = <String, Culture>{Culture.invariantId: Culture.invariant};
 
-    const zipDecoder = GZipDecoder();
-
-    var binary = zipDecoder.decodeBytes(
-        (await PlatformIO.local.getBinary('cultures', 'cultures.bin'))
-            .buffer
-            .asUint8List());
+    final binary = Uint8List.fromList(await getCultureData(''));
 
     var reader = CultureReader(ByteData.view(
       binary.buffer,
