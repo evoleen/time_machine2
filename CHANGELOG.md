@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.10.1
+- Fixed broken asset loading when Flutter code was executed in unit tests
+- Make attribution to original author more visible
+
 ## 0.10.0
 - First release of fork as `time_machine2`
 - Replace tzdb code so that the package now has a working tzdb compiler
