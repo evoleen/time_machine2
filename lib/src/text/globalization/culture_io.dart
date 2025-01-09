@@ -95,3 +95,77 @@ class CultureReader extends BinaryReader {
         .Build();
   }
 }
+
+@internal
+class CultureJsonReader {
+  CultureJsonReader();
+
+  Culture readCulture(Map<String, dynamic> json) {
+    var name = json["name"];
+    var datetimeFormat = readDateTimeFormatInfo(json["date_time_format"]);
+    return Culture(name, datetimeFormat);
+  }
+
+  DateTimeFormat readDateTimeFormatInfo(Map<String, dynamic> json) {
+    return (DateTimeFormatBuilder()
+          ..amDesignator = json["am_designator"]
+          ..pmDesignator = json["pm_designator"]
+          ..timeSeparator = json["time_separator"]
+          ..dateSeparator = json["date_separator"]
+          ..abbreviatedDayNames = json["abbreviated_day_names"] as List<String>
+          ..dayNames = json["day_names"] as List<String>
+          ..monthNames = json["month_names"] as List<String>
+          ..abbreviatedMonthNames =
+              json["abbreviated_month_names"] as List<String>
+          ..monthGenitiveNames = json["month_genitive_names"] as List<String>
+          ..abbreviatedMonthGenitiveNames =
+              json["abbreviated_month_genitive_names"] as List<String>
+          ..eraNames = json["era_names"] as List<String>
+          ..calendar = CalendarType.values[json["calendar"]]
+          ..fullDateTimePattern = json["full_date_time_pattern"]
+          ..shortDatePattern = json["short_date_pattern"]
+          ..longDatePattern = json["long_date_pattern"]
+          ..shortTimePattern = json["short_time_pattern"]
+          ..longTimePattern = json["long_time_pattern"])
+        .Build();
+  }
+}
+
+@internal
+class CultureJsonWriter {
+  CultureJsonWriter();
+
+  Map<String, dynamic> writeCulture(Culture culture) {
+    final retval = <String, dynamic>{
+      "name": culture.name,
+      "date_time_format": writeDateTimeFormatInfo(culture.dateTimeFormat),
+    };
+
+    return retval;
+  }
+
+  Map<String, dynamic> writeDateTimeFormatInfo(DateTimeFormat dateTimeFormat) {
+    final retval = <String, dynamic>{
+      "am_designator": dateTimeFormat.amDesignator,
+      "pm_designator": dateTimeFormat.pmDesignator,
+      "time_separator": dateTimeFormat.timeSeparator,
+      "date_separator": dateTimeFormat.dateSeparator,
+      "abbreviated_day_names": dateTimeFormat.abbreviatedDayNames,
+      "day_names": dateTimeFormat.dayNames,
+      "month_names": dateTimeFormat.monthNames,
+      "abbreviated_month_names": dateTimeFormat.abbreviatedMonthNames,
+      "month_genitive_names": dateTimeFormat.monthGenitiveNames,
+      "abbreviated_month_genitive_names":
+          dateTimeFormat.abbreviatedMonthGenitiveNames,
+      "era_names": dateTimeFormat.eraNames,
+      "calendar": dateTimeFormat.calendar.index,
+      "full_date_time_pattern": dateTimeFormat.fullDateTimePattern,
+      "short_date_pattern": dateTimeFormat.shortDatePattern,
+      "long_date_pattern": dateTimeFormat.longDatePattern,
+      "short_time_pattern": dateTimeFormat.shortTimePattern,
+      "long_time_pattern": dateTimeFormat.longTimePattern,
+    };
+
+    return retval;
+  }
+}
