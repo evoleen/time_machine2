@@ -7,6 +7,7 @@ import 'dart:typed_data';
 import 'dart:collection';
 
 import 'package:time_machine2/src/time_machine_internal.dart';
+import 'package:time_machine2/src/utility/binary_writer.dart';
 
 import 'culture_native_loader.dart'
     if (dart.library.html) 'culture_web_loader.dart';
@@ -97,6 +98,36 @@ class CultureReader extends BinaryReader {
 }
 
 @internal
+class CultureWriter extends BinaryWriter {
+  CultureWriter(List<int> output) : super(output);
+
+  void writeCulture(Culture culture) {
+    writeString(culture.name);
+    writeDateTimeFormatInfo(culture.dateTimeFormat);
+  }
+
+  void writeDateTimeFormatInfo(DateTimeFormat dateTimeFormat) {
+    writeString(dateTimeFormat.amDesignator);
+    writeString(dateTimeFormat.pmDesignator);
+    writeString(dateTimeFormat.timeSeparator);
+    writeString(dateTimeFormat.dateSeparator);
+    writeStringList(dateTimeFormat.abbreviatedDayNames);
+    writeStringList(dateTimeFormat.dayNames);
+    writeStringList(dateTimeFormat.monthNames);
+    writeStringList(dateTimeFormat.abbreviatedMonthNames);
+    writeStringList(dateTimeFormat.monthGenitiveNames);
+    writeStringList(dateTimeFormat.abbreviatedMonthGenitiveNames);
+    writeStringList(dateTimeFormat.eraNames);
+    write7BitEncodedInt(dateTimeFormat.calendar.index);
+    writeString(dateTimeFormat.fullDateTimePattern);
+    writeString(dateTimeFormat.shortDatePattern);
+    writeString(dateTimeFormat.longDatePattern);
+    writeString(dateTimeFormat.shortTimePattern);
+    writeString(dateTimeFormat.longTimePattern);
+  }
+}
+
+@internal
 class CultureJsonReader {
   CultureJsonReader();
 
@@ -112,15 +143,30 @@ class CultureJsonReader {
           ..pmDesignator = json["pm_designator"]
           ..timeSeparator = json["time_separator"]
           ..dateSeparator = json["date_separator"]
-          ..abbreviatedDayNames = json["abbreviated_day_names"] as List<String>
-          ..dayNames = json["day_names"] as List<String>
-          ..monthNames = json["month_names"] as List<String>
+          ..abbreviatedDayNames =
+              (json["abbreviated_day_names"] as List<dynamic>)
+                  .map((e) => e as String)
+                  .toList()
+          ..dayNames = (json["day_names"] as List<dynamic>)
+              .map((e) => e as String)
+              .toList()
+          ..monthNames = (json["month_names"] as List<dynamic>)
+              .map((e) => e as String)
+              .toList()
           ..abbreviatedMonthNames =
-              json["abbreviated_month_names"] as List<String>
-          ..monthGenitiveNames = json["month_genitive_names"] as List<String>
+              (json["abbreviated_month_names"] as List<dynamic>)
+                  .map((e) => e as String)
+                  .toList()
+          ..monthGenitiveNames = (json["month_genitive_names"] as List<dynamic>)
+              .map((e) => e as String)
+              .toList()
           ..abbreviatedMonthGenitiveNames =
-              json["abbreviated_month_genitive_names"] as List<String>
-          ..eraNames = json["era_names"] as List<String>
+              (json["abbreviated_month_genitive_names"] as List<dynamic>)
+                  .map((e) => e as String)
+                  .toList()
+          ..eraNames = (json["era_names"] as List<dynamic>)
+              .map((e) => e as String)
+              .toList()
           ..calendar = CalendarType.values[json["calendar"]]
           ..fullDateTimePattern = json["full_date_time_pattern"]
           ..shortDatePattern = json["short_date_pattern"]
