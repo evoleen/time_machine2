@@ -7,6 +7,7 @@ dart pub get
 
 mkdir -p lib/data/cultures
 
+dart tool/culture_compiler/encoode_json_to_bin.dart
 dart tool/culture_compiler/encode_dart.dart tool/culture_compiler/data/cultures.bin lib/data/cultures
 
 dart format lib/data/cultures
