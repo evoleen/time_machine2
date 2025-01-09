@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:time_machine2/time_machine2.dart';
-import 'package:time_machine2/time_machine_text_patterns.dart';
 
 String timeMachineText = '';
 
