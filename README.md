@@ -82,6 +82,35 @@ print(localClone.value);
 
 ![selection_117](https://user-images.githubusercontent.com/7284858/41519377-bebbde82-7295-11e8-8f10-d350afd1f746.png)
 
+## Migrating from the original repository
+
+This project is forked from [time_machine](https://github.com/Dana-Ferguson/time_machine), the original package seems to be abandoned. Since the original package couldn't be adopted, this package had to be given a new name and is available as `time_machine2`. The following changes are required to migrate from the original package to the new package:
+
+Change dependency in `pubspec.yaml`:
+```diff
+< time_machine: ^0.9.17
+> time_machine2: ^0.10.1
+```
+
+Change import statements:
+```diff
+< import 'package:time_machine/time_machine.dart';
+> import 'package:time_machine2/time_machine2.dart';
+- import 'package:time_machine2/time_machine_text_patterns.dart'; 
+```
+
+The text pattern library has been merged into the main library for better visibility and to avoid too much clutter in the import statements.
+
+Change of asset declarations in `pubspec.yaml` (only required for Flutter):
+```yaml
+flutter:
+  assets:
+    - packages/time_machine2/data/cultures/cultures.bin
+    - packages/time_machine2/data/tzdb/latest_10y.tzf
+    - packages/time_machine2/data/tzdb/latest_all.tzf
+    - packages/time_machine2/data/tzdb/latest.tzf
+```
+
 ### Web (Dart2JS and DDC)
 
 ![selection_118](https://user-images.githubusercontent.com/7284858/41519378-c058d6a0-7295-11e8-845d-6782f1e7cbbe.png)
