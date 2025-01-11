@@ -17464,9 +17464,9 @@
                 "A.D."
             ],
             "calendar": 1,
-            "full_date_time_pattern": "dd MMMM yyyy HH:mm:ss",
+            "full_date_time_pattern": "dddd, dd MMMM yyyy HH:mm:ss",
             "short_date_pattern": "dd/MM/yyyy",
-            "long_date_pattern": "dd MMMM yyyy",
+            "long_date_pattern": "dddd, dd MMMM yyyy",
             "short_time_pattern": "HH:mm",
             "long_time_pattern": "HH:mm:ss"
         }
