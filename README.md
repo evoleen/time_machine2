@@ -4,12 +4,12 @@ The Dart Time Machine is a date and time library for [Flutter (native + web)](ht
 
 Time Machine provides an alternative date and time API over Dart Core.
 
-Dart's native time API is severely flawed because it only knows UTC or local time with no clear definition of time zone and no type safety to ensure that time stamps with and without UTC flag aren't mixed up. This can easily lead to an endless source of bugs if applications need to work in local time, such as
+Dart's native time API is too simplistic because it only knows UTC or local time with no clear definition of time zone and no safeguards ensuring that time stamps with and without UTC flag aren't mixed up. This can easily lead to bugs if applications need to work in local time, because native Dart timestamps look the same after conversion. Applications that benefit from Time Machine are applications that need to perform tasks such as
 * scheduling reminders
 * displaying an object's time information (file dates, email dates, calendar dates)
 * sharing data between users that work in different time zones
 
-Time Machine provides a simple, intuitive and type safe API to work with global and local time.
+But Time Machine is also useful for applications that work with universal timestamps only. Its `Instant` class provides nanosecond precision and fake clocks can be used during unit testing.
 
 **Time Machine API**
 * Time - an amount of time with nanosecond precision
@@ -82,9 +82,9 @@ print(localClone.value);
 
 ![selection_117](https://user-images.githubusercontent.com/7284858/41519377-bebbde82-7295-11e8-8f10-d350afd1f746.png)
 
-## Migrating from the original repository
+## Migrating from the original time_machine package
 
-This project is forked from [time_machine](https://github.com/Dana-Ferguson/time_machine), the original package seems to be abandoned. Since the original package couldn't be adopted, this package had to be given a new name and is available as `time_machine2`. The following changes are required to migrate from the original package to the new package:
+This project is forked from [time_machine](https://github.com/Dana-Ferguson/time_machine), the original repository seems to be abandoned. Since the original package couldn't be adopted, this package had to be given a new name and is available as `time_machine2`. The following changes are required to migrate from the original package to the new package:
 
 Change dependency in `pubspec.yaml`:
 ```diff
