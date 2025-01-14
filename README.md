@@ -118,7 +118,7 @@ Time Machine requires access to a time zone database as well as a culture databa
 In order to work on all platforms seamlessly without requiring too much package-specific configuration, the following strategy is used:
 
 - *Flutter Native:* Assets must be listed in `pubspec.yaml` (see [here](#flutter)) and will be bundled with the binary. `TimeMachine.initialize()`  requires the application's `rootBundle` as parameter.
-- *Flutter Web:* Assets must be listed in `pubspec.yaml` (see [here](#flutter)) and will be retrieved through Flutter's service worker. These are additional HTTP requests executed during `TimeMachine.initialize()`. The data will be cached by the service worker so that subsequent reloads of the application will load the assets from the cache. `TimeMachine.initialize()`  requires the application's `rootBundle` as parameter.
+- *Flutter Web:* Assets must be listed in `pubspec.yaml` (see [here](#flutter)) and will be retrieved through Flutter's service worker. This will cause additional HTTP requests during `TimeMachine.initialize()`. The data might be cached by the service worker so that subsequent reloads of the application may load the assets from the cache. `TimeMachine.initialize()`  requires the application's `rootBundle` as parameter.
 - *Dart only:* Assets will be compiled to code and embedded directly into the binary. This increases the size of the binary slightly but makes the entire package self-contained without additional configuration.
 
 Time Machine currently ships three versions of the time zone database but only uses one. #23 tracks an enhancement that would allow to specify which version to use. Each version differs in size, which would enable faster loading when deployed with Flutter Web.
