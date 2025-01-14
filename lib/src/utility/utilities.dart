@@ -75,11 +75,6 @@ abstract class Platform {
       _bigIntMaxValue ??= BigInt.from(Platform.intMaxValue);
 }
 
-// todo: remove me
-abstract class TimeZoneInfo {
-// This is a BCL class
-}
-
 /// see: https://en.wikipedia.org/wiki/Modulo_operation
 ///
 /// For performance, we should only use this where 'x' can be negative.
