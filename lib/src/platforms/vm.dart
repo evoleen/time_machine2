@@ -15,7 +15,7 @@ import 'package:time_machine2/time_machine2.dart';
 import 'platform_io.dart';
 import 'dart:isolate' show Isolate;
 
-import 'dart_pure.dart' if (dart.library.ui) 'dart_flutter.dart';
+import 'flutter_discovery/flutter_discovery.dart';
 
 class _VirtualMachineIO implements PlatformIO {
   @override
@@ -67,7 +67,7 @@ Future initialize(Map args, {testing = false}) {
   String? cultureOverride = args['culture'];
   final testing = args['testing'] ?? false;
 
-  if (!testing && !kIsPureDart) {
+  if (!testing && kIsFlutter) {
     if (args['rootBundle'] == null) {
       throw Exception(
           "Pass in the rootBundle from 'package:flutter/services.dart';");
