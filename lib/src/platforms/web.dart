@@ -22,7 +22,7 @@ class _WebMachineIO implements PlatformIO {
 
     try {
       final response = await client.get(
-        Uri.parse('packages/time_machine2/data/$path/$filename'),
+        Uri.parse('assets/packages/time_machine2/data/$path/$filename'),
         headers: {'Accept': 'application/octet-stream'},
       );
 
@@ -46,7 +46,7 @@ class _WebMachineIO implements PlatformIO {
 
     try {
       final response = await client.get(
-        Uri.parse('packages/time_machine2/data/$path/$filename'),
+        Uri.parse('assets/packages/time_machine2/data/$path/$filename'),
         headers: {'Accept': 'application/json'},
       );
 
