@@ -15,11 +15,12 @@ class TzdbDateTimeZoneSource extends DateTimeZoneSource {
 
   Future<void> _init() async {
     if (!_initialized) {
-      final data = await PlatformIO.local.getBinary('tzdb', 'latest_all.tzf');
-
       const zipDecoder = GZipDecoder();
 
-      final tzdbData = zipDecoder.decodeBytes(data.buffer.asInt8List());
+      final tzdbData = zipDecoder.decodeBytes(
+          (await PlatformIO.local.getBinary('tzdb', 'latest_all.tzf'))
+              .buffer
+              .asUint8List());
 
       final database = _deserializeTzdbDatabase(tzdbData);
 

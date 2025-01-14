@@ -30,7 +30,7 @@ import 'package:time_machine2/src/platforms/dart_native_io.dart';
 
 void registerTzdbData_$name() {
   TimeMachineIO.registerAsset('tzdb', '$name.tzf',
-      ByteData.sublistView(Uint8List.fromList(_embeddedData.codeUnits)));
+      ByteData.sublistView(Uint16List.fromList(_embeddedData.codeUnits)));
 }
 
 const _embeddedData =
