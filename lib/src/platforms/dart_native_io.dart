@@ -8,6 +8,8 @@ import 'dart:convert';
 
 import 'platform_io.dart';
 
+import 'package:time_machine2/data/static_assets.dart';
+
 /// Concrete implementation of [PlatformIO] when compiled for Dart.
 /// Uses an internal asset manager to handle files.
 /// Since Dart doesn't have any support for native assets, this implementation
@@ -20,7 +22,7 @@ class TimeMachineIO implements PlatformIO {
   static final Map<String, ByteData> _assets = {};
 
   TimeMachineIO({required this.config}) {
-    // No need to initialize anything.
+    registerAllStaticAssets();
   }
 
   /// Register an asset with the asset manager.
