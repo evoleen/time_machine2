@@ -11,6 +11,8 @@ import 'dart:typed_data';
 /// This class packages platform specific input-output functions that are initialized by the appropriate Platform Provider
 @internal
 abstract class PlatformIO {
+  PlatformIO({required Map<String, dynamic> config});
+
   @internal
   Future<ByteData> getBinary(String path, String filename);
   // JSON.decode returns a dynamic -- will this change in Dart 2.0?
