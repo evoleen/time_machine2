@@ -30,8 +30,9 @@ class TimeMachineIO implements PlatformIO {
   @override
   Future<ByteData> getBinary(String path, String filename) async {
     try {
-      ByteData byteData = await _assetBundle
-          .load('packages/time_machine2/data/$path/$filename');
+      ByteData byteData = await _assetBundle.loadStructuredBinaryData(
+          'packages/time_machine2/data/$path/$filename',
+          (ByteData data) => data);
 
       return byteData;
     } catch (e) {
