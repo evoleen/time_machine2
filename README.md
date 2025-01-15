@@ -123,6 +123,7 @@ In order to work on all platforms seamlessly without requiring too much package-
 
 Time Machine currently ships three versions of the time zone database but only uses one. #23 tracks an enhancement that would allow to specify which version to use. Each version differs in size, which would enable faster loading when deployed with Flutter Web.
 
+All assets are XZ compressed and have comparably small files.
 
 ### Web (Dart2JS and DDC)
 

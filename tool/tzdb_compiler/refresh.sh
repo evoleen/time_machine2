@@ -24,6 +24,14 @@ mkdir -p lib/data/tzdb
 # Pass the zoneinfo directory to the encoding script
 dart tool/tzdb_compiler/encode_tzf.dart --zoneinfo $temp/zoneinfo
 
+xz lib/data/tzdb/latest.tzf
+xz lib/data/tzdb/latest_all.tzf
+xz lib/data/tzdb/latest_10y.tzf
+
+mv lib/data/tzdb/latest.tzf.xz lib/data/tzdb/latest.tzf
+mv lib/data/tzdb/latest_all.tzf.xz lib/data/tzdb/latest_all.tzf
+mv lib/data/tzdb/latest_10y.tzf.xz lib/data/tzdb/latest_10y.tzf
+
 rm -r $temp
 
 # Create the source embeddings
