@@ -5,11 +5,13 @@ import 'package:archive/archive.dart';
 import 'package:path/path.dart' as p;
 
 Future<void> main(List<String> args) async {
-  const zipEncoder = GZipEncoder();
+  // final xzEncoder = XZEncoder();
 
   final cultureDataPath = args[0];
   final dartLibraryPath = args[1];
-  final bytes = zipEncoder.encodeBytes(File(cultureDataPath).readAsBytesSync());
+
+  // final bytes = xzEncoder.encodeBytes(File(cultureDataPath).readAsBytesSync());
+  final bytes = File(cultureDataPath).readAsBytesSync();
 
   final generatedDartFile = generateDartFile(
     name: p.basenameWithoutExtension(cultureDataPath),

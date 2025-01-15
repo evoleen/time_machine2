@@ -19,9 +19,9 @@ class CultureLoader {
     var cultureIds = HashSet<String>();
     var cache = <String, Culture>{Culture.invariantId: Culture.invariant};
 
-    const zipDecoder = GZipDecoder();
+    final xzDecoder = XZDecoder();
 
-    final binary = zipDecoder.decodeBytes(
+    final binary = xzDecoder.decodeBytes(
         (await PlatformIO.local.getBinary('cultures', 'cultures.bin'))
             .buffer
             .asUint8List());
