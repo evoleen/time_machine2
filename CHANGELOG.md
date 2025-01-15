@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.10.2
+- Add missing day name to `en-GB` culture
+- Fix asset loading for Flutter Web in release mode
+- Add migration notes to README
+
 ## 0.10.1
 - Fixed broken asset loading when Flutter code was executed in unit tests
 - Make attribution to original author more visible
