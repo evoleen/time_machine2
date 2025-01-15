@@ -1,7 +1,6 @@
+import 'package:archive/archive.dart';
+import 'package:time_machine2/src/platforms/platform_io.dart';
 import 'package:time_machine2/src/time_machine_internal.dart';
-
-import 'package:time_machine2/src/timezones/tzdb_datetimezone_source_native_impl.dart'
-    if (dart.library.html) 'tzdb_datetimezone_source_browser_impl.dart';
 
 import 'tzdb_io.dart';
 import 'tzdb_location_database.dart';
@@ -16,7 +15,13 @@ class TzdbDateTimeZoneSource extends DateTimeZoneSource {
 
   Future<void> _init() async {
     if (!_initialized) {
-      final tzdbData = await getTzdbData("latest_10y.tzf");
+      const zipDecoder = GZipDecoder();
+
+      final tzdbData = zipDecoder.decodeBytes(
+          (await PlatformIO.local.getBinary('tzdb', 'latest_all.tzf'))
+              .buffer
+              .asUint8List());
+
       final database = _deserializeTzdbDatabase(tzdbData);
 
       // convert all tzf entries into Time Machine's zone format

@@ -3,11 +3,7 @@
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
 import 'dart:async';
-import 'dart:typed_data';
-import 'dart:convert';
 import 'dart:js';
-
-import 'package:http/browser_client.dart' as browser;
 
 import 'package:time_machine2/src/time_machine_internal.dart';
 import 'package:time_machine2/src/timezones/datetimezone_providers.dart';
@@ -15,61 +11,15 @@ import 'package:time_machine2/time_machine2.dart';
 
 import 'platform_io.dart';
 
-class _WebMachineIO implements PlatformIO {
-  @override
-  Future<ByteData> getBinary(String path, String filename) async {
-    final client = browser.BrowserClient();
-
-    try {
-      final response = await client.get(
-        Uri.parse('assets/packages/time_machine2/data/$path/$filename'),
-        headers: {'Accept': 'application/octet-stream'},
-      );
-
-      if (response.statusCode == 200) {
-        var binary = ByteData.view(response.bodyBytes.buffer,
-            response.bodyBytes.offsetInBytes, response.contentLength);
-
-        return binary;
-      }
-
-      throw Exception('Unable to load resource $path/$filename');
-    } finally {
-      client.close();
-    }
-  }
-
-  @override
-  Future /**<Map<String, dynamic>>*/ getJson(
-      String path, String filename) async {
-    final client = browser.BrowserClient();
-
-    try {
-      final response = await client.get(
-        Uri.parse('assets/packages/time_machine2/data/$path/$filename'),
-        headers: {'Accept': 'application/json'},
-      );
-
-      if (response.statusCode == 200) {
-        return json.decode(response.body);
-      }
-
-      throw Exception('Unable to load resource $path/$filename');
-    } finally {
-      client.close();
-    }
-  }
-}
-
-Future initialize(Map args) => TimeMachine.initialize();
+Future initialize(Map<String, dynamic> args) => TimeMachine.initialize(args);
 
 class TimeMachine {
   // I'm looking to basically use @internal for protection??? <-- what did I mean by this?
-  static Future initialize() async {
+  static Future initialize(Map<String, dynamic> args) async {
     Platform.startWeb();
 
     // Map IO functions
-    PlatformIO.local = _WebMachineIO();
+    PlatformIO(config: args);
 
     // Default provider
     var tzdb = await DateTimeZoneProviders.tzdb;

@@ -50,11 +50,6 @@ class FakeDateTimeZoneSource extends DateTimeZoneSource {
   @override
   String? get systemDefaultId {
     return null;
-    //String id = TimeZoneInfo.Local.Id;
-    // We don't care about the return value of TryGetValue - if it's false,
-    // canonicalId will be null, which is what we want.
-    //bclToZoneIds.TryGetValue(id, out String canonicalId);
-    //return canonicalId;
   }
 
   @override

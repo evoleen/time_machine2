@@ -123,7 +123,7 @@ abstract class TimeMachine {
     throw StateError(
         'TimeMachine can not be instantiated, because no platform has been detected.');
   }
-  static Future initialize([Map args = const {}]) {
+  static Future initialize([Map<String, dynamic> args = const {}]) {
     if (_initialized) return Future.sync(() => null);
     _initialized = true;
     return time_machine.initialize(args);

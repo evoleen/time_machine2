@@ -4,80 +4,20 @@
 
 import 'dart:async';
 import 'dart:collection';
-import 'dart:convert';
 import 'dart:io' as io;
 
-import 'dart:typed_data';
 import 'package:time_machine2/src/time_machine_internal.dart';
 import 'package:time_machine2/src/timezones/datetimezone_providers.dart';
 import 'package:time_machine2/time_machine2.dart';
 
 import 'platform_io.dart';
-import 'dart:isolate' show Isolate;
 
-import 'dart_pure.dart' if (dart.library.ui) 'dart_flutter.dart';
-
-class _VirtualMachineIO implements PlatformIO {
-  @override
-  Future<ByteData> getBinary(String path, String? filename) async {
-    if (filename == null) return ByteData(0);
-
-    var resource = Uri.parse('package:time_machine2/data/$path/$filename');
-    final Uri resolved = (await Isolate.resolvePackageUri(resource))!;
-    var binary = ByteData.view(
-        Int8List.fromList(await io.File.fromUri(resolved).readAsBytes())
-            .buffer);
-    return binary;
-  }
-
-  @override
-  // may return Map<String, dynamic> or List
-  Future getJson(String path, String filename) async {
-    var resource = Uri.parse('package:time_machine2/data/$path/$filename');
-    final Uri resolved = (await Isolate.resolvePackageUri(resource))!;
-    return json.decode(await io.File.fromUri(resolved).readAsString());
-  }
-}
-
-class _FlutterMachineIO implements PlatformIO {
-  final dynamic _rootBundle;
-
-  _FlutterMachineIO(this._rootBundle);
-
-  @override
-  Future<ByteData> getBinary(String path, String? filename) async {
-    if (filename == null) return ByteData(0);
-
-    ByteData byteData =
-        await _rootBundle.load('packages/time_machine2/data/$path/$filename');
-    return byteData;
-  }
-
-  @override
-  // may return Map<String, dynamic> or List
-  Future getJson(String path, String filename) async {
-    String text = await _rootBundle
-        .loadString('packages/time_machine2/data/$path/$filename');
-    return json.decode(text);
-  }
-}
-
-Future initialize(Map args, {testing = false}) {
+Future initialize(Map<String, dynamic> args, {testing = false}) {
   String? timeZoneOverride = args['timeZone'];
   String? cultureOverride = args['culture'];
-  final testing = args['testing'] ?? false;
 
-  if (!testing && !kIsPureDart) {
-    if (args['rootBundle'] == null) {
-      throw Exception(
-          "Pass in the rootBundle from 'package:flutter/services.dart';");
-    }
-    // Map IO functions
-    PlatformIO.local = _FlutterMachineIO(args['rootBundle']);
-  } else {
-    // Map IO functions
-    PlatformIO.local = _VirtualMachineIO();
-  }
+  // initialize platform IO methods.
+  PlatformIO(config: args);
 
   return TimeMachine.initialize(timeZoneOverride, cultureOverride);
 }

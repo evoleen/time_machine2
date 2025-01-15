@@ -6,19 +6,35 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 import 'dart:typed_data';
 
-// import 'package:time_machine2/src/time_machine_internal.dart';
+import 'dart_native_io.dart' if (dart.library.ui) 'flutter_io.dart';
 
 /// This class packages platform specific input-output functions that are initialized by the appropriate Platform Provider
 @internal
 abstract class PlatformIO {
+  static PlatformIO? _localInstance;
+
+  /// Factory method to create a new instance of [PlatformIO]. Must be called
+  /// before [local] is accessed. Pass in the global Time Machine configuration.
+  factory PlatformIO({required Map<String, dynamic> config}) {
+    _localInstance ??= TimeMachineIO(config: config);
+
+    return _localInstance!;
+  }
+
   @internal
   Future<ByteData> getBinary(String path, String filename);
-  // JSON.decode returns a dynamic -- will this change in Dart 2.0?
+
   @internal
   Future<dynamic> getJson(String path, String filename);
 
   @internal
-  static late PlatformIO local;
+  static PlatformIO get local {
+    if (_localInstance == null) {
+      throw Exception('PlatformIO not initialized.');
+    }
+
+    return _localInstance!;
+  }
 }
 
 Future initialize(dynamic arg) {

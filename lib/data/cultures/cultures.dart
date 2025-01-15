@@ -1,12 +1,11 @@
 // This is a generated file. Do not edit.
 import 'dart:typed_data';
-import 'package:archive/archive.dart';
 
-Future<List<int>> getCultureData(String path) async {
-  const zipDecoder = GZipDecoder();
+import 'package:time_machine2/src/platforms/dart_native_io.dart';
 
-  return zipDecoder.decodeBytes(
-      Uint16List.fromList(_embeddedData.codeUnits).buffer.asUint8List());
+void registerCulturesAsset() {
+  TimeMachineIO.registerAsset('cultures', 'cultures.bin',
+      ByteData.sublistView(Uint16List.fromList(_embeddedData.codeUnits)));
 }
 
 const _embeddedData =

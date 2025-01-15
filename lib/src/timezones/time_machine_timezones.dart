@@ -13,7 +13,6 @@ export 'precalculated_datetimezone.dart';
 export 'resolvers.dart';
 export 'single_zoneinterval_map.dart';
 export 'standard_daylight_alternating_map.dart';
-export 'timezone_info_interceptor.dart';
 export 'transition.dart';
 export 'transition_mode.dart';
 export 'tzdb_datetimezone_source.dart';
