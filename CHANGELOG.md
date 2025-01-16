@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.11.0
+- Breaking: change TZDB asset naming
+- Improve asset size by switching to XZ compression
+
 ## 0.10.2
 - Add missing day name to `en-GB` culture
 - Fix asset loading for Flutter Web in release mode

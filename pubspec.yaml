@@ -1,6 +1,6 @@
 name: time_machine2
 description: Date and time library for Flutter, Web, and Server with support for timezones, calendars, cultures, formatting and parsing.
-version: 0.10.2
+version: 0.11.0
 homepage: https://github.com/evoleen/time_machine2
 
 # SDK's lower bound must be compatible with the current version pushed with Flutter
