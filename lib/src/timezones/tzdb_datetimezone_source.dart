@@ -18,7 +18,7 @@ class TzdbDateTimeZoneSource extends DateTimeZoneSource {
       final xzDecoder = XZDecoder();
 
       final tzdbData = xzDecoder.decodeBytes(
-          (await PlatformIO.local.getBinary('tzdb', 'latest_all.tzf'))
+          (await PlatformIO.local.getBinary('tzdb', 'tzdb.tzf'))
               .buffer
               .asUint8List());
 

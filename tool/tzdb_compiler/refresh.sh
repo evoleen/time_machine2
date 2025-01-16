@@ -24,18 +24,18 @@ mkdir -p lib/data/tzdb
 # Pass the zoneinfo directory to the encoding script
 dart tool/tzdb_compiler/encode_tzf.dart --zoneinfo $temp/zoneinfo
 
-xz lib/data/tzdb/latest.tzf
-xz lib/data/tzdb/latest_all.tzf
-xz lib/data/tzdb/latest_10y.tzf
+xz lib/data/tzdb/tzdb.tzf
+xz lib/data/tzdb/tzdb_common.tzf
+xz lib/data/tzdb/tzdb_common_10y.tzf
 
-mv lib/data/tzdb/latest.tzf.xz lib/data/tzdb/latest.tzf
-mv lib/data/tzdb/latest_all.tzf.xz lib/data/tzdb/latest_all.tzf
-mv lib/data/tzdb/latest_10y.tzf.xz lib/data/tzdb/latest_10y.tzf
+mv lib/data/tzdb/tzdb.tzf.xz lib/data/tzdb/tzdb.tzf
+mv lib/data/tzdb/tzdb_common.tzf.xz lib/data/tzdb/tzdb_common.tzf
+mv lib/data/tzdb/tzdb_common_10y.tzf.xz lib/data/tzdb/tzdb_common_10y.tzf
 
 rm -r $temp
 
 # Create the source embeddings
-for scope in latest latest_all latest_10y; do
+for scope in tzdb tzdb_common tzdb_common_10y; do
   echo "Creating embedding: $scope..."
   dart tool/tzdb_compiler/encode_dart.dart lib/data/tzdb/$scope.{tzf,dart}
 done

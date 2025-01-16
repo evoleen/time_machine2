@@ -3,8 +3,8 @@ import 'dart:typed_data';
 
 import 'package:time_machine2/src/platforms/dart_native_io.dart';
 
-void registerTzdbData_latest_all() {
-  TimeMachineIO.registerAsset('tzdb', 'latest_all.tzf',
+void registerTzdbData_tzdb() {
+  TimeMachineIO.registerAsset('tzdb', 'tzdb.tzf',
       ByteData.sublistView(Uint16List.fromList(_embeddedData.codeUnits)));
 }
 

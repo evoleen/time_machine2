@@ -6,7 +6,6 @@
 /// pub run tool/encode_tzf --zoneinfo path/to/zoneinfo
 /// ```
 import 'dart:io';
-import 'package:archive/archive.dart';
 import 'package:args/args.dart';
 import 'package:file/file.dart' as pkg_file;
 import 'package:glob/glob.dart';
@@ -29,9 +28,9 @@ Future<void> main(List<String> arguments) async {
 
   // Parse CLI arguments
   final parser = ArgParser()
-    ..addOption('output-all', defaultsTo: 'lib/data/tzdb/latest_all.tzf')
-    ..addOption('output-common', defaultsTo: 'lib/data/tzdb/latest.tzf')
-    ..addOption('output-10y', defaultsTo: 'lib/data/tzdb/latest_10y.tzf')
+    ..addOption('output-all', defaultsTo: 'lib/data/tzdb/tzdb.tzf')
+    ..addOption('output-common', defaultsTo: 'lib/data/tzdb/tzdb_common.tzf')
+    ..addOption('output-10y', defaultsTo: 'lib/data/tzdb/tzdb_common_10y.tzf')
     ..addOption('zoneinfo');
   final args = parser.parse(arguments);
 
