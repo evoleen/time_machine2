@@ -106,14 +106,16 @@ Change of asset declarations in `pubspec.yaml` (only required for Flutter):
 flutter:
   assets:
     - packages/time_machine2/data/cultures/cultures.bin
-    - packages/time_machine2/data/tzdb/latest_10y.tzf
-    - packages/time_machine2/data/tzdb/latest_all.tzf
-    - packages/time_machine2/data/tzdb/latest.tzf
+    - packages/time_machine2/data/tzdb/tzdb.tzf
+    # If you explicitly override the TZDB variant to use, include one or both of the following assets.
+    # Otherwise tzdb.tzf above is enough.
+    - packages/time_machine2/data/tzdb/tzdb_common.tzf
+    - packages/time_machine2/data/tzdb/tzdb_common_10y.tzf
 ```
 
 ### Time zone DB and culture DB asset handling
 
-Time Machine requires access to a time zone database as well as a culture database containing date and time format patterns. Flutter provides a (somewhat awkward) asset management system while Dart doesn't provide any mechanism for package-specific assets at all.
+Time Machine includes the [IANA Time Zone Database](http://www.iana.org/time-zones) and date/time patterns from [Unicode CLDR](https://cldr.unicode.org/). These assets are XZ compressed and have comparably small size (43kb for the full TZDB and 47kb for date/time patterns for all locales).
 
 In order to work on all platforms seamlessly without requiring too much package-specific configuration, the following strategy is used:
 
@@ -122,8 +124,6 @@ In order to work on all platforms seamlessly without requiring too much package-
 - *Dart only:* Assets will be compiled to code and embedded directly into the binary. This increases the size of the binary slightly but makes the entire package self-contained without additional configuration.
 
 Time Machine currently ships three versions of the time zone database but only uses one. #23 tracks an enhancement that would allow to specify which version to use. Each version differs in size, which would enable faster loading when deployed with Flutter Web.
-
-All assets are XZ compressed and have comparably small files.
 
 ### Web (Dart2JS and DDC)
 
