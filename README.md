@@ -74,13 +74,43 @@ var localClone = ZonedDateTimePattern
 print(localClone.value);
 ```
 
-### VM
+## Flutter specific notes
 
-![selection_116](https://user-images.githubusercontent.com/7284858/41519375-bcbbc818-7295-11e8-9fd0-de2e8668b105.png)
+You'll need this entry in your `pubspec.yaml`.
 
-### Flutter
+```yaml
+flutter:
+  assets:
+    - packages/time_machine2/data/cultures/cultures.bin
+    - packages/time_machine2/data/tzdb/tzdb.tzf
+    # If you explicitly override the TZDB variant to use, include one or both of the following assets.
+    # Otherwise tzdb.tzf above is enough.
+    - packages/time_machine2/data/tzdb/tzdb_common.tzf
+    - packages/time_machine2/data/tzdb/tzdb_common_10y.tzf
+```
 
-![selection_117](https://user-images.githubusercontent.com/7284858/41519377-bebbde82-7295-11e8-8f10-d350afd1f746.png)
+Your initialization function will look like this:
+```dart
+import 'package:flutter/services.dart';
+import 'package:time_machine2/time_machine2.dart';
+
+WidgetsFlutterBinding.ensureInitialized();
+
+// TimeMachine discovers your TimeZone heuristically (it's actually pretty fast).
+await TimeMachine.initialize({'rootBundle': rootBundle});
+```
+
+Or with: https://pub.dartlang.org/packages/flutter_native_timezone
+
+```dart
+import 'package:flutter/services.dart';
+
+// you can get Timezone information directly from the native interface with flutter_native_timezone
+await TimeMachine.initialize({
+  'rootBundle': rootBundle,
+  'timeZone': await Timezone.getLocalTimezone(),
+});
+```
 
 ## Migrating from the original time_machine package
 
@@ -106,14 +136,16 @@ Change of asset declarations in `pubspec.yaml` (only required for Flutter):
 flutter:
   assets:
     - packages/time_machine2/data/cultures/cultures.bin
-    - packages/time_machine2/data/tzdb/latest_10y.tzf
-    - packages/time_machine2/data/tzdb/latest_all.tzf
-    - packages/time_machine2/data/tzdb/latest.tzf
+    - packages/time_machine2/data/tzdb/tzdb.tzf
+    # If you explicitly override the TZDB variant to use, include one or both of the following assets.
+    # Otherwise tzdb.tzf above is enough.
+    - packages/time_machine2/data/tzdb/tzdb_common.tzf
+    - packages/time_machine2/data/tzdb/tzdb_common_10y.tzf
 ```
 
-### Time zone DB and culture DB asset handling
+## Time zone DB and culture DB asset handling
 
-Time Machine requires access to a time zone database as well as a culture database containing date and time format patterns. Flutter provides a (somewhat awkward) asset management system while Dart doesn't provide any mechanism for package-specific assets at all.
+Time Machine includes the [IANA Time Zone Database](http://www.iana.org/time-zones) and date/time patterns from [Unicode CLDR](https://cldr.unicode.org/). These assets are XZ compressed and have comparably small size (43kb for the full TZDB and 47kb for date/time patterns for all locales).
 
 In order to work on all platforms seamlessly without requiring too much package-specific configuration, the following strategy is used:
 
@@ -121,25 +153,24 @@ In order to work on all platforms seamlessly without requiring too much package-
 - *Flutter Web:* Assets must be listed in `pubspec.yaml` (see [here](#flutter)) and will be retrieved through Flutter's service worker. This will cause additional HTTP requests during `TimeMachine.initialize()`. The data might be cached by the service worker so that subsequent reloads of the application may load the assets from the cache. `TimeMachine.initialize()`  requires the application's `rootBundle` as parameter.
 - *Dart only:* Assets will be compiled to code and embedded directly into the binary. This increases the size of the binary slightly but makes the entire package self-contained without additional configuration.
 
-Time Machine currently ships three versions of the time zone database but only uses one. #23 tracks an enhancement that would allow to specify which version to use. Each version differs in size, which would enable faster loading when deployed with Flutter Web.
+Time Machine currently ships three versions of the time zone database:
+- `tzdb` (default, 43kb): from beginning of time until end of 2037
+- `tzdb_common` (40kb): includes most common locations, from beginning of time until end of 2037
+- `tzdb_common_10y`(12kb): includes most common locations, from 2019 to 2029
 
-All assets are XZ compressed and have comparably small files.
+The database can be selected by passing the database name to `initialize`:
 
-### Web (Dart2JS and DDC)
+```dart
+TimeMachine.initialize({'tzdb': 'tzdb_common_10y'});
+```
 
-![selection_118](https://user-images.githubusercontent.com/7284858/41519378-c058d6a0-7295-11e8-845d-6782f1e7cbbe.png)
+It is recommended to use the default database and only change it for the following reasons:
+- Optimizing load times for Flutter Web: The 10y variant of tzdb is smaller and may speed up initialization.
+- Reducing memory requirements: The 10y variant of tzdb has a smaller memory footprint after unpacking.
 
-All unit tests pass on DartVM and DartWeb (just _Chrome_ at this time).
-Tests have been run on preview versions of Dart2,
-but the focus is on DartStable, and they are not run before every pub publish.
-The public API is stabilizing -- mostly focusing on taking C# idiomatic code
-and making it Dart idiomatic code, so I wouldn't expect any over zealous changes.
-This is a preview release -- but, I'd feel comfortable using it. (_Author Stamp of Approval!_)
+The benefit of `tzdb_common` is currently negligible and it may be removed from future versions.
 
-Documentation was ported, but some things changed for Dart and the documentation is being slowly updated (and we need
-an additional automated formatting pass).
-
-Don't use any functions annotated with `@internal`. As of v0.3 you should not find any, but if you do, let me know.
+## Todos before v1
 
 Todo (before v1):
  - [x] Port Noda Time
@@ -166,46 +197,6 @@ Future Todo:
  - [X] Produce our own TSDB files
  - [X] Produce our own Culture files
  - [ ] Benchmarking & Optimizing Library for Dart
-
-### Flutter Specific Notes
-
-You'll need this entry in your pubspec.yaml.
-
-```yaml
-# The following section is specific to Flutter.
-flutter:
-  assets:
-    - packages/time_machine2/data/cultures/cultures.bin
-    - packages/time_machine2/data/tzdb/latest_10y.tzf
-    - packages/time_machine2/data/tzdb/latest_all.tzf
-    - packages/time_machine2/data/tzdb/latest.tzf
-```
-
-Your initialization function will look like this:
-```dart
-import 'package:flutter/services.dart';
-
-WidgetsFlutterBinding.ensureInitialized();
-
-// TimeMachine discovers your TimeZone heuristically (it's actually pretty fast).
-await TimeMachine.initialize({'rootBundle': rootBundle});
-```
-
-Once flutter gets [`Isolate.resolvePackageUri`](https://github.com/flutter/flutter/issues/14815) functionality,
-we'll be able to merge VM and the Flutter code paths and no asset entry and no special import will be required.
-It would look just like the VM example.
-
-Or with: https://pub.dartlang.org/packages/flutter_native_timezone
-
-```dart
-import 'package:flutter/services.dart';
-
-// you can get Timezone information directly from the native interface with flutter_native_timezone
-await TimeMachine.initialize({
-  'rootBundle': rootBundle,
-  'timeZone': await Timezone.getLocalTimezone(),
-});
-```
 
 ### DDC Specific Notes
 
