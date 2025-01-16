@@ -7,18 +7,28 @@ import 'tzdb_location_database.dart';
 
 class TzdbDateTimeZoneSource extends DateTimeZoneSource {
   bool _initialized = false;
+  final String tzdbVariant;
 
   // map of date time zones that are deserialized from TZF entries on init
   final _dateTimeZones = <String, DateTimeZone>{};
 
   String _defaultId = "UTC";
 
+  TzdbDateTimeZoneSource({String? tzdbVariant})
+      : tzdbVariant = tzdbVariant ?? 'tzdb' {
+    if (this.tzdbVariant != 'tzdb' &&
+        this.tzdbVariant != 'tzdb_common' &&
+        this.tzdbVariant != 'tzdb_common_10y') {
+      throw Exception('Unsupported TZDB variant: $tzdbVariant');
+    }
+  }
+
   Future<void> _init() async {
     if (!_initialized) {
       final xzDecoder = XZDecoder();
 
       final tzdbData = xzDecoder.decodeBytes(
-          (await PlatformIO.local.getBinary('tzdb', 'tzdb.tzf'))
+          (await PlatformIO.local.getBinary('tzdb', '$tzdbVariant.tzf'))
               .buffer
               .asUint8List());
 

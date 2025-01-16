@@ -6,22 +6,30 @@ import 'dart:async';
 
 import 'package:time_machine2/src/time_machine_internal.dart';
 
-// todo: the Internal Classes here make me sad
-
 @internal
 abstract class IDateTimeZoneProviders {
   static set defaultProvider(DateTimeZoneProvider provider) =>
       DateTimeZoneProviders._defaultProvider = provider;
 }
 
-// todo: I think we need an easy way for library users to inject their own IDateTimeZoneSource
-abstract class DateTimeZoneProviders {
-  // todo: await ... await ... patterns are so ick.
+class DateTimeZoneProviders {
+  static Map<String, dynamic> _config = {};
+  static DateTimeZoneProviders? _instance;
+
+  DateTimeZoneProviders._(Map<String, dynamic> config) {
+    _config = config;
+  }
+
+  factory DateTimeZoneProviders(Map<String, dynamic> config) {
+    _instance ??= DateTimeZoneProviders._(config);
+    return _instance!;
+  }
 
   static Future<DateTimeZoneProvider>? _tzdb;
 
   static Future<DateTimeZoneProvider> get tzdb =>
-      _tzdb ??= DateTimeZoneCache.getCache(TzdbDateTimeZoneSource());
+      _tzdb ??= DateTimeZoneCache.getCache(
+          TzdbDateTimeZoneSource(tzdbVariant: _config['tzdb']));
 
   static DateTimeZoneProvider? _defaultProvider;
 
