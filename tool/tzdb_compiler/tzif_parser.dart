@@ -158,6 +158,8 @@ class TZifFile {
   /// UT/local indicators, each stored as a one-byte boolean; they tell whether the transition times associated with local time types were specified as UT or local time. If a UT/local indicator is set, the corresponding standard/wall indicator must also be set.
   final List<bool> isUtc;
 
+  final String prolepticTZString;
+
   TZifFile({
     required this.version1Header,
     required this.verion2Header,
@@ -168,6 +170,7 @@ class TZifFile {
     required this.leapSeconds,
     required this.isStd,
     required this.isUtc,
+    required this.prolepticTZString,
   });
 
   factory TZifFile.fromBytes(Uint8List bytes) {
@@ -202,77 +205,71 @@ class TZifFile {
           'Invalid version: ${version2Header.version} (expected >= 0x32)');
     }
 
-    final transitionAt =
-        Uint8List.fromList(bytes.sublist(offset, version2Header.timecnt * 8))
-            .buffer
-            .asUint64List(offset, version2Header.timecnt);
+    final transitionAt = List.generate(
+      version2Header.timecnt,
+      (index) => buffer.getInt64(offset + index * 8),
+    );
+    offset += version2Header.timecnt * 8;
+
+    final transitionZone = List.generate(
+      version2Header.timecnt,
+      (index) => buffer.getUint8(offset + index),
+    );
+    offset += version2Header.timecnt;
+
+    final zones = List.generate(
+      version2Header.typecnt,
+      (index) => TZifZone(
+        utcOffset: buffer.getInt32(offset + index * 6),
+        isDst: buffer.getUint8(offset + index * 6 + 4) == 1,
+        desigIdx: buffer.getUint8(offset + index * 6 + 5),
+      ),
+    );
+    offset += version2Header.typecnt * 6;
+
+    final zoneDesignations = bytes.sublist(
+      offset,
+      offset + version2Header.charcnt,
+    );
+    offset += version2Header.charcnt;
+
+    final leapSeconds = List.generate(
+      version2Header.leapcnt,
+      (index) => TZifLeapSecondEntry(
+        insertionAt: buffer.getInt64(offset + index * 12),
+        seconds: buffer.getInt32(offset + index * 12 + 8),
+      ),
+    );
+    offset += version2Header.leapcnt * 12;
+
+    final isStd = List.generate(
+      version2Header.ttisstdcnt,
+      (index) => buffer.getUint8(offset + index) == 1,
+    );
+    offset += version2Header.ttisstdcnt;
+
+    final isUtc = List.generate(
+      version2Header.ttisutcnt,
+      (index) => buffer.getUint8(offset + index) == 1,
+    );
+    offset += version2Header.ttisutcnt;
+
+    final prolepticTZStringLength = bytes.indexOf(0x0a, offset + 1);
+    final prolepticTZString = String.fromCharCodes(
+      bytes.sublist(offset + 1, prolepticTZStringLength),
+    );
 
     return TZifFile(
       version1Header: version1Header,
       verion2Header: version2Header,
       transitionAt: transitionAt,
-      transitionZone: List.generate(
-        version1Header.timecnt,
-        (index) => buffer.getUint8(offset + version1Header.timecnt + index),
-      ),
-      zones: List.generate(
-        version1Header.typecnt,
-        (index) => TZifZone(
-          utcOffset:
-              buffer.getInt32(offset + version1Header.timecnt * 5 + index * 6),
-          isDst: buffer.getUint8(
-                  offset + version1Header.timecnt * 5 + index * 6 + 4) ==
-              1,
-          desigIdx: buffer
-              .getUint8(offset + version1Header.timecnt * 5 + index * 6 + 5),
-        ),
-      ),
-      zoneDesignations: bytes.sublist(
-        offset + version1Header.timecnt * 5 + version1Header.typecnt * 6,
-        offset +
-            version1Header.timecnt * 5 +
-            version1Header.typecnt * 6 +
-            version1Header.charcnt,
-      ),
-      leapSeconds: List.generate(
-        version1Header.leapcnt,
-        (index) => TZifLeapSecondEntry(
-          insertionAt: buffer.getUint32(offset +
-              version1Header.timecnt * 5 +
-              version1Header.typecnt * 6 +
-              version1Header.charcnt +
-              index * 8),
-          seconds: buffer.getInt32(offset +
-              version1Header.timecnt * 5 +
-              version1Header.typecnt * 6 +
-              version1Header.charcnt +
-              index * 8 +
-              4),
-        ),
-      ),
-      isStd: List.generate(
-        version1Header.ttisstdcnt,
-        (index) =>
-            buffer.getUint8(offset +
-                version1Header.timecnt * 5 +
-                version1Header.typecnt * 6 +
-                version1Header.charcnt +
-                version1Header.leapcnt * 8 +
-                index) ==
-            1,
-      ),
-      isUtc: List.generate(
-        version1Header.ttisutcnt,
-        (index) =>
-            buffer.getUint8(offset +
-                version1Header.timecnt * 5 +
-                version1Header.typecnt * 6 +
-                version1Header.charcnt +
-                version1Header.leapcnt * 8 +
-                version1Header.ttisstdcnt +
-                index) ==
-            1,
-      ),
+      transitionZone: transitionZone,
+      zones: zones,
+      zoneDesignations: zoneDesignations,
+      leapSeconds: leapSeconds,
+      isStd: isStd,
+      isUtc: isUtc,
+      prolepticTZString: prolepticTZString,
     );
   }
 }
