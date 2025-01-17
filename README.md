@@ -119,7 +119,7 @@ This project is forked from [time_machine](https://github.com/Dana-Ferguson/time
 Change dependency in `pubspec.yaml`:
 ```diff
 < time_machine: ^0.9.17
-> time_machine2: ^0.10.1
+> time_machine2: ^0.11.0
 ```
 
 Change import statements:
@@ -145,7 +145,7 @@ flutter:
 
 ## Time zone DB and culture DB asset handling
 
-Time Machine includes the [IANA Time Zone Database](http://www.iana.org/time-zones) and date/time patterns from [Unicode CLDR](https://cldr.unicode.org/). These assets are XZ compressed and have comparably small size (43kb for the full TZDB and 47kb for date/time patterns for all locales).
+Time Machine includes the [IANA Time Zone Database](http://www.iana.org/time-zones) and date/time patterns from [Unicode CLDR](https://cldr.unicode.org/). These assets are XZ compressed and have comparably small size (43kb for the full TZDB and 47kb for date/time patterns).
 
 In order to work on all platforms seamlessly without requiring too much package-specific configuration, the following strategy is used:
 
@@ -158,10 +158,23 @@ Time Machine currently ships three versions of the time zone database:
 - `tzdb_common` (40kb): includes most common locations, from beginning of time until end of 2037
 - `tzdb_common_10y`(12kb): includes most common locations, from 2019 to 2029
 
-The database can be selected by passing the database name to `initialize`:
+The database can be selected by passing the database name to `initialize`.
 
+Use the default database:
 ```dart
-TimeMachine.initialize({'tzdb': 'tzdb_common_10y'});
+TimeMachine.initialize({
+  // only needed for Flutter
+  'rootBundle': rootBundle,
+});
+```
+
+Use the 10y database:
+```dart
+TimeMachine.initialize({
+  'tzdb': 'tzdb_common_10y',
+  // only needed for Flutter
+  'rootBundle': rootBundle,
+});
 ```
 
 It is recommended to use the default database and only change it for the following reasons:
