@@ -3,6 +3,8 @@ import 'dart:typed_data';
 
 import 'package:args/args.dart';
 import 'package:logging/logging.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
+import 'package:time_machine2/time_machine2.dart';
 
 Future<void> main(List<String> arguments) async {
   // Initialize logger
@@ -270,6 +272,78 @@ class TZifFile {
       isStd: isStd,
       isUtc: isUtc,
       prolepticTZString: prolepticTZString,
+    );
+  }
+
+  /// For a given zone name idx [desigIdx], returns the corresponding zone name.
+  String _desigIdxToString(int desigIdx) {
+    final start = desigIdx;
+    final end = zoneDesignations.indexOf(0, start);
+    return String.fromCharCodes(zoneDesignations.sublist(start, end));
+  }
+
+  /// Converts the content of the TZif file to Time Machine's [DateTimeZone]
+  /// representation.
+  DateTimeZone toDateTimeZone() {
+    // construct list of zone intervals first
+    List<ZoneInterval> zoneIntervals = [];
+
+    // Insert initial zone first. The initial zone starts at the beginning
+    // of time and ends at the first transition. If there are no transitions,
+    // then this is a fixed zone and the zone interval will extend to the end
+    // of time.
+    zoneIntervals.add(IZoneInterval.newZoneInterval(
+      _desigIdxToString(zones.first.desigIdx),
+      // the initial zone starts at the beginning of time
+      null,
+      transitionAt.isEmpty
+          ? null
+          : Instant.fromEpochSeconds(transitionAt.first),
+      Offset(zones[transitionZone.first].utcOffset),
+      Offset(zones[transitionZone.first].utcOffset +
+          (zones[transitionZone.first].isDst ? 3600 : 0)),
+    ));
+
+    // Insert the rest of the zone intervals in case this is not a fixed zone
+    for (var i = 0; i < transitionAt.length - 1; i++) {
+      final zoneStart = Instant.fromEpochSeconds(transitionAt[i]);
+      final zoneEnd = Instant.fromEpochSeconds(transitionAt[i + 1]);
+
+      final zone = zones[transitionZone[i]];
+
+      final zoneInterval = IZoneInterval.newZoneInterval(
+        _desigIdxToString(zone.desigIdx),
+        zoneStart,
+        zoneEnd,
+        Offset(zone.utcOffset),
+        Offset(zone.utcOffset + (zone.isDst ? 3600 : 0)),
+      );
+
+      zoneIntervals.add(zoneInterval);
+    }
+
+    if (prolepticTZString.isEmpty) {
+      // if the proleptic string is empty, the last transition will run until
+      // the end of time
+      final zone = zones[transitionZone.last];
+      final zoneInterval = IZoneInterval.newZoneInterval(
+        _desigIdxToString(zone.desigIdx),
+        Instant.fromEpochSeconds(transitionAt.last),
+        null,
+        Offset(zone.utcOffset),
+        Offset(zone.utcOffset + (zone.isDst ? 3600 : 0)),
+      );
+
+      zoneIntervals.add(zoneInterval);
+    } else {
+      // we have a proleptic TZ string, parse it to get the tail zone
+    }
+
+    // TODO: add zone ID
+    return PrecalculatedDateTimeZone(
+      'IDONTKNOWTHISYET',
+      zoneIntervals,
+      null,
     );
   }
 }
