@@ -131,6 +131,7 @@ TimeZoneInfo parsePosixTimeZone(String posixString) {
   );
 }
 
+/*
 void main() {
   // const posixString = "CET-1CEST,M3.5.0,M10.5.0/3";
   const posixString = "EET-2EEST,M3.5.0/3,M10.5.0/4";
@@ -143,3 +144,4 @@ void main() {
     print('Error: $e');
   }
 }
+*/

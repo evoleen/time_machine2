@@ -6,7 +6,13 @@ import 'package:logging/logging.dart';
 import 'package:time_machine2/src/time_machine_internal.dart';
 import 'package:time_machine2/time_machine2.dart';
 
+import 'tzif_proleptic_string_parser.dart';
+
 Future<void> main(List<String> arguments) async {
+  await TimeMachine.initialize();
+  final cetZone =
+      (await DateTimeZoneProviders.tzdb).getDateTimeZoneSync('Europe/Berlin');
+
   // Initialize logger
   Logger.root.level = Level.ALL;
   Logger.root.onRecord.listen((LogRecord rec) {
@@ -26,9 +32,22 @@ Future<void> main(List<String> arguments) async {
     exit(1);
   }
 
-  final tzifData = File(zoneinfoPath + '/Europe/Berlin').readAsBytesSync();
+  final allZones = List<DateTimeZone>.empty(growable: true);
 
-  final tzif = TZifFile.fromBytes(tzifData);
+  // browse all files in the zoneinfo directory, parse each of them
+  final fileList =
+      Directory(zoneinfoPath).listSync(recursive: true).whereType<File>();
+  for (final file in fileList) {
+    final tzifData = file.readAsBytesSync();
+    final tzif = TZifFile.fromBytes(tzifData);
+
+    // the zone ID correlates with the files name and path
+    final zoneId = file.path.substring(zoneinfoPath.length + 1);
+
+    final zone = tzif.toDateTimeZone(zoneId);
+
+    allZones.add(zone);
+  }
 
   print("Done!");
 }
@@ -284,9 +303,14 @@ class TZifFile {
 
   /// Converts the content of the TZif file to Time Machine's [DateTimeZone]
   /// representation.
-  DateTimeZone toDateTimeZone() {
+  DateTimeZone toDateTimeZone(String zoneId) {
     // construct list of zone intervals first
     List<ZoneInterval> zoneIntervals = [];
+
+    // if this zone has no zones, we consider it to be UTC
+    if (transitionZone.isEmpty) {
+      return DateTimeZone.utc;
+    }
 
     // Insert initial zone first. The initial zone starts at the beginning
     // of time and ends at the first transition. If there are no transitions,
@@ -322,6 +346,8 @@ class TZifFile {
       zoneIntervals.add(zoneInterval);
     }
 
+    ZoneIntervalMapWithMinMax? tailZone;
+
     if (prolepticTZString.isEmpty) {
       // if the proleptic string is empty, the last transition will run until
       // the end of time
@@ -337,13 +363,95 @@ class TZifFile {
       zoneIntervals.add(zoneInterval);
     } else {
       // we have a proleptic TZ string, parse it to get the tail zone
+      final prolepticTimeZoneInfo = parsePosixTimeZone(prolepticTZString);
+
+      final lastTransitionInstant = Instant.fromEpochSeconds(transitionAt.last);
+
+      // Note: this is super dirty. We should really be using the current
+      // zone's name and use "inZone(id)"
+      final lastTransitionYear = lastTransitionInstant.inUtc().year;
+
+      if (prolepticTimeZoneInfo.daylightName == null) {
+        // if there is no daylight name, we have a fixed zone
+        tailZone = FixedDateTimeZone(
+          prolepticTimeZoneInfo.standardName,
+          Offset(-prolepticTimeZoneInfo.standardOffset),
+          prolepticTimeZoneInfo.standardName,
+        );
+      } else {
+        // we have a proleptic rule with alternating zones
+        var standardRecurrenceDayOfMonth =
+            (prolepticTimeZoneInfo.startRule as MonthlyRule).week > 4
+                ? GregorianYearMonthDayCalculator().getDaysInMonth(
+                    lastTransitionYear,
+                    (prolepticTimeZoneInfo.endRule as MonthlyRule).month)
+                : (prolepticTimeZoneInfo.startRule as MonthlyRule).week * 7;
+        var standardRecurrenceHour =
+            (prolepticTimeZoneInfo.endRule as MonthlyRule).hour;
+
+        if (standardRecurrenceHour < 0) {
+          standardRecurrenceDayOfMonth--;
+          standardRecurrenceHour += 24;
+        }
+
+        final standardRecurrence = ZoneRecurrence(
+          prolepticTimeZoneInfo.standardName,
+          Offset.zero,
+          ZoneYearOffset(
+            TransitionMode.standard,
+            (prolepticTimeZoneInfo.endRule as MonthlyRule).month,
+            standardRecurrenceDayOfMonth,
+            (prolepticTimeZoneInfo.endRule as MonthlyRule).weekday,
+            false,
+            LocalTime(standardRecurrenceHour, 0, 0),
+          ),
+          lastTransitionYear,
+          Platform.int32MaxValue,
+        );
+
+        var dstRecurrenceDayOfMonth =
+            (prolepticTimeZoneInfo.endRule as MonthlyRule).week > 4
+                ? GregorianYearMonthDayCalculator().getDaysInMonth(
+                    lastTransitionYear,
+                    (prolepticTimeZoneInfo.endRule as MonthlyRule).month)
+                : (prolepticTimeZoneInfo.endRule as MonthlyRule).week * 7;
+        var dstRecurrenceHour =
+            (prolepticTimeZoneInfo.startRule as MonthlyRule).hour;
+
+        if (dstRecurrenceHour < 0) {
+          dstRecurrenceDayOfMonth--;
+          dstRecurrenceHour += 24;
+        }
+
+        final dstRecurrence = ZoneRecurrence(
+          prolepticTimeZoneInfo.daylightName!,
+          Offset(-prolepticTimeZoneInfo.daylightOffset! +
+              prolepticTimeZoneInfo.standardOffset),
+          ZoneYearOffset(
+            TransitionMode.standard,
+            (prolepticTimeZoneInfo.startRule as MonthlyRule).month,
+            dstRecurrenceDayOfMonth,
+            (prolepticTimeZoneInfo.startRule as MonthlyRule).weekday,
+            false,
+            LocalTime(dstRecurrenceHour, 0, 0),
+          ),
+          lastTransitionYear,
+          Platform.int32MaxValue,
+        );
+
+        tailZone = StandardDaylightAlternatingMap(
+          Offset(-prolepticTimeZoneInfo.standardOffset),
+          standardRecurrence,
+          dstRecurrence,
+        );
+      }
     }
 
     // TODO: add zone ID
     return PrecalculatedDateTimeZone(
-      'IDONTKNOWTHISYET',
+      zoneId,
       zoneIntervals,
-      null,
+      tailZone,
     );
   }
 }
