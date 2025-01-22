@@ -3,9 +3,11 @@
 
 import 'package:time_machine2/src/time_machine_internal.dart';
 
+import 'date_time_zone_builder.dart';
 import 'rule_line.dart';
 import 'tzdb_zone_1970_location.dart';
 import 'tzdb_zone_location.dart';
+import 'zone_line.dart';
 
 class TzdbDatabase {
   final String version;
@@ -65,16 +67,5 @@ class TzdbDatabase {
     print('Zone locations: ${zoneLocations?.length ?? 0}');
     print('Zone1970 locations: ${zone1970Locations?.length ?? 0}');
     print('=======================================');
-  }
-}
-
-class ZoneLine {
-  final String name;
-
-  ZoneLine(this.name);
-
-  dynamic resolveRules(Map<String, List<RuleLine>> rules) {
-    // Placeholder implementation
-    return null;
   }
 }

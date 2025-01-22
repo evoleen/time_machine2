@@ -1,7 +1,7 @@
 // Copyright 2009 The Noda Time Authors.
 // Use of this source code is governed by the Apache License 2.0.
 
-import 'package:time_machine2/time_machine2.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'rule_line.dart';
 import 'zone_rule_set.dart';
@@ -81,7 +81,7 @@ class ZoneLine {
   ZoneRuleSet resolveRules(Map<String, List<RuleLine>> allRules) {
     if (rules == null) {
       final name = formatName(Offset.zero, '');
-      return ZoneRuleSet(
+      return ZoneRuleSet.fixed(
           name, standardOffset, Offset.zero, untilYear, untilYearOffset);
     }
 
@@ -89,13 +89,13 @@ class ZoneLine {
       final ruleSet = allRules[rules]!;
       final ruleRecurrences =
           ruleSet.map((rule) => rule.getRecurrence(this)).toList();
-      return ZoneRuleSet(
+      return ZoneRuleSet.withRules(
           ruleRecurrences, standardOffset, untilYear, untilYearOffset);
     } else {
       try {
         final savings = ParserHelper.parseOffset(rules!);
         final name = formatName(savings, '');
-        return ZoneRuleSet(
+        return ZoneRuleSet.fixed(
             name, standardOffset, savings, untilYear, untilYearOffset);
       } catch (e) {
         throw ArgumentError(

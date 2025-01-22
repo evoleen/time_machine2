@@ -6,12 +6,12 @@ class ZoneTransition {
   final Offset standardOffset;
   final Offset savings;
 
-  ZoneTransition({
-    required this.instant,
-    required this.name,
-    required this.standardOffset,
-    required this.savings,
-  });
+  ZoneTransition(
+    this.instant,
+    this.name,
+    this.standardOffset,
+    this.savings,
+  );
 
   Offset get wallOffset => standardOffset + savings;
 
