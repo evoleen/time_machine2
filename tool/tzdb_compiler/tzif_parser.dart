@@ -381,17 +381,22 @@ class TZifFile {
       } else {
         // we have a proleptic rule with alternating zones
         var standardRecurrenceDayOfMonth =
-            (prolepticTimeZoneInfo.startRule as MonthlyRule).week > 4
+            (prolepticTimeZoneInfo.endRule as MonthlyRule).week > 4
                 ? GregorianYearMonthDayCalculator().getDaysInMonth(
                     lastTransitionYear,
                     (prolepticTimeZoneInfo.endRule as MonthlyRule).month)
-                : (prolepticTimeZoneInfo.startRule as MonthlyRule).week * 7;
+                : (prolepticTimeZoneInfo.endRule as MonthlyRule).week * 7;
         var standardRecurrenceHour =
             (prolepticTimeZoneInfo.endRule as MonthlyRule).hour;
 
-        if (standardRecurrenceHour < 0) {
+        while (standardRecurrenceHour < 0) {
           standardRecurrenceDayOfMonth--;
           standardRecurrenceHour += 24;
+        }
+
+        while (standardRecurrenceHour > 23) {
+          standardRecurrenceDayOfMonth++;
+          standardRecurrenceHour -= 24;
         }
 
         final standardRecurrence = ZoneRecurrence(
@@ -410,17 +415,22 @@ class TZifFile {
         );
 
         var dstRecurrenceDayOfMonth =
-            (prolepticTimeZoneInfo.endRule as MonthlyRule).week > 4
+            (prolepticTimeZoneInfo.startRule as MonthlyRule).week > 4
                 ? GregorianYearMonthDayCalculator().getDaysInMonth(
                     lastTransitionYear,
-                    (prolepticTimeZoneInfo.endRule as MonthlyRule).month)
-                : (prolepticTimeZoneInfo.endRule as MonthlyRule).week * 7;
+                    (prolepticTimeZoneInfo.startRule as MonthlyRule).month)
+                : (prolepticTimeZoneInfo.startRule as MonthlyRule).week * 7;
         var dstRecurrenceHour =
             (prolepticTimeZoneInfo.startRule as MonthlyRule).hour;
 
-        if (dstRecurrenceHour < 0) {
+        while (dstRecurrenceHour < 0) {
           dstRecurrenceDayOfMonth--;
           dstRecurrenceHour += 24;
+        }
+
+        while (dstRecurrenceHour > 23) {
+          dstRecurrenceDayOfMonth++;
+          dstRecurrenceHour -= 24;
         }
 
         final dstRecurrence = ZoneRecurrence(

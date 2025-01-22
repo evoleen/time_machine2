@@ -4,6 +4,7 @@
 import 'package:time_machine2/time_machine2.dart';
 
 import 'rule_line.dart';
+import 'zone_rule_set.dart';
 
 /// Contains the parsed information from one "Zone" line of the TZDB zone database.
 /// Immutable and thread-safe.

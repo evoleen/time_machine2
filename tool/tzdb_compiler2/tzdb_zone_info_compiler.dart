@@ -6,6 +6,8 @@ import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
 
+import 'tzdb_database.dart';
+
 class TzdbZoneInfoCompiler {
   static const String makefile = 'Makefile';
   static const String zone1970TabFile = 'zone1970.tab';

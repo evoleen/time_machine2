@@ -6,15 +6,25 @@ import 'package:time_machine2/src/time_machine_internal.dart';
 /// Likewise, it may have rules associated with it, or just a fixed offset and savings.
 class ZoneRuleSet {
   /// The list of ZoneRecurrence rules associated with this rule set.
-  final List<ZoneRecurrence> rules = [];
-  final String? name = null;
-  final Offset? fixedSavings = null;
-  final int upperYear;
-  final ZoneYearOffset? upperYearOffset;
+  final List<ZoneRecurrence> _rules = [];
+  List<ZoneRecurrence> get rules => _rules;
+
+  String? _name;
+  String? get name => _name!;
+
+  Offset? _fixedSavings;
+  Offset? get fixedSavings => _fixedSavings;
+
+  final int _upperYear;
+  int get upperYear => _upperYear;
+
+  final ZoneYearOffset? _upperYearOffset;
+  ZoneYearOffset? get upperYearOffset => _upperYearOffset;
+
   final Offset standardOffset;
 
   ZoneRuleSet._internal(
-      this.standardOffset, this.upperYear, this.upperYearOffset) {
+      this.standardOffset, this._upperYear, this._upperYearOffset) {
     Preconditions.checkArgument(
       upperYear == double.infinity.toInt() || upperYearOffset != null,
       'upperYearOffset',
@@ -30,7 +40,7 @@ class ZoneRuleSet {
   ) {
     final ruleSet =
         ZoneRuleSet._internal(standardOffset, upperYear, upperYearOffset);
-    ruleSet.rules.addAll(rules);
+    ruleSet._rules.addAll(rules);
 
     return ruleSet;
   }
@@ -44,8 +54,10 @@ class ZoneRuleSet {
   ) {
     final ruleSet =
         ZoneRuleSet._internal(standardOffset, upperYear, upperYearOffset);
-    ruleSet.name = name;
-    ruleSet.fixedSavings = savings;
+    ruleSet._name = name;
+    ruleSet._fixedSavings = savings;
+
+    return ruleSet;
   }
 
   /// Returns `true` if this rule set extends to the end of time, or
@@ -59,13 +71,13 @@ class ZoneRuleSet {
   /// Creates a fixed interval for this rule set starting at the given instant.
   ZoneInterval createFixedInterval(Instant start) {
     Preconditions.checkState(isFixed, 'Rule set is not fixed');
-    final limit = getUpperLimit(fixedSavings);
-    return ZoneInterval(
+    final limit = getUpperLimit(fixedSavings!);
+    return IZoneInterval.newZoneInterval(
       name!,
       start,
       limit,
-      standardOffset + fixedSavings,
-      fixedSavings,
+      standardOffset + fixedSavings!,
+      fixedSavings!,
     );
   }
 
@@ -77,7 +89,7 @@ class ZoneRuleSet {
       return IInstant.afterMaxValue;
     }
     final localInstant = upperYearOffset!.getOccurrenceForYear(upperYear);
-    final offset = upperYearOffset.getRuleOffset(standardOffset, savings);
+    final offset = upperYearOffset!.getRuleOffset(standardOffset, savings);
     return localInstant.safeMinus(offset);
   }
 }

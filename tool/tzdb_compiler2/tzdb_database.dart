@@ -1,8 +1,9 @@
 // Copyright 2009 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0.
 
-import 'dart:collection';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
+import 'rule_line.dart';
 import 'tzdb_zone_1970_location.dart';
 import 'tzdb_zone_location.dart';
 

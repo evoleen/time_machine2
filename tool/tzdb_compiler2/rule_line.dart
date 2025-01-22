@@ -3,6 +3,8 @@
 
 import 'package:time_machine2/src/time_machine_internal.dart';
 
+import 'zone_line.dart';
+
 /// Defines one "Rule" line from the tz data. (This may be applied to multiple zones.)
 /// Immutable and thread-safe.
 class RuleLine {
