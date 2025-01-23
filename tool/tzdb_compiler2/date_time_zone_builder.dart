@@ -165,7 +165,7 @@ class DateTimeZoneBuilder {
       if (current.name == next.name &&
           current.wallOffset == next.wallOffset &&
           current.standardOffset == next.standardOffset) {
-        _zoneIntervals[i] = current.withEnd(next.rawEnd);
+        _zoneIntervals[i] = IZoneInterval.withEnd(current, next.end)!;
         _zoneIntervals.removeAt(i + 1);
         i--;
       }
