@@ -17,7 +17,7 @@ class ParserHelper {
     if (value < -23 || value > 23) {
       throw FormatException("Hours out of valid range [-23, 23]: $value");
     }
-    return value * NodaConstants.ticksPerHour;
+    return value * TimeConstants.ticksPerHour;
   }
 
   /// Converts a minute string to its equivalent in ticks.
@@ -113,13 +113,3 @@ class ParserHelper {
     }
   }
 }
-
-/*
-/// Constants used in the parser, similar to NodaConstants in the original code.
-class NodaConstants {
-  static const int ticksPerHour = 36000000000; // Ticks in one hour
-  static const int ticksPerMinute = 600000000; // Ticks in one minute
-  static const int ticksPerMillisecond = 10000; // Ticks in one millisecond
-  static const int millisecondsPerSecond = 1000; // Milliseconds in one second
-}
-*/
