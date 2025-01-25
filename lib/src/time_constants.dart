@@ -54,6 +54,11 @@ class TimeConstants {
   static final BigInt nanosecondsPerMillisecondBigInt =
       BigInt.from(nanosecondsPerMillisecond);
 
+  static const int ticksPerMillisecond = 10000;
+  static const int ticksPerSecond = ticksPerMillisecond * millisecondsPerSecond;
+  static const int ticksPerMinute = ticksPerSecond * secondsPerMinute;
+  static const int ticksPerHour = ticksPerSecond * secondsPerHour;
+
   /// The instant at the Unix epoch of midnight 1st January 1970 UTC.
   static final Instant unixEpoch = Instant();
 
