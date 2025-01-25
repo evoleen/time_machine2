@@ -3,6 +3,7 @@
 
 import 'package:time_machine2/src/time_machine_internal.dart';
 
+import 'parser_helper.dart';
 import 'rule_line.dart';
 import 'zone_rule_set.dart';
 

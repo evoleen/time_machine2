@@ -24,12 +24,12 @@ class TzdbZoneLocationParser {
     final comment = parts.length == 4 ? parts[3] : '';
 
     return TzdbZoneLocation(
-      latitude: latLong[0],
-      longitude: latLong[1],
-      countryName: countryName,
-      countryCode: countryCode,
-      zoneId: zoneId,
-      comment: comment,
+      latLong[0],
+      latLong[1],
+      countryName,
+      countryCode,
+      zoneId,
+      comment,
     );
   }
 
@@ -54,11 +54,11 @@ class TzdbZoneLocationParser {
     final comment = parts.length == 4 ? parts[3] : '';
 
     return TzdbZone1970Location(
-      latitude: latLong[0],
-      longitude: latLong[1],
-      countries: countries,
-      zoneId: zoneId,
-      comment: comment,
+      latLong[0],
+      latLong[1],
+      countries,
+      zoneId,
+      comment,
     );
   }
 

@@ -102,15 +102,16 @@ class TzdbZoneInfoParser {
   }
 
   static int _nextYear(Tokens tokens, int defaultValue) {
-    if (tokens.tryNextToken()) {
-      return ParserHelper.parseYear(tokens.currentToken, defaultValue);
+    final text = tokens.tryNextToken();
+    if (text != null) {
+      return ParserHelper.parseYear(text, defaultValue);
     }
     return defaultValue;
   }
 
   void parse(Stream<List<int>> input, TzdbDatabase database) {
     parseFromReader(
-        utf8.decoder.bind(input).transform(LineSplitter()), database);
+        utf8.decoder.bind(input).transform(const LineSplitter()), database);
   }
 
   void parseFromReader(Stream<String> reader, TzdbDatabase database) async {
@@ -183,7 +184,7 @@ class TzdbZoneInfoParser {
 
   int _parseDayOfWeek(String text) {
     Preconditions.checkArgument(
-        text.isNotEmpty, 'Value must not be empty or null');
+        text.isNotEmpty, 'text', 'Value must not be empty or null');
     int index = daysOfWeek.indexOf(text);
     if (index == -1) {
       throw FormatException('Invalid day of week: $text');
@@ -218,7 +219,8 @@ class TzdbZoneInfoParser {
       default:
         if (keyword.isEmpty) {
           if (previousZone == null) {
-            throw FormatException('Zone continuation with no previous zone');
+            throw const FormatException(
+                'Zone continuation with no previous zone');
           }
           database.addZone(_parseZone(previousZone, tokens));
           return previousZone;
@@ -268,7 +270,7 @@ class TzdbZoneInfoParser {
 
   static int parseMonth(String text) {
     Preconditions.checkArgument(
-        text.isNotEmpty, 'Value must not be empty or null');
+        text.isNotEmpty, 'text', 'Value must not be empty or null');
     int index = shortMonths.indexOf(text);
     if (index == -1) {
       index = longMonths.indexOf(text);

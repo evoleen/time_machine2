@@ -81,7 +81,7 @@ class TzdbZoneInfoCompiler {
     if (zone1970Tab.existsSync()) {
       final iso3166Dict = {
         for (var bits in iso3166)
-          bits[0]: TzdbZone1970Location.Country(code: bits[0], name: bits[1])
+          bits[0]: TzdbZone1970LocationCountry(bits[1], bits[0])
       };
       database.zone1970Locations = zone1970Tab
           .readAsLinesSync()
@@ -136,6 +136,6 @@ class TzdbZoneInfoCompiler {
       return version;
     }
 
-    throw FormatException('Unable to determine TZDB version from source');
+    throw const FormatException('Unable to determine TZDB version from source');
   }
 }
