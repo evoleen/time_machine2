@@ -3,6 +3,17 @@ import 'package:time_machine2/src/time_machine_internal.dart';
 import 'zone_rule_set.dart';
 import 'zone_transition.dart';
 
+/// Internal helper class to represent a rule and the previous transition.
+/// It's used to avoid making use of Dart's internal record type, which
+/// would bump up the minimum language version. The original code uses the
+/// C# equivalent in the AddIntervals() method.
+class _RuleWithPrev {
+  final ZoneRecurrence rule;
+  final Transition? previousTransition;
+
+  _RuleWithPrev(this.rule, this.previousTransition);
+}
+
 /// A mutable class with a static entry point to convert an ID and sequence of
 /// ZoneRuleSet elements into a DateTimeZone.
 class DateTimeZoneBuilder {
@@ -51,11 +62,33 @@ class DateTimeZoneBuilder {
     }
 
     final activeRules = List.of(ruleSet.rules);
+
+    final ruleWithPrevList = lastZoneInterval == null
+        ? <_RuleWithPrev>[]
+        : activeRules
+            .map((rule) => _RuleWithPrev(
+                rule,
+                rule.previousOrSame(start, lastZoneInterval.standardOffset,
+                    lastZoneInterval.savings)))
+            .where((pair) => pair.previousTransition != null)
+            .toList();
+    ruleWithPrevList.sort((a, b) =>
+        a.previousTransition!.instant.compareTo(b.previousTransition!.instant));
+    final firstrule =
+        ruleWithPrevList.isEmpty ? null : ruleWithPrevList.last.rule;
+
     final standardOffset = ruleSet.standardOffset;
 
-    ZoneTransition previousTransition = lastZoneInterval != null
-        ? _findFirstTransition(start, activeRules, lastZoneInterval)
-        : _createInitialTransition(activeRules, start, standardOffset);
+    ZoneTransition previousTransition;
+    if (firstrule != null) {
+      previousTransition = ZoneTransition(
+          start, firstrule.name, standardOffset, firstrule.savings);
+    } else {
+      final name =
+          activeRules.firstWhere((rule) => rule.savings == Offset.zero).name;
+      previousTransition =
+          ZoneTransition(start, name, standardOffset, Offset.zero);
+    }
 
     while (true) {
       final bestTransition =
@@ -80,40 +113,6 @@ class DateTimeZoneBuilder {
     }
   }
 
-  ZoneTransition _findFirstTransition(
-    Instant start,
-    List<ZoneRecurrence> activeRules,
-    ZoneInterval lastZoneInterval,
-  ) {
-    final firstRule = activeRules
-        .map((rule) => rule.previousOrSame(
-            start, lastZoneInterval.standardOffset, lastZoneInterval.savings))
-        .where((transition) => transition != null)
-        .map((transition) => transition!)
-        .toList()
-        .lastOrNull;
-
-    if (firstRule != null) {
-      return ZoneTransition(start, firstRule.name,
-          lastZoneInterval.standardOffset, firstRule.savings);
-    } else {
-      final name =
-          activeRules.firstWhere((rule) => rule.savings == Offset.zero).name;
-      return ZoneTransition(
-          start, name, lastZoneInterval.standardOffset, Offset.zero);
-    }
-  }
-
-  ZoneTransition _createInitialTransition(
-    List<ZoneRecurrence> activeRules,
-    Instant start,
-    Offset standardOffset,
-  ) {
-    final name =
-        activeRules.firstWhere((rule) => rule.savings == Offset.zero).name;
-    return ZoneTransition(start, name, standardOffset, Offset.zero);
-  }
-
   ZoneTransition? _findBestTransition(
     ZoneTransition previousTransition,
     List<ZoneRecurrence> activeRules,
@@ -125,7 +124,8 @@ class DateTimeZoneBuilder {
       final nextTransition = rule.next(previousTransition.instant,
           standardOffset, previousTransition.savings);
       if (nextTransition == null) {
-        activeRules.removeAt(i--);
+        activeRules.removeAt(i);
+        i = i - 1;
         continue;
       }
       final transition = ZoneTransition(
