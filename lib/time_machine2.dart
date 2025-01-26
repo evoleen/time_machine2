@@ -85,6 +85,8 @@ export 'src/timezones/datetimezone_providers.dart' show DateTimeZoneProviders;
 export 'src/timezones/invalid_datetimezone_source_error.dart'
     show InvalidDateTimeZoneSourceError;
 export 'src/timezones/resolvers.dart' show Resolvers;
+export 'src/timezones/tzdb_zone_1970_location.dart';
+export 'src/timezones/tzdb_zone_location.dart';
 
 // Text and Parsing
 export 'src/text/composite_pattern_builder.dart' show CompositePatternBuilder;

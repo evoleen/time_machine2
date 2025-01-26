@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
 
 import 'tzdb_database.dart';
-import 'tzdb_zone_1970_location.dart';
+import '../../lib/src/timezones/tzdb_zone_1970_location.dart';
 import 'tzdb_zone_info_parser.dart';
 import 'tzdb_zone_location_parser.dart';
 

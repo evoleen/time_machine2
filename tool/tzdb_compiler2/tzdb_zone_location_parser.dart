@@ -1,5 +1,5 @@
-import 'tzdb_zone_1970_location.dart';
-import 'tzdb_zone_location.dart';
+import '../../lib/src/timezones/tzdb_zone_1970_location.dart';
+import '../../lib/src/timezones/tzdb_zone_location.dart';
 
 /// Provides parsing functionality for zone location data from zone.tab and iso3166.tab.
 ///
