@@ -54,20 +54,20 @@ abstract class TzdbZoneLocationParser {
 
     if (text.length == 11 /* +-DDMM+-DDDMM */) {
       latSign = text[0] == '-' ? -1 : 1;
-      latDegrees = int.parse(text.substring(1, 2));
-      latMinutes = int.parse(text.substring(3, 2));
+      latDegrees = int.parse(text.substring(1, 3));
+      latMinutes = int.parse(text.substring(3, 5));
       longSign = text[5] == '-' ? -1 : 1;
-      longDegrees = int.parse(text.substring(6, 3));
-      longMinutes = int.parse(text.substring(9, 2));
+      longDegrees = int.parse(text.substring(6, 9));
+      longMinutes = int.parse(text.substring(9, 11));
     } else /* +-DDMMSS+-DDDMMSS */ {
       latSign = text[0] == '-' ? -1 : 1;
-      latDegrees = int.parse(text.substring(1, 2));
-      latMinutes = int.parse(text.substring(3, 2));
-      latSeconds = int.parse(text.substring(5, 2));
+      latDegrees = int.parse(text.substring(1, 3));
+      latMinutes = int.parse(text.substring(3, 5));
+      latSeconds = int.parse(text.substring(5, 7));
       longSign = text[7] == '-' ? -1 : 1;
-      longDegrees = int.parse(text.substring(8, 3));
-      longMinutes = int.parse(text.substring(11, 2));
-      longSeconds = int.parse(text.substring(13, 2));
+      longDegrees = int.parse(text.substring(8, 11));
+      longMinutes = int.parse(text.substring(11, 13));
+      longSeconds = int.parse(text.substring(13, 15));
     }
     return [
       latSign * (latDegrees * 3600 + latMinutes * 60 + latSeconds),
