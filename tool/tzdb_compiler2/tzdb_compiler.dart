@@ -10,27 +10,52 @@ import 'tzdb_zone_info_compiler.dart';
 /// This also requires a windowsZone.xml file from the Unicode CLDR repository,
 /// to map Windows time zone names to TZDB IDs.
 Future<int> main(List<String> arguments) async {
-  final parser = ArgParser();
-  CompilerOptions.addOptionsToArgParser(parser);
-  final options = CompilerOptions.fromArgs(parser.parse(arguments));
+  final parser = ArgParser()
+    ..addOption('output',
+        abbr: 'o', help: 'The name of the output file.', mandatory: false)
+    ..addOption('source',
+        abbr: 's',
+        help: 'Source directory or archive containing the TZDB input files.',
+        mandatory: true)
+    ..addOption('windows',
+        abbr: 'w',
+        help:
+            'Windows to TZDB time zone mapping file (e.g. windowsZones.xml) or directory',
+        mandatory: true)
+    ..addOption('windows-override',
+        help:
+            'Additional "override" file providing extra Windows time zone mappings',
+        mandatory: false)
+    ..addOption('xml-schema',
+        abbr: 'x',
+        help: 'Filename to write an XML schema out to',
+        mandatory: false)
+    ..addOption('zone',
+        abbr: 'z',
+        help: 'Generate a single zone for testing purposes',
+        mandatory: false)
+    ..addOption('help', abbr: 'h', help: 'Display this help text');
 
-  if (options == null) {
-    stderr.writeln('Invalid options.');
-    return 1;
+  final options = parser.parse(arguments);
+
+  if (options['help'] != null) {
+    print(parser.usage);
+    return 0;
   }
 
   final tzdbCompiler = TzdbZoneInfoCompiler();
-  final tzdb = await tzdbCompiler.compileAsync(options.sourceDirectoryName!);
+  final tzdb = await tzdbCompiler.compileAsync(options['source']);
   tzdb.logCounts();
 
-  if (options.zoneId != null) {
-    tzdb.generateDateTimeZone(options.zoneId!);
+  if (options['zone'] != null) {
+    tzdb.generateDateTimeZone(options['zone']);
     return 0;
   }
 
   var windowsZones = loadWindowsZones(options, tzdb.version);
-  if (options.windowsOverride != null) {
-    final overrideFile = CldrWindowsZonesParser.parse(options.windowsOverride!);
+  if (options['windows-override'] != null) {
+    final overrideFile =
+        CldrWindowsZonesParser.parse(options['windows-override']);
     windowsZones = mergeWindowsZones(windowsZones, overrideFile);
   }
 
@@ -46,13 +71,13 @@ Future<int> main(List<String> arguments) async {
     source.validate();
   }
 
-  if (options.xmlSchema != null) {
-    print('Writing XML schema to ${options.xmlSchema}');
+  if (options['xml-schema'] != null) {
+    print('Writing XML schema to ${options['xml-schema']}');
     final source = read(options);
     final provider = DateTimeZoneCache(source);
     XmlSerializationSettings.dateTimeZoneProvider = provider;
 
-    final xmlFile = File(options.xmlSchema!);
+    final xmlFile = File(options['xml-schema']);
     final xmlSink = xmlFile.openWrite(encoding: utf8);
     XmlSchemaDefinition.nodaTimeXmlSchema.write(xmlSink);
     await xmlSink.close();
@@ -61,9 +86,8 @@ Future<int> main(List<String> arguments) async {
   return 0;
 }
 
-WindowsZones loadWindowsZones(
-    CompilerOptions options, String targetTzdbVersion) {
-  final mappingPath = options.windowsMapping!;
+WindowsZones loadWindowsZones(ArgResults options, String targetTzdbVersion) {
+  final mappingPath = options['windows']!;
 
   if (File(mappingPath).existsSync()) {
     return CldrWindowsZonesParser.parse(mappingPath);
@@ -115,18 +139,18 @@ void logWindowsZonesSummary(WindowsZones windowsZones) {
   print('  ${windowsZones.primaryMapping.length} primary mappings');
 }
 
-Stream<List<int>> createOutputStream(CompilerOptions options) {
-  if (options.outputFileName == null) {
+Stream<List<int>> createOutputStream(ArgResults options) {
+  if (options['output'] == null) {
     return StreamController<List<int>>().stream;
   }
-  final outputFile = File(options.outputFileName!).openWrite();
+  final outputFile = File(options['output']).openWrite();
   return outputFile;
 }
 
-TzdbDateTimeZoneSource read(CompilerOptions options) {
-  final file = File(options.outputFileName!);
+TzdbDateTimeZoneSource read(ArgResults options) {
+  final file = File(options['output']);
   if (!file.existsSync()) {
-    throw Exception('File does not exist: ${options.outputFileName}');
+    throw Exception('File does not exist: ${options['output']}');
   }
 
   final stream = file.openRead();
