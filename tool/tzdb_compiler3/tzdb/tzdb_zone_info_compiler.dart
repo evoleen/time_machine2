@@ -61,8 +61,8 @@ class TzdbZoneInfoCompiler {
   /// name containing the TZDB files, or a local tar.gz file, or a remote tar.gz file.
   /// The version ID is taken from the Makefile, if it exists. Otherwise, an attempt is made to guess
   /// it based on the last element of the path, to match a regex of \d{2,4}[a-z] (anywhere within the element).
-  TzdbDatabase compile(String path) {
-    var source = _loadSource(path);
+  Future<TzdbDatabase> compile(String path) async {
+    var source = await _loadSource(path);
     var version = _inferVersion(source);
     var database = TzdbDatabase(version);
     _loadZoneFiles(source, database);
@@ -114,7 +114,7 @@ class TzdbZoneInfoCompiler {
     }
   }
 
-  FileSource _loadSource(String path) {
+  Future<FileSource> _loadSource(String path) async {
     if (path.startsWith('ftp://') ||
         path.startsWith("http://") ||
         path.startsWith("https://")) {
@@ -122,18 +122,15 @@ class TzdbZoneInfoCompiler {
 
       var uri = Uri.parse(path);
 
-      // todo: is there an awaitable method?
-      http.get(uri).then((response) {
-        var data = response.bodyBytes;
+      final response = await http.get(uri);
 
-        _log?.WriteLine('Compiling from archive');
+      var data = response.bodyBytes;
 
-        // todo: was uri.AbsolutePath -- which we don't have, but, it gets turned into a filename??? so.. maybe??
-        return FileSource.fromArchive(data, uri.pathSegments.last);
-      });
-    }
+      _log?.WriteLine('Compiling from archive');
 
-    if (Directory(path).existsSync()) {
+      // todo: was uri.AbsolutePath -- which we don't have, but, it gets turned into a filename??? so.. maybe??
+      return FileSource.fromArchive(data, uri.pathSegments.last);
+    } else if (Directory(path).existsSync()) {
       // if (FileSystemEntity.typeSync(path) != FileSystemEntityType.notFound) {
       _log?.WriteLine('Compiling from directory $path');
       return FileSource.fromDirectory(path);

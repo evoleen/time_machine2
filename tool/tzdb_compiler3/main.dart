@@ -60,11 +60,12 @@ import 'tzdb/cldr_windows_zone_parser.dart';
 //   return 0;
 // }
 
-void main(List<String> args) {
+Future<void> main(List<String> args) async {
   // https://nodatime.org/tzdb/latest.txt --> https://nodatime.org/tzdb/tzdb2018g.nzd
   // https://data.iana.org/time-zones/releases/tzdata2018g.tar.gz
   var tzdbCompiler = TzdbZoneInfoCompiler();
-  var tzdb = tzdbCompiler.compile('https://data.iana.org/time-zones/releases/tzdata2018g.tar.gz');
+  var tzdb = await tzdbCompiler
+      .compile('https://data.iana.org/time-zones/releases/tzdata2018g.tar.gz');
   tzdb.logCounts();
 }
 
@@ -75,7 +76,8 @@ void main(List<String> args) {
 /// on the version of TZDB we're targeting - basically, the most recent one before or equal to the
 /// target version.
 /// </summary>
-WindowsZones LoadWindowsZones(CompilerOptions options, String targetTzdbVersion) {
+WindowsZones LoadWindowsZones(
+    CompilerOptions options, String targetTzdbVersion) {
   var mappingPath = options.windowsMapping;
   if (mappingPath == null) {
     throw Exception('No mappingPath was provided');
@@ -109,13 +111,12 @@ WindowsZones LoadWindowsZones(CompilerOptions options, String targetTzdbVersion)
   }
   var bestFile = potentiallyBestFiles.first;
 
-  print("Picked Windows Zones with TZDB version ${bestFile
-      .tzdbVersion} out of [$versions] as best match for $targetTzdbVersion");
+  print(
+      "Picked Windows Zones with TZDB version ${bestFile.tzdbVersion} out of [$versions] as best match for $targetTzdbVersion");
   return bestFile;
 }
 
-void LogWindowsZonesSummary(WindowsZones windowsZones)
-{
+void LogWindowsZonesSummary(WindowsZones windowsZones) {
   print('Windows Zones:');
   print('  Version: ${windowsZones.version}');
   print('  TZDB version: ${windowsZones.tzdbVersion}');
@@ -124,12 +125,10 @@ void LogWindowsZonesSummary(WindowsZones windowsZones)
   print('  ${windowsZones.primaryMapping.length} primary mappings');
 }
 
-IOSink CreateOutputStream(CompilerOptions options)
-{
+IOSink CreateOutputStream(CompilerOptions options) {
   // If we don't have an actual file, just write to an empty stream.
   // That way, while debugging, we still get to see all the data written etc.
-  if (options.outputFileName == null)
-  {
+  if (options.outputFileName == null) {
     return stdout; // new MemoryStream();
   }
 
@@ -158,14 +157,17 @@ IOSink CreateOutputStream(CompilerOptions options)
 /// <param name='windowsZones'>The original WindowsZones</param>
 /// <param name='overrideFile'>The WindowsZones to override entries in the original</param>
 /// <returns>A merged zones object.</returns>
-WindowsZones MergeWindowsZones(WindowsZones originalZones, WindowsZones overrideZones) {
+WindowsZones MergeWindowsZones(
+    WindowsZones originalZones, WindowsZones overrideZones) {
   var version = overrideZones.version == ''
       ? originalZones.version
       : overrideZones.version;
-  var tzdbVersion = overrideZones.tzdbVersion == '' ? originalZones
-      .tzdbVersion : overrideZones.tzdbVersion;
-  var windowsVersion = overrideZones.windowsVersion == '' ? originalZones
-      .windowsVersion : overrideZones.windowsVersion;
+  var tzdbVersion = overrideZones.tzdbVersion == ''
+      ? originalZones.tzdbVersion
+      : overrideZones.tzdbVersion;
+  var windowsVersion = overrideZones.windowsVersion == ''
+      ? originalZones.windowsVersion
+      : overrideZones.windowsVersion;
 
   // Work everything out using dictionaries, and then sort.
   Map<Map<String, String>, MapZone> mapZones = {
@@ -173,7 +175,7 @@ WindowsZones MergeWindowsZones(WindowsZones originalZones, WindowsZones override
       {
         'windowsId': mz.windowsId,
         'territory': mz.territory,
-      }:mz
+      }: mz
   };
 
   for (var overrideMapZone in overrideZones.mapZones) {
@@ -183,24 +185,22 @@ WindowsZones MergeWindowsZones(WindowsZones originalZones, WindowsZones override
     };
     if (overrideMapZone.tzdbIds.isEmpty) {
       mapZones.remove(key);
-    }
-    else {
+    } else {
       mapZones[key] = overrideMapZone;
     }
   }
 
-  var mapZoneList = (mapZones
-      .entries
-      .toList()
-    ..sort((a, b) {
-      // order by 'windowsId'
-      var cmp = a.key['windowsId']!.compareTo(b.key['windowsId']!);
-      if (cmp != 0) return cmp;
+  var mapZoneList = (mapZones.entries.toList()
+        ..sort((a, b) {
+          // order by 'windowsId'
+          var cmp = a.key['windowsId']!.compareTo(b.key['windowsId']!);
+          if (cmp != 0) return cmp;
 
-      // then by 'territory'
-      return a.key['territory']!.compareTo(b.key['territory']!);
-    }))
-      .map((a) => a.value).toList();
+          // then by 'territory'
+          return a.key['territory']!.compareTo(b.key['territory']!);
+        }))
+      .map((a) => a.value)
+      .toList();
 
   return WindowsZones(version, tzdbVersion, windowsVersion, mapZoneList);
 }

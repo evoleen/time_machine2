@@ -146,7 +146,7 @@ class TzdbStreamWriter {
     fields.writeTo(stream);
   }
 
-  static void _writeZone(DateTimeZone zone, DateTimeZoneWriter writer) {
+  static void _writeZone(DateTimeZone zone, IDateTimeZoneWriter writer) {
     writer.writeString(zone.id);
     // For cached zones, simply uncache first.
     var cachedZone = zone as CachedDateTimeZone?;
