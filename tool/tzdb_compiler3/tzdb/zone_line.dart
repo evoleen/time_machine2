@@ -143,7 +143,7 @@ class ZoneLine {
     }
   }
 
-  String formatName(Offset savings, String daylightSavingsIndicator) {
+  String formatName(Offset savings, String? daylightSavingsIndicator) {
     int index = format.indexOf('/');
     if (index >= 0) {
       return savings == Offset.zero
@@ -155,7 +155,7 @@ class ZoneLine {
     if (index >= 0) {
       var left = format.substring(0, index);
       var right = format.substring(index + 2);
-      return left + daylightSavingsIndicator + right;
+      return left + (daylightSavingsIndicator ?? '') + right;
     }
     // todo: is this the same?
     index = format.indexOf('%z');

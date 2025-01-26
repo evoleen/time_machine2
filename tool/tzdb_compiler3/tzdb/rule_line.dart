@@ -14,7 +14,7 @@ class RuleLine // implements Comparable<RuleLine> // IEquatable<RuleLine>
   ///
   /// <remarks>This is always used to replace %s, whether or not the recurrence
   /// actually includes savings; it is expected to be appropriate to the recurrence.</remarks>
-  final String _daylightSavingsIndicator;
+  final String? _daylightSavingsIndicator;
 
   /// The recurrence pattern for the rule.
   final ZoneRecurrence _recurrence;

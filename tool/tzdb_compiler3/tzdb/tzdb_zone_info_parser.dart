@@ -359,7 +359,7 @@ class TzdbZoneInfoParser {
     var type = _nextOptional(tokens, 'Type');
     var yearOffset = parseDateTimeOfYear(tokens, true);
     var savings = _nextOffset(tokens, 'SaveMillis');
-    var daylightSavingsIndicator = _nextOptional(tokens, 'LetterS')!;
+    var daylightSavingsIndicator = _nextOptional(tokens, 'LetterS');
     // The name of the zone recurrence is currently the name of the rule. Later (in ZoneRule.GetRecurrences)
     // it will be replaced with the formatted name. It's not ideal, but it avoids a lot of duplication.
     var recurrence =
