@@ -5,11 +5,9 @@
 import 'package:args/args.dart';
 
 /// Defines the command line options that are valid.
-class CompilerOptions
-{
+class CompilerOptions {
   final String? outputFileName;
-  final String sourceDirectoryName; // = '';
-  // todo: is this something we still need?
+  final String? sourceDirectoryName; // = '';
   final String? windowsMapping; // = '';
   final String? windowsOverride;
 
@@ -19,30 +17,38 @@ class CompilerOptions
   MutuallyExclusiveSet = 'Output')] */
   final String? zoneId;
 
-  CompilerOptions._(this.outputFileName, this.sourceDirectoryName, this.windowsMapping, this.windowsOverride, this.zoneId);
+  CompilerOptions._(this.outputFileName, this.sourceDirectoryName,
+      this.windowsMapping, this.windowsOverride, this.zoneId);
 
   factory CompilerOptions(List<String> args) {
     var parser = ArgParser();
 
-    parser.addSeparator('Usage: NodaTime.TzdbCompiler -s <tzdb directory> -w <windowsZone.xml file/dir> -o <output file> [-t ResX/Resource/NodaZoneData]');
+    parser.addSeparator(
+        'Usage: NodaTime.TzdbCompiler -s <tzdb directory> -w <windowsZone.xml file/dir> -o <output file> [-t ResX/Resource/NodaZoneData]');
 
     // Required = false
-    parser.addOption('output', abbr: 'o', defaultsTo: null, help: 'The name of the output file.');
+    parser.addOption('output',
+        abbr: 'o', defaultsTo: null, help: 'The name of the output file.');
 
     // Required = true, // defaultsTo: 'none'
-    parser.addOption('source', abbr: 's', help: 'Source directory or archive containing the TZDB input files.');
+    parser.addOption('source',
+        abbr: 's',
+        help: 'Source directory or archive containing the TZDB input files.');
 
     // Required = true;
-    parser.addOption('windows', abbr: 'w', help: 'Windows to TZDB time zone mapping file (e.g. windowsZones.xml) or directory');
+    parser.addOption('windows',
+        abbr: 'w',
+        help:
+            'Windows to TZDB time zone mapping file (e.g. windowsZones.xml) or directory');
 
     // Required = false
-    parser.addOption('windows-override', abbr: null, help: 'Additional \'override\' file providing extra Windows time zone mappings');
+    parser.addOption('windows-override',
+        abbr: null,
+        help:
+            'Additional \'override\' file providing extra Windows time zone mappings');
 
     var results = parser.parse(args);
-    return CompilerOptions._(results['output'],
-      results['source'],
-      results['windows'],
-      results['windows-override'],
-      results['zone']);
+    return CompilerOptions._(results['output'], results['source'],
+        results['windows'], results['windows-override'], results['zone']);
   }
 }

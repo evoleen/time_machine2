@@ -8,6 +8,7 @@ import 'dart:io';
 import 'package:path/path.dart' as path;
 
 import 'compiler_options.dart';
+import 'tzdb/tzdb_stream_writer.dart';
 import 'tzdb/tzdb_zone_info_compiler.dart';
 import 'tzdb/cldr_windows_zone_parser.dart';
 // import 'tzdb/tzdb_stream_writer.dart';
@@ -61,12 +62,20 @@ import 'tzdb/cldr_windows_zone_parser.dart';
 // }
 
 Future<void> main(List<String> args) async {
+  CompilerOptions options = CompilerOptions(args);
+
   // https://nodatime.org/tzdb/latest.txt --> https://nodatime.org/tzdb/tzdb2018g.nzd
   // https://data.iana.org/time-zones/releases/tzdata2018g.tar.gz
   var tzdbCompiler = TzdbZoneInfoCompiler();
   var tzdb = await tzdbCompiler
       .compile('https://data.iana.org/time-zones/releases/tzdata2018g.tar.gz');
   tzdb.logCounts();
+
+  final windowsZones = LoadWindowsZones(options, tzdb.version);
+
+  final writer = TzdbStreamWriter();
+  // writer.write(
+  //    tzdb, cldrWindowsZones, additionalWindowsNameToIdMappings, stream);
 }
 
 /// <summary>
