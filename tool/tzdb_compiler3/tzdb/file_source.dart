@@ -17,7 +17,8 @@ class FileSource {
 
   final List<int> Function(String) _openFunction;
 
-  FileSource._(this.names, this._openFunction, String fullOrigin) :
+  FileSource._(this.names, this._openFunction, String fullOrigin)
+      :
         // Path.GetFileName(fullOrigin);
         origin = p.basename(fullOrigin);
 
@@ -26,24 +27,33 @@ class FileSource {
   bool contains(String name) => names.contains(name);
 
   static FileSource fromArchive(List<int> archiveData, String fullOrigin) {
-    var entries = <String, List<int>>{}; // new Dictionary<String, byte[]>();
-    var data = TarDecoder().decodeBytes(archiveData);
+    Archive data;
+    var entries = <String, List<int>>{};
+
+    if (fullOrigin.endsWith('.gz')) {
+      data = TarDecoder()
+          .decodeBytes(const GZipDecoder().decodeBytes(archiveData));
+    } else {
+      data = TarDecoder().decodeBytes(archiveData);
+    }
 
     data.files.forEach((file) {
       entries[file.name] = file.content;
     });
 
-    return FileSource._(entries.keys.toList(),
-            (String file) => entries[file]!, fullOrigin);
+    return FileSource._(
+        entries.keys.toList(), (String file) => entries[file]!, fullOrigin);
   }
 
   static FileSource fromDirectory(String path) {
     // .Select(p => Path.GetFileName(p)).ToList()
-    var files = Directory(path).listSync().map((f) => p.basename(f.path)).toList();
+    var files =
+        Directory(path).listSync().map((f) => p.basename(f.path)).toList();
 
     // todo: I don't understand that last argument
     File(path).readAsBytesSync();
-    return FileSource._(files, (file) => File(p.join(path, file)).readAsBytesSync(), p.basename(path));
+    return FileSource._(files,
+        (file) => File(p.join(path, file)).readAsBytesSync(), p.basename(path));
   }
 
   // todo: I think this works?
