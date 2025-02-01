@@ -86,8 +86,8 @@ class BinaryWriter {
   final ByteData _binary0 = ByteData(_bufferSize);
   final ByteData _binary1 = ByteData(_bufferSize);
   late ByteData _binary;
-  late int _offset;
-  late int _bank;
+  int _offset = 0;
+  int _bank = 0;
 
   final io.IOSink _sink;
 
@@ -95,8 +95,6 @@ class BinaryWriter {
 
   BinaryWriter(this._sink) {
     _binary = _binary0;
-    _bank = 0;
-    // _offset = 0 ???
   }
 
   factory BinaryWriter.fromFile(String path) {

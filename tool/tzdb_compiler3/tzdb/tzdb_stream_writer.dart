@@ -149,14 +149,12 @@ class TzdbStreamWriter {
   static void _writeZone(DateTimeZone zone, IDateTimeZoneWriter writer) {
     writer.writeString(zone.id);
     // For cached zones, simply uncache first.
-    var cachedZone = zone as CachedDateTimeZone?;
-    if (cachedZone != null) {
-      zone = cachedZone.timeZone;
+    if (zone is CachedDateTimeZone) {
+      zone = zone.timeZone;
     }
-    var fixedZone = zone as FixedDateTimeZone?;
-    if (fixedZone != null) {
+    if (zone is FixedDateTimeZone) {
       writer.writeUint8(/*DateTimeZoneWriter.*/ DateTimeZoneType.fixed);
-      fixedZone.write(writer);
+      zone.write(writer);
     } else {
       var precalculatedZone = zone as PrecalculatedDateTimeZone?;
       if (precalculatedZone != null) {
