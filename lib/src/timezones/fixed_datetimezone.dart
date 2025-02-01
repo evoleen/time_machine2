@@ -113,7 +113,7 @@ class FixedDateTimeZone extends DateTimeZone {
   /// [writer]: The writer.
   void write(IDateTimeZoneWriter writer) {
     Preconditions.checkNotNull(writer, 'writer');
-    writer.writeOffsetSeconds(offset);
+    writer.writeOffset(offset);
     // todo: I think we can just make this null if name == id -- see below
     writer.writeString(name);
   }
@@ -126,7 +126,7 @@ class FixedDateTimeZone extends DateTimeZone {
   static DateTimeZone read(DateTimeZoneReader reader, String id) {
     Preconditions.checkNotNull(reader, 'reader');
     Preconditions.checkNotNull(id, 'id');
-    var offset = reader.readOffsetSeconds();
+    var offset = reader.readOffset();
     var name = reader.hasMoreData ? reader.readString() : id;
     return FixedDateTimeZone(id, offset, name);
   }

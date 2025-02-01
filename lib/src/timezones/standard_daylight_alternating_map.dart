@@ -162,7 +162,7 @@ class StandardDaylightAlternatingMap implements ZoneIntervalMapWithMinMax {
   /// [writer]: The writer to write to.
   void write(IDateTimeZoneWriter writer) {
     Preconditions.checkNotNull(writer, 'writer');
-    writer.writeOffsetSeconds2(
+    writer.writeOffset(
         _standardOffset); // Offset.fromSeconds(reader.readInt32());
     _standardRecurrence.write(writer);
     _dstRecurrence.write(writer);
@@ -181,7 +181,7 @@ class StandardDaylightAlternatingMap implements ZoneIntervalMapWithMinMax {
   static StandardDaylightAlternatingMap read(DateTimeZoneReader reader) {
     Preconditions.checkNotNull(reader, 'reader');
     var standardOffset =
-        reader.readOffsetSeconds2(); // Offset.fromSeconds(reader.readInt32());
+        reader.readOffset(); // Offset.fromSeconds(reader.readInt32());
     var standardRecurrence = ZoneRecurrence.read(reader);
     var dstRecurrence = ZoneRecurrence.read(reader);
 
