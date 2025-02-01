@@ -11,10 +11,6 @@ class CompilerOptions {
   final String? windowsMapping; // = '';
   final String? windowsOverride;
 
-  /*[Option('z', "zone",
-  Required = false,
-  HelpText = 'Single zone ID to compile data for, for test purposes. (Incompatible with -o.)',
-  MutuallyExclusiveSet = 'Output')] */
   final String? zoneId;
 
   CompilerOptions._(this.outputFileName, this.sourceDirectoryName,
@@ -46,6 +42,11 @@ class CompilerOptions {
         abbr: null,
         help:
             'Additional \'override\' file providing extra Windows time zone mappings');
+
+    parser.addOption('zone',
+        abbr: 'z',
+        help:
+            'Single zone ID to compile data for, for test purposes. (Incompatible with -o.)');
 
     var results = parser.parse(args);
     return CompilerOptions._(results['output'], results['source'],

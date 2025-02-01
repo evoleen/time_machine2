@@ -8,9 +8,11 @@ import 'dart:io';
 import 'package:path/path.dart' as path;
 
 import 'compiler_options.dart';
+import 'tzdb/named_id_mapping_support.dart';
 import 'tzdb/tzdb_stream_writer.dart';
 import 'tzdb/tzdb_zone_info_compiler.dart';
 import 'tzdb/cldr_windows_zone_parser.dart';
+import 'tzdb/utility/binary_writer.dart';
 // import 'tzdb/tzdb_stream_writer.dart';
 // import 'tzdb/named_id_mapping_support.dart';
 
@@ -71,11 +73,16 @@ Future<void> main(List<String> args) async {
       .compile('https://data.iana.org/time-zones/releases/tzdata2018g.tar.gz');
   tzdb.logCounts();
 
-  final windowsZones = LoadWindowsZones(options, tzdb.version);
+  //final windowsZones = LoadWindowsZones(options, tzdb.version);
+  final windowsZones = WindowsZones('0.0', '0.0', '0.0', const []);
 
-  final writer = TzdbStreamWriter();
-  // writer.write(
-  //    tzdb, cldrWindowsZones, additionalWindowsNameToIdMappings, stream);
+  var writer = TzdbStreamWriter();
+  var stream = BinaryWriter(CreateOutputStream(options));
+  {
+    writer.write(
+        tzdb, windowsZones, NameIdMappingSupport.StandardNameToIdMap, stream);
+  }
+  await stream.close();
 }
 
 /// <summary>
