@@ -1,68 +1,136 @@
-/// Copyright 2013 The Noda Time Authors. All rights reserved.
-/// Use of this source code is governed by the Apache License 2.0,
-/// as found in the LICENSE.txt file.
+// Copyright 2009 The Noda Time Authors. All rights reserved.
+// Use of this source code is governed by the Apache License 2.0,
+// as found in the LICENSE.txt file.
 
+import 'dart:convert';
 import 'dart:io';
 
-import 'package:time_machine2/time_machine2.dart';
+import 'package:time_machine2/src/time_machine_internal.dart';
 
-/// Interface for writing time-related data to a binary stream.
-/// This is similar to `BinaryWriter`, but heavily oriented towards our use cases.
-///
-/// It is expected that the code reading data written by an implementation
-/// will be able to identify which implementation to use. As of Noda Time 2.0,
-/// there is only one implementation - but the interface will allow us to
-/// evolve the details of the binary structure independently of the code in the
-/// time zone implementations which knows how to write/read in terms of this interface
-/// and `IDateTimeZoneReader`.
-abstract class IDateTimeZoneWriter {
-  /// Writes a non-negative integer to the stream. This is optimized towards
-  /// cases where most values will be small.
-  ///
-  /// Throws an [IOException] if the value couldn't be written to the stream.
-  /// Throws an [ArgumentError] if [count] is negative.
-  void writeCount(int count);
+/// Implementation of [IDateTimeZoneWriter] for the most recent version
+/// of the "blob" format of time zone data. If the format changes, this class will be
+/// renamed (e.g. to DateTimeZoneWriterV0) and the new implementation will replace it.
+class DateTimeZoneWriter implements IDateTimeZoneWriter {
+  static const int markerMinValue = 0;
+  static const int markerMaxValue = 1;
+  static const int markerRaw = 2;
+  static const int minValueForHoursSincePrevious = 1 << 7;
+  static const int minValueForMinutesSinceEpoch = 1 << 21;
+  static Instant epochForMinutesSinceEpoch = Instant.utc(1800, 1, 1, 0, 0);
 
-  /// Writes a possibly-negative integer to the stream. This is optimized for
-  /// values of small magnitudes.
-  ///
-  /// Throws an [IOException] if the value couldn't be written to the stream.
-  void writeSignedCount(int count);
+  final IOSink output;
+  final List<String>? stringPool;
 
-  /// Writes a string to the stream.
-  ///
-  /// Callers can reasonably expect that these values will be pooled in some fashion,
-  /// so should not apply their own pooling.
-  ///
-  /// Throws an [IOException] if the value couldn't be written to the stream.
-  void writeString(String value);
+  /// Constructs a DateTimeZoneWriter.
+  DateTimeZoneWriter(this.output, this.stringPool);
 
-  /// Writes a number of milliseconds to the stream, where the number
-  /// of milliseconds must be in the range (-1 day, +1 day).
-  ///
-  /// Throws an [IOException] if the value couldn't be written to the stream.
-  /// Throws an [ArgumentError] if [millis] is out of range.
-  void writeMilliseconds(int millis);
+  /// Writes the given non-negative integer value to the stream.
+  @override
+  void writeCount(int value) {
+    if (value < 0) {
+      throw ArgumentError.value(value, 'value', 'Must be non-negative');
+    }
+    _writeVarint(value);
+  }
 
-  /// Writes an offset to the stream.
-  ///
-  /// Throws an [IOException] if the value couldn't be written to the stream.
-  void writeOffset(Offset offset);
+  /// Writes the given (possibly-negative) integer value to the stream.
+  @override
+  void writeSignedCount(int count) {
+    _writeVarint((count >> 31) ^ (count << 1)); // Zigzag encoding
+  }
 
-  /// Writes an instant representing a zone interval transition to the stream.
-  ///
-  /// This method takes a previously-written transition. Depending on the implementation, this value may be
-  /// required by the reader in order to reconstruct the next transition, so it should be deterministic for any
-  /// given value.
-  ///
-  /// Throws an [IOException] if the value couldn't be written to the stream.
-  void writeZoneIntervalTransition(Instant? previous, Instant value);
+  void _writeVarint(int value) {
+    while (value > 0x7f) {
+      output.add([0x80 | (value & 0x7f)]);
+      value >>= 7;
+    }
+    output.add([value & 0x7f]);
+  }
 
-  /// Writes a string-to-string dictionary to the stream.
-  ///
-  /// Throws an [IOException] if the value couldn't be written to the stream.
-  void writeDictionary(Map<String, String> dictionary);
+  @override
+  void writeMilliseconds(int millis) {
+    if (millis < -86400000 + 1 || millis > 86400000 - 1) {
+      throw ArgumentError.value(millis, 'millis', 'Out of range');
+    }
+    millis += 86400000;
 
-  /// Writes the given 8-bit integer value to the stream.
-  void writeByte(int value);
+    if (millis % (30 * 60000) == 0) {
+      output.add([(millis ~/ (30 * 60000))]);
+    } else if (millis % 60000 == 0) {
+      int minutes = millis ~/ 60000;
+      output.add([0x80 | (minutes >> 8), minutes & 0xff]);
+    } else if (millis % 1000 == 0) {
+      int seconds = millis ~/ 1000;
+      output
+          .add([0xa0 | (seconds >> 16), (seconds >> 8) & 0xff, seconds & 0xff]);
+    } else {
+      writeInt32(0xc0000000 | millis);
+    }
+  }
+
+  @override
+  void writeOffset(Offset offset) {
+    writeMilliseconds(offset.inMilliseconds);
+  }
+
+  @override
+  void writeDictionary(Map<String, String> dictionary) {
+    writeCount(dictionary.length);
+    dictionary.forEach((key, value) {
+      writeString(key);
+      writeString(value);
+    });
+  }
+
+  @override
+  void writeZoneIntervalTransition(Instant? previous, Instant value) {
+    if (previous != null && value < previous) {
+      throw ArgumentError('Transition must move forward in time');
+    }
+    if (value == IInstant.beforeMinValue) {
+      writeCount(markerMinValue);
+      return;
+    }
+    if (value == IInstant.afterMaxValue) {
+      writeCount(markerMaxValue);
+      return;
+    }
+    writeCount(markerRaw);
+    writeInt64(value.epochSeconds);
+  }
+
+  @override
+  void writeString(String value) {
+    if (stringPool == null) {
+      List<int> data = utf8.encode(value);
+      writeCount(data.length);
+      output.add(data);
+    } else {
+      int index = stringPool!.indexOf(value);
+      if (index == -1) {
+        index = stringPool!.length;
+        stringPool!.add(value);
+      }
+      writeCount(index);
+    }
+  }
+
+  void writeInt16(int value) {
+    output.add([(value >> 8) & 0xff, value & 0xff]);
+  }
+
+  void writeInt32(int value) {
+    writeInt16(value >> 16);
+    writeInt16(value);
+  }
+
+  void writeInt64(int value) {
+    writeInt32(value >> 32);
+    writeInt32(value);
+  }
+
+  @override
+  void writeByte(int value) {
+    output.add([value]);
+  }
 }

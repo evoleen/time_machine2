@@ -9,7 +9,7 @@ import 'cldr_windows_zone_parser.dart';
 import 'tzdb_database.dart';
 
 import 'utility/binary_writer.dart';
-import 'utility/datetimezone_writer.dart';
+import '../../../lib/src/timezones/datetimezone_writer.dart';
 
 // from: https://github.com/nodatime/nodatime/blob/master/src/NodaTime/TimeZones/IO/TzdbStreamFieldId.cs
 
