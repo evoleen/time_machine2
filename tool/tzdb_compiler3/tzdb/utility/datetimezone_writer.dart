@@ -1,113 +1,135 @@
-// Portions of this work are Copyright 2018 The Time Machine Authors. All rights reserved.
-// Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
-// Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
+// Copyright 2009 The Noda Time Authors. All rights reserved.
+// Use of this source code is governed by the Apache License 2.0,
+// as found in the LICENSE.txt file.
 
-import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:time_machine2/src/time_machine_internal.dart';
 
-import 'binary_writer.dart';
+/// Implementation of [IDateTimeZoneWriter] for the most recent version
+/// of the "blob" format of time zone data. If the format changes, this class will be
+/// renamed (e.g. to DateTimeZoneWriterV0) and the new implementation will replace it.
+class DateTimeZoneWriter implements IDateTimeZoneWriter {
+  static const int markerMinValue = 0;
+  static const int markerMaxValue = 1;
+  static const int markerRaw = 2;
+  static const int minValueForHoursSincePrevious = 1 << 7;
+  static const int minValueForMinutesSinceEpoch = 1 << 21;
 
-@internal
-class DateTimeZoneWriter implements BinaryWriter, IDateTimeZoneWriter {
-  final BinaryWriter _writer;
+  final IOSink output;
+  final List<String>? stringPool;
 
-  DateTimeZoneWriter(this._writer);
+  /// Constructs a DateTimeZoneWriter.
+  DateTimeZoneWriter(this.output, this.stringPool);
 
+  /// Writes the given non-negative integer value to the stream.
   @override
-  void writeZoneInterval(ZoneInterval zoneInterval) {
-    int flag = 0;
-    bool longStartRequired = false;
-    bool longEndRequired = false;
-
-    if (zoneInterval.hasStart) {
-      var longStart = zoneInterval.start.epochSeconds;
-      longStartRequired = longStart < Platform.int32MinValue ||
-          longStart > Platform.int32MaxValue;
-
-      flag |= 1;
-      if (longStartRequired) flag |= 1 << 2;
+  void writeCount(int value) {
+    if (value < 0) {
+      throw ArgumentError.value(value, 'value', 'Must be non-negative');
     }
-
-    if (zoneInterval.hasEnd) {
-      var longEnd = zoneInterval.end.epochSeconds;
-      longEndRequired =
-          longEnd < Platform.int32MinValue || longEnd > Platform.int32MaxValue;
-
-      flag |= 2;
-      if (longEndRequired) flag |= 1 << 3;
-    }
-    _writer.writeUint8(flag);
-
-    if (zoneInterval.hasStart) {
-      if (zoneInterval.start.epochNanoseconds %
-              TimeConstants.nanosecondsPerSecond !=
-          0) throw Exception('zoneInterval.Start not seconds.');
-      if (longStartRequired)
-        _writer.writeInt64(zoneInterval.start.epochSeconds);
-      else
-        _writer.writeInt32(
-            zoneInterval.start.epochSeconds); // .ToUnixTimeMilliseconds());
-    }
-
-    if (zoneInterval.hasEnd) {
-      if (zoneInterval.end.epochNanoseconds %
-              TimeConstants.nanosecondsPerSecond !=
-          0) throw Exception('zoneInterval.End not seconds.');
-      if (longEndRequired)
-        _writer.writeInt64(zoneInterval.end.epochSeconds);
-      else
-        _writer.writeInt32(
-            zoneInterval.end.epochSeconds); // .ToUnixTimeMilliseconds());
-    }
-
-    _writer.writeInt32(zoneInterval.wallOffset.inSeconds);
-    _writer.writeInt32(zoneInterval.savings.inSeconds);
+    _writeVarint(value);
   }
 
-  // todo: this is a bit ugly
-
+  /// Writes the given (possibly-negative) integer value to the stream.
   @override
-  Future close() => _writer.close();
+  void writeSignedCount(int count) {
+    _writeVarint((count >> 31) ^ (count << 1)); // Zigzag encoding
+  }
 
-  @override
-  void write7BitEncodedInt(int value) => _writer.write7BitEncodedInt(value);
-
-  @override
-  void writeBool(bool value) => _writer.writeBool(value);
-
-  @override
-  void writeInt32(int value) => _writer.writeInt32(value);
-
-  @override
-  void writeInt64(int value) => _writer.writeInt64(value);
-
-  @override
-  void writeOffsetSeconds(Offset value) => _writer.writeOffsetSeconds(value);
-
-  @override
-  void writeOffsetSeconds2(Offset value) => _writer.writeOffsetSeconds2(value);
-
-  @override
-  void writeString(String value) => _writer.writeString(value);
-
-  @override
-  void writeStringList(List<String> list) => _writer.writeStringList(list);
-
-  @override
-  void writeUint8(int value) => _writer.writeUint8(value);
-
-  /// Writes the given dictionary of string to string to the stream.
-  /// </summary>
-  /// <param name='dictionary'>The <see cref="IDictionary{TKey,TValue}" /> to write.</param>
-  @override
-  void writeDictionary(Map<String, String> map) {
-    Preconditions.checkNotNull(map, 'map');
-
-    _writer.write7BitEncodedInt(map.length);
-    for (var entry in map.entries) {
-      _writer.writeString(entry.key);
-      _writer.writeString(entry.value);
+  void _writeVarint(int value) {
+    while (value > 0x7f) {
+      output.add([0x80 | (value & 0x7f)]);
+      value >>= 7;
     }
+    output.add([value & 0x7f]);
+  }
+
+  @override
+  void writeMilliseconds(int millis) {
+    if (millis < -86400000 + 1 || millis > 86400000 - 1) {
+      throw ArgumentError.value(millis, 'millis', 'Out of range');
+    }
+    millis += 86400000;
+
+    if (millis % (30 * 60000) == 0) {
+      output.add([(millis ~/ (30 * 60000))]);
+    } else if (millis % 60000 == 0) {
+      int minutes = millis ~/ 60000;
+      output.add([0x80 | (minutes >> 8), minutes & 0xff]);
+    } else if (millis % 1000 == 0) {
+      int seconds = millis ~/ 1000;
+      output
+          .add([0xa0 | (seconds >> 16), (seconds >> 8) & 0xff, seconds & 0xff]);
+    } else {
+      writeInt32(0xc0000000 | millis);
+    }
+  }
+
+  @override
+  void writeOffset(Offset offset) {
+    writeMilliseconds(offset.inMilliseconds);
+  }
+
+  @override
+  void writeDictionary(Map<String, String> dictionary) {
+    writeCount(dictionary.length);
+    dictionary.forEach((key, value) {
+      writeString(key);
+      writeString(value);
+    });
+  }
+
+  @override
+  void writeZoneIntervalTransition(Instant? previous, Instant value) {
+    if (previous != null && value < previous) {
+      throw ArgumentError('Transition must move forward in time');
+    }
+    if (value == IInstant.beforeMinValue) {
+      writeCount(markerMinValue);
+      return;
+    }
+    if (value == IInstant.afterMaxValue) {
+      writeCount(markerMaxValue);
+      return;
+    }
+    writeCount(markerRaw);
+    writeInt64(value.epochSeconds);
+  }
+
+  @override
+  void writeString(String value) {
+    if (stringPool == null) {
+      List<int> data = utf8.encode(value);
+      writeCount(data.length);
+      output.add(data);
+    } else {
+      int index = stringPool!.indexOf(value);
+      if (index == -1) {
+        index = stringPool!.length;
+        stringPool!.add(value);
+      }
+      writeCount(index);
+    }
+  }
+
+  void writeInt16(int value) {
+    output.add([(value >> 8) & 0xff, value & 0xff]);
+  }
+
+  void writeInt32(int value) {
+    writeInt16(value >> 16);
+    writeInt16(value);
+  }
+
+  void writeInt64(int value) {
+    writeInt32(value >> 32);
+    writeInt32(value);
+  }
+
+  @override
+  void writeByte(int value) {
+    output.add([value]);
   }
 }

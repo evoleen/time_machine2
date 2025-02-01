@@ -93,7 +93,7 @@ class MapZone // : IEquatable<MapZone>
     String windowsId = reader.readString();
     String territory = reader.readString();
 
-    int count = reader.read7BitEncodedInt(); //readCount();
+    int count = reader.readCount();
     var tzdbIds = List<String>.generate(count, (int i) => reader.readString());
     return MapZone(windowsId, territory, tzdbIds);
   }
@@ -106,7 +106,7 @@ class MapZone // : IEquatable<MapZone>
   void write(IDateTimeZoneWriter writer) {
     writer.writeString(windowsId);
     writer.writeString(territory);
-    writer.write7BitEncodedInt(tzdbIds.length);
+    writer.writeCount(tzdbIds.length);
 
     for (String id in tzdbIds) {
       writer.writeString(id);
@@ -251,7 +251,7 @@ class WindowsZones {
     String version = reader.readString();
     String tzdbVersion = reader.readString();
     String windowsVersion = reader.readString();
-    int count = reader.read7BitEncodedInt(); // ReadCount();
+    int count = reader.readCount(); // ReadCount();
     var mapZones =
         List<MapZone>.generate(count, (int i) => MapZone.read(reader));
     return WindowsZones(
@@ -267,7 +267,7 @@ class WindowsZones {
     writer.writeString(version);
     writer.writeString(tzdbVersion);
     writer.writeString(windowsVersion);
-    writer.write7BitEncodedInt(mapZones.length);
+    writer.writeCount(mapZones.length);
     for (var mapZone in mapZones) {
       mapZone.write(writer);
     }
