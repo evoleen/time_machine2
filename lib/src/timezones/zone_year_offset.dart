@@ -183,55 +183,26 @@ class ZoneYearOffset {
         (_dayOfWeek << 2) |
         (advanceDayOfWeek ? 2 : 0) |
         (_addDay ? 1 : 0);
-    writer.writeUint8(flags /*as byte*/);
+    writer.writeByte(flags);
 
-    writer.write7BitEncodedInt(_dayOfMonth.abs());
-    writer.write7BitEncodedInt(_monthOfYear);
-    writer.writeInt32(timeOfDay.timeSinceMidnight.inSeconds);
-
-    //  writer.WriteCount(monthOfYear);
-    //  writer.WriteSignedCount(dayOfMonth);
-    //  // The time of day is written as a number of milliseconds historical reasons.
-    //  writer.WriteMilliseconds((timeOfDay.TickOfDay ~/ TimeConstants.ticksPerMillisecond));
+    writer.writeCount(_monthOfYear);
+    writer.writeSignedCount(_dayOfMonth);
+    writer.writeMilliseconds(timeOfDay.timeSinceMidnight.inMilliseconds);
   }
 
   static ZoneYearOffset read(DateTimeZoneReader reader) {
-    // todo: we can bit-pack all this; for example: see below
-    int flags = reader.readUint8();
-    var dayOfMonthSign = flags >> 7 == 1 ? -1 : 1;
-    var mode = TransitionMode(flags >> 5 & 3);
+    int flags = reader.readByte();
+    var mode = TransitionMode(flags >> 5);
     var dayOfWeek = (flags >> 2) & 7;
-    var advanceDayOfWeek = (flags & 2) != 0;
+    var advance = (flags & 2) != 0;
     var addDay = (flags & 1) != 0;
-//  var dayOfWeek = reader.readInt32();
-//  var addDay = reader.readBool();
-//  var mode = new TransitionMode(reader.readUint8());
-//  var advanceDayOfWeek = reader.readBool();
-
-    var dayOfMonth =
-        reader.read7BitEncodedInt() * dayOfMonthSign; //.readInt32();
-    var monthOfYear = reader.read7BitEncodedInt(); //.readInt32();
-    var timeOfDay = ILocalTime.trustedNanoseconds(
-        reader.readInt32() * TimeConstants.nanosecondsPerSecond);
+    var monthOfYear = reader.readCount();
+    var dayOfMonth = reader.readSignedCount();
+    var timeOfDay =
+        LocalTime.sinceMidnight(Time(milliseconds: reader.readMilliseconds()));
 
     return ZoneYearOffset(
-        mode,
-        monthOfYear,
-        dayOfMonth,
-        dayOfWeek,
-        advanceDayOfWeek,
-        timeOfDay,
-        addDay); //Preconditions.checkNotNull(reader, 'reader');
-    //int flags = reader.ReadByte();
-    //var mode = new TransitionMode(flags >> 5);
-    //var dayOfWeek = (flags >> 2) & 7;
-    //var advance = (flags & 2) != 0;
-    //var addDay = (flags & 1) != 0;
-    //int monthOfYear = reader.ReadCount();
-    //int dayOfMonth = reader.ReadSignedCount();
-    //// The time of day is written as a number of milliseconds for historical reasons.
-    //var timeOfDay = LocalTime.FromMillisecondsSinceMidnight(reader.ReadMilliseconds());
-    //return new ZoneYearOffset(mode, monthOfYear, dayOfMonth, dayOfWeek, advance, timeOfDay, addDay);
+        mode, monthOfYear, dayOfMonth, dayOfWeek, advance, timeOfDay, addDay);
   }
 
   /// Returns the offset to use for this rule's [TransitionMode].
