@@ -9,7 +9,7 @@ import 'cldr_windows_zone_parser.dart';
 import 'tzdb_database.dart';
 
 import 'utility/binary_writer.dart';
-import '../../../lib/src/timezones/datetimezone_writer.dart';
+import 'package:time_machine2/src/timezones/datetimezone_writer.dart';
 
 // from: https://github.com/nodatime/nodatime/blob/master/src/NodaTime/TimeZones/IO/TzdbStreamFieldId.cs
 
@@ -117,7 +117,7 @@ class TzdbStreamWriter {
     var zoneLocations = database.zoneLocations;
     if (zoneLocations != null) {
       var field = fields.addField(TzdbStreamFieldId.zoneLocations, stringPool);
-      field.writer.write7BitEncodedInt(zoneLocations.length);
+      field.writer.writeCount(zoneLocations.length);
       for (var zoneLocation in zoneLocations) {
         zoneLocation.write(field.writer);
       }
@@ -128,14 +128,14 @@ class TzdbStreamWriter {
     if (zone1970Locations != null) {
       var field =
           fields.addField(TzdbStreamFieldId.zone1970Locations, stringPool);
-      field.writer.write7BitEncodedInt(zone1970Locations.length);
+      field.writer.writeCount(zone1970Locations.length);
       for (var zoneLocation in zone1970Locations) {
         zoneLocation.write(field.writer);
       }
     }
 
     var stringPoolField = fields.addField(TzdbStreamFieldId.stringPool, null);
-    stringPoolField.writer.write7BitEncodedInt(stringPool.length);
+    stringPoolField.writer.writeCount(stringPool.length);
     for (String value in stringPool) {
       stringPoolField.writer.writeString(value);
     }
@@ -153,13 +153,13 @@ class TzdbStreamWriter {
       zone = zone.timeZone;
     }
     if (zone is FixedDateTimeZone) {
-      writer.writeUint8(/*DateTimeZoneWriter.*/ DateTimeZoneType.fixed);
+      writer.writeByte(/*DateTimeZoneWriter.*/ DateTimeZoneType.fixed);
       zone.write(writer);
     } else {
       var precalculatedZone = zone as PrecalculatedDateTimeZone?;
       if (precalculatedZone != null) {
         writer
-            .writeUint8(/*DateTimeZoneWriter.*/ DateTimeZoneType.precalculated);
+            .writeByte(/*DateTimeZoneWriter.*/ DateTimeZoneType.precalculated);
         precalculatedZone.write(writer);
       } else {
         throw ArgumentError(
@@ -229,13 +229,18 @@ class _StringPoolOptimizingFakeWriter implements IDateTimeZoneWriter {
     _allStrings.add(value);
   }
 
-  /*
-  void WriteMilliseconds(int millis) { }
-  void WriteOffset(Offset offset) {}
-  void WriteCount(int count) { }
-  void WriteByte(int value) { }
-  void WriteSignedCount(int count) { }
-  void WriteZoneIntervalTransition(Instant previous, Instant value) {}*/
+  @override
+  void writeMilliseconds(int millis) {}
+  @override
+  void writeOffset(Offset offset) {}
+  @override
+  void writeCount(int count) {}
+  @override
+  void writeByte(int value) {}
+  @override
+  void writeSignedCount(int count) {}
+  @override
+  void writeZoneIntervalTransition(Instant? previous, Instant value) {}
 
   @override
   void writeDictionary(Map<String, String> dictionary) {
@@ -244,30 +249,6 @@ class _StringPoolOptimizingFakeWriter implements IDateTimeZoneWriter {
       writeString(value);
     });
   }
-
-  @override
-  Future? close() {
-    return null;
-  }
-
-  @override
-  void write7BitEncodedInt(int value) {}
-  @override
-  void writeBool(bool value) {}
-  @override
-  void writeInt32(int value) {}
-  @override
-  void writeInt64(int value) {}
-  @override
-  void writeOffsetSeconds(Offset value) {}
-  @override
-  void writeOffsetSeconds2(Offset value) {}
-  @override
-  void writeStringList(List<String> list) {}
-  @override
-  void writeUint8(int value) {}
-  @override
-  void writeZoneInterval(ZoneInterval zoneInterval) {}
 }
 
 /// <summary>
