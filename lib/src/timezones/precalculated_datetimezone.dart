@@ -121,12 +121,18 @@ class PrecalculatedDateTimeZone extends DateTimeZone {
   void write(IDateTimeZoneWriter writer) {
     Preconditions.checkNotNull(writer, 'writer');
 
-    writer.write7BitEncodedInt(_periods.length);
+    writer.writeCount(_periods.length);
+    Instant? previous;
     for (var period in _periods) {
-      writer.writeZoneInterval(period);
+      writer.writeZoneIntervalTransition(previous, period.start);
+      previous = period.start;
+      writer.writeString(period.name);
+      writer.writeOffset(period.wallOffset);
+      writer.writeOffset(period.savings);
     }
 
-    writer.writeUint8(_tailZone == null ? 0 : 1);
+    writer.writeZoneIntervalTransition(previous, _tailZoneStart);
+    writer.writeByte(_tailZone == null ? 0 : 1);
     if (_tailZone != null) {
       // This is the only kind of zone we support in the new format. Enforce that...
       var tailDstZone = _tailZone as StandardDaylightAlternatingMap;
@@ -164,15 +170,22 @@ class PrecalculatedDateTimeZone extends DateTimeZone {
   /// [id]: The id.
   /// Returns: The time zone.
   static DateTimeZone read(DateTimeZoneReader reader, String id) {
-    var periodsCount = reader.read7BitEncodedInt();
-    if (periodsCount > 10000)
-      throw Exception(
-          'Parse error for id = $id. Too many periods. Count = $periodsCount.');
-    var periods = Iterable.generate(periodsCount)
-        .map((i) => reader.readZoneInterval())
-        .toList();
+    int size = reader.readCount();
+    final periods = List<ZoneInterval>.empty(growable: true);
 
-    var tailFlag = reader.readUint8();
+    var start = reader.readZoneIntervalTransition(null);
+
+    for (int i = 0; i < size; i++) {
+      var name = reader.readString();
+      var offset = reader.readOffset();
+      var savings = reader.readOffset();
+      var nextStart = reader.readZoneIntervalTransition(start);
+      periods.add(IZoneInterval.newZoneInterval(
+          name, start, nextStart, offset, savings));
+      start = nextStart;
+    }
+
+    var tailFlag = reader.readByte();
     if (tailFlag == 1) {
       var tailZone = StandardDaylightAlternatingMap.read(reader);
       return PrecalculatedDateTimeZone(id, periods, tailZone);
