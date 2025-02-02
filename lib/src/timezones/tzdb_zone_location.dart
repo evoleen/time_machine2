@@ -74,8 +74,8 @@ class TzdbZoneLocation {
 
   @internal
   void write(IDateTimeZoneWriter writer) {
-    writer.writeInt32(_latitudeSeconds);
-    writer.writeInt32(_longitudeSeconds);
+    writer.writeSignedCount(_latitudeSeconds);
+    writer.writeSignedCount(_longitudeSeconds);
     writer.writeString(countryName);
     writer.writeString(countryCode);
     writer.writeString(zoneId);
@@ -84,8 +84,8 @@ class TzdbZoneLocation {
 
   @internal
   static TzdbZoneLocation read(DateTimeZoneReader reader) {
-    int latitudeSeconds = reader.readInt32(); // reader.ReadSignedCount();
-    int longitudeSeconds = reader.readInt32(); // reader.ReadSignedCount();
+    int latitudeSeconds = reader.readSignedCount();
+    int longitudeSeconds = reader.readSignedCount();
     String countryName = reader.readString();
     String countryCode = reader.readString();
     String zoneId = reader.readString();

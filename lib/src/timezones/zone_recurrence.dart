@@ -3,6 +3,8 @@
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
 // import 'package:quiver_hashcode/hashcode.dart';
+import 'dart:math';
+
 import 'package:time_machine2/src/time_machine_internal.dart';
 
 /// Extends [ZoneYearOffset] with a name and savings.
@@ -247,19 +249,10 @@ class ZoneRecurrence {
   void write(IDateTimeZoneWriter writer) {
     Preconditions.checkNotNull(writer, 'writer');
     writer.writeString(name);
-    writer.writeOffsetSeconds2(
-        savings); // Offset.fromSeconds(reader.readInt32());
+    writer.writeOffset(savings); // Offset.fromSeconds(reader.readInt32());
     yearOffset.write(writer);
-    writer.writeInt32(fromYear);
-    writer.writeInt32(toYear);
-
-    //    writer.WriteString(name);
-    //    writer.WriteOffset(savings);
-    //    yearOffset.Write(writer);
-    //// We'll never have time zones with recurrences between the beginning of time and 0AD,
-    //// so we can treat anything negative as 0, and go to the beginning of time when reading.
-    //    writer.WriteCount(math.max(fromYear, 0));
-    //    writer.WriteCount(toYear);
+    writer.writeCount(max(fromYear, 0));
+    writer.writeCount(toYear);
   }
 
   /// Reads a recurrence from the specified reader.
@@ -269,27 +262,15 @@ class ZoneRecurrence {
   static ZoneRecurrence read(DateTimeZoneReader reader) {
     Preconditions.checkNotNull(reader, 'reader');
     var name = reader.readString();
-    var savings =
-        reader.readOffsetSeconds2(); // Offset.fromSeconds(reader.readInt32());
+    var savings = reader.readOffset();
     var yearOffset = ZoneYearOffset.read(reader);
-    var fromYear = reader.readInt32();
-    var toYear = reader.readInt32();
-
-    //// todo: remove me in the future... but for now, it's a good sanity check
-    //var isInfinite = reader.readBool();
+    var fromYear = reader.readCount();
+    if (fromYear == 0) {
+      fromYear = Platform.int32MinValue;
+    }
+    var toYear = reader.readCount();
 
     return ZoneRecurrence(name, savings, yearOffset, fromYear, toYear);
-    // if (zoneRecurrence.isInfinite != isInfinite) throw new Exception('zoneRecurrence.isInfinite error.');
-
-    // String name = reader.ReadString();
-    // Offset savings = reader.ReadOffset();
-    // ZoneYearOffset yearOffset = ZoneYearOffset.Read(reader);
-    // int fromYear = reader.ReadCount();
-    // if (fromYear == 0) {
-    //   fromYear = Utility.int32MinValue; // int.minValue;
-    // }
-    // int toYear = reader.ReadCount();
-    // return new ZoneRecurrence(name, savings, yearOffset, fromYear, toYear);
   }
 
   /// Returns a hash code for this instance.
