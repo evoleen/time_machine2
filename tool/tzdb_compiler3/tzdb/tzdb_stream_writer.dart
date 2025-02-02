@@ -1,5 +1,6 @@
 import 'package:time_machine2/src/time_machine_internal.dart';
 import 'package:time_machine2/src/timezones/tzdb_io.dart';
+import 'package:time_machine2/src/utility/binary_writer.dart';
 import 'package:time_machine2/time_machine2.dart';
 
 // import 'datetimezone_builder.dart';
@@ -8,7 +9,6 @@ import 'package:time_machine2/time_machine2.dart';
 import 'cldr_windows_zone_parser.dart';
 import 'tzdb_database.dart';
 
-import 'utility/binary_writer.dart';
 import 'package:time_machine2/src/timezones/datetimezone_writer.dart';
 
 // from: https://github.com/nodatime/nodatime/blob/master/src/NodaTime/TimeZones/IO/TzdbStreamFieldId.cs
@@ -263,7 +263,7 @@ class _FieldData {
   factory _FieldData(TzdbStreamFieldId fieldId, List<String>? stringPool) {
     var stream = MemoryStream();
     // var writer = DateTimeZoneWriter(BinaryWriter(stream), stringPool);
-    var writer = DateTimeZoneWriter(BinaryWriter(stream));
+    var writer = DateTimeZoneWriter(BinaryWriter(stream), stringPool);
     return _FieldData._(fieldId, stream, writer);
   }
 
