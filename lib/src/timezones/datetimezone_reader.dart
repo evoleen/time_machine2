@@ -3,7 +3,6 @@
 // as found in the LICENSE.txt file.
 
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:time_machine2/src/time_machine_internal.dart';
@@ -15,29 +14,19 @@ import 'package:time_machine2/src/timezones/datetimezone_writer.dart';
 class DateTimeZoneReader implements IDateTimeZoneReader {
   /// Raw stream to read from. Be careful before reading from this - you need to take
   /// account of bufferedByte as well.
-  final RandomAccessFile input;
+  final ByteData input;
 
   /// String pool to use, or null if no string pool is in use.
   final List<String>? stringPool;
 
-  /// Sometimes we need to buffer a byte in memory, e.g. to check if there is any
-  /// more data. Anything reading directly from the stream should check here first.
-  int? bufferedByte;
+  int currentOffset = 0;
 
   DateTimeZoneReader(this.input, this.stringPool);
 
   /// Determines whether there is more data to read from the stream.
   @override
   bool get hasMoreData {
-    if (bufferedByte != null) {
-      return true;
-    }
-    int nextByte = input.readByteSync();
-    if (nextByte == -1) {
-      return false;
-    }
-    bufferedByte = nextByte;
-    return true;
+    return currentOffset < input.lengthInBytes;
   }
 
   /// Reads a non-negative integer value from the stream.
@@ -78,13 +67,8 @@ class DateTimeZoneReader implements IDateTimeZoneReader {
   /// Throws InvalidNodaDataException if the end of stream is reached unexpectedly.
   @override
   int readByte() {
-    if (bufferedByte != null) {
-      int ret = bufferedByte!;
-      bufferedByte = null;
-      return ret;
-    }
     try {
-      return input.readByteSync();
+      return input.getInt8(currentOffset++);
     } catch (e) {
       throw Exception("Unexpected end of data stream");
     }
@@ -146,7 +130,8 @@ class DateTimeZoneReader implements IDateTimeZoneReader {
   String readString() {
     if (stringPool == null) {
       int length = readCount();
-      Uint8List data = input.readSync(length);
+      Uint8List data = input.buffer.asUint8List(currentOffset, length);
+      currentOffset += length;
       return utf8.decode(data);
     } else {
       int index = readCount();
