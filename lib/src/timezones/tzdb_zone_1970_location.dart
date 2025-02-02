@@ -87,10 +87,10 @@ class TzdbZone1970Location {
     // so we can reuse objects, but we don't actually waste very much space this way,
     // due to the string pool... and the increased code complexity isn't worth it.
 
-    writer.writeInt32(_latitudeSeconds);
-    writer.writeInt32(_longitudeSeconds);
+    writer.writeSignedCount(_latitudeSeconds);
+    writer.writeSignedCount(_longitudeSeconds);
 
-    writer.write7BitEncodedInt(countries.length);
+    writer.writeCount(countries.length);
     countries.forEach((country) {
       writer.writeString(country.name);
       writer.writeString(country.code);
@@ -102,9 +102,9 @@ class TzdbZone1970Location {
 
   @internal
   static TzdbZone1970Location read(DateTimeZoneReader reader) {
-    int latitudeSeconds = reader.readInt32();
-    int longitudeSeconds = reader.readInt32();
-    int countryCount = reader.read7BitEncodedInt();
+    int latitudeSeconds = reader.readSignedCount();
+    int longitudeSeconds = reader.readSignedCount();
+    int countryCount = reader.readCount();
     var countries = <TzdbZone1970LocationCountry>[];
     for (int i = 0; i < countryCount; i++) {
       String countryName = reader.readString();
