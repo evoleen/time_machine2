@@ -70,7 +70,7 @@ Future<void> main(List<String> args) async {
   // https://data.iana.org/time-zones/releases/tzdata2018g.tar.gz
   var tzdbCompiler = TzdbZoneInfoCompiler();
   var tzdb = await tzdbCompiler
-      .compile('https://data.iana.org/time-zones/releases/tzdata2018g.tar.gz');
+      .compile('https://data.iana.org/time-zones/releases/tzdata2025a.tar.gz');
   tzdb.logCounts();
 
   //final windowsZones = LoadWindowsZones(options, tzdb.version);
@@ -78,9 +78,13 @@ Future<void> main(List<String> args) async {
 
   var writer = TzdbStreamWriter();
   final output = List<int>.empty(growable: true);
+
   var stream = BinaryWriter(output);
   writer.write(
       tzdb, windowsZones, NameIdMappingSupport.StandardNameToIdMap, stream);
+
+  final fileName = path.setExtension(options.outputFileName!, '.nzd');
+  File(fileName).writeAsBytesSync(output);
 }
 
 /// <summary>
@@ -139,7 +143,7 @@ void LogWindowsZonesSummary(WindowsZones windowsZones) {
   print('  ${windowsZones.primaryMapping.length} primary mappings');
 }
 
-IOSink CreateOutputStream(CompilerOptions options) {
+IOSink createOutputStream(CompilerOptions options) {
   // If we don't have an actual file, just write to an empty stream.
   // That way, while debugging, we still get to see all the data written etc.
   if (options.outputFileName == null) {

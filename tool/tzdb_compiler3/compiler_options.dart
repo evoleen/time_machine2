@@ -24,7 +24,9 @@ class CompilerOptions {
 
     // Required = false
     parser.addOption('output',
-        abbr: 'o', defaultsTo: null, help: 'The name of the output file.');
+        abbr: 'o',
+        defaultsTo: 'tzdb.nzd',
+        help: 'The name of the output file.');
 
     // Required = true, // defaultsTo: 'none'
     parser.addOption('source',
