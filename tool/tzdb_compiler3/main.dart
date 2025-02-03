@@ -77,12 +77,10 @@ Future<void> main(List<String> args) async {
   final windowsZones = WindowsZones('0.0', '0.0', '0.0', const []);
 
   var writer = TzdbStreamWriter();
-  var stream = BinaryWriter(CreateOutputStream(options));
-  {
-    writer.write(
-        tzdb, windowsZones, NameIdMappingSupport.StandardNameToIdMap, stream);
-  }
-  await stream.close();
+  final output = List<int>.empty(growable: true);
+  var stream = BinaryWriter(output);
+  writer.write(
+      tzdb, windowsZones, NameIdMappingSupport.StandardNameToIdMap, stream);
 }
 
 /// <summary>

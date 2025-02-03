@@ -34,7 +34,7 @@ class DateTimeZoneReader implements IDateTimeZoneReader {
   @override
   int readCount() {
     int unsigned = readVarint();
-    if (unsigned > 0x7FFFFFFF) {
+    if (unsigned > Platform.int32MaxValue) {
       throw Exception("Count value greater than Int32.MaxValue");
     }
     return unsigned;
@@ -120,7 +120,7 @@ class DateTimeZoneReader implements IDateTimeZoneReader {
           throw Exception("Invalid flag in offset: ${flag.toRadixString(16)}");
       }
     }
-    millis -= 86400000;
+    millis -= TimeConstants.millisecondsPerMinute * 60 * 24;
     return millis;
   }
 
@@ -149,7 +149,7 @@ class DateTimeZoneReader implements IDateTimeZoneReader {
   @override
   Instant readZoneIntervalTransition(Instant? previous) {
     int value = readCount();
-    if (value < -DateTimeZoneWriter.minValueForHoursSincePrevious) {
+    if (value < DateTimeZoneWriter.minValueForHoursSincePrevious) {
       switch (value) {
         case DateTimeZoneWriter.markerMinValue:
           return IInstant.beforeMinValue;

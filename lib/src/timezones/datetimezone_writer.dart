@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:time_machine2/src/time_machine_internal.dart';
+import 'package:time_machine2/src/utility/binary_writer.dart';
 
 /// Implementation of [IDateTimeZoneWriter] for the most recent version
 /// of the "blob" format of time zone data. If the format changes, this class will be
@@ -18,7 +19,7 @@ class DateTimeZoneWriter implements IDateTimeZoneWriter {
   static const int minValueForMinutesSinceEpoch = 1 << 21;
   static Instant epochForMinutesSinceEpoch = Instant.utc(1800, 1, 1, 0, 0);
 
-  final IOSink output;
+  final BinaryWriter output;
   final List<String>? stringPool;
 
   /// Constructs a DateTimeZoneWriter.
@@ -41,28 +42,32 @@ class DateTimeZoneWriter implements IDateTimeZoneWriter {
 
   void _writeVarint(int value) {
     while (value > 0x7f) {
-      output.add([0x80 | (value & 0x7f)]);
+      writeByte(0x80 | (value & 0x7f));
       value >>= 7;
     }
-    output.add([value & 0x7f]);
+    writeByte(value & 0x7f);
   }
 
   @override
   void writeMilliseconds(int millis) {
-    if (millis < -86400000 + 1 || millis > 86400000 - 1) {
+    const millisecondsPerDay = TimeConstants.millisecondsPerMinute * 60 * 24;
+
+    if (millis < -millisecondsPerDay + 1 || millis > millisecondsPerDay - 1) {
       throw ArgumentError.value(millis, 'millis', 'Out of range');
     }
-    millis += 86400000;
 
-    if (millis % (30 * 60000) == 0) {
-      output.add([(millis ~/ (30 * 60000))]);
-    } else if (millis % 60000 == 0) {
-      int minutes = millis ~/ 60000;
-      output.add([0x80 | (minutes >> 8), minutes & 0xff]);
+    millis += millisecondsPerDay;
+
+    if (millis % (30 * TimeConstants.millisecondsPerMinute) == 0) {
+      writeByte(millis ~/ (30 * TimeConstants.millisecondsPerMinute));
+    } else if (millis % TimeConstants.millisecondsPerMinute == 0) {
+      int minutes = millis ~/ TimeConstants.millisecondsPerMinute;
+      writeByte(0x80 | (minutes >> 8));
+      writeByte(minutes & 0xff);
     } else if (millis % 1000 == 0) {
       int seconds = millis ~/ 1000;
-      output
-          .add([0xa0 | (seconds >> 16), (seconds >> 8) & 0xff, seconds & 0xff]);
+      writeByte(0xa0 | (seconds >> 16));
+      writeInt16(seconds & 0xffff);
     } else {
       writeInt32(0xc0000000 | millis);
     }
@@ -95,6 +100,44 @@ class DateTimeZoneWriter implements IDateTimeZoneWriter {
       writeCount(markerMaxValue);
       return;
     }
+    // In practice, most zone interval transitions will occur within 4000-6000 hours of the previous one
+    // (i.e. about 5-8 months), and at an integral number of hours difference. We therefore gain a
+    // significant reduction in output size by encoding transitions as the whole number of hours since the
+    // previous, if possible.
+    // If the previous value was "the start of time" then there's no point in trying to use it.
+    if (previous != null && previous != IInstant.beforeMinValue) {
+      // Note that the difference might exceed the range of a long, so we can't use a Duration here.
+      final seconds = value.epochSeconds - previous.epochSeconds;
+      if (seconds % 3600 == 0) {
+        final hours = seconds ~/ 3600;
+        // As noted above, this will generally fall within the 4000-6000 range, although values up to
+        // ~700,000 exist in TZDB.
+        if (minValueForHoursSincePrevious <= hours &&
+            hours < minValueForMinutesSinceEpoch) {
+          writeCount(hours);
+          return;
+        }
+      }
+    }
+
+    // We can't write the transition out relative to the previous transition, so let's next try writing it
+    // out as a whole number of minutes since an (arbitrary, known) epoch.
+    if (value >= epochForMinutesSinceEpoch) {
+      final seconds =
+          value.epochSeconds - epochForMinutesSinceEpoch.epochSeconds;
+      if (seconds % 60 == 0) {
+        final minutes = seconds ~/ 60;
+        // We typically have a count on the order of 80M here.
+        if (minValueForMinutesSinceEpoch < minutes &&
+            minutes <= Platform.int32MaxValue) {
+          writeCount(minutes);
+          return;
+        }
+      }
+    }
+    // Otherwise, just write out a marker followed by the instant as a 64-bit number of ticks.  Note that
+    // while most of the values we write here are actually whole numbers of _seconds_, optimising for that
+    // case will save around 2KB (with tzdb 2012j), so doesn't seem worthwhile.
     writeCount(markerRaw);
     writeInt64(value.epochSeconds);
   }
@@ -104,7 +147,7 @@ class DateTimeZoneWriter implements IDateTimeZoneWriter {
     if (stringPool == null) {
       List<int> data = utf8.encode(value);
       writeCount(data.length);
-      output.add(data);
+      data.forEach(writeByte);
     } else {
       int index = stringPool!.indexOf(value);
       if (index == -1) {
@@ -116,7 +159,8 @@ class DateTimeZoneWriter implements IDateTimeZoneWriter {
   }
 
   void writeInt16(int value) {
-    output.add([(value >> 8) & 0xff, value & 0xff]);
+    writeByte((value >> 8) & 0xff);
+    writeByte(value & 0xff);
   }
 
   void writeInt32(int value) {
@@ -131,6 +175,6 @@ class DateTimeZoneWriter implements IDateTimeZoneWriter {
 
   @override
   void writeByte(int value) {
-    output.add([value]);
+    output.writeUint8(value);
   }
 }

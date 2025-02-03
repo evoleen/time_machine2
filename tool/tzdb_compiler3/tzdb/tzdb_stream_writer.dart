@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:time_machine2/src/time_machine_internal.dart';
 import 'package:time_machine2/src/timezones/tzdb_io.dart';
 import 'package:time_machine2/src/utility/binary_writer.dart';
@@ -255,13 +258,12 @@ class _StringPoolOptimizingFakeWriter implements IDateTimeZoneWriter {
 /// The data for a field, including the field number itself.
 /// </summary>
 class _FieldData {
-  // todo: private
-  final MemoryStream stream;
+  final List<int> stream;
 
   _FieldData._(this.fieldId, this.stream, this.writer);
 
   factory _FieldData(TzdbStreamFieldId fieldId, List<String>? stringPool) {
-    var stream = MemoryStream();
+    var stream = List<int>.empty(growable: true);
     // var writer = DateTimeZoneWriter(BinaryWriter(stream), stringPool);
     var writer = DateTimeZoneWriter(BinaryWriter(stream), stringPool);
     return _FieldData._(fieldId, stream, writer);
