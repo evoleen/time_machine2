@@ -1,6 +1,3 @@
-import 'dart:async';
-import 'dart:io';
-
 import 'package:time_machine2/src/time_machine_internal.dart';
 import 'package:time_machine2/src/timezones/tzdb_io.dart';
 import 'package:time_machine2/src/utility/binary_writer.dart';
@@ -104,8 +101,10 @@ class TzdbStreamWriter {
     cldrWindowsZones.write(fields
         .addField(TzdbStreamFieldId.cldrSupplementalWindowsZones, stringPool)
         .writer);
+
     // Additional names from Windows Standard Name to canonical ID, used in Noda Time 1.x BclDateTimeZone, when we
     // didn't have access to TimeZoneInfo.Id.
+    /*
     fields
         .addField(TzdbStreamFieldId.windowsAdditionalStandardNameToIdMapping,
             stringPool)
@@ -115,6 +114,7 @@ class TzdbStreamWriter {
             .toList()
             .map((entry) => MapEntry(
                 entry.key, cldrWindowsZones.primaryMapping[entry.value]!))));
+    */
 
     // Zone locations, if any.
     var zoneLocations = database.zoneLocations;
@@ -278,7 +278,7 @@ class _FieldData {
     // We've got a 7-bit-encoding routine... might as well use it.
     output.write7BitEncodedInt(length);
     // new DateTimeZoneWriter(output).WriteCount(length);
-    stream.writeTo(output);
+    stream.forEach(output.writeUint8);
   }
 }
 

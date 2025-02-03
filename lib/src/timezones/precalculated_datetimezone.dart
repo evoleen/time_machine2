@@ -124,8 +124,9 @@ class PrecalculatedDateTimeZone extends DateTimeZone {
     writer.writeCount(_periods.length);
     Instant? previous;
     for (var period in _periods) {
-      writer.writeZoneIntervalTransition(previous, period.start);
-      previous = period.start;
+      writer.writeZoneIntervalTransition(
+          previous, period.hasStart ? period.start : IInstant.beforeMinValue);
+      previous = period.hasStart ? period.start : IInstant.beforeMinValue;
       writer.writeString(period.name);
       writer.writeOffset(period.wallOffset);
       writer.writeOffset(period.savings);
