@@ -42,6 +42,7 @@ abstract class TzdbZoneLocationParser {
   /// Parses a string such as '-7750+16636' or "+484531-0913718" into a pair of Int32
   /// values: the latitude and longitude of the coordinates, in seconds.
   /// </summary>
+  @visibleForTesting
   static List<int> parseCoordinates(String text) {
     Preconditions.checkArgument(
         text.length == 11 || text.length == 15, 'point', "Invalid coordinates");
