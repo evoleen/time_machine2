@@ -357,6 +357,10 @@ class TzdbZoneInfoParser {
           'To year cannot be before the from year in a Rule: $toYear < $fromYear');
     }
     var type = _nextOptional(tokens, 'Type');
+    if (type != null) {
+      throw UnimplementedError(
+          "Zone rules with types are no longer supported. Recurrence $name has type $type");
+    }
     var yearOffset = parseDateTimeOfYear(tokens, true);
     var savings = _nextOffset(tokens, 'SaveMillis');
     var daylightSavingsIndicator = _nextOptional(tokens, 'LetterS');
