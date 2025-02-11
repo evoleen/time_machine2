@@ -12,8 +12,11 @@ abstract class TzdbZoneLocationParser {
     Preconditions.checkArgument(bits.length == 3 || bits.length == 4, 'line',
         "Line must have 3 or 4 tab-separated values");
     String countryCode = bits[0];
-    String countryName = countryMapping[countryCode]!;
-    List<int> latLong = _parseCoordinates(bits[1]);
+    String? countryName = countryMapping[countryCode];
+    if (countryName == null) {
+      throw StateError('Unknown country code: $countryCode');
+    }
+    List<int> latLong = parseCoordinates(bits[1]);
     String zoneId = bits[2];
     String comment = bits.length == 4 ? bits[3] : '';
     return TzdbZoneLocation(
@@ -28,19 +31,18 @@ abstract class TzdbZoneLocationParser {
     String countryCodes = bits[0];
     var countries =
         countryCodes.split(',').map((code) => countryMapping[code]).toList();
-    List<int> latLong = _parseCoordinates(bits[1]);
+    List<int> latLong = parseCoordinates(bits[1]);
     String zoneId = bits[2];
     String comment = bits.length == 4 ? bits[3] : '';
     return TzdbZone1970Location(
         latLong[0], latLong[1], countries, zoneId, comment);
   }
 
-  // Internal for testing
   /// <summary>
   /// Parses a string such as '-7750+16636' or "+484531-0913718" into a pair of Int32
   /// values: the latitude and longitude of the coordinates, in seconds.
   /// </summary>
-  static List<int> _parseCoordinates(String text) {
+  static List<int> parseCoordinates(String text) {
     Preconditions.checkArgument(
         text.length == 11 || text.length == 15, 'point', "Invalid coordinates");
     int latDegrees;
