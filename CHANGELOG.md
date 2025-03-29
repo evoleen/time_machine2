@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.12.0
+- Breaking: change TZDB asset naming again
+- Replace `timezone`-based TZDB compiler with native, NodaTime based port
+- Support for tail zones past the year 2038
+- Update TZDB to 2025b
+
 ## 0.11.0
 - Breaking: change TZDB asset naming
 - Improve asset size by switching to XZ compression
