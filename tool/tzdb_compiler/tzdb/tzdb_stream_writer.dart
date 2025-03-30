@@ -3,9 +3,6 @@ import 'package:time_machine2/src/timezones/tzdb_io.dart';
 import 'package:time_machine2/src/utility/binary_writer.dart';
 import 'package:time_machine2/time_machine2.dart';
 
-// import 'datetimezone_builder.dart';
-// import 'rule_line.dart';
-// import 'zone_line.dart';
 import 'cldr_windows_zone_parser.dart';
 import 'tzdb_database.dart';
 

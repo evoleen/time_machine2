@@ -9,7 +9,6 @@ import 'dart:convert' show ascii;
 import 'dart:typed_data';
 
 import 'tzdb_location.dart';
-import 'tzdb_location_database.dart';
 
 /// Serialize TimeZone Database
 List<int> tzdbSerialize(TzdbLocationDatabase db) {

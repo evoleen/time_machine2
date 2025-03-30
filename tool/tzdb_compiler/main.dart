@@ -13,55 +13,6 @@ import 'tzdb/named_id_mapping_support.dart';
 import 'tzdb/tzdb_stream_writer.dart';
 import 'tzdb/tzdb_zone_info_compiler.dart';
 import 'tzdb/cldr_windows_zone_parser.dart';
-// import 'tzdb/tzdb_stream_writer.dart';
-// import 'tzdb/named_id_mapping_support.dart';
-
-// import 'tzdb/utility/binary_writer.dart';
-
-/// Main entry point for the time zone information compiler. In theory we could support
-/// multiple sources and formats but currently we only support one:
-/// http://www.twinsun.com/tz/tz-link.htm. This system refers to it as TZDB.
-/// This also requires a windowsZone.xml file from the Unicode CLDR repository, to
-/// map Windows time zone names to TZDB IDs.
-
-/// Runs the compiler from the command line.
-///
-/// <param name='arguments'>The command line arguments. Each compiler defines its own.</param>
-/// <returns>0 for success, non-0 for error.</returns>
-// int main_old(List<String> args) {
-//   CompilerOptions options = CompilerOptions(args);
-
-//   var tzdbCompiler = TzdbZoneInfoCompiler();
-//   var tzdb = tzdbCompiler.compile(options.sourceDirectoryName);
-//   tzdb.logCounts();
-//   if (options.zoneId != null) {
-//     tzdb.generateDateTimeZone(options.zoneId!);
-//     return 0;
-//   }
-
-//   var windowsZones = LoadWindowsZones(options, tzdb.version);
-//   if (options.windowsOverride != null) {
-//     var overrideFile = CldrWindowsZonesParser.parseFile(options.windowsOverride!);
-//     windowsZones = MergeWindowsZones(windowsZones, overrideFile);
-//   }
-//   LogWindowsZonesSummary(windowsZones);
-//   var writer = TzdbStreamWriter();
-
-//   var stream = BinaryWriter(CreateOutputStream(options));
-//   {
-//     writer.write(tzdb, windowsZones, NameIdMappingSupport.StandardNameToIdMap, stream);
-//   }
-//   stream.close();
-
-//   if (options.outputFileName != null) {
-//     print('Reading generated data and validating...');
-//     // ignore: unused_local_variable
-//     var source = Read(options);
-//     throw Exception('need validation');
-//     // source.validate();
-//   }
-//   return 0;
-// }
 
 Future<void> main(List<String> args) async {
   CompilerOptions options = CompilerOptions(args);
@@ -85,6 +36,10 @@ Future<void> main(List<String> args) async {
 
   final fileName = path.setExtension(options.outputFileName!, '.nzd');
   File(fileName).writeAsBytesSync(output);
+
+  //final compressedFileName = path.setExtension(options.outputFileName!, '.nzd.xz');
+  //Process.runSync('xz', ['--compress', '-9', compressedFileName],
+  //    runInShell: true);
 }
 
 /// <summary>
@@ -153,13 +108,6 @@ IOSink createOutputStream(CompilerOptions options) {
   String file = path.setExtension(options.outputFileName!, 'nzd');
   return File(file).openWrite();
 }
-
-// TzdbDateTimeZoneSource Read(CompilerOptions options)
-// {
-//   String file = path.setExtension(options.outputFileName!, 'nzd');
-//   var stream = File(file).openRead();
-//   return TzdbDateTimeZoneSource.FromStream(stream);
-// }
 
 /// Merge two WindowsZones objects together. The result has versions present in override,
 /// but falling back to the original for versions absent in the override. The set of MapZones
