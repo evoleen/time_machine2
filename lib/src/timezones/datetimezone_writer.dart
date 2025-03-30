@@ -3,7 +3,6 @@
 // as found in the LICENSE.txt file.
 
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:time_machine2/src/time_machine_internal.dart';
 import 'package:time_machine2/src/utility/binary_writer.dart';
