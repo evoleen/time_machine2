@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:time_machine2/src/time_machine_internal.dart';
 import 'package:time_machine2/src/timezones/tzdb_io.dart';
 import 'package:time_machine2/src/utility/binary_writer.dart';
