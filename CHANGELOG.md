@@ -4,6 +4,7 @@
 - Breaking: change TZDB asset naming again
 - Replace `timezone`-based TZDB compiler with native, NodaTime based port
 - Support for tail zones past the year 2038
+- Remove `common` and `10y` TZDB format variants
 - Update TZDB to 2025b
 
 ## 0.11.0
