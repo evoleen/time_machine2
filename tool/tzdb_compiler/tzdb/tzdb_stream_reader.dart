@@ -2,9 +2,9 @@ import 'dart:typed_data';
 
 import 'package:time_machine2/src/time_machine_internal.dart';
 import 'package:time_machine2/src/timezones/tzdb_io.dart';
-import 'package:time_machine2/src/utility/binary_writer.dart';
 import 'package:time_machine2/time_machine2.dart';
 
+import 'tzdb_database.dart';
 import 'tzdb_stream_writer.dart';
 import 'cldr_windows_zone_parser.dart';
 
@@ -20,7 +20,7 @@ class TzdbStreamReader {
   TzdbStreamReader(this._input);
 
   /// Reads a complete TZDB database from the stream
-  TzdbResult read() {
+  TzdbDatabase read() {
     // Read and validate the version
     int version = _input.getUint8(_currentOffset++);
     if (version != _expectedVersion) {
@@ -49,7 +49,7 @@ class TzdbStreamReader {
     // Read version
     var versionField = fields[TzdbStreamFieldId.tzdbVersion]!;
     reader.currentOffset = versionField[0];
-    String version = reader.readString();
+    String tzdbVersion = reader.readString();
 
     // Read zone aliases
     var aliasField = fields[TzdbStreamFieldId.tzdbIdMap]!;
@@ -82,11 +82,10 @@ class TzdbStreamReader {
           count, (_) => TzdbZone1970Location.read(reader));
     }
 
-    return TzdbResult(
-      timeZones: timeZones,
-      tzdbVersion: version,
-      zoneAliases: aliases,
-      windowsMapping: windowsZones,
+    return TzdbDatabase(
+      version: tzdbVersion,
+      zones: timeZones,
+      aliases: aliases,
       zoneLocations: zoneLocations,
       zone1970Locations: zone1970Locations,
     );
@@ -137,23 +136,4 @@ class TzdbStreamReader {
         throw Exception('Unknown zone type: $type');
     }
   }
-}
-
-/// Holds the result of reading a TZDB file
-class TzdbResult {
-  final Map<String, DateTimeZone> timeZones;
-  final String tzdbVersion;
-  final Map<String, String> zoneAliases;
-  final WindowsZones windowsMapping;
-  final List<TzdbZoneLocation>? zoneLocations;
-  final List<TzdbZone1970Location>? zone1970Locations;
-
-  TzdbResult({
-    required this.timeZones,
-    required this.tzdbVersion,
-    required this.zoneAliases,
-    required this.windowsMapping,
-    this.zoneLocations,
-    this.zone1970Locations,
-  });
 }
