@@ -1,8 +1,7 @@
 import 'package:archive/archive.dart';
 import 'package:time_machine2/src/platforms/platform_io.dart';
 import 'package:time_machine2/src/time_machine_internal.dart';
-
-import 'tzdb_io.dart';
+import 'package:time_machine2/src/timezones/tzdb_stream_reader.dart';
 
 class TzdbDateTimeZoneSource extends DateTimeZoneSource {
   bool _initialized = false;
@@ -23,74 +22,15 @@ class TzdbDateTimeZoneSource extends DateTimeZoneSource {
               .buffer
               .asUint8List());
 
-      final database = _deserializeTzdbDatabase(tzdbData);
+      final streamReader = TzdbStreamReader(tzdbData.buffer.asByteData());
 
-      // convert all tzf entries into Time Machine's zone format
-      for (final id in database.locations.keys) {
-        final location = database.locations[id];
+      final dateTimeZones = streamReader.read();
 
-        if (location == null) {
-          throw Exception("Internal consistency error.");
-        }
-
-        final zoneIntervals = List<ZoneInterval>.empty(growable: true);
-
-        // if we don't have any transitions, this is a fixed zone
-        if (location.transitionAt.isEmpty) {
-          final firstInterval = IZoneInterval.newZoneInterval(
-            location.zones.first.abbreviation,
-            IInstant.beforeMinValue,
-            IInstant.afterMaxValue,
-            Offset(location.zones.first.offset ~/ 1000),
-            Offset(
-              location.zones.first.offset ~/ 1000 +
-                  (location.zones.first.isDst ? 3600 : 0),
-            ),
-          );
-
-          zoneIntervals.add(firstInterval);
-        } else {
-          // if it's not a fixed zone, use the transition map
-          for (var i = 0; i < location.transitionAt.length; i++) {
-            var zoneStart =
-                Instant.fromEpochMilliseconds(location.transitionAt[i]);
-            var zoneEnd = i == location.transitionAt.length - 1
-                ? null
-                : Instant.fromEpochMilliseconds(location.transitionAt[i + 1]);
-
-            final zone = location.zones[location.transitionZone[i]];
-
-            final zoneInterval = IZoneInterval.newZoneInterval(
-              zone.abbreviation,
-              zoneStart,
-              zoneEnd,
-              Offset(zone.offset ~/ 1000),
-              zone.isDst ? Offset(3600) : Offset.zero,
-            );
-
-            zoneIntervals.add(zoneInterval);
-          }
-        }
-
-        final precalculatedZone =
-            PrecalculatedDateTimeZone(id, zoneIntervals, null);
-
-        _dateTimeZones[id] = precalculatedZone;
-      }
+      _dateTimeZones.clear();
+      _dateTimeZones.addAll(dateTimeZones);
 
       _initialized = true;
     }
-  }
-
-  /// Takes raw TZF data and deserializes
-  TzdbLocationDatabase _deserializeTzdbDatabase(List<int> rawData) {
-    final database = TzdbLocationDatabase();
-
-    for (final l in tzdbDeserialize(rawData)) {
-      database.add(l);
-    }
-
-    return database;
   }
 
   @override

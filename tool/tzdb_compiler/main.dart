@@ -10,7 +10,7 @@ import 'package:time_machine2/src/utility/binary_writer.dart';
 
 import 'compiler_options.dart';
 import 'tzdb/named_id_mapping_support.dart';
-import 'tzdb/tzdb_stream_writer.dart';
+import '../../lib/src/timezones/tzdb_stream_writer.dart';
 import 'tzdb/tzdb_zone_info_compiler.dart';
 import 'tzdb/cldr_windows_zone_parser.dart';
 

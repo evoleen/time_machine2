@@ -1,10 +1,6 @@
 import 'package:time_machine2/src/time_machine_internal.dart';
-import 'package:time_machine2/src/timezones/tzdb_io.dart';
 import 'package:time_machine2/src/utility/binary_writer.dart';
 import 'package:time_machine2/time_machine2.dart';
-
-import 'cldr_windows_zone_parser.dart';
-import 'tzdb_database.dart';
 
 import 'package:time_machine2/src/timezones/datetimezone_writer.dart';
 

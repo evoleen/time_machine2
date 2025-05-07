@@ -1,12 +1,8 @@
 import 'dart:typed_data';
 
 import 'package:time_machine2/src/time_machine_internal.dart';
-import 'package:time_machine2/src/timezones/tzdb_io.dart';
+import 'package:time_machine2/src/timezones/tzdb_stream_writer.dart';
 import 'package:time_machine2/time_machine2.dart';
-
-import 'tzdb_database.dart';
-import 'tzdb_stream_writer.dart';
-import 'cldr_windows_zone_parser.dart';
 
 /// Reads time zone data from a stream in nzd format.
 /// This class reads the format written by TzdbStreamWriter.
@@ -20,7 +16,7 @@ class TzdbStreamReader {
   TzdbStreamReader(this._input);
 
   /// Reads a complete TZDB database from the stream
-  TzdbDatabase read() {
+  Map<String, DateTimeZone> read() {
     // Read and validate the version
     int version = _input.getUint8(_currentOffset++);
     if (version != _expectedVersion) {
@@ -82,13 +78,7 @@ class TzdbStreamReader {
           count, (_) => TzdbZone1970Location.read(reader));
     }
 
-    return TzdbDatabase(
-      version: tzdbVersion,
-      zones: timeZones,
-      aliases: aliases,
-      zoneLocations: zoneLocations,
-      zone1970Locations: zone1970Locations,
-    );
+    return timeZones;
   }
 
   Map<TzdbStreamFieldId, List<int>> _readFields() {
