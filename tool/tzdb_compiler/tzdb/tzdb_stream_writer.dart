@@ -118,12 +118,12 @@ class TzdbStreamWriter {
       zone = zone.timeZone;
     }
     if (zone is FixedDateTimeZone) {
-      writer.writeByte(DateTimeZoneType.fixed);
+      writer.writeByte(DateTimeZoneType.fixed.byteValue);
       zone.write(writer);
     } else {
       var precalculatedZone = zone as PrecalculatedDateTimeZone?;
       if (precalculatedZone != null) {
-        writer.writeByte(DateTimeZoneType.precalculated);
+        writer.writeByte(DateTimeZoneType.precalculated.byteValue);
         precalculatedZone.write(writer);
       } else {
         throw ArgumentError(

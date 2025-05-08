@@ -39,7 +39,13 @@ enum TzdbStreamFieldId {
 
 enum DateTimeZoneType {
   fixed,
-  precalculated,
+  precalculated;
+
+  int get byteValue => index;
+
+  factory DateTimeZoneType.fromByte(int value) {
+    return DateTimeZoneType.values[value];
+  }
 }
 
 /// Reads time zone data from a stream in nzd format.
@@ -157,7 +163,7 @@ class TzdbStreamReader {
 
   DateTimeZone _readTimeZone(DateTimeZoneReader reader) {
     String id = reader.readString();
-    int type = reader.readByte();
+    final type = DateTimeZoneType.fromByte(reader.readByte());
 
     switch (type) {
       case DateTimeZoneType.fixed:
