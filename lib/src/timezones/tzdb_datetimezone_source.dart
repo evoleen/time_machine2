@@ -24,7 +24,7 @@ class TzdbDateTimeZoneSource extends DateTimeZoneSource {
 
       final streamReader = TzdbStreamReader(tzdbData.buffer.asByteData());
 
-      final dateTimeZones = streamReader.read();
+      final dateTimeZones = streamReader.timeZones;
 
       _dateTimeZones.clear();
       _dateTimeZones.addAll(dateTimeZones);

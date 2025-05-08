@@ -1,43 +1,12 @@
 import 'package:time_machine2/src/time_machine_internal.dart';
+import 'package:time_machine2/src/timezones/tzdb_stream_reader.dart';
 import 'package:time_machine2/src/utility/binary_writer.dart';
 import 'package:time_machine2/time_machine2.dart';
 
 import 'package:time_machine2/src/timezones/datetimezone_writer.dart';
 
-// from: https://github.com/nodatime/nodatime/blob/master/src/NodaTime/TimeZones/IO/TzdbStreamFieldId.cs
-
-/// Enumeration of the fields which can occur in a TZDB stream file.
-/// This enables the file to be self-describing to a reasonable extent.
-enum TzdbStreamFieldId {
-  /// String pool. Format is: number of strings (WriteCount) followed by that many string values.
-  /// The indexes into the resultant list are used for other strings in the file, in some fields.
-  stringPool,
-
-  /// Repeated field of time zones. Format is: zone ID, then zone as written by DateTimeZoneWriter.
-  timeZone,
-
-  /// Single field giving the version of the TZDB source data. A string value which does *not* use the string pool.
-  tzdbVersion,
-
-  /// Single field giving the mapping of ID to canonical ID, as written by DateTimeZoneWriter.WriteDictionary.
-  tzdbIdMap,
-
-  /// Single field containing mapping data as written by WindowsZones.Write.
-  cldrSupplementalWindowsZones,
-
-  /// Single field giving the mapping of Windows StandardName to TZDB canonical ID,
-  /// for time zones where TimeZoneInfo.Id != TimeZoneInfo.StandardName,
-  /// as written by DateTimeZoneWriter.WriteDictionary.
-  windowsAdditionalStandardNameToIdMapping,
-
-  /// Single field providing all zone locations. The format is simply a count, and then that many copies of
-  /// TzdbZoneLocation data.
-  zoneLocations,
-
-  /// Single field providing all 'zone 1970' locations. The format is simply a count, and then that many copies of
-  /// TzdbZone1970Location data. This field was introduced in Noda Time 2.0.
-  zone1970Locations
-}
+import 'cldr_windows_zone_parser.dart';
+import 'tzdb_database.dart';
 
 /// Writes time zone data to a stream in nzd format.
 ///
@@ -149,13 +118,12 @@ class TzdbStreamWriter {
       zone = zone.timeZone;
     }
     if (zone is FixedDateTimeZone) {
-      writer.writeByte(/*DateTimeZoneWriter.*/ DateTimeZoneType.fixed);
+      writer.writeByte(DateTimeZoneType.fixed);
       zone.write(writer);
     } else {
       var precalculatedZone = zone as PrecalculatedDateTimeZone?;
       if (precalculatedZone != null) {
-        writer
-            .writeByte(/*DateTimeZoneWriter.*/ DateTimeZoneType.precalculated);
+        writer.writeByte(DateTimeZoneType.precalculated);
         precalculatedZone.write(writer);
       } else {
         throw ArgumentError(
