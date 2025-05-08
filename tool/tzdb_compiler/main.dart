@@ -6,6 +6,8 @@ import 'dart:io';
 
 // import 'package:time_machine/src/time_machine_internal.dart';
 import 'package:path/path.dart' as path;
+import 'package:time_machine2/src/time_machine_internal.dart';
+import 'package:time_machine2/src/timezones/tzdb_stream_reader.dart';
 import 'package:time_machine2/src/utility/binary_writer.dart';
 
 import 'compiler_options.dart';
@@ -37,9 +39,25 @@ Future<void> main(List<String> args) async {
   final fileName = path.setExtension(options.outputFileName!, '.nzd');
   File(fileName).writeAsBytesSync(output);
 
-  //final compressedFileName = path.setExtension(options.outputFileName!, '.nzd.xz');
-  //Process.runSync('xz', ['--compress', '-9', compressedFileName],
-  //    runInShell: true);
+  final compressedFileName =
+      path.setExtension(options.outputFileName!, '.nzd.xz');
+  final result = Process.runSync(
+      'xz',
+      [
+        '--compress', // make file smaller
+        '--keep', // keep original file
+        '--force', // overwrite existing compressed file
+        '--extreme', // make file even smaller
+        fileName,
+      ],
+      runInShell: true);
+
+  print(result.stdout);
+  print(result.stderr);
+
+  final readStream = File(fileName).readAsBytesSync().buffer.asByteData();
+  final reader = TzdbStreamReader(readStream);
+  print(reader.timeZones.length);
 }
 
 /// <summary>
