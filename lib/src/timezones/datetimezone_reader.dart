@@ -63,12 +63,12 @@ class DateTimeZoneReader implements IDateTimeZoneReader {
     }
   }
 
-  /// Reads a signed 8-bit integer value from the stream and returns it as an int.
+  /// Reads an unsigned 8-bit integer value from the stream and returns it as an int.
   /// Throws InvalidNodaDataException if the end of stream is reached unexpectedly.
   @override
   int readByte() {
     try {
-      return input.getInt8(currentOffset++);
+      return input.getUint8(currentOffset++);
     } catch (e) {
       throw Exception("Unexpected end of data stream");
     }

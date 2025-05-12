@@ -102,10 +102,8 @@ class TzdbStreamReader {
     if (timeZoneFields != null) {
       for (var field in timeZoneFields) {
         reader.currentOffset = field.offset;
-        while (reader.currentOffset < field.offset + field.length) {
-          var zone = _readTimeZone(reader);
-          timeZones[zone.id] = zone;
-        }
+        var zone = _readTimeZone(reader);
+        timeZones[zone.id] = zone;
       }
     }
 

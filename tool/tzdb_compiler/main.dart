@@ -6,7 +6,6 @@ import 'dart:io';
 
 // import 'package:time_machine/src/time_machine_internal.dart';
 import 'package:path/path.dart' as path;
-import 'package:time_machine2/src/time_machine_internal.dart';
 import 'package:time_machine2/src/timezones/tzdb_stream_reader.dart';
 import 'package:time_machine2/src/utility/binary_writer.dart';
 
