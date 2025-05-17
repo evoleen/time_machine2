@@ -44,7 +44,7 @@ abstract class DateTimeZoneSource {
   /// This doesn't have any specific format; it's solely for diagnostic purposes.
   /// The included sources return strings of the format 'source identifier: source version' indicating where the
   /// information comes from and which version of the source information has been loaded.
-  final Future<String>? versionId = null;
+  final String? versionId = null;
 
   /// Returns the time zone definition associated with the given ID.
   ///

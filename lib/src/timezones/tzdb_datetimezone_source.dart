@@ -28,7 +28,7 @@ class TzdbDateTimeZoneSource extends DateTimeZoneSource {
 
       final streamReader = TzdbStreamReader(ByteData.sublistView(tzdbData));
 
-      _versionId = streamReader.tzdbVersion;
+      _versionId = 'TZDB: ${streamReader.tzdbVersion}';
 
       final dateTimeZones = streamReader.timeZones;
 
@@ -71,7 +71,7 @@ class TzdbDateTimeZoneSource extends DateTimeZoneSource {
   String get systemDefaultId => _defaultId;
 
   @override
-  Future<String> get versionId => Future.sync(() => _versionId);
+  String get versionId => _versionId;
 
   @override
   void setSystemDefaultId(String id) {
