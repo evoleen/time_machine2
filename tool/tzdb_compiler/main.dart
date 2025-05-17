@@ -3,6 +3,7 @@
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
 import 'dart:io';
+import 'dart:typed_data';
 
 // import 'package:time_machine/src/time_machine_internal.dart';
 import 'package:path/path.dart' as path;
@@ -54,10 +55,57 @@ Future<void> main(List<String> args) async {
   print(result.stdout);
   print(result.stderr);
 
+  if (result.exitCode != 0) {
+    print('Error: xz compression failed');
+    print(result.stderr);
+    exit(1);
+  }
+
+  print(
+      'Compression successful, trying to read the file again as sanity check...');
+
   final readStream = File(fileName).readAsBytesSync().buffer.asByteData();
   final reader = TzdbStreamReader(readStream);
-  print(reader.timeZones.length);
+  print('Read back ${reader.timeZones.length} time zones');
+
+  // Create the destination directory if it doesn't exist
+  Directory('lib/data').createSync(recursive: true);
+
+  // Move the compressed file to the destination
+  File(compressedFileName).copySync('lib/data/tzdb/tzdb.bin');
+  File(compressedFileName).deleteSync();
+
+  // Generate Dart file with embedded TZDB data
+  final tzdbBytes = File('lib/data/tzdb/tzdb.bin').readAsBytesSync();
+  final dartCode = generateDartFile(
+    name: 'tzdb',
+    data: bytesAsString(tzdbBytes),
+  );
+  File('lib/data/tzdb/tzdb.dart').writeAsStringSync(dartCode);
 }
+
+String bytesAsString(Uint8List bytes) {
+  assert(bytes.length.isEven);
+  return bytes.buffer
+      .asUint16List()
+      .map((u) => '\\u${u.toRadixString(16).padLeft(4, '0')}')
+      .join();
+}
+
+String generateDartFile({required String name, required String data}) =>
+    '''// This is a generated file. Do not edit.
+import 'dart:typed_data';
+
+import 'package:time_machine2/src/platforms/dart_native_io.dart';
+
+void registerTzdbAsset() {
+  TimeMachineIO.registerAsset('tzdb', 'tzdb.bin',
+      ByteData.sublistView(Uint16List.fromList(_embeddedData.codeUnits)));
+}
+
+const _embeddedData =
+    '$data';
+''';
 
 /// <summary>
 /// Loads the best windows zones file based on the options. If the WindowsMapping option is
