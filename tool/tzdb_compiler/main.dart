@@ -45,7 +45,6 @@ Future<void> main(List<String> args) async {
       'xz',
       [
         '--compress', // make file smaller
-        '--keep', // keep original file
         '--force', // overwrite existing compressed file
         '--extreme', // make file even smaller
         fileName,
