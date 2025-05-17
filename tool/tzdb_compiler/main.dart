@@ -60,12 +60,16 @@ Future<void> main(List<String> args) async {
     exit(1);
   }
 
+  /*
+  // The code below can be used to verify that the generated file is valid.
+  // To use the section below, add the '--keep' flag to the xz command above.
   print(
       'Compression successful, trying to read the file again as sanity check...');
 
   final readStream = File(fileName).readAsBytesSync().buffer.asByteData();
   final reader = TzdbStreamReader(readStream);
   print('Read back ${reader.timeZones.length} time zones');
+  */
 
   // Create the destination directory if it doesn't exist
   Directory('lib/data').createSync(recursive: true);
