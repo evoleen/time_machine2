@@ -10,6 +10,7 @@ class TzdbDateTimeZoneSource extends DateTimeZoneSource {
   final _dateTimeZones = <String, DateTimeZone>{};
 
   String _defaultId = "UTC";
+  String _versionId = 'Uninitialized';
 
   TzdbDateTimeZoneSource();
 
@@ -24,10 +25,22 @@ class TzdbDateTimeZoneSource extends DateTimeZoneSource {
 
       final streamReader = TzdbStreamReader(tzdbData.buffer.asByteData());
 
+      _versionId = streamReader.tzdbVersion;
+
       final dateTimeZones = streamReader.timeZones;
 
       _dateTimeZones.clear();
       _dateTimeZones.addAll(dateTimeZones);
+
+      // Add time zones under their alias names as well
+      final aliases = streamReader.aliases;
+      for (final entry in aliases.entries) {
+        final aliasId = entry.key;
+        final canonicalId = entry.value;
+        if (_dateTimeZones.containsKey(canonicalId)) {
+          _dateTimeZones[aliasId] = _dateTimeZones[canonicalId]!;
+        }
+      }
 
       _initialized = true;
     }
@@ -55,7 +68,7 @@ class TzdbDateTimeZoneSource extends DateTimeZoneSource {
   String get systemDefaultId => _defaultId;
 
   @override
-  Future<String> get versionId => Future.sync(() => 'TZDB: 2024b');
+  Future<String> get versionId => Future.sync(() => _versionId);
 
   @override
   void setSystemDefaultId(String id) {
