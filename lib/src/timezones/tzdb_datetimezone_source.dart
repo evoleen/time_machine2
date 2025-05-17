@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:archive/archive.dart';
 import 'package:time_machine2/src/platforms/platform_io.dart';
 import 'package:time_machine2/src/time_machine_internal.dart';
@@ -21,9 +23,10 @@ class TzdbDateTimeZoneSource extends DateTimeZoneSource {
       final tzdbData = xzDecoder.decodeBytes(
           (await PlatformIO.local.getBinary('tzdb', 'tzdb.bin'))
               .buffer
-              .asUint8List());
+              .asUint8List(),
+          verify: true);
 
-      final streamReader = TzdbStreamReader(tzdbData.buffer.asByteData());
+      final streamReader = TzdbStreamReader(ByteData.sublistView(tzdbData));
 
       _versionId = streamReader.tzdbVersion;
 
