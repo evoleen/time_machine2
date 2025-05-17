@@ -5,7 +5,6 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-// import 'package:time_machine/src/time_machine_internal.dart';
 import 'package:path/path.dart' as path;
 import 'package:time_machine2/src/utility/binary_writer.dart';
 
