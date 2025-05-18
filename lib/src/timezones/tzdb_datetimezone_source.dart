@@ -10,6 +10,7 @@ class TzdbDateTimeZoneSource extends DateTimeZoneSource {
 
   // map of date time zones that are deserialized from TZF entries on init
   final _dateTimeZones = <String, DateTimeZone>{};
+  final _aliases = <String, String>{};
 
   String _defaultId = "UTC";
   String _versionId = 'Uninitialized';
@@ -29,6 +30,8 @@ class TzdbDateTimeZoneSource extends DateTimeZoneSource {
       final streamReader = TzdbStreamReader(ByteData.sublistView(tzdbData));
 
       _versionId = 'TZDB: ${streamReader.tzdbVersion}';
+      _aliases.clear();
+      _aliases.addAll(streamReader.aliases);
 
       final dateTimeZones = streamReader.timeZones;
 
@@ -41,7 +44,17 @@ class TzdbDateTimeZoneSource extends DateTimeZoneSource {
         final aliasId = entry.key;
         final canonicalId = entry.value;
         if (_dateTimeZones.containsKey(canonicalId)) {
-          _dateTimeZones[aliasId] = _dateTimeZones[canonicalId]!;
+          final originalZone = _dateTimeZones[canonicalId]!;
+          if (originalZone is FixedDateTimeZone) {
+            _dateTimeZones[aliasId] = FixedDateTimeZone(
+                aliasId, originalZone.offset, originalZone.name);
+          } else if (originalZone is PrecalculatedDateTimeZone) {
+            _dateTimeZones[aliasId] = PrecalculatedDateTimeZone(
+                aliasId, originalZone.periods, originalZone.tailZone);
+          } else {
+            // For any other type, just use the original instance
+            _dateTimeZones[aliasId] = originalZone;
+          }
         }
       }
 
