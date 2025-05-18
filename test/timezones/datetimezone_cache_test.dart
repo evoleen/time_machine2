@@ -200,7 +200,7 @@ Future Tzdb_IterateOverIds() async {
 
 @Test()
 Future Tzdb_Indexer_UtcId() async {
-  expect(DateTimeZone.utc.id, (await tzdb[IDateTimeZone.utcId]).id);
+  expect(DateTimeZone.utc, (await tzdb[IDateTimeZone.utcId]));
 }
 
 @Test()
