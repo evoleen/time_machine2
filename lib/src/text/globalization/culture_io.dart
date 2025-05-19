@@ -26,10 +26,8 @@ class CultureLoader {
             .buffer
             .asUint8List());
 
-    var reader = CultureReader(ByteData.view(
-      binary.buffer,
-      binary.offsetInBytes,
-      binary.lengthInBytes,
+    var reader = CultureReader(ByteData.sublistView(
+      binary,
     ));
 
     while (reader.isMore) {
