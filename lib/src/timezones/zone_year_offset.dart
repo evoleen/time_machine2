@@ -192,7 +192,7 @@ class ZoneYearOffset {
 
   static ZoneYearOffset read(DateTimeZoneReader reader) {
     int flags = reader.readByte();
-    var mode = TransitionMode(flags >> 5);
+    var mode = TransitionMode.fromValue((flags >> 5) & 0x03);
     var dayOfWeek = (flags >> 2) & 7;
     var advance = (flags & 2) != 0;
     var addDay = (flags & 1) != 0;
