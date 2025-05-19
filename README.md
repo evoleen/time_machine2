@@ -76,22 +76,12 @@ var localClone = ZonedDateTimePattern
 print(localClone.value);
 ```
 
-## Flutter specific notes
+## Installation
 
-You'll need this entry in your `pubspec.yaml`.
+### Flutter
 
-```yaml
-flutter:
-  assets:
-    - packages/time_machine2/data/cultures/cultures.bin
-    - packages/time_machine2/data/tzdb/tzdb.tzf
-    # If you explicitly override the TZDB variant to use, include one or both of the following assets.
-    # Otherwise tzdb.tzf above is enough.
-    - packages/time_machine2/data/tzdb/tzdb_common.tzf
-    - packages/time_machine2/data/tzdb/tzdb_common_10y.tzf
-```
+Include the package in your `pubspec.yaml` and initialize it before using it, ideally early in `main.dart`:
 
-Your initialization function will look like this:
 ```dart
 import 'package:flutter/services.dart';
 import 'package:time_machine2/time_machine2.dart';
@@ -102,26 +92,28 @@ WidgetsFlutterBinding.ensureInitialized();
 await TimeMachine.initialize({'rootBundle': rootBundle});
 ```
 
-Or with: https://pub.dartlang.org/packages/flutter_native_timezone
+### Dart
+
+Include the package in your `pubspec.yaml` and initialize it before using it, ideally early in `main.dart`:
 
 ```dart
 import 'package:flutter/services.dart';
+import 'package:time_machine2/time_machine2.dart';
 
-// you can get Timezone information directly from the native interface with flutter_native_timezone
-await TimeMachine.initialize({
-  'rootBundle': rootBundle,
-  'timeZone': await Timezone.getLocalTimezone(),
-});
+WidgetsFlutterBinding.ensureInitialized();
+
+// TimeMachine discovers your TimeZone heuristically (it's actually pretty fast).
+await TimeMachine.initialize();
 ```
 
-## Migrating from the original time_machine package
+### Migrating from the original `time_machine` package
 
 This project is forked from [time_machine](https://github.com/Dana-Ferguson/time_machine), the original repository seems to be abandoned. Since the original package couldn't be adopted, this package had to be given a new name and is available as `time_machine2`. The following changes are required to migrate from the original package to the new package:
 
 Change dependency in `pubspec.yaml`:
 ```diff
 < time_machine: ^0.9.17
-> time_machine2: ^0.11.0
+> time_machine2: ^0.12.0
 ```
 
 Change import statements:
