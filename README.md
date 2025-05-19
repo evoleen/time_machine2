@@ -1,5 +1,16 @@
 ![logo-dtm](https://user-images.githubusercontent.com/7284858/43960873-65f3f080-9c81-11e8-9d4d-c34c7e4cc46c.png)
 
+## Table of Contents
+- [Overview](#overview)
+- [Example Code](#example-code)
+- [Installation](#installation)
+  - [Flutter](#flutter)
+  - [Dart](#dart)
+  - [Migration Guide](#migrating-from-the-original-time_machine-package)
+- [Asset Handling](#time-zone-db-and-culture-db-asset-handling)
+
+## Overview
+
 The Dart Time Machine is a date and time library for [Flutter (native + web)](https://flutter.io/), and [Dart](https://www.dartlang.org/) with support for timezones, calendars, cultures, formatting and parsing.
 
 Time Machine provides an alternative date and time API over Dart Core and includes its own time zone database, eliminating the need to include additional packages.
@@ -134,7 +145,7 @@ Time Machine includes the [IANA Time Zone Database](http://www.iana.org/time-zon
 In order to work on all platforms seamlessly without requiring too much package-specific configuration, the following strategy is used:
 
 - *Flutter Native:* TZDB and date/time patterns are bundled as Flutter assets. `TimeMachine.initialize()`  requires the application's `rootBundle` as parameter to locate them and will load them using the platform's native asset loaders.
-- *Flutter Web:* TZDB and date/time patterns are bundled as Flutter assets and will be retrieved through Flutter's service worker. This ensures that the main Flutter binary stays small and the time to show the UI is reduced. The request through the service worker is an additional HTTP request during `TimeMachine.initialize()`. The data might be cached by the service worker so that subsequent reloads of the application may load the assets from the cache. `TimeMachine.initialize()` requires the application's `rootBundle` as parameter in order to determine the server path of the asset files.
+- *Flutter Web:* TZDB and date/time patterns are bundled as Flutter assets and will be retrieved through Flutter's service worker. This ensures that the main Flutter binary stays small and the time to show the UI is reduced. The requests through the service worker are additional HTTP requests during `TimeMachine.initialize()`. The data can be cached by the service worker so that subsequent reloads of the application may load the assets from the cache. `TimeMachine.initialize()` requires the application's `rootBundle` as parameter in order to determine the server path of the asset files.
 - *Dart only:* TZDB and date/time patterns will be compiled to code and embedded directly into the binary. This increases the size of the binary slightly but makes the entire package self-contained without additional configuration.
 
 How to use the `rootBundle` parameter:
@@ -172,29 +183,3 @@ Future Todo:
  - [X] Produce our own TSDB files
  - [X] Produce our own Culture files
  - [ ] Benchmarking & Optimizing Library for Dart
-
-### DDC Specific Notes
-
-`toString` on many of the classes will not propagate `patternText` and `culture` parameters.
-`Instant` and `ZonedDateTime` currently have `toStringDDC` functions available to remedy this.
-
-This also works:
-
-```dart
-dynamic foo = new Foo();
-var foo = new Foo() as dynamic;
-(foo as dynamic).toString(patternText, culture);
-```
-
-We learned in [Issue:33876](https://github.com/dart-lang/sdk/issues/33876) that `dynamic` code uses a different flow path.
-Wrapping your code as dynamic will allow `toString()` to work normally. It will unfortunately ruin your intellisense.
-
-See [Issue:33876](https://github.com/dart-lang/sdk/issues/33876) for more information. The [fix](https://dart-review.googlesource.com/c/sdk/+/65282)
-exists, now we just wait for it to hit a live build.
-
-`toStringDDC` instead of `toStringFormatted` to attempt to get a negative
-[contagion](https://engineering.riotgames.com/news/taxonomy-tech-debt) coefficient. If you are writing on DartStable today
-and you need some extra string support because of this bug, let me know.
-
-_Update_: Dart 2.0 stable did not launch with the fix. Stable release windows are 6 weeks.
-Hopefully we get the fix in the next release (second half of September).
