@@ -15,17 +15,17 @@ typedef _offsetAggregator = Offset Function(Offset x, Offset y);
 @immutable // todo: we need immutable lists?
 @internal
 class PrecalculatedDateTimeZone extends DateTimeZone {
-  final List<ZoneInterval> _periods;
-  final ZoneIntervalMapWithMinMax? _tailZone;
+  final List<ZoneInterval> periods;
+  final ZoneIntervalMapWithMinMax? tailZone;
 
   /// The first instant covered by the tail zone, or Instant.AfterMaxValue if there's no tail zone.
   final Instant _tailZoneStart;
   final ZoneInterval? _firstTailZoneInterval;
 
-  PrecalculatedDateTimeZone._(String id, this._periods, this._tailZone,
+  PrecalculatedDateTimeZone._(String id, this.periods, this.tailZone,
       this._firstTailZoneInterval, this._tailZoneStart)
-      : super(id, false, _computeOffset(_periods, _tailZone, Offset.min),
-            _computeOffset(_periods, _tailZone, Offset.max));
+      : super(id, false, _computeOffset(periods, tailZone, Offset.min),
+            _computeOffset(periods, tailZone, Offset.max));
 
   /// Initializes a new instance of the [PrecalculatedDateTimeZone] class.
   ///
@@ -85,21 +85,21 @@ class PrecalculatedDateTimeZone extends DateTimeZone {
   /// Returns: The ZoneInterval including the given instant.
   @override
   ZoneInterval getZoneInterval(Instant instant) {
-    if (_tailZone != null && instant >= _tailZoneStart) {
+    if (tailZone != null && instant >= _tailZoneStart) {
       // Clamp the tail zone interval to start at the end of our final period, if necessary, so that the
       // join is seamless.
-      ZoneInterval intervalFromTailZone = _tailZone!.getZoneInterval(instant);
+      ZoneInterval intervalFromTailZone = tailZone!.getZoneInterval(instant);
       return IZoneInterval.rawStart(intervalFromTailZone) < _tailZoneStart
           ? _firstTailZoneInterval!
           : intervalFromTailZone;
     }
 
     int lower = 0; // Inclusive
-    int upper = _periods.length; // Exclusive
+    int upper = periods.length; // Exclusive
 
     while (lower < upper) {
       int current = (lower + upper) ~/ 2;
-      var candidate = _periods[current];
+      var candidate = periods[current];
       if (IZoneInterval.rawStart(candidate) > instant) {
         upper = current;
       }
@@ -121,15 +121,22 @@ class PrecalculatedDateTimeZone extends DateTimeZone {
   void write(IDateTimeZoneWriter writer) {
     Preconditions.checkNotNull(writer, 'writer');
 
-    writer.write7BitEncodedInt(_periods.length);
-    for (var period in _periods) {
-      writer.writeZoneInterval(period);
+    writer.writeCount(periods.length);
+    Instant? previous;
+    for (var period in periods) {
+      writer.writeZoneIntervalTransition(
+          previous, period.hasStart ? period.start : IInstant.beforeMinValue);
+      previous = period.hasStart ? period.start : IInstant.beforeMinValue;
+      writer.writeString(period.name);
+      writer.writeOffset(period.wallOffset);
+      writer.writeOffset(period.savings);
     }
 
-    writer.writeUint8(_tailZone == null ? 0 : 1);
-    if (_tailZone != null) {
+    writer.writeZoneIntervalTransition(previous, _tailZoneStart);
+    writer.writeByte(tailZone == null ? 0 : 1);
+    if (tailZone != null) {
       // This is the only kind of zone we support in the new format. Enforce that...
-      var tailDstZone = _tailZone as StandardDaylightAlternatingMap;
+      var tailDstZone = tailZone as StandardDaylightAlternatingMap;
       tailDstZone.write(writer);
     }
 
@@ -164,15 +171,22 @@ class PrecalculatedDateTimeZone extends DateTimeZone {
   /// [id]: The id.
   /// Returns: The time zone.
   static DateTimeZone read(DateTimeZoneReader reader, String id) {
-    var periodsCount = reader.read7BitEncodedInt();
-    if (periodsCount > 10000)
-      throw Exception(
-          'Parse error for id = $id. Too many periods. Count = $periodsCount.');
-    var periods = Iterable.generate(periodsCount)
-        .map((i) => reader.readZoneInterval())
-        .toList();
+    int size = reader.readCount();
+    final periods = List<ZoneInterval>.empty(growable: true);
 
-    var tailFlag = reader.readUint8();
+    var start = reader.readZoneIntervalTransition(null);
+
+    for (int i = 0; i < size; i++) {
+      var name = reader.readString();
+      var offset = reader.readOffset();
+      var savings = reader.readOffset();
+      var nextStart = reader.readZoneIntervalTransition(start);
+      periods.add(IZoneInterval.newZoneInterval(
+          name, start, nextStart, offset, savings));
+      start = nextStart;
+    }
+
+    var tailFlag = reader.readByte();
     if (tailFlag == 1) {
       var tailZone = StandardDaylightAlternatingMap.read(reader);
       return PrecalculatedDateTimeZone(id, periods, tailZone);

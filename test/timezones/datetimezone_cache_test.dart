@@ -184,8 +184,7 @@ Future EmptyIdAccepted() async {
 @Test()
 Future VersionIdPassThrough() async {
   var provider = await DateTimeZoneCache.getCache(
-      TestDateTimeZoneSource(['Test1', "Test2"])
-        ..versionId = Future(() => "foo"));
+      TestDateTimeZoneSource(['Test1', "Test2"])..versionId = "foo");
   expect('foo', provider.versionId);
 }
 
@@ -201,7 +200,7 @@ Future Tzdb_IterateOverIds() async {
 
 @Test()
 Future Tzdb_Indexer_UtcId() async {
-  expect(DateTimeZone.utc.id, (await tzdb[IDateTimeZone.utcId]).id);
+  expect(DateTimeZone.utc, (await tzdb[IDateTimeZone.utcId]));
 }
 
 @Test()
@@ -246,7 +245,7 @@ class TestDateTimeZoneSource extends DateTimeZoneSource {
   final List<String> ids;
 
   TestDateTimeZoneSource(this.ids) {
-    versionId = Future(() => 'test version');
+    versionId = 'test version';
   }
 
   @override
@@ -265,7 +264,7 @@ class TestDateTimeZoneSource extends DateTimeZoneSource {
   }
 
   @override
-  late Future<String> versionId;
+  late String versionId;
 
   @override
   String get systemDefaultId => 'map';

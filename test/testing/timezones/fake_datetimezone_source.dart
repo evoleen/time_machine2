@@ -14,7 +14,7 @@ class FakeDateTimeZoneSource extends DateTimeZoneSource {
 
   // todo: do we care about bclToZoneIds?
   FakeDateTimeZoneSource._(String versionId, this._zones, this._bclToZoneIds)
-      : versionId = Future<String>.value(versionId);
+      : versionId = versionId;
 
   /// Creates a time zone provider ([DateTimeZoneCache]) from this source.
   ///
@@ -27,7 +27,7 @@ class FakeDateTimeZoneSource extends DateTimeZoneSource {
 
   /// <inheritdoc />
   @override
-  final Future<String> versionId;
+  final String versionId;
 
   /// <inheritdoc />
   @override

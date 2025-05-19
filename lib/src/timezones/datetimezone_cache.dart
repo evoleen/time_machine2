@@ -22,14 +22,14 @@ class DateTimeZoneCache extends DateTimeZoneProvider {
   /// Gets the version ID of this provider. This is simply the [DateTimeZoneSource.versionId] returned by
   /// the underlying source.
   @override
-  final String versionId;
+  String get versionId => _source.versionId!;
 
   /// <inheritdoc />
   // todo:  ReadOnlyCollection<String>
   @override
   final List<String> ids;
 
-  DateTimeZoneCache._(this._source, this.ids, this.versionId);
+  DateTimeZoneCache._(this._source, this.ids);
 
   // todo: anyway I can make this a regular constructor???
   // note: this is a Static Constructor (against the requirements of the Style guide), because it's a future
@@ -43,12 +43,6 @@ class DateTimeZoneCache extends DateTimeZoneProvider {
   /// [InvalidDateTimeZoneSourceException]: [source] violates its contract.
   static Future<DateTimeZoneCache> getCache(DateTimeZoneSource source) async {
     Preconditions.checkNotNull(source, 'source');
-    var VersionId = await source.versionId;
-
-    if (VersionId == null) {
-      throw InvalidDateTimeZoneSourceError(
-          'Source-returned version ID was null');
-    }
 
     var providerIds = await source.getIds();
     if (providerIds == null) {
@@ -62,7 +56,7 @@ class DateTimeZoneCache extends DateTimeZoneProvider {
     idList.sort();
     var ids = List<String>.from(idList);
 
-    var cache = DateTimeZoneCache._(source, ids, VersionId);
+    var cache = DateTimeZoneCache._(source, ids);
     // Populate the dictionary with null values meaning "the ID is valid, we haven't fetched the zone yet".
     for (String id in ids) {
       cache._timeZoneMap[id] = null;

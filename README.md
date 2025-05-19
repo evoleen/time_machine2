@@ -2,7 +2,9 @@
 
 The Dart Time Machine is a date and time library for [Flutter (native + web)](https://flutter.io/), and [Dart](https://www.dartlang.org/) with support for timezones, calendars, cultures, formatting and parsing.
 
-Time Machine provides an alternative date and time API over Dart Core.
+Time Machine provides an alternative date and time API over Dart Core and includes its own time zone database, eliminating the need to include additional packages.
+
+Current TZDB version: 2025b
 
 Dart's native time API is too simplistic because it only knows UTC or local time with no clear definition of time zone and no safeguards ensuring that time stamps with and without UTC flag aren't mixed up. This can easily lead to bugs if applications need to work in local time, because native Dart timestamps look the same after conversion. Applications that benefit from Time Machine are applications that need to perform tasks such as
 * scheduling reminders
@@ -131,57 +133,25 @@ Change import statements:
 
 The text pattern library has been merged into the main library for better visibility and to avoid too much clutter in the import statements.
 
-Change of asset declarations in `pubspec.yaml` (only required for Flutter):
-```yaml
-flutter:
-  assets:
-    - packages/time_machine2/data/cultures/cultures.bin
-    - packages/time_machine2/data/tzdb/tzdb.tzf
-    # If you explicitly override the TZDB variant to use, include one or both of the following assets.
-    # Otherwise tzdb.tzf above is enough.
-    - packages/time_machine2/data/tzdb/tzdb_common.tzf
-    - packages/time_machine2/data/tzdb/tzdb_common_10y.tzf
-```
+Change of asset declarations in `pubspec.yaml` (only required for Flutter): Remove all asset declarations related to Time Machine. The library now ensures that assets are available on the library level. For pure Dart, assets are compiled into the binary and for Flutter the asset definition is already contained in the library's `pubspec.yaml` file.
 
 ## Time zone DB and culture DB asset handling
 
-Time Machine includes the [IANA Time Zone Database](http://www.iana.org/time-zones) and date/time patterns from [Unicode CLDR](https://cldr.unicode.org/). These assets are XZ compressed and have comparably small size (43kb for the full TZDB and 47kb for date/time patterns).
+Time Machine includes the [IANA Time Zone Database](http://www.iana.org/time-zones) and date/time patterns from [Unicode CLDR](https://cldr.unicode.org/). These assets are XZ compressed and have comparably small size (32kb for the full TZDB and 47kb for date/time patterns).
 
 In order to work on all platforms seamlessly without requiring too much package-specific configuration, the following strategy is used:
 
-- *Flutter Native:* Assets must be listed in `pubspec.yaml` (see [here](#flutter)) and will be bundled with the binary. `TimeMachine.initialize()`  requires the application's `rootBundle` as parameter.
-- *Flutter Web:* Assets must be listed in `pubspec.yaml` (see [here](#flutter)) and will be retrieved through Flutter's service worker. This will cause additional HTTP requests during `TimeMachine.initialize()`. The data might be cached by the service worker so that subsequent reloads of the application may load the assets from the cache. `TimeMachine.initialize()`  requires the application's `rootBundle` as parameter.
-- *Dart only:* Assets will be compiled to code and embedded directly into the binary. This increases the size of the binary slightly but makes the entire package self-contained without additional configuration.
+- *Flutter Native:* TZDB and date/time patterns are bundled as Flutter assets. `TimeMachine.initialize()`  requires the application's `rootBundle` as parameter to locate them and will load them using the platform's native asset loaders.
+- *Flutter Web:* TZDB and date/time patterns are bundled as Flutter assets and will be retrieved through Flutter's service worker. This ensures that the main Flutter binary stays small and the time to show the UI is reduced. The request through the service worker is an additional HTTP request during `TimeMachine.initialize()`. The data might be cached by the service worker so that subsequent reloads of the application may load the assets from the cache. `TimeMachine.initialize()` requires the application's `rootBundle` as parameter in order to determine the server path of the asset files.
+- *Dart only:* TZDB and date/time patterns will be compiled to code and embedded directly into the binary. This increases the size of the binary slightly but makes the entire package self-contained without additional configuration.
 
-Time Machine currently ships three versions of the time zone database:
-- `tzdb` (default, 43kb): from beginning of time until end of 2037
-- `tzdb_common` (40kb): includes most common locations, from beginning of time until end of 2037
-- `tzdb_common_10y`(12kb): includes most common locations, from 2019 to 2029
-
-The database can be selected by passing the database name to `initialize`.
-
-Use the default database:
+How to use the `rootBundle` parameter:
 ```dart
 TimeMachine.initialize({
   // only needed for Flutter
   'rootBundle': rootBundle,
 });
 ```
-
-Use the 10y database:
-```dart
-TimeMachine.initialize({
-  'tzdb': 'tzdb_common_10y',
-  // only needed for Flutter
-  'rootBundle': rootBundle,
-});
-```
-
-It is recommended to use the default database and only change it for the following reasons:
-- Optimizing load times for Flutter Web: The 10y variant of tzdb is smaller and may speed up initialization.
-- Reducing memory requirements: The 10y variant of tzdb has a smaller memory footprint after unpacking.
-
-The benefit of `tzdb_common` is currently negligible and it may be removed from future versions.
 
 ## Todos before v1
 

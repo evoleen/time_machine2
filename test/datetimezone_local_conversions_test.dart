@@ -247,6 +247,10 @@ void GetOffsetFromLocal_NewZealandFallTransition() {
 }
 
 // New Zealand goes from +12 to +13 on September 26th 2010 at 2am wall time
+// TODO(tigloo): This test is failing. The test below has been added to test
+// if it's a general bug in the gap detection logic, but the test below
+// works. This means that most likely the bug is introduced in the tzdb
+// compiler where the time zone for New Zealand is read incorrectly.
 @Test()
 void GetOffsetFromLocal_NewZealandSpringTransition() {
   var before = LocalDateTime(2010, 9, 26, 1, 30, 0);
@@ -257,6 +261,19 @@ void GetOffsetFromLocal_NewZealandSpringTransition() {
   AssertImpossible(impossible, NewZealand!);
   AssertOffset(13, atTransition, NewZealand!);
   AssertOffset(13, after, NewZealand!);
+}
+
+@Test()
+void GetOffsetFromLocal_BerlinSpringTransition() async {
+  final Berlin = await DateTimeZoneProviders.defaultProvider?['Europe/Berlin'];
+  var before = LocalDateTime(2025, 3, 30, 1, 30, 0);
+  var impossible = LocalDateTime(2025, 3, 30, 2, 30, 0);
+  var atTransition = LocalDateTime(2025, 3, 30, 3, 0, 0);
+  var after = LocalDateTime(2025, 3, 30, 3, 30, 0);
+  AssertOffset(1, before, Berlin!);
+  AssertImpossible(impossible, Berlin);
+  AssertOffset(2, atTransition, Berlin);
+  AssertOffset(2, after, Berlin);
 }
 
 // Paris goes from +1 to +2 on March 28th 2010 at 2am wall time

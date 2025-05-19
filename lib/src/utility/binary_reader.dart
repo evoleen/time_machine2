@@ -15,6 +15,10 @@ class BinaryReader {
 
   bool get isMore => _offset < binary.lengthInBytes;
 
+  // Add getter and setter for currentOffset
+  int get currentOffset => _offset;
+  set currentOffset(int value) => _offset = value;
+
   BinaryReader(this.binary, [this._offset = 0]);
 
   int readInt32() {
@@ -57,7 +61,7 @@ class BinaryReader {
 
   bool getBit(int uint8, int bit) => (uint8 & (1 << bit)) != 0;
 
-  bool get hasMoreData => binary.lengthInBytes < _offset;
+  bool get hasMoreData => _offset < binary.lengthInBytes;
 
   int read7BitEncodedInt() {
     //ByteData binary, int offset) {

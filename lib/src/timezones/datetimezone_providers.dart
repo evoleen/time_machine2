@@ -13,12 +13,9 @@ abstract class IDateTimeZoneProviders {
 }
 
 class DateTimeZoneProviders {
-  static Map<String, dynamic> _config = {};
   static DateTimeZoneProviders? _instance;
 
-  DateTimeZoneProviders._(Map<String, dynamic> config) {
-    _config = config;
-  }
+  DateTimeZoneProviders._(Map<String, dynamic> config);
 
   factory DateTimeZoneProviders(Map<String, dynamic> config) {
     _instance ??= DateTimeZoneProviders._(config);
@@ -28,8 +25,7 @@ class DateTimeZoneProviders {
   static Future<DateTimeZoneProvider>? _tzdb;
 
   static Future<DateTimeZoneProvider> get tzdb =>
-      _tzdb ??= DateTimeZoneCache.getCache(
-          TzdbDateTimeZoneSource(tzdbVariant: _config['tzdb']));
+      _tzdb ??= DateTimeZoneCache.getCache(TzdbDateTimeZoneSource());
 
   static DateTimeZoneProvider? _defaultProvider;
 
