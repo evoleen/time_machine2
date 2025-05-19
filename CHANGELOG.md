@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.12.0+1
+- Improve documentation to better reflect changes between 0.11.0 and 0.12.0, no functional changes
+
 ## 0.12.0
 - Breaking: change TZDB asset naming again
 - Replace `timezone`-based TZDB compiler with native, NodaTime based port
