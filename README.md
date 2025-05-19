@@ -140,7 +140,7 @@ Change of asset declarations in `pubspec.yaml` (only required for Flutter): Remo
 
 ## Time zone DB and culture DB asset handling
 
-Time Machine includes the [IANA Time Zone Database](http://www.iana.org/time-zones) and date/time patterns from [Unicode CLDR](https://cldr.unicode.org/). These assets are XZ compressed and have comparably small size (32kb for the full TZDB and 47kb for date/time patterns).
+Time Machine includes the [IANA Time Zone Database](https://www.iana.org/time-zones) and date/time patterns from [Unicode CLDR](https://cldr.unicode.org/). These assets are XZ compressed and have comparably small size (32kb for the full TZDB and 47kb for date/time patterns).
 
 In order to work on all platforms seamlessly without requiring too much package-specific configuration, the following strategy is used:
 
