@@ -32,6 +32,19 @@ class TransitionMode {
 
   const TransitionMode(this._value);
 
+  factory TransitionMode.fromValue(int value) {
+    switch (value) {
+      case 0:
+        return utc;
+      case 1:
+        return wall;
+      case 2:
+        return standard;
+      default:
+        throw ArgumentError('Invalid TransitionMode value: $value');
+    }
+  }
+
   bool operator <(TransitionMode other) => _value < other._value;
   bool operator <=(TransitionMode other) => _value <= other._value;
   bool operator >(TransitionMode other) => _value > other._value;
