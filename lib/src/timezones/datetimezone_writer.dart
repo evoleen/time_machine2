@@ -35,16 +35,22 @@ class DateTimeZoneWriter implements IDateTimeZoneWriter {
 
   /// Writes the given (possibly-negative) integer value to the stream.
   @override
-  void writeSignedCount(int count) {
-    _writeVarint((count >> 31) ^ (count << 1)); // Zigzag encoding
+  void writeSignedCount(int value) {
+    int signBit = value < 0 ? 1 : 0;
+    int encoded = (value.abs() << 1) | signBit;
+    _writeVarint(encoded);
   }
 
+  // Writes a variable int of maximum 64 bits to the stream.
+  // TODO: This may break on JS because JS only supports 53 bits for
+  // integers instead of 64 on Dart native.
   void _writeVarint(int value) {
-    while (value > 0x7f) {
-      writeByte(0x80 | (value & 0x7f));
-      value >>= 7;
+    BigInt v = BigInt.from(value.toSigned(64));
+    while (v > BigInt.from(0x7f)) {
+      writeByte((BigInt.from(0x80) | (v & BigInt.from(0x7f))).toInt());
+      v >>= 7;
     }
-    writeByte(value & 0x7f);
+    writeByte((v & BigInt.from(0x7f)).toInt());
   }
 
   @override
