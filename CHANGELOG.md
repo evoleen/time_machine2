@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.12.1
+- Fixed integer overflow on Flutter Web that prevented initialization of the library
+
 ## 0.12.0+1
 - Improve documentation to better reflect changes between 0.11.0 and 0.12.0, no functional changes
 
