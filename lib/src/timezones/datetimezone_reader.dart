@@ -44,21 +44,23 @@ class DateTimeZoneReader implements IDateTimeZoneReader {
   /// The value must have been written by DateTimeZoneWriter.WriteSignedCount.
   @override
   int readSignedCount() {
-    int value = readVarint();
-    return (value >> 1) ^ -(value & 1);
+    int encoded = readVarint();
+    int absValue = encoded >> 1;
+    int signBit = encoded & 1;
+    return signBit == 0 ? absValue : -absValue;
   }
 
   /// Reads a base-128 varint value from the stream.
   /// The value must have been written by DateTimeZoneWriter.WriteVarint.
   int readVarint() {
-    int ret = 0;
+    BigInt ret = BigInt.zero;
     int shift = 0;
     while (true) {
       int nextByte = readByte();
-      ret += (nextByte & 0x7f) << shift;
+      ret += (BigInt.from(nextByte & 0x7f) << shift);
       shift += 7;
       if (nextByte < 0x80) {
-        return ret;
+        return ret.toInt();
       }
     }
   }
@@ -89,10 +91,11 @@ class DateTimeZoneReader implements IDateTimeZoneReader {
   }
 
   /// Reads a signed 64-bit integer value from the stream and returns it as an int.
-  int readInt64() {
+  BigInt readInt64() {
     int high = readInt32() & 0xffffffff;
     int low = readInt32() & 0xffffffff;
-    return (high << 32) | low;
+    BigInt value = (BigInt.from(high) << 32) | BigInt.from(low);
+    return value.toSigned(64);
   }
 
   /// Reads a number of milliseconds from the stream.
@@ -156,7 +159,9 @@ class DateTimeZoneReader implements IDateTimeZoneReader {
         case DateTimeZoneWriter.markerMaxValue:
           return IInstant.afterMaxValue;
         case DateTimeZoneWriter.markerRaw:
-          return Instant.fromEpochSeconds(readInt64());
+          final epochSeconds = readInt64();
+          final epochSecondsInt = epochSeconds.toInt();
+          return Instant.fromEpochSeconds(epochSecondsInt);
         default:
           throw Exception("Unrecognized marker value: $value");
       }
