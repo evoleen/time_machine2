@@ -11,18 +11,39 @@
 
 ## Overview
 
-The Dart Time Machine is a date and time library for [Flutter (native + web)](https://flutter.io/), and [Dart](https://www.dartlang.org/) with support for timezones, calendars, cultures, formatting and parsing.
-
-Time Machine provides an alternative date and time API over Dart Core and includes its own time zone database, eliminating the need to include additional packages.
+The Dart Time Machine is a date and time library for [Flutter (native + web)](https://flutter.io/), and [Dart](https://www.dartlang.org/) with support for time zones, calendars, cultures, formatting and parsing. Time Machine provides an alternative date and time API over Dart Core and includes an embedded copy of the [IANA time zone database](https://www.iana.org/time-zones), eliminating the need to include additional packages.
 
 Current TZDB version: 2025b
 
-Dart's native time API is too simplistic because it only knows UTC or local time with no clear definition of time zone and no safeguards ensuring that time stamps with and without UTC flag aren't mixed up. This can easily lead to bugs if applications need to work in local time, because native Dart timestamps look the same after conversion. Applications that benefit from Time Machine are applications that need to perform tasks such as
+Time Machine's type system makes working with date and time a breeze:
+
+```dart
+final now = Instant.now();
+final tomorrow = now.add(Time(days: 1));
+
+// Time Machine supports "inexact" durations, such as a month (28, 29, 30 or 31 days)
+final threeMonths = Period(months: 3);
+
+// The line below calculates the exact same date and time for "in three months"
+// 2025-02-15 12:00 --> 2025-05-15 12:00
+// This is more complicated than it looks, because it will take different
+// month lengths, DST transitions and even leap years into account!
+final sameDateNextQuarter = now.inLocalZone().localDateTime + threeMonths;
+
+// This line does the same, but with a fixed window of 90 days.
+// Note that Time Machine's API ensures that the code tells you exactly
+// what happens, advancing exactly 90 days (24 * 90 hours) on the calendar.
+final nextQuarter = now + Time(days: 90);
+```
+
+Time Machine is a port of NodaTime. The original author [published a great article](https://blog.nodatime.org/2011/08/what-wrong-with-datetime-anyway.html) about why a different date/time API is necessary. (the article talks about .NET but it applies to Dart/Flutter just the same) Dart's native time API is too simplistic because it only knows UTC or local time with no clear definition of time zone and no safeguards ensuring that time stamps with and without UTC flag aren't mixed up. This can easily lead to bugs if applications need to work in local time, because native Dart timestamps look the same after conversion.
+
+Applications benefitting from Time Machine are applications that need to perform tasks such as
 * scheduling reminders
 * displaying an object's time information (file dates, email dates, calendar dates)
 * sharing data between users that work in different time zones
 
-But Time Machine is also useful for applications that work with universal timestamps only. Its `Instant` class provides nanosecond precision and fake clocks can be used during unit testing.
+Time Machine is also useful for applications that only work with universal timestamps. Its `Instant` class provides nanosecond precision and fake clocks can be used during unit testing.
 
 **Time Machine API**
 * Time - an amount of time with nanosecond precision
