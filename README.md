@@ -145,7 +145,7 @@ This project is forked from [time_machine](https://github.com/Dana-Ferguson/time
 Change dependency in `pubspec.yaml`:
 ```diff
 < time_machine: ^0.9.17
-> time_machine2: ^0.12.0
+> time_machine2: ^0.12.1
 ```
 
 Change import statements:
