@@ -36,12 +36,14 @@ final sameDateNextQuarter = now.inLocalZone().localDateTime + threeMonths;
 final nextQuarter = now + Time(days: 90);
 ```
 
-Time Machine is a port of NodaTime. The original author [published a great article](https://blog.nodatime.org/2011/08/what-wrong-with-datetime-anyway.html) about why a different date/time API is necessary. (the article talks about .NET but it applies to Dart/Flutter just the same) Dart's native time API is too simplistic because it only knows UTC or local time with no clear definition of time zone and no safeguards ensuring that time stamps with and without UTC flag aren't mixed up. This can easily lead to bugs if applications need to work in local time, because native Dart timestamps look the same after conversion.
+Time Machine is a port of NodaTime. The original author [published a great article](https://blog.nodatime.org/2011/08/what-wrong-with-datetime-anyway.html) about why a different date/time API is necessary. (the article talks about .NET but it applies to Dart/Flutter just the same) Dart's native time API is too simplistic because it only knows UTC or local time with no clear definition of time zone and no safeguards ensuring that time stamps with and without UTC flag aren't mixed up. This can easily lead to non-obvious bugs.
 
-Applications benefitting from Time Machine are applications that need to perform tasks such as
-* scheduling reminders
-* displaying an object's time information (file dates, email dates, calendar dates)
-* sharing data between users that work in different time zones
+You are benefitting the most from Time Machine if you want to
+* have awesome, type-safe access to date and time
+* schedule reminders
+* display an object's time information (file dates, email dates, calendar dates)
+* share data between users that work in different time zones
+* perform any arithmetic with dates and times without worrying about calendar logic, such as months with different number of days, varying day lengths due to DST transitions, etc.
 
 Time Machine is also useful for applications that only work with universal timestamps. Its `Instant` class provides nanosecond precision and fake clocks can be used during unit testing.
 
