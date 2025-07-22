@@ -30,9 +30,9 @@ final threeMonths = Period(months: 3);
 // month lengths, DST transitions and even leap years into account!
 final sameDateNextQuarter = now.inLocalZone().localDateTime + threeMonths;
 
-// This line does the same, but with a fixed window of 90 days.
-// Note that Time Machine's API ensures that the code tells you exactly
-// what happens, advancing exactly 90 days (24 * 90 hours) on the calendar.
+// This line does the same, but with a fixed window of 90 days, advancing 24 * 90
+// hours on the calendar. Note that Time Machine's type system ensures that by reading
+// the code you intuitively know what happens.
 final nextQuarter = now + Time(days: 90);
 ```
 
@@ -133,8 +133,6 @@ Include the package in your `pubspec.yaml` and initialize it before using it, id
 ```dart
 import 'package:flutter/services.dart';
 import 'package:time_machine2/time_machine2.dart';
-
-WidgetsFlutterBinding.ensureInitialized();
 
 // TimeMachine discovers your TimeZone heuristically (it's actually pretty fast).
 await TimeMachine.initialize();
