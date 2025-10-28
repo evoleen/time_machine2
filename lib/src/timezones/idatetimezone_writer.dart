@@ -2,7 +2,7 @@
 /// Use of this source code is governed by the Apache License 2.0,
 /// as found in the LICENSE.txt file.
 
-import 'dart:io';
+import 'package:universal_io/io.dart';
 
 import 'package:time_machine2/time_machine2.dart';
 
