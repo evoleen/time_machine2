@@ -192,8 +192,6 @@ class TzdbStreamReader {
         return FixedDateTimeZone.read(reader, id);
       case DateTimeZoneType.precalculated:
         return PrecalculatedDateTimeZone.read(reader, id);
-      default:
-        throw Exception('Unknown zone type: $type');
     }
   }
 }

@@ -279,7 +279,7 @@ class _ZonedDateTimeParseBucket extends ParseBucket<ZonedDateTime> {
           }
         }
         value.move(value.index + longestSoFar.length);
-        return _zoneProvider!
+        return _zoneProvider
             .getDateTimeZoneSync(longestSoFar); // [longestSoFar];
       }
     }
