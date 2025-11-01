@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.13.0
+- Enable WASM compatibility
+- Move I/O operations to `universal_io`
+- Bump Dart SDK version to 3.3
+
 ## 0.12.1
 - Fixed integer overflow on Flutter Web that prevented initialization of the library
 
