@@ -2,7 +2,7 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'dart:io';
+import 'package:universal_io/io.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:time_machine2/src/time_machine_internal.dart';

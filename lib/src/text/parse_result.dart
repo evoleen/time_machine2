@@ -42,7 +42,7 @@ class ParseResult<T> {
       throw StateError(
           'Parse operation succeeded, so no exception is available');
     }
-    return _errorProvider!();
+    return _errorProvider();
   }
 
   /// Gets the value from the parse operation if it was successful, or throws an exception indicating the parse failure
@@ -56,7 +56,7 @@ class ParseResult<T> {
     if (_errorProvider == null) {
       return _value;
     }
-    throw _errorProvider!();
+    throw _errorProvider();
   }
 
   /// Returns the success value, and sets the out parameter to either

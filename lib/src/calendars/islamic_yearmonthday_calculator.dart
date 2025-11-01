@@ -168,9 +168,7 @@ class IslamicYearMonthDayCalculator extends RegularYearMonthDayCalculator {
       case IslamicLeapYearPattern.indian:
         return 690562340; // 0b101001001010010010010100100100
       case IslamicLeapYearPattern.habashAlHasib:
-        return 153692453; // 0b001001001010010010100100100101
-      default:
-        throw ArgumentError.value(leapYearPattern.index, 'leapYearPattern');
+        return 153692453;
     }
   }
 
@@ -182,8 +180,6 @@ class IslamicYearMonthDayCalculator extends RegularYearMonthDayCalculator {
         return _daysAtAstronomicalEpoch;
       case IslamicEpoch.civil:
         return _daysAtCivilEpoch;
-      default:
-        throw ArgumentError.value(epoch.index, 'epoch');
     }
   }
 }

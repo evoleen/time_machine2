@@ -9,6 +9,7 @@ import 'src/platforms/platform_io.dart'
     // `dart.library.js` is compatible with node and browser via dart2js -- `dart.library.html` will only work for the browser
     // or at lest it seemed it should be, when I tried `dart.library.js` in chrome, it failed to evaluate to true
     if (dart.library.html) 'src/platforms/web.dart'
+    if (dart.library.js_interop) 'src/platforms/web.dart'
     if (dart.library.io) 'src/platforms/vm.dart' as time_machine;
 
 export 'src/calendar_system.dart' show CalendarSystem;

@@ -3,7 +3,7 @@
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
 import 'dart:async';
-import 'dart:js';
+import 'dart:js_interop';
 
 import 'package:time_machine2/src/time_machine_internal.dart';
 import 'package:time_machine2/src/timezones/datetimezone_providers.dart';
@@ -53,19 +53,34 @@ class TimeMachine {
   // {locale: en-US, numberingSystem: latn, calendar: gregory, timeZone: America/New_York, year: numeric, month: numeric, day: numeric}
   static void _readIntlObject() {
     try {
-      JsObject options = context['Intl']
-          .callMethod('DateTimeFormat')
-          .callMethod('resolvedOptions');
+      final dateTimeFormat = _DateTimeFormat();
+      final options = dateTimeFormat.resolvedOptions();
 
-      _locale = options['locale'];
-      _timeZoneId = options['timeZone'];
-      _numberingSystem = options['numberingSystem'];
-      _calendar = options['calendar'];
-      _yearFormat = options['year'];
-      _monthFormat = options['month'];
-      _dayFormat = options['day'];
+      _locale = options.locale.toDart;
+      _timeZoneId = options.timeZone.toDart;
+      _numberingSystem = options.numberingSystem.toDart;
+      _calendar = options.calendar.toDart;
+      _yearFormat = options.year.toDart;
+      _monthFormat = options.month.toDart;
+      _dayFormat = options.day.toDart;
     } catch (e, s) {
       print('Failed to get platform local information.\n$e\n$s');
     }
   }
+}
+
+@JS('Intl.DateTimeFormat')
+extension type _DateTimeFormat._(JSObject _) implements JSObject {
+  external _DateTimeFormat();
+  external _ResolvedOptions resolvedOptions();
+}
+
+extension type _ResolvedOptions._(JSObject _) implements JSObject {
+  external JSString get locale;
+  external JSString get timeZone;
+  external JSString get numberingSystem;
+  external JSString get calendar;
+  external JSString get year;
+  external JSString get month;
+  external JSString get day;
 }

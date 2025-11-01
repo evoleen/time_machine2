@@ -4,7 +4,7 @@
 
 import 'dart:async';
 import 'dart:collection';
-import 'dart:io' as io;
+import 'package:universal_io/io.dart' as io;
 
 import 'package:time_machine2/src/time_machine_internal.dart';
 import 'package:time_machine2/src/timezones/datetimezone_providers.dart';
