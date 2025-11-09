@@ -13,7 +13,7 @@
 
 The Dart Time Machine is a date and time library for [Flutter](https://flutter.io/), and [Dart](https://www.dartlang.org/) (native, web JS and WASM) with support for time zones, calendars, cultures, formatting and parsing. Time Machine provides an alternative date and time API over Dart Core and includes an embedded copy of the [IANA time zone database](https://www.iana.org/time-zones), eliminating the need to include additional packages.
 
-Current TZDB version: 2025b
+**Current TZDB version: 2025b**
 
 Time Machine's type system makes working with date and time a breeze:
 
