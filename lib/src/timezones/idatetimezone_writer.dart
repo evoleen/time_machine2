@@ -2,8 +2,6 @@
 /// Use of this source code is governed by the Apache License 2.0,
 /// as found in the LICENSE.txt file.
 
-import 'package:universal_io/io.dart';
-
 import 'package:time_machine2/time_machine2.dart';
 
 /// Interface for writing time-related data to a binary stream.
@@ -19,14 +17,14 @@ abstract class IDateTimeZoneWriter {
   /// Writes a non-negative integer to the stream. This is optimized towards
   /// cases where most values will be small.
   ///
-  /// Throws an [IOException] if the value couldn't be written to the stream.
+  /// Throws an [Exception] if the value couldn't be written to the stream.
   /// Throws an [ArgumentError] if [count] is negative.
   void writeCount(int count);
 
   /// Writes a possibly-negative integer to the stream. This is optimized for
   /// values of small magnitudes.
   ///
-  /// Throws an [IOException] if the value couldn't be written to the stream.
+  /// Throws an IO [Exception] if the value couldn't be written to the stream.
   void writeSignedCount(int count);
 
   /// Writes a string to the stream.
@@ -34,19 +32,19 @@ abstract class IDateTimeZoneWriter {
   /// Callers can reasonably expect that these values will be pooled in some fashion,
   /// so should not apply their own pooling.
   ///
-  /// Throws an [IOException] if the value couldn't be written to the stream.
+  /// Throws an IO [Exception] if the value couldn't be written to the stream.
   void writeString(String value);
 
   /// Writes a number of milliseconds to the stream, where the number
   /// of milliseconds must be in the range (-1 day, +1 day).
   ///
-  /// Throws an [IOException] if the value couldn't be written to the stream.
+  /// Throws an IO [Exception] if the value couldn't be written to the stream.
   /// Throws an [ArgumentError] if [millis] is out of range.
   void writeMilliseconds(int millis);
 
   /// Writes an offset to the stream.
   ///
-  /// Throws an [IOException] if the value couldn't be written to the stream.
+  /// Throws an IO[Exception] if the value couldn't be written to the stream.
   void writeOffset(Offset offset);
 
   /// Writes an instant representing a zone interval transition to the stream.
@@ -55,12 +53,12 @@ abstract class IDateTimeZoneWriter {
   /// required by the reader in order to reconstruct the next transition, so it should be deterministic for any
   /// given value.
   ///
-  /// Throws an [IOException] if the value couldn't be written to the stream.
+  /// Throws an IO [Exception] if the value couldn't be written to the stream.
   void writeZoneIntervalTransition(Instant? previous, Instant value);
 
   /// Writes a string-to-string dictionary to the stream.
   ///
-  /// Throws an [IOException] if the value couldn't be written to the stream.
+  /// Throws an IO [Exception] if the value couldn't be written to the stream.
   void writeDictionary(Map<String, String> dictionary);
 
   /// Writes the given 8-bit integer value to the stream.
