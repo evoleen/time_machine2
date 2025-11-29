@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.13.1
+- Fix Dart web-only deployments by @kingwill101 in https://github.com/evoleen/time_machine2/pull/59
+
 ## 0.13.0
 - Enable WASM compatibility
 - Move I/O operations to `universal_io`
