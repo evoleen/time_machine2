@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.14.0
+- Update TZDB to 2026a
+
 ## 0.13.1
 - Fix Dart web-only deployments by @kingwill101 in https://github.com/evoleen/time_machine2/pull/59
 
