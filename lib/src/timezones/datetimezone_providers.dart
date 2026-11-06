@@ -5,6 +5,7 @@
 import 'dart:async';
 
 import 'package:time_machine2/src/time_machine_internal.dart';
+import 'package:time_machine2/src/timezones/system/system_datetimezone_source.dart';
 
 @internal
 abstract class IDateTimeZoneProviders {
@@ -31,6 +32,19 @@ class DateTimeZoneProviders {
 
   static Future<DateTimeZoneProvider> get tzdb =>
       _tzdb ??= DateTimeZoneCache.getCache(_tzdbSource);
+
+  static Future<DateTimeZoneProvider>? _system;
+
+  /// A provider for the platform's own time zone data (see
+  /// [SystemDateTimeZoneSource]): the Windows time zone database on Windows,
+  /// the TZif files on Linux, macOS and iOS, the tzdata bundle on Android and
+  /// the browser's Intl data on the web.
+  ///
+  /// This never falls back to the embedded TZDB data: on a platform without
+  /// time zone data it completes with an [UnsupportedError]. Use [tzdb] when
+  /// you need data on every platform.
+  static Future<DateTimeZoneProvider> get system =>
+      _system ??= DateTimeZoneCache.getCache(SystemDateTimeZoneSource());
 
   static DateTimeZoneProvider? _defaultProvider;
 

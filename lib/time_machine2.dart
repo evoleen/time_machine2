@@ -89,6 +89,8 @@ export 'src/timezones/resolvers.dart' show Resolvers;
 export 'src/timezones/cldr/windows_zones.dart' show MapZone, WindowsZones;
 export 'src/timezones/tzdb_datetimezone_source.dart'
     show TzdbDateTimeZoneSource;
+export 'src/timezones/system/system_datetimezone_source.dart'
+    show SystemDateTimeZoneSource;
 export 'src/timezones/tzdb_zone_1970_location.dart';
 export 'src/timezones/tzdb_zone_location.dart';
 

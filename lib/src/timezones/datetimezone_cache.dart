@@ -5,6 +5,7 @@
 import 'dart:async';
 
 import 'package:time_machine2/src/time_machine_internal.dart';
+import 'package:time_machine2/src/timezones/system/system_datetimezone_source.dart';
 
 /// Provides an implementation of [DateTimeZoneProvider] that caches results from an
 /// [DateTimeZoneSource].
@@ -18,6 +19,10 @@ import 'package:time_machine2/src/time_machine_internal.dart';
 class DateTimeZoneCache extends DateTimeZoneProvider {
   final DateTimeZoneSource _source;
   final Map<String, DateTimeZone?> _timeZoneMap = <String, DateTimeZone?>{};
+
+  // Zones for IDs the source doesn't list but accepts (null if it doesn't):
+  // IANA IDs for the system source on Windows, as .NET accepts them there.
+  final Map<String, DateTimeZone?> _unlistedZones = <String, DateTimeZone?>{};
 
   /// Gets the version ID of this provider. This is simply the [DateTimeZoneSource.versionId] returned by
   /// the underlying source.
@@ -90,13 +95,21 @@ class DateTimeZoneCache extends DateTimeZoneProvider {
   Future<DateTimeZone?> getZoneOrNull(String id) async {
     Preconditions.checkNotNull(id, 'id');
     return (await _getZoneFromSourceOrNull(id)) ??
-        FixedDateTimeZone.getFixedZoneOrNull(id);
+        FixedDateTimeZone.getFixedZoneOrNull(id) ??
+        _getUnlistedZoneOrNull(id);
   }
 
   DateTimeZone? getCachedZoneOrNull(String id) {
     Preconditions.checkNotNull(id, 'id');
     return _getCachedZoneFromSourceOrNull(id) ??
-        FixedDateTimeZone.getFixedZoneOrNull(id);
+        FixedDateTimeZone.getFixedZoneOrNull(id) ??
+        _getUnlistedZoneOrNull(id);
+  }
+
+  DateTimeZone? _getUnlistedZoneOrNull(String id) {
+    var source = _source;
+    if (source is! SystemDateTimeZoneSource) return null;
+    return _unlistedZones.putIfAbsent(id, () => source.unlistedZoneOrNull(id));
   }
 
   Future<DateTimeZone?> _getZoneFromSourceOrNull(String id) async {

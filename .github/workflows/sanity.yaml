@@ -77,6 +77,9 @@ jobs:
         shell: bash
         env:
           TIME_MACHINE_EXPECT_LOCALIZED_WINDOWS: ${{ matrix.windows_standard_name && '1' || '' }}
+          # The zone test/system_source checks SystemDateTimeZoneSource's
+          # systemDefaultId against (skipped when empty).
+          TIME_MACHINE_EXPECT_SYSTEM_TIME_ZONE: ${{ matrix.tz || matrix.windows_time_zone || '' }}
         run: |
           # Only set TZ when asked: an empty TZ means UTC.
           if [ -n "${{ matrix.tz }}" ]; then export TZ="${{ matrix.tz }}"; fi
@@ -134,6 +137,235 @@ jobs:
       - name: Validate package
         run: dart pub publish --dry-run
 
+  # SystemDateTimeZoneSource on the web: the platform-agnostic checks in
+  # test/system_source (the mirrors-based suite can't be compiled for the web).
+  Web:
+    name: System time zones (${{ matrix.name }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Web, JavaScript in Chrome
+            id: web-js
+            platform: chrome
+            compiler: dart2js
+          - name: Web, WebAssembly in Chrome
+            id: web-wasm
+            platform: chrome
+            compiler: dart2wasm
+          - name: Web, JavaScript in Node.js
+            id: web-node
+            platform: node
+            compiler: dart2js
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # A zone with DST, so the checked offsets change through the year.
+      # Chrome and Node.js on Linux follow TZ (Intl and Date both).
+      TZ: Europe/Berlin
+    steps:
+      - name: 📚 Checkout
+        uses: actions/checkout@v4
+
+      - name: 👴🏼 Setup Dart
+        uses: dart-lang/setup-dart@v1
+
+      - name: 🏗️ Install packages
+        run: dart pub get
+
+      - name: 🌐 Run system time zone checks
+        run: >
+          dart test test/system_source
+          --platform ${{ matrix.platform }}
+          --compiler ${{ matrix.compiler }}
+          --file-reporter=json:test-results/system-source.json
+
+      - name: 📤 Upload test results
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: results-${{ matrix.id }}
+          path: test-results/
+
+  # SystemDateTimeZoneSource in a Flutter app on an Android emulator: the same
+  # checks, from test_apps/system_source_flutter/integration_test.
+  Android:
+    name: System time zones (Android API ${{ matrix.api-level }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # tzdata in the time zone APEX (/apex/com.android.tzdata), Android 10+
+          - api-level: 35
+            target: google_apis
+          # tzdata in /system/usr/share/zoneinfo, from before the APEX
+          - api-level: 28
+            target: default
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      TIME_ZONE: America/New_York
+    defaults:
+      run:
+        working-directory: test_apps/system_source_flutter
+    steps:
+      - name: 📚 Checkout
+        uses: actions/checkout@v4
+
+      # Hardware acceleration for the emulator, as android-emulator-runner's
+      # README describes.
+      - name: ⚡ Enable KVM
+        working-directory: .
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: ☕ Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: 🐦 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: 🏗️ Install packages
+        run: flutter pub get
+
+      # Fails fast if the Gradle setup is broken, before the emulator starts,
+      # and downloads Gradle and its dependencies.
+      - name: 🔨 Build the test app
+        run: flutter build apk --debug
+
+      - name: 🤖 Run system time zone checks on the emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          target: ${{ matrix.target }}
+          arch: x86_64
+          emulator-options: >-
+            -no-window -gpu swiftshader_indirect -no-snapshot -noaudio
+            -no-boot-anim -timezone ${{ env.TIME_ZONE }}
+          working-directory: test_apps/system_source_flutter
+          # Each line runs on its own.
+          script: |
+            adb shell getprop persist.sys.timezone
+            flutter test integration_test --device-id emulator-5554 --reporter expanded --file-reporter json:${{ github.workspace }}/test-results/system-source.json --dart-define=TIME_MACHINE_EXPECT_SYSTEM_TIME_ZONE=${{ env.TIME_ZONE }}
+
+      - name: 📝 Add test results to job summary
+        if: ${{ !cancelled() }}
+        working-directory: .
+        run: >
+          ./.github/scripts/summarize-test-results.sh
+          "Android API ${{ matrix.api-level }}"
+          test-results/system-source.json >> "$GITHUB_STEP_SUMMARY"
+
+      - name: 📤 Upload test results
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: results-android-${{ matrix.api-level }}
+          path: test-results/
+
+  # The same Flutter checks on an iOS Simulator. Separate from the final
+  # report, because macOS runners can queue for a long time: it publishes its
+  # own "Test Results (iOS)" check.
+  iOS:
+    name: System time zones (iOS Simulator)
+    runs-on: macos-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      checks: write
+    env:
+      TIME_ZONE: Australia/Sydney
+    steps:
+      - name: 📚 Checkout
+        uses: actions/checkout@v4
+
+      # The Simulator uses the Mac's time zone when it boots.
+      - name: 🕐 Set the Mac's time zone
+        # systemsetup -settimezone reports error -99 on GitHub's runners, so
+        # point /etc/localtime at the zone directly.
+        run: |
+          sudo ln -sf "/var/db/timezone/zoneinfo/$TIME_ZONE" /etc/localtime
+          ls -l /etc/localtime
+          date
+          case "$(readlink /etc/localtime)" in
+            */zoneinfo/"$TIME_ZONE") ;;
+            *) echo "::error::/etc/localtime doesn't point at $TIME_ZONE"; exit 1 ;;
+          esac
+
+      - name: 🐦 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: 🏗️ Install packages
+        working-directory: test_apps/system_source_flutter
+        run: flutter pub get
+
+      # The newest iPhone on the newest iOS runtime that Xcode has.
+      - name: 📱 Boot an iOS Simulator
+        id: simulator
+        run: |
+          udid=$(xcrun simctl list devices available --json | jq -r '
+            [.devices | to_entries | sort_by(.key)[]
+              | select(.key | contains(".iOS-")) | .value[]
+              | select(.name | startswith("iPhone"))]
+            | last | .udid // empty')
+          if [ -z "$udid" ]; then
+            echo "::error::No iPhone simulator available"
+            xcrun simctl list devices available
+            exit 1
+          fi
+          xcrun simctl list devices | grep "$udid"
+          xcrun simctl boot "$udid"
+          xcrun simctl bootstatus "$udid" -b
+          echo "udid=$udid" >> "$GITHUB_OUTPUT"
+
+      - name: 🍎 Run system time zone checks on the Simulator
+        working-directory: test_apps/system_source_flutter
+        run: >
+          flutter test integration_test
+          --device-id ${{ steps.simulator.outputs.udid }}
+          --reporter expanded
+          --file-reporter json:${{ github.workspace }}/test-results/system-source.json
+          --dart-define=TIME_MACHINE_EXPECT_SYSTEM_TIME_ZONE=${{ env.TIME_ZONE }}
+
+      - name: 📝 Add test results to job summary
+        if: ${{ !cancelled() }}
+        run: >
+          ./.github/scripts/summarize-test-results.sh
+          "iOS Simulator"
+          test-results/system-source.json >> "$GITHUB_STEP_SUMMARY"
+
+      - name: 📤 Upload test results
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          # Not results-*: the final report doesn't wait for this job.
+          name: ios-results
+          path: test-results/
+
+      # Skipped for pull requests from forks, whose token can't create checks.
+      - name: 🧪 Publish test results
+        if: >-
+          ${{ !cancelled()
+          && hashFiles('test-results/*.json') != ''
+          && (github.event_name != 'pull_request'
+          || github.event.pull_request.head.repo.full_name == github.repository) }}
+        uses: EnricoMi/publish-unit-test-result-action/macos@v2
+        with:
+          files: test-results/*.json
+          check_name: Test Results (iOS)
+          comment_mode: 'off'
+
   # pub.dev's scoring (pana): the package must keep supporting everywhere Dart
   # runs. Fails if pana stops reporting any of these tags, e.g. because a
   # dart:io or dart:html import becomes reachable on the web or in WebAssembly.
@@ -179,7 +411,8 @@ jobs:
 
   Report:
     name: Test results and coverage
-    needs: Sanity
+    # Not iOS, which can queue for a long time; it publishes its own check.
+    needs: [Sanity, Web, Android]
     # Also when tests failed, but not when the run was cancelled.
     if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
