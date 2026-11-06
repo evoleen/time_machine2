@@ -10,6 +10,10 @@ import 'package:time_machine2/src/time_machine_internal.dart';
 abstract class IDateTimeZoneProviders {
   static set defaultProvider(DateTimeZoneProvider provider) =>
       DateTimeZoneProviders._defaultProvider = provider;
+
+  /// The TZDB source behind [DateTimeZoneProviders.tzdb].
+  static TzdbDateTimeZoneSource get tzdbSource =>
+      DateTimeZoneProviders._tzdbSource;
 }
 
 class DateTimeZoneProviders {
@@ -23,9 +27,10 @@ class DateTimeZoneProviders {
   }
 
   static Future<DateTimeZoneProvider>? _tzdb;
+  static final TzdbDateTimeZoneSource _tzdbSource = TzdbDateTimeZoneSource();
 
   static Future<DateTimeZoneProvider> get tzdb =>
-      _tzdb ??= DateTimeZoneCache.getCache(TzdbDateTimeZoneSource());
+      _tzdb ??= DateTimeZoneCache.getCache(_tzdbSource);
 
   static DateTimeZoneProvider? _defaultProvider;
 

@@ -54,6 +54,13 @@ class TzdbStreamWriter {
       timeZoneMap[key] = value;
     }
 
+    // As Noda Time's compiler does, check that the Windows mapping only uses
+    // IDs in this database and is otherwise consistent.
+    TzdbDateTimeZoneSource.validateData({
+      for (var zone in zones) zone.id: zone.id,
+      ...timeZoneMap,
+    }, cldrWindowsZones);
+
     fields
         .addField(TzdbStreamFieldId.tzdbIdMap, stringPool)
         .writer
@@ -64,19 +71,22 @@ class TzdbStreamWriter {
         .addField(TzdbStreamFieldId.cldrSupplementalWindowsZones, stringPool)
         .writer);
 
-    // Additional names from Windows Standard Name to canonical ID, used in Noda Time 1.x BclDateTimeZone, when we
-    // didn't have access to TimeZoneInfo.Id.
-    /*
+    // Additional names from Windows Standard Name to canonical ID. Dart only exposes the
+    // standard name on Windows (DateTime.timeZoneName), not the Windows zone ID.
+    final primaryMapping = cldrWindowsZones.primaryMapping;
     fields
         .addField(TzdbStreamFieldId.windowsAdditionalStandardNameToIdMapping,
             stringPool)
         .writer
-        .writeDictionary(Map.fromEntries(additionalWindowsNameToIdMappings
-            .entries
-            .toList()
-            .map((entry) => MapEntry(
-                entry.key, cldrWindowsZones.primaryMapping[entry.value]!))));
-    */
+        .writeDictionary(Map.fromEntries(
+            additionalWindowsNameToIdMappings.entries.map((entry) {
+      final tzdbId = primaryMapping[entry.value];
+      if (tzdbId == null) {
+        throw StateError('Windows ID "${entry.value}" (standard name '
+            '"${entry.key}") is not in the CLDR Windows zone mapping');
+      }
+      return MapEntry(entry.key, tzdbId);
+    })));
 
     // Zone locations, if any.
     var zoneLocations = database.zoneLocations;

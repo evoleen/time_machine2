@@ -36,6 +36,7 @@ class CompilerOptions {
     // Required = true;
     parser.addOption('windows',
         abbr: 'w',
+        defaultsTo: 'tool/tzdb_compiler/data/cldr',
         help:
             'Windows to TZDB time zone mapping file (e.g. windowsZones.xml) or directory');
 

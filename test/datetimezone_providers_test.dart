@@ -26,3 +26,22 @@ Future AllTzdbTimeZonesLoad() async {
   // Just to stop the variable from being lonely. In reality, it's likely there'll be a breakpoint here to inspect a particular zone...
   expect(allZones!.length > 50, isTrue);
 }
+
+/// TimeMachine.initialize's last resort is a fixed zone with the system's
+/// offset; its ID (e.g. 'UTC+05:30') isn't a TZDB ID but, as in Noda Time,
+/// every provider resolves fixed-offset IDs, so it works as the default.
+@Test()
+Future FixedOffsetIdWorksAsTheSystemDefault() async {
+  var tzdb = await DateTimeZoneProviders.tzdb;
+  var original = tzdb.getCachedSystemDefault().id;
+  try {
+    for (var offset in [Offset.hoursAndMinutes(5, 30), Offset.hours(-8)]) {
+      var id = DateTimeZone.forOffset(offset).id;
+      tzdb.setSystemDefault(id);
+      expect(DateTimeZone.local.getUtcOffset(Instant.unixEpoch), offset);
+      expect((await tzdb.getSystemDefault()).id, id);
+    }
+  } finally {
+    tzdb.setSystemDefault(original);
+  }
+}

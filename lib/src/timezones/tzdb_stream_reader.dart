@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:time_machine2/src/time_machine_internal.dart';
+import 'package:time_machine2/src/timezones/cldr/windows_zones.dart';
 
 // from: https://github.com/nodatime/nodatime/blob/master/src/NodaTime/TimeZones/IO/TzdbStreamFieldId.cs
 
@@ -73,6 +74,14 @@ class TzdbStreamReader {
   late Map<String, DateTimeZone> timeZones;
   late Map<String, String> aliases;
 
+  /// The CLDR Windows zone mapping.
+  late WindowsZones windowsZones;
+
+  /// Windows standard name -> TZDB ID, for zones whose standard name differs
+  /// from their Windows ID (e.g. 'Coordinated Universal Time').
+  late Map<String, String> windowsStandardNameToTzdbId;
+
+
   TzdbStreamReader(this._input) : _reader = BinaryReader(_input) {
     // Read and validate the version
     int version = _reader.readUint8();
@@ -114,6 +123,27 @@ class TzdbStreamReader {
     }
     reader.currentOffset = aliasFields[0].offset;
     aliases = reader.readDictionary();
+
+    // Read the CLDR Windows zone mapping. Older data files may not have it.
+    var windowsZonesFields =
+        fields[TzdbStreamFieldId.cldrSupplementalWindowsZones];
+    if (windowsZonesFields != null && windowsZonesFields.isNotEmpty) {
+      reader.currentOffset = windowsZonesFields[0].offset;
+      windowsZones = WindowsZones.read(reader);
+    } else {
+      windowsZones = WindowsZones('', '', '', const []);
+    }
+
+    // Read the Windows standard name -> TZDB ID mapping for zones whose
+    // standard name differs from their Windows ID.
+    var standardNameFields =
+        fields[TzdbStreamFieldId.windowsAdditionalStandardNameToIdMapping];
+    if (standardNameFields != null && standardNameFields.isNotEmpty) {
+      reader.currentOffset = standardNameFields[0].offset;
+      windowsStandardNameToTzdbId = reader.readDictionary();
+    } else {
+      windowsStandardNameToTzdbId = <String, String>{};
+    }
 
     /*
     // Read Windows mappings

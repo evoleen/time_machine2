@@ -5,6 +5,8 @@
 import 'package:universal_io/io.dart';
 import 'dart:typed_data';
 
+import 'package:collection/collection.dart' show mergeSort;
+
 import 'package:path/path.dart' as path;
 import 'package:time_machine2/src/utility/binary_writer.dart';
 
@@ -24,8 +26,13 @@ Future<void> main(List<String> args) async {
       .compile('https://data.iana.org/time-zones/releases/tzdata2026a.tar.gz');
   tzdb.logCounts();
 
-  //final windowsZones = LoadWindowsZones(options, tzdb.version);
-  final windowsZones = WindowsZones('0.0', '0.0', '0.0', const []);
+  var windowsZones = LoadWindowsZones(options, tzdb.version);
+  if (options.windowsOverride != null) {
+    var overrideFile =
+        CldrWindowsZonesParser.parseFile(options.windowsOverride!);
+    windowsZones = MergeWindowsZones(windowsZones, overrideFile);
+  }
+  LogWindowsZonesSummary(windowsZones);
 
   var writer = TzdbStreamWriter();
   final output = List<int>.empty(growable: true);
@@ -135,24 +142,33 @@ WindowsZones LoadWindowsZones(
   if (xmlFiles.isEmpty) {
     throw Exception('$mappingPath does not contain any XML files');
   }
+  // Sort by TZDB version, then by file name. CLDR doesn't always bump the
+  // TZDB version, so the file name (e.g. windowsZones-49.xml) breaks ties.
+  xmlFiles.sort((a, b) => a.path.compareTo(b.path));
   var allFiles = xmlFiles
-      .map((file) => CldrWindowsZonesParser.parseFile(file.path))
-      .toList()
-    ..sort((a, b) => a.tzdbVersion.compareTo(b.tzdbVersion));
+      .map((file) => (
+            name: path.basename(file.path),
+            zones: CldrWindowsZonesParser.parseFile(file.path)
+          ))
+      .toList();
+  mergeSort(allFiles,
+      compare: (a, b) => a.zones.tzdbVersion.compareTo(b.zones.tzdbVersion));
 
-  var versions = allFiles.map((z) => z.tzdbVersion).join(', ');
+  var versions =
+      allFiles.map((f) => '${f.name} (TZDB ${f.zones.tzdbVersion})').join(', ');
 
   var potentiallyBestFiles = allFiles
-      .where((zones) => (zones.tzdbVersion.compareTo(targetTzdbVersion)) <= 0);
+      .where((f) => f.zones.tzdbVersion.compareTo(targetTzdbVersion) <= 0);
   if (potentiallyBestFiles.isEmpty) {
     throw Exception(
-        'No zones files suitable for version $targetTzdbVersion. Found versions targeting: [$versions]');
+        'No zones files suitable for version $targetTzdbVersion. Found: [$versions]');
   }
-  var bestFile = potentiallyBestFiles.first;
+  // The files are sorted by TZDB version, so the last suitable one is the most recent.
+  var bestFile = potentiallyBestFiles.last;
 
-  print(
-      "Picked Windows Zones with TZDB version ${bestFile.tzdbVersion} out of [$versions] as best match for $targetTzdbVersion");
-  return bestFile;
+  print('Picked Windows Zones from ${bestFile.name} out of [$versions] '
+      'as best match for TZDB $targetTzdbVersion');
+  return bestFile.zones;
 }
 
 void LogWindowsZonesSummary(WindowsZones windowsZones) {
@@ -202,19 +218,13 @@ WindowsZones MergeWindowsZones(
       : overrideZones.windowsVersion;
 
   // Work everything out using dictionaries, and then sort.
-  Map<Map<String, String>, MapZone> mapZones = {
-    for (MapZone mz in originalZones.mapZones)
-      {
-        'windowsId': mz.windowsId,
-        'territory': mz.territory,
-      }: mz
+  // Records compare by value, so (Windows ID, territory) works as a key.
+  var mapZones = <(String, String), MapZone>{
+    for (var mz in originalZones.mapZones) (mz.windowsId, mz.territory): mz
   };
 
   for (var overrideMapZone in overrideZones.mapZones) {
-    var key = {
-      'windowsId': overrideMapZone.windowsId,
-      'territory': overrideMapZone.territory
-    };
+    var key = (overrideMapZone.windowsId, overrideMapZone.territory);
     if (overrideMapZone.tzdbIds.isEmpty) {
       mapZones.remove(key);
     } else {
@@ -224,14 +234,11 @@ WindowsZones MergeWindowsZones(
 
   var mapZoneList = (mapZones.entries.toList()
         ..sort((a, b) {
-          // order by 'windowsId'
-          var cmp = a.key['windowsId']!.compareTo(b.key['windowsId']!);
-          if (cmp != 0) return cmp;
-
-          // then by 'territory'
-          return a.key['territory']!.compareTo(b.key['territory']!);
+          // Order by Windows ID, then by territory.
+          var cmp = a.key.$1.compareTo(b.key.$1);
+          return cmp != 0 ? cmp : a.key.$2.compareTo(b.key.$2);
         }))
-      .map((a) => a.value)
+      .map((entry) => entry.value)
       .toList();
 
   return WindowsZones(version, tzdbVersion, windowsVersion, mapZoneList);

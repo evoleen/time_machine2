@@ -15,6 +15,7 @@ export 'testing/timezones/multi_transition_datetimezone.dart';
 export 'testing/timezones/fake_datetimezone_source.dart';
 
 export 'testing/test_fx_attributes.dart';
+export 'testing/skip.dart';
 
 import 'dart:async';
 import 'package:time_machine2/src/time_machine_internal.dart';

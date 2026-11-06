@@ -7,9 +7,9 @@ here: https://github.com/Dana-Ferguson/time_machine
 Time Machine includes ports of software developed by
 NodaTime.org (https://nodatime.org/).
 
-(Portions of Time Machine were derived from Noda Time 2.3.0; Noda Time
-2.3.0 is copyright 2009-2018 by the Noda Time Authors
-[https://github.com/nodatime/nodatime/blob/master/AUTHORS.txt].)
+Portions of Time Machine were derived from Noda Time 2.3.0 and 3.3.0;
+Noda Time is copyright 2009-2026 by the Noda Time Authors
+[https://github.com/nodatime/nodatime/blob/main/AUTHORS.txt].
 
 Noda Time includes ports of software developed by
 Joda.org (http://www.joda.org/).
