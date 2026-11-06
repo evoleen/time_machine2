@@ -2,12 +2,12 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'dart:async';
 import 'dart:collection';
 
 import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
+import 'package:parameterized_test/parameterized_test.dart';
 // import 'package:matcher/matcher.dart';
 
 import '../time_machine_testing.dart';
@@ -15,11 +15,67 @@ import '../time_machine_testing.dart';
 /// Tests for HebrewYearMonthDayCalculator via the Hebrew CalendarSystem.
 /// See http://blog.nodatime.org/2014/06/hebrew-calendar-cheat-sheet.html
 /// for sample year information.
-Future main() async {
-  await runTests();
+void main() {
+  test('IsLeapYear', IsLeapYear);
+  parameterizedTest(
+      'SetYear',
+      [
+        ['5405-02-10', 1, "5406-02-10"],
+        ['5402-12-05', 1, "5403-12-05"],
+        ['5402-13-05', 1, "5403-12-05"],
+        ['5402-12-30', 1, "5403-01-01"],
+        ['5401-12-05', 1, "5402-13-05"],
+        ['5402-12-05', 2, "5404-12-05"],
+        ['5402-12-30', 2, "5404-12-30"],
+        ['5402-13-05', 2, "5404-13-05"],
+        ['5402-08-30', 1, "5403-09-01"],
+        ['5400-09-30', 1, "5401-10-01"],
+        ['5402-08-30', 3, "5405-08-30"],
+        ['5400-09-30', 2, "5402-09-30"],
+      ],
+      SetYear,
+      customDescriptionBuilder: describeArguments);
+  parameterizedTest('AddMonths_MonthsBetween', AddAndSubtractMonthCases,
+      AddMonths_MonthsBetween,
+      customDescriptionBuilder: describeArguments);
+  parameterizedTest(
+      'MonthsBetween',
+      [
+        ...AddAndSubtractMonthCases,
+        ...MonthsBetweenCases,
+      ],
+      MonthsBetween,
+      customDescriptionBuilder: describeArguments);
+  test('MonthsBetween_TimeOfDay', MonthsBetween_TimeOfDay);
+  parameterizedTest(
+      'DayOfYearAndReverse',
+      [
+        [HebrewMonthNumbering.civil],
+        [HebrewMonthNumbering.scriptural],
+      ],
+      DayOfYearAndReverse,
+      customDescriptionBuilder: describeArguments);
+  test('GetDaysSinceEpoch', GetDaysSinceEpoch);
+  test('DaysAtStartOfYear', DaysAtStartOfYear);
+  test('GetDaysInYearCrossCheck', GetDaysInYearCrossCheck);
+  parameterizedTest(
+      'ScripturalCompare',
+      [
+        ['5502-01-01', "5503-01-01"],
+        ['5502-01-01', "5502-02-01"].options(
+            customDescriptionBuilder: (_, __, ___) =>
+                "Months in same half of year"),
+        ['5502-12-01', "5502-02-01"].options(
+            customDescriptionBuilder: (_, __, ___) =>
+                "Months in opposite half of year"),
+        ['5502-03-10', "5502-03-12"],
+      ],
+      ScripturalCompare,
+      customDescriptionBuilder: describeArguments);
+  test('ScripturalGetDaysFromStartOfYearToStartOfMonth_InvalidForCoverage',
+      ScripturalGetDaysFromStartOfYearToStartOfMonth_InvalidForCoverage);
 }
 
-@Test()
 void IsLeapYear() {
   var bclIsLeapYear = HashSet.from([
     5345,
@@ -335,40 +391,24 @@ void BclThroughHistory_Scriptural()
 
 // Test cases are in scriptural month numbering, but we check both. This is
 // mostly testing the behaviour of SetYear, via LocalDate.PlusYears.
-@Test()
 // Simple case
-@TestCase(['5405-02-10', 1, "5406-02-10"])
 // Adar mapping - Adar from non-leap maps to Adar II in leap;
 // Adar I and Adar II both map to Adar in a non-leap, except for the 30th of Adar I
 // which maps to the 1st of Nisan.
-@TestCase(['5402-12-05', 1, "5403-12-05"]) // Mapping from Adar I to Adar
-@TestCase(['5402-13-05', 1, "5403-12-05"]) // Mapping from Adar II to Adar
-@TestCase([
-  '5402-12-30',
-  1,
-  "5403-01-01"
-]) // Mapping from 30th of Adar I to 1st of Nisan
-@TestCase(['5401-12-05', 1, "5402-13-05"]) // Mapping from Adar to Adar II
+// Mapping from Adar I to Adar
+// Mapping from Adar II to Adar
+// Mapping from 30th of Adar I to 1st of Nisan
+// Mapping from Adar to Adar II
 // Transfer to another leap year
-@TestCase(['5402-12-05', 2, "5404-12-05"]) // Adar I to Adar I
-@TestCase(['5402-12-30', 2, "5404-12-30"]) // 30th of Adar I to 30th of Adar I
-@TestCase(['5402-13-05', 2, "5404-13-05"]) // Adar II to Adar II
+// Adar I to Adar I
+// 30th of Adar I to 30th of Adar I
+// Adar II to Adar II
 // Rollover of 30th of Kislev and Heshvan to the 1st of the next month.
-@TestCase(
-    ['5402-08-30', 1, "5403-09-01"]) // Rollover from 30th Heshvan to 1st Kislev
-@TestCase(
-    ['5400-09-30', 1, "5401-10-01"]) // Rollover from 30th Kislev to 1st Tevet
+// Rollover from 30th Heshvan to 1st Kislev
+// Rollover from 30th Kislev to 1st Tevet
 // No rollover required (target year has 30 days in as well)
-@TestCase([
-  '5402-08-30',
-  3,
-  "5405-08-30"
-]) // No truncation in Heshvan (both 5507 and 5509 are long)
-@TestCase([
-  '5400-09-30',
-  2,
-  "5402-09-30"
-]) // No truncation in Kislev (both 5503 and 5504 are long)
+// No truncation in Heshvan (both 5507 and 5509 are long)
+// No truncation in Kislev (both 5503 and 5504 are long)
 void SetYear(String startText, int years, String expectedEndText) {
   var civil = CalendarSystem.hebrewCivil;
   var scriptural = CalendarSystem.hebrewScriptural;
@@ -386,8 +426,6 @@ void SetYear(String startText, int years, String expectedEndText) {
       start.withCalendar(civil).addYears(years));
 }
 
-@Test()
-@TestCaseSource(#AddAndSubtractMonthCases)
 void AddMonths_MonthsBetween(
     String startText, int months, String expectedEndText) {
   var civil = CalendarSystem.hebrewCivil;
@@ -400,9 +438,6 @@ void AddMonths_MonthsBetween(
   expect(expectedEnd, start.addMonths(months));
 }
 
-@Test()
-@TestCaseSource(#AddAndSubtractMonthCases)
-@TestCaseSource(#MonthsBetweenCases)
 void MonthsBetween(String startText, int expectedMonths, String endText) {
   var civil = CalendarSystem.hebrewCivil;
   var pattern = LocalDatePattern.createWithInvariantCulture('yyyy-MM-dd')
@@ -415,7 +450,6 @@ void MonthsBetween(String startText, int expectedMonths, String endText) {
       Period.differenceBetweenDates(start, end, PeriodUnits.months).months);
 }
 
-@Test()
 void MonthsBetween_TimeOfDay() {
   var civil = CalendarSystem.hebrewCivil;
   var start = LocalDateTime(5774, 5, 10, 15, 0, 0, calendar: civil); // 3pm
@@ -425,9 +459,6 @@ void MonthsBetween_TimeOfDay() {
       Period.differenceBetweenDateTime(start, end, PeriodUnits.months).months);
 }
 
-@Test()
-@TestCase([HebrewMonthNumbering.civil])
-@TestCase([HebrewMonthNumbering.scriptural])
 void DayOfYearAndReverse(HebrewMonthNumbering numbering) {
   var calculator = HebrewYearMonthDayCalculator(numbering);
   for (int year = 5400; year < 5419; year++) {
@@ -439,7 +470,6 @@ void DayOfYearAndReverse(HebrewMonthNumbering numbering) {
   }
 }
 
-@Test()
 void GetDaysSinceEpoch() {
   var calculator =
       HebrewYearMonthDayCalculator(HebrewMonthNumbering.scriptural);
@@ -447,7 +477,6 @@ void GetDaysSinceEpoch() {
   expect(0, calculator.getDaysSinceEpoch(unixEpoch));
 }
 
-@Test()
 void DaysAtStartOfYear() {
   // These are somewhat random values used when diagnosing an issue.
   var calculator =
@@ -459,7 +488,6 @@ void DaysAtStartOfYear() {
       calculator.getYearMonthDayFromDaysSinceEpoch(-140529));
 }
 
-@Test()
 void GetDaysInYearCrossCheck() {
   var calculator = HebrewYearMonthDayCalculator(HebrewMonthNumbering.civil);
   for (int year = calculator.minYear; year <= calculator.maxYear; year++) {
@@ -475,12 +503,7 @@ void GetDaysInYearCrossCheck() {
   }
 }
 
-@Test()
-@TestCase(['5502-01-01', "5503-01-01"])
-@TestCase(['5502-01-01', "5502-02-01"], "Months in same half of year")
 // This is the test that looks odd...
-@TestCase(['5502-12-01', "5502-02-01"], "Months in opposite half of year")
-@TestCase(['5502-03-10', "5502-03-12"])
 void ScripturalCompare(String earlier, String later) {
   var pattern =
       LocalDatePattern.iso.withCalendar(CalendarSystem.hebrewScriptural);
@@ -490,7 +513,6 @@ void ScripturalCompare(String earlier, String later) {
   TestHelper.TestCompareToStruct(earlierDate, earlierDate2, [laterDate]);
 }
 
-@Test()
 void ScripturalGetDaysFromStartOfYearToStartOfMonth_InvalidForCoverage() {
   expect(
       () => HebrewScripturalCalculator.getDaysFromStartOfYearToStartOfMonth(

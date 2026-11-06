@@ -13,11 +13,33 @@ import '../time_machine_testing.dart';
 late DateTimeZoneProvider tzdb;
 
 /// Tests for DateTimeZoneCache.
-Future main() async {
-  await TimeMachineTest.initialize();
-  await setup();
+void main() {
+  setUpAll(TimeMachineTest.initialize);
+  setUpAll(setup);
 
-  await runTests();
+  test('CachingForPresentValues', CachingForPresentValues);
+  test('SourceIsNotAskedForUtcIfNotAdvertised',
+      SourceIsNotAskedForUtcIfNotAdvertised);
+  test('SourceIsAskedForUtcIfAdvertised', SourceIsAskedForUtcIfAdvertised);
+  test('SourceIsNotAskedForUnknownIds', SourceIsNotAskedForUnknownIds);
+  test('UtcIsReturnedInIdsIfAdvertisedByProvider',
+      UtcIsReturnedInIdsIfAdvertisedByProvider);
+  test('UtcIsNotReturnedInIdsIfNotAdvertisedByProvider',
+      UtcIsNotReturnedInIdsIfNotAdvertisedByProvider);
+  test('FixedOffsetSucceedsWhenNotAdvertised',
+      FixedOffsetSucceedsWhenNotAdvertised);
+  test('FixedOffsetConsultsSourceWhenAdvertised',
+      FixedOffsetConsultsSourceWhenAdvertised);
+  test('FixedOffsetUncached', FixedOffsetUncached);
+  test('FixedOffsetZeroReturnsUtc', FixedOffsetZeroReturnsUtc);
+  test('Tzdb_Indexer_InvalidFixedOffset', Tzdb_Indexer_InvalidFixedOffset);
+  test('EmptyIdAccepted', EmptyIdAccepted);
+  test('VersionIdPassThrough', VersionIdPassThrough);
+  test('Test for issue 7 in bug tracker', Tzdb_IterateOverIds);
+  test('Tzdb_Indexer_UtcId', Tzdb_Indexer_UtcId);
+  test('Tzdb_Indexer_AmericaLosAngeles', Tzdb_Indexer_AmericaLosAngeles);
+  test('Tzdb_Ids_All', Tzdb_Ids_All);
+  test('Tzdb_Indexer_AllIds', Tzdb_Indexer_AllIds);
 }
 
 Future setup() async {
@@ -59,7 +81,6 @@ Future setup() async {
 //   expect(DateTimeZoneCache.getCache(source), willThrow<InvalidDateTimeZoneSourceError>());
 // }
 
-@Test()
 Future CachingForPresentValues() async {
   var source = TestDateTimeZoneSource(['Test1', "Test2"]);
   var provider = await DateTimeZoneCache.getCache(source);
@@ -79,7 +100,6 @@ Future CachingForPresentValues() async {
   expect(identical(zone1a, zone1b), isTrue);
 }
 
-@Test()
 Future SourceIsNotAskedForUtcIfNotAdvertised() async {
   var source = TestDateTimeZoneSource(['Test1', "Test2"]);
   var provider = await DateTimeZoneCache.getCache(source);
@@ -88,7 +108,6 @@ Future SourceIsNotAskedForUtcIfNotAdvertised() async {
   expect(source.LastRequestedId, isNull);
 }
 
-@Test()
 Future SourceIsAskedForUtcIfAdvertised() async {
   var source = TestDateTimeZoneSource(['Test1', "Test2", "UTC"]);
   var provider = await DateTimeZoneCache.getCache(source);
@@ -97,7 +116,6 @@ Future SourceIsAskedForUtcIfAdvertised() async {
   expect('UTC', source.LastRequestedId);
 }
 
-@Test()
 Future SourceIsNotAskedForUnknownIds() async {
   var source = TestDateTimeZoneSource(['Test1', "Test2"]);
   var provider = await DateTimeZoneCache.getCache(source);
@@ -106,21 +124,18 @@ Future SourceIsNotAskedForUnknownIds() async {
   expect(source.LastRequestedId, isNull);
 }
 
-@Test()
 Future UtcIsReturnedInIdsIfAdvertisedByProvider() async {
   var source = TestDateTimeZoneSource(['Test1', "Test2", "UTC"]);
   var provider = await DateTimeZoneCache.getCache(source);
   expect(provider.ids.contains(IDateTimeZone.utcId), isTrue);
 }
 
-@Test()
 Future UtcIsNotReturnedInIdsIfNotAdvertisedByProvider() async {
   var source = TestDateTimeZoneSource(['Test1', "Test2"]);
   var provider = await DateTimeZoneCache.getCache(source);
   expect(provider.ids.contains(IDateTimeZone.utcId), isFalse);
 }
 
-@Test()
 Future FixedOffsetSucceedsWhenNotAdvertised() async {
   var source = TestDateTimeZoneSource(['Test1', "Test2"]);
   var provider = await DateTimeZoneCache.getCache(source);
@@ -131,7 +146,6 @@ Future FixedOffsetSucceedsWhenNotAdvertised() async {
   expect(source.LastRequestedId, isNull);
 }
 
-@Test()
 Future FixedOffsetConsultsSourceWhenAdvertised() async {
   String id = 'UTC+05:30';
   var source = TestDateTimeZoneSource(['Test1', "Test2", id]);
@@ -141,7 +155,6 @@ Future FixedOffsetConsultsSourceWhenAdvertised() async {
   expect(id, source.LastRequestedId);
 }
 
-@Test()
 Future FixedOffsetUncached() async {
   String id = 'UTC+05:26';
   var source = TestDateTimeZoneSource(['Test1', "Test2"]);
@@ -152,7 +165,6 @@ Future FixedOffsetUncached() async {
   expect(zone1, zone2);
 }
 
-@Test()
 Future FixedOffsetZeroReturnsUtc() async {
   String id = 'UTC+00:00';
   var source = TestDateTimeZoneSource(['Test1', "Test2"]);
@@ -162,7 +174,6 @@ Future FixedOffsetZeroReturnsUtc() async {
   expect(source.LastRequestedId, isNull);
 }
 
-@Test()
 void Tzdb_Indexer_InvalidFixedOffset() {
   expect(tzdb['UTC+5Months'], willThrow<DateTimeZoneNotFoundError>());
 }
@@ -174,21 +185,18 @@ void Tzdb_Indexer_InvalidFixedOffset() {
 //   expect(provider[null], throwsArgumentError);
 // }
 
-@Test()
 Future EmptyIdAccepted() async {
   var provider = await DateTimeZoneCache.getCache(
       TestDateTimeZoneSource(['Test1', "Test2"]));
   expect(provider[''], willThrow<DateTimeZoneNotFoundError>());
 }
 
-@Test()
 Future VersionIdPassThrough() async {
   var provider = await DateTimeZoneCache.getCache(
       TestDateTimeZoneSource(['Test1', "Test2"])..versionId = "foo");
   expect('foo', provider.versionId);
 }
 
-@Test('Test for issue 7 in bug tracker')
 Future Tzdb_IterateOverIds() async {
   // According to bug, this would go bang
   int count = tzdb.ids.length;
@@ -198,12 +206,10 @@ Future Tzdb_IterateOverIds() async {
   expect(1, utcCount);
 }
 
-@Test()
 Future Tzdb_Indexer_UtcId() async {
   expect(DateTimeZone.utc, (await tzdb[IDateTimeZone.utcId]));
 }
 
-@Test()
 Future Tzdb_Indexer_AmericaLosAngeles() async {
   const String americaLosAngeles = 'America/Los_Angeles';
   var actual = await tzdb[americaLosAngeles];
@@ -212,7 +218,6 @@ Future Tzdb_Indexer_AmericaLosAngeles() async {
   expect(americaLosAngeles, actual.id);
 }
 
-@Test()
 Future Tzdb_Ids_All() async {
   // todo: we don't have Utc in here.... is this what we want? Need to refer to our faux TZDB
   var actual = tzdb.ids;
@@ -225,7 +230,6 @@ Future Tzdb_Ids_All() async {
 /// Simply tests that every ID in the built-in database can be fetched. This is also
 /// helpful for diagnostic debugging when we want to check that some potential
 /// invariant holds for all time zones...
-@Test()
 void Tzdb_Indexer_AllIds() {
   for (String id in tzdb.ids) {
     expect(tzdb[id], isNotNull);

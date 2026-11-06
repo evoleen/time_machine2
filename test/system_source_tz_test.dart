@@ -7,6 +7,11 @@
 // maps Windows IDs with CLDR, and the system provider (whose IDs are Windows
 // IDs) maps IANA IDs with Windows' own ICU. Empty or unrecognised values
 // leave Windows' own zone. On Linux and macOS both follow .NET's rules.
+
+// Uses dart:ffi (Windows ICU) and processes.
+@TestOn('vm')
+library;
+
 import 'dart:async';
 import 'dart:convert';
 
@@ -18,9 +23,14 @@ import 'package:universal_io/io.dart' as io;
 
 import 'time_machine_testing.dart';
 
-Future main() async {
-  await TimeMachineTest.initialize();
-  await runTests();
+void main() {
+  setUpAll(TimeMachineTest.initialize);
+
+  test('Windows_IcuMapsIanaToWindowsIds', Windows_IcuMapsIanaToWindowsIds);
+  test('Windows_TzSelectsTheSameZoneForBothProviders',
+      Windows_TzSelectsTheSameZoneForBothProviders);
+  test('Unix_TzSelectsTheSameZoneForBothProviders',
+      Unix_TzSelectsTheSameZoneForBothProviders);
 }
 
 // The probe is compiled once, so each child process starts quickly.
@@ -62,7 +72,6 @@ Future<void> _expectZones(String? tz, String local, String system) async {
   expect(match, 'match', reason: 'offsets with TZ=$tz');
 }
 
-@Test()
 void Windows_IcuMapsIanaToWindowsIds() {
   if (skipUnless(io.Platform.isWindows, 'Windows only')) return;
   expect(ianaToWindowsIdWithIcu('Asia/Tokyo'), 'Tokyo Standard Time');
@@ -73,7 +82,6 @@ void Windows_IcuMapsIanaToWindowsIds() {
   expect(ianaToWindowsIdWithIcu(''), isNull);
 }
 
-@Test()
 Future Windows_TzSelectsTheSameZoneForBothProviders() async {
   if (skipUnless(io.Platform.isWindows, 'Windows only')) return;
   // IANA IDs, and Windows IDs (Windows only).
@@ -104,7 +112,6 @@ Future Windows_TzSelectsTheSameZoneForBothProviders() async {
   }
 }
 
-@Test()
 Future Unix_TzSelectsTheSameZoneForBothProviders() async {
   if (skipUnless(!io.Platform.isWindows && !io.Platform.isAndroid,
       'Linux and macOS only')) {

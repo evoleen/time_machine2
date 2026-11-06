@@ -2,18 +2,37 @@
 import 'dart:async';
 
 import 'package:test/test.dart';
+import 'package:parameterized_test/parameterized_test.dart';
 import 'package:time_machine2/time_machine2.dart';
 import 'package:time_machine2/src/platforms/unix_time_zone.dart';
 import 'package:universal_io/io.dart' as io;
 
 import 'time_machine_testing.dart';
 
-Future main() async {
-  await TimeMachineTest.initialize();
-  await runTests();
+void main() {
+  setUpAll(TimeMachineTest.initialize);
+
+  test('TzEnvironmentVariable', TzEnvironmentVariable);
+  test('TimeZoneDirectory', TimeZoneDirectory);
+  parameterizedTest(
+      'ZoneIdFromPath',
+      [
+        ['/usr/share/zoneinfo/Europe/Berlin', 'Europe/Berlin'],
+        [
+          '/usr/share/zoneinfo/America/Argentina/Buenos_Aires',
+          'America/Argentina/Buenos_Aires'
+        ],
+        ['/usr/share/zoneinfo/UTC', 'UTC'],
+        ['/var/db/timezone/zoneinfo/Australia/Sydney', 'Australia/Sydney'],
+        ['/etc/../usr/share/zoneinfo/Asia/Tokyo', 'Asia/Tokyo'],
+        ['/usr/share/zoneinfo//Asia/./Tokyo', 'Asia/Tokyo'],
+        ['/etc/localtime', null],
+      ],
+      ZoneIdFromPath,
+      customDescriptionBuilder: describeArguments);
+  test('UnixLocalZoneIsTheConfiguredId', UnixLocalZoneIsTheConfiguredId);
 }
 
-@Test()
 void TzEnvironmentVariable() {
   expect(tzEnvironmentVariable(null), isNull);
   expect(tzEnvironmentVariable(''), '');
@@ -22,7 +41,6 @@ void TzEnvironmentVariable() {
   expect(tzEnvironmentVariable(':Europe/Berlin'), 'Europe/Berlin');
 }
 
-@Test()
 void TimeZoneDirectory() {
   expect(timeZoneDirectory(null), '/usr/share/zoneinfo/');
   expect(timeZoneDirectory(''), '/usr/share/zoneinfo/');
@@ -30,26 +48,14 @@ void TimeZoneDirectory() {
   expect(timeZoneDirectory('/opt/zoneinfo/'), '/opt/zoneinfo/');
 }
 
-@Test()
-@TestCase(['/usr/share/zoneinfo/Europe/Berlin', 'Europe/Berlin'])
-@TestCase([
-  '/usr/share/zoneinfo/America/Argentina/Buenos_Aires',
-  'America/Argentina/Buenos_Aires'
-])
-@TestCase(['/usr/share/zoneinfo/UTC', 'UTC'])
 // macOS: /etc/localtime -> /var/db/timezone/zoneinfo/...
-@TestCase(['/var/db/timezone/zoneinfo/Australia/Sydney', 'Australia/Sydney'])
 // Relative symlink targets, resolved against /etc
-@TestCase(['/etc/../usr/share/zoneinfo/Asia/Tokyo', 'Asia/Tokyo'])
-@TestCase(['/usr/share/zoneinfo//Asia/./Tokyo', 'Asia/Tokyo'])
-@TestCase(['/etc/localtime', null])
 void ZoneIdFromPath(String path, String? expected) {
   expect(zoneIdFromPath(path, '/usr/share/zoneinfo/'), expected);
 }
 
 /// On Linux and macOS the local zone comes from the IANA ID the system is
 /// configured with, as .NET (and so Noda Time) finds it.
-@Test()
 Future UnixLocalZoneIsTheConfiguredId() async {
   if (skipUnless(!io.Platform.isWindows && !io.Platform.isAndroid,
       'Linux and macOS only')) {

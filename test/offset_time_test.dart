@@ -2,8 +2,6 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'dart:async';
-
 import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
@@ -11,12 +9,20 @@ import 'package:test/test.dart';
 
 import 'time_machine_testing.dart';
 
-Future main() async {
-  await TimeMachineTest.initialize();
-  await runTests();
+void main() {
+  setUpAll(TimeMachineTest.initialize);
+
+  test('LocalTimeProperties', LocalTimeProperties);
+  test('ComponentProperties', ComponentProperties);
+  test('Equality', Equality);
+  test('On', On);
+  test('WithOffset', WithOffset);
+  test('WithAdjuster', WithAdjuster);
+  test('ToString_WithFormat', ToString_WithFormat);
+  test('ToString_WithNullFormat', ToString_WithNullFormat);
+  test('ToString_NoFormat', ToString_NoFormat);
 }
 
-@Test()
 void LocalTimeProperties() {
   /* // todo: equivalent?
   LocalTime local = new LocalTime(5, 23, 45).PlusNanoseconds(987654321);
@@ -38,7 +44,6 @@ void LocalTimeProperties() {
   }*/
 }
 
-@Test()
 void ComponentProperties() {
   var time = LocalTime(12, 34, 15);
   var offset = Offset.hours(5);
@@ -48,7 +53,6 @@ void ComponentProperties() {
   expect(time, offsetDate.clockTime);
 }
 
-@Test()
 void Equality() {
   LocalTime time1 = LocalTime(4, 56, 23, ms: 123);
   LocalTime time2 = LocalTime(6, 23, 12, ms: 987);
@@ -67,7 +71,6 @@ void Equality() {
   TestHelper.TestOperatorEquality(equal1, equal2, unequalByLocal);
 }
 
-@Test()
 void On() {
   var time = LocalTime(14, 15, 12).addNanoseconds(123456789);
   var date = LocalDate(2012, 6, 19, CalendarSystem.julian);
@@ -77,7 +80,6 @@ void On() {
       time.atDate(date).withOffset(offset));
 }
 
-@Test()
 void WithOffset() {
   var time = LocalTime(14, 15, 12).addNanoseconds(123456789);
   var initial = OffsetTime(time, Offset.hours(2));
@@ -86,7 +88,6 @@ void WithOffset() {
   expect(expected, actual);
 }
 
-@Test()
 void WithAdjuster() {
   var initial = OffsetTime(LocalTime(14, 15, 12), Offset.hours(-5));
   var actual = initial.adjust(TimeAdjusters.truncateToHour);
@@ -94,7 +95,6 @@ void WithAdjuster() {
   expect(expected, actual);
 }
 
-@Test()
 void ToString_WithFormat() {
   LocalTime time = LocalTime(14, 15, 12, ms: 123);
   Offset offset = Offset.hours(1);
@@ -103,7 +103,6 @@ void ToString_WithFormat() {
       "14:15:12.123 01");
 }
 
-@Test()
 void ToString_WithNullFormat() {
   LocalTime time = LocalTime(14, 15, 12, ms: 123);
   Offset offset = Offset.hours(1);
@@ -111,7 +110,6 @@ void ToString_WithNullFormat() {
   expect(offsetDate.toString(null, Culture.invariant), '14:15:12+01');
 }
 
-@Test()
 void ToString_NoFormat() {
   LocalTime time = LocalTime(14, 15, 12, ms: 123);
   Offset offset = Offset.hours(1);

@@ -2,22 +2,41 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'dart:async';
-
 import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
+import 'package:parameterized_test/parameterized_test.dart';
 
 import '../time_machine_testing.dart';
 import 'pattern_test_base.dart';
 import 'pattern_test_data.dart';
 import 'test_cultures.dart';
 
-Future main() async {
-  await runTests();
+void main() {
+  group('OffsetDateTimePatternTest', () {
+    final fixture = OffsetDateTimePatternTest();
+    test('CreateWithInvariantCulture', fixture.CreateWithInvariantCulture);
+    test('CreateWithCurrentCulture', fixture.CreateWithCurrentCulture);
+    test('WithCulture', fixture.WithCulture);
+    test('WithPatternText', fixture.WithPatternText);
+    test('WithTemplateValue', fixture.WithTemplateValue);
+    test('WithCalendar', fixture.WithCalendar);
+    parameterizedTest(
+        'InvalidPatterns', fixture.InvalidPatternData, fixture.InvalidPatterns,
+        customDescriptionBuilder: describeArguments);
+    parameterizedTest(
+        'ParseFailures', fixture.ParseFailureData, fixture.ParseFailures,
+        customDescriptionBuilder: describeArguments);
+    parameterizedTest('Parse', fixture.ParseData.toList(), fixture.Parse,
+        customDescriptionBuilder: describeArguments);
+    parameterizedTest('Format', fixture.FormatData.toList(), fixture.Format,
+        customDescriptionBuilder: describeArguments);
+    parameterizedTest(
+        'AppendFormat', fixture.FormatData.toList(), fixture.AppendFormat,
+        customDescriptionBuilder: describeArguments);
+  });
 }
 
-@Test()
 class OffsetDateTimePatternTest extends PatternTestBase<OffsetDateTime> {
   // The standard example date/time used in all the MSDN samples, which means we can just cut and paste
   // the expected results of the standard patterns. We've got an offset of 1 hour though.
@@ -296,7 +315,6 @@ class OffsetDateTimePatternTest extends PatternTestBase<OffsetDateTime> {
   Iterable<Data> get FormatData =>
       [FormatOnlyData, FormatAndParseData].expand((x) => x);
 
-  @Test()
   void CreateWithInvariantCulture() {
     var pattern = OffsetDateTimePattern.createWithInvariantCulture(
         "yyyy-MM-dd'T'HH:mm:sso<g>");
@@ -309,7 +327,6 @@ class OffsetDateTimePatternTest extends PatternTestBase<OffsetDateTime> {
     expect('2017-08-23T12:34:56+02', pattern.format(odt));
   }
 
-  @Test()
   void CreateWithCurrentCulture() {
     var odt =
         LocalDateTime(2017, 8, 23, 12, 34, 56).withOffset(Offset.hours(2));
@@ -327,7 +344,6 @@ class OffsetDateTimePatternTest extends PatternTestBase<OffsetDateTime> {
     //    }
   }
 
-  @Test()
   void WithCulture() {
     var pattern = OffsetDateTimePattern.createWithInvariantCulture('HH:mm')
         .withCulture(TestCultures.DotTimeSeparator);
@@ -336,7 +352,6 @@ class OffsetDateTimePatternTest extends PatternTestBase<OffsetDateTime> {
     expect('19.30', text);
   }
 
-  @Test()
   void WithPatternText() {
     var pattern = OffsetDateTimePattern.createWithInvariantCulture('yyyy-MM-dd')
         .withPatternText("HH:mm");
@@ -345,7 +360,6 @@ class OffsetDateTimePatternTest extends PatternTestBase<OffsetDateTime> {
     expect('13:30', text);
   }
 
-  @Test()
   void WithTemplateValue() {
     var pattern = OffsetDateTimePattern.createWithInvariantCulture('yyyy-MM-dd')
         .withTemplateValue(
@@ -356,7 +370,6 @@ class OffsetDateTimePatternTest extends PatternTestBase<OffsetDateTime> {
     expect(Offset.hours(2), parsed.offset);
   }
 
-  @Test()
   void WithCalendar() {
     var pattern = OffsetDateTimePattern.createWithInvariantCulture('yyyy-MM-dd')
         .withCalendar(CalendarSystem.coptic);

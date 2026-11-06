@@ -2,15 +2,38 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'dart:async';
-
 import 'package:time_machine2/src/time_machine_internal.dart';
 import 'package:test/test.dart';
 
 import '../time_machine_testing.dart';
 
-Future main() async {
-  await runTests();
+void main() {
+  test('MinMaxOffsets', MinMaxOffsets);
+  test('GetZoneInterval_Instant_Summer', GetZoneInterval_Instant_Summer);
+  test('GetZoneInterval_Instant_Winter', GetZoneInterval_Instant_Winter);
+  test('GetZoneInterval_Instant_StartOfFirstSummer',
+      GetZoneInterval_Instant_StartOfFirstSummer);
+  test('MapLocal_WithinFirstSummer', MapLocal_WithinFirstSummer);
+  test('MapLocal_WithinFirstWinter', MapLocal_WithinFirstWinter);
+  test('MapLocal_AtFirstGapStart', MapLocal_AtFirstGapStart);
+  test('MapLocal_WithinFirstGap', MapLocal_WithinFirstGap);
+  test('MapLocal_EndOfFirstGap', MapLocal_EndOfFirstGap);
+  test('MapLocal_StartOfFirstAmbiguity', MapLocal_StartOfFirstAmbiguity);
+  test('MapLocal_MiddleOfFirstAmbiguity', MapLocal_MiddleOfFirstAmbiguity);
+  test('MapLocal_AfterFirstAmbiguity', MapLocal_AfterFirstAmbiguity);
+  test('MapLocal_WithinArbitrarySummer', MapLocal_WithinArbitrarySummer);
+  test('MapLocal_WithinArbitraryWinter', MapLocal_WithinArbitraryWinter);
+  test('MapLocal_AtArbitraryGapStart', MapLocal_AtArbitraryGapStart);
+  test('MapLocal_WithinArbitraryGap', MapLocal_WithinArbitraryGap);
+  test('MapLocal_EndOfArbitraryGap', MapLocal_EndOfArbitraryGap);
+  test(
+      'MapLocal_StartOfArbitraryAmbiguity', MapLocal_StartOfArbitraryAmbiguity);
+  test('MapLocal_MiddleOfArbitraryAmbiguity',
+      MapLocal_MiddleOfArbitraryAmbiguity);
+  test('MapLocal_AfterArbitraryAmbiguity', MapLocal_AfterArbitraryAmbiguity);
+  test('Equality', Equality);
+  test('Extremes', Extremes);
+  test('InvalidMap_SimultaneousTransition', InvalidMap_SimultaneousTransition);
 }
 
 ZoneRecurrence Winter = ZoneRecurrence(
@@ -43,13 +66,11 @@ DateTimeZone TestZone = PrecalculatedDateTimeZone(
     ],
     StandardDaylightAlternatingMap(Offset.hours(5), Winter, Summer));
 
-@Test()
 void MinMaxOffsets() {
   expect(Offset.hours(6), TestMap.maxOffset);
   expect(Offset.hours(5), TestMap.minOffset);
 }
 
-@Test()
 void GetZoneInterval_Instant_Summer() {
   var interval = TestMap.getZoneInterval(Instant.utc(2010, 6, 1, 0, 0));
   expect('Summer', interval.name);
@@ -60,7 +81,6 @@ void GetZoneInterval_Instant_Summer() {
   expect(LocalDateTime(2010, 10, 5, 2, 0, 0), interval.isoLocalEnd);
 }
 
-@Test()
 void GetZoneInterval_Instant_Winter() {
   var interval = TestMap.getZoneInterval(Instant.utc(2010, 11, 1, 0, 0));
   expect('Winter', interval.name);
@@ -71,7 +91,6 @@ void GetZoneInterval_Instant_Winter() {
   expect(LocalDateTime(2011, 3, 10, 1, 0, 0), interval.isoLocalEnd);
 }
 
-@Test()
 void GetZoneInterval_Instant_StartOfFirstSummer() {
   // This is only just about valid
   var firstSummer = Instant.utc(2000, 3, 9, 20, 0);
@@ -79,103 +98,86 @@ void GetZoneInterval_Instant_StartOfFirstSummer() {
   expect('Summer', interval.name);
 }
 
-@Test()
 void MapLocal_WithinFirstSummer() {
   var early = LocalDateTime(2000, 6, 1, 0, 0, 0);
   CheckMapping(TestZone.mapLocal(early), 'Summer', "Summer", 1);
 }
 
-@Test()
 void MapLocal_WithinFirstWinter() {
   var winter = LocalDateTime(2000, 12, 1, 0, 0, 0);
   CheckMapping(TestZone.mapLocal(winter), 'Winter', "Winter", 1);
 }
 
-@Test()
 void MapLocal_AtFirstGapStart() {
   var startOfFirstGap = LocalDateTime(2000, 3, 10, 1, 0, 0);
   CheckMapping(TestZone.mapLocal(startOfFirstGap), 'Winter', "Summer", 0);
 }
 
-@Test()
 void MapLocal_WithinFirstGap() {
   var middleOfFirstGap = LocalDateTime(2000, 3, 10, 1, 30, 0);
   CheckMapping(TestZone.mapLocal(middleOfFirstGap), 'Winter', "Summer", 0);
 }
 
-@Test()
 void MapLocal_EndOfFirstGap() {
   var endOfFirstGap = LocalDateTime(2000, 3, 10, 2, 0, 0);
   CheckMapping(TestZone.mapLocal(endOfFirstGap), 'Summer', "Summer", 1);
 }
 
-@Test()
 void MapLocal_StartOfFirstAmbiguity() {
   var firstAmbiguity = LocalDateTime(2000, 10, 5, 1, 0, 0);
   CheckMapping(TestZone.mapLocal(firstAmbiguity), 'Summer', "Winter", 2);
 }
 
-@Test()
 void MapLocal_MiddleOfFirstAmbiguity() {
   var firstAmbiguity = LocalDateTime(2000, 10, 5, 1, 30, 0);
   CheckMapping(TestZone.mapLocal(firstAmbiguity), 'Summer', "Winter", 2);
 }
 
-@Test()
 void MapLocal_AfterFirstAmbiguity() {
   var unambiguousWinter = LocalDateTime(2000, 10, 5, 2, 0, 0);
   CheckMapping(TestZone.mapLocal(unambiguousWinter), 'Winter', "Winter", 1);
 }
 
-@Test()
 void MapLocal_WithinArbitrarySummer() {
   var summer = LocalDateTime(2010, 6, 1, 0, 0, 0);
   CheckMapping(TestZone.mapLocal(summer), 'Summer', "Summer", 1);
 }
 
-@Test()
 void MapLocal_WithinArbitraryWinter() {
   var winter = LocalDateTime(2010, 12, 1, 0, 0, 0);
   CheckMapping(TestZone.mapLocal(winter), 'Winter', "Winter", 1);
 }
 
-@Test()
 void MapLocal_AtArbitraryGapStart() {
   var startOfGap = LocalDateTime(2010, 3, 10, 1, 0, 0);
   CheckMapping(TestZone.mapLocal(startOfGap), 'Winter', "Summer", 0);
 }
 
-@Test()
 void MapLocal_WithinArbitraryGap() {
   var middleOfGap = LocalDateTime(2010, 3, 10, 1, 30, 0);
   CheckMapping(TestZone.mapLocal(middleOfGap), 'Winter', "Summer", 0);
 }
 
-@Test()
 void MapLocal_EndOfArbitraryGap() {
   var endOfGap = LocalDateTime(2010, 3, 10, 2, 0, 0);
   CheckMapping(TestZone.mapLocal(endOfGap), 'Summer', "Summer", 1);
 }
 
-@Test()
 void MapLocal_StartOfArbitraryAmbiguity() {
   var ambiguity = LocalDateTime(2010, 10, 5, 1, 0, 0);
   CheckMapping(TestZone.mapLocal(ambiguity), 'Summer', "Winter", 2);
 }
 
-@Test()
 void MapLocal_MiddleOfArbitraryAmbiguity() {
   var ambiguity = LocalDateTime(2010, 10, 5, 1, 30, 0);
   CheckMapping(TestZone.mapLocal(ambiguity), 'Summer', "Winter", 2);
 }
 
-@Test()
 void MapLocal_AfterArbitraryAmbiguity() {
   var unambiguousWinter = LocalDateTime(2010, 10, 5, 2, 0, 0);
   CheckMapping(TestZone.mapLocal(unambiguousWinter), 'Winter', "Winter", 1);
 }
 
-@Test()
 void Equality() {
   // Order of recurrences doesn't matter
   var map1 = StandardDaylightAlternatingMap(Offset.hours(1), Summer, Winter);
@@ -276,7 +278,6 @@ void ReadWrite()
   expect(map1, map2);
 }*/
 
-@Test()
 void Extremes() {
   ZoneRecurrence winter = ZoneRecurrence(
       'Winter',
@@ -324,7 +325,6 @@ void Extremes() {
   expect(lastWinter, zone.getZoneInterval(Instant.maxValue));
 }
 
-@Test()
 void InvalidMap_SimultaneousTransition() {
   // Two recurrences with different savings, but which occur at the same instant in time every year.
   ZoneRecurrence r1 = ZoneRecurrence(

@@ -8,18 +8,20 @@ import 'package:time_machine2/time_machine2.dart';
 
 import 'time_machine_testing.dart';
 
-Future main() async {
-  await TimeMachineTest.initialize();
-  await runTests();
+void main() {
+  setUpAll(TimeMachineTest.initialize);
+
+  test('TzdbProviderUsesTzdbSource', TzdbProviderUsesTzdbSource);
+  test('AllTzdbTimeZonesLoad', AllTzdbTimeZonesLoad);
+  test('FixedOffsetIdWorksAsTheSystemDefault',
+      FixedOffsetIdWorksAsTheSystemDefault);
 }
 
-@Test()
 Future TzdbProviderUsesTzdbSource() async {
   expect(DateTimeZoneProviders.defaultProvider?.versionId?.startsWith('TZDB: '),
       isTrue);
 }
 
-@Test()
 Future AllTzdbTimeZonesLoad() async {
   var tzdb = DateTimeZoneProviders.defaultProvider;
   var allZones = tzdb?.ids.map((id) => tzdb[id]).toList();
@@ -30,7 +32,6 @@ Future AllTzdbTimeZonesLoad() async {
 /// TimeMachine.initialize's last resort is a fixed zone with the system's
 /// offset; its ID (e.g. 'UTC+05:30') isn't a TZDB ID but, as in Noda Time,
 /// every provider resolves fixed-offset IDs, so it works as the default.
-@Test()
 Future FixedOffsetIdWorksAsTheSystemDefault() async {
   var tzdb = await DateTimeZoneProviders.tzdb;
   var original = tzdb.getCachedSystemDefault().id;

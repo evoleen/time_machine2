@@ -1,4 +1,9 @@
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
+
+// Uses dart:ffi (the Windows time zone API) and processes.
+@TestOn('vm')
+library;
+
 import 'dart:async';
 import 'dart:convert';
 
@@ -9,9 +14,19 @@ import 'package:universal_io/io.dart' as io;
 
 import 'time_machine_testing.dart';
 
-Future main() async {
-  await TimeMachineTest.initialize();
-  await runTests();
+void main() {
+  setUpAll(TimeMachineTest.initialize);
+
+  test('WindowsMappingIsEmbedded', WindowsMappingIsEmbedded);
+  test('WindowsStandardNamesThatDifferFromTheId',
+      WindowsStandardNamesThatDifferFromTheId);
+  test('LocalZoneMatchesSystemOffset', LocalZoneMatchesSystemOffset);
+  test('WindowsTimeZoneIdIsReadViaWin32', WindowsTimeZoneIdIsReadViaWin32);
+  test(
+      'WindowsLocalZoneIsMappedFromZoneId', WindowsLocalZoneIsMappedFromZoneId);
+  test('AllWindowsRegistryZonesAreMapped', AllWindowsRegistryZonesAreMapped);
+  test('WindowsDisplayNamesAreLocalizedWhenExpected',
+      WindowsDisplayNamesAreLocalizedWhenExpected);
 }
 
 TzdbDateTimeZoneSource get source => TzdbDateTimeZoneSource.defaultSource;
@@ -20,7 +35,6 @@ TzdbDateTimeZoneSource get source => TzdbDateTimeZoneSource.defaultSource;
 // The ported Noda Time tests are in tzdb_datetimezone_source_test.dart and
 // cldr_windows_zones_test.dart.
 
-@Test()
 void WindowsMappingIsEmbedded() {
   expect(source.windowsMapping.mapZones, isNotEmpty);
   expect(source.windowsMapping.windowsVersion, isNotEmpty);
@@ -29,7 +43,6 @@ void WindowsMappingIsEmbedded() {
   expect(source.windowsToTzdbIds['W. Europe Standard Time'], 'Europe/Berlin');
 }
 
-@Test()
 void WindowsStandardNamesThatDifferFromTheId() {
   expect(source.windowsStandardNameToTzdbId('Coordinated Universal Time'),
       'Etc/UTC');
@@ -42,7 +55,6 @@ void WindowsStandardNamesThatDifferFromTheId() {
 // Local zone detection.
 // ---------------------------------------------------------------------------
 
-@Test()
 void LocalZoneMatchesSystemOffset() {
   // Whatever zone is detected, it must agree with the system's current offset.
   var now = DateTime.now();
@@ -62,7 +74,6 @@ Future<String?> _registryValue(String key, String name) async {
 const _timeZoneInformationKey =
     r'HKLM\SYSTEM\CurrentControlSet\Control\TimeZoneInformation';
 
-@Test()
 Future WindowsTimeZoneIdIsReadViaWin32() async {
   if (skipUnless(io.Platform.isWindows, 'Windows only')) return;
   var expected =
@@ -83,7 +94,6 @@ Future WindowsTimeZoneIdIsReadViaWin32() async {
 
 /// The local zone comes from the Windows zone ID, which is the same in every
 /// display language, so this holds on non-English Windows too.
-@Test()
 Future WindowsLocalZoneIsMappedFromZoneId() async {
   if (skipUnless(io.Platform.isWindows, 'Windows only')) return;
   var keyName =
@@ -117,7 +127,6 @@ const _knownUnmappedWindowsIds = {
 /// Equivalent of Noda Time's NameIdMappingSupport test: every zone in the
 /// Windows registry must be mappable from its ID, and from its English
 /// standard name (used when the ID can't be read).
-@Test()
 Future AllWindowsRegistryZonesAreMapped() async {
   if (skipUnless(io.Platform.isWindows, 'Windows only')) return;
 
@@ -163,7 +172,6 @@ Future AllWindowsRegistryZonesAreMapped() async {
 /// Guards the non-English Windows CI leg: with
 /// TIME_MACHINE_EXPECT_LOCALIZED_WINDOWS=1, the display names Dart reports
 /// must not be the English ones, otherwise that leg isn't testing anything.
-@Test()
 Future WindowsDisplayNamesAreLocalizedWhenExpected() async {
   if (skipUnless(
       io.Platform.isWindows &&

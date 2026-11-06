@@ -7,6 +7,7 @@ import 'dart:async';
 import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
+import 'package:parameterized_test/parameterized_test.dart';
 import 'package:time_machine2/time_machine2.dart';
 
 import 'time_machine_testing.dart';
@@ -14,11 +15,59 @@ import 'time_machine_testing.dart';
 late DateTimeZone
     Pacific; // = DateTimeZoneProviders.Tzdb['America/Los_Angeles'];
 
-Future main() async {
-  await TimeMachineTest.initialize();
-  await setup();
+void main() {
+  setUpAll(TimeMachineTest.initialize);
+  setUpAll(setup);
 
-  await runTests();
+  test('ToDateTimeUnspecified', ToDateTimeUnspecified);
+  test('PeriodUntilSince', PeriodUntilSince);
+  parameterizedTest(
+      'ToDateTimeUnspecified_TruncatesTowardsStartOfTime',
+      [
+        [100],
+        [1900],
+        [2900],
+      ],
+      ToDateTimeUnspecified_TruncatesTowardsStartOfTime,
+      customDescriptionBuilder: describeArguments);
+  test('FromDateTime', FromDateTime);
+  test('FromDateTimeBeforeEpoch', FromDateTimeBeforeEpoch);
+  test('FromDateTime_WithCalendar', FromDateTime_WithCalendar);
+  test('TimeProperties_AfterEpoch', TimeProperties_AfterEpoch);
+  test('TimeProperties_BeforeEpoch', TimeProperties_BeforeEpoch);
+  test('WithCalendar', WithCalendar);
+  test('TimeOfDay_Before1970', TimeOfDay_Before1970);
+  test('TimeOfDay_After1970', TimeOfDay_After1970);
+  test('Date_Before1970', Date_Before1970);
+  test('Date_After1970', Date_After1970);
+  test('DayOfWeek_AroundEpoch', DayOfWeek_AroundEpoch);
+  test('ClockHourOfHalfDay', ClockHourOfHalfDay);
+  test('Operators_SameCalendar', Operators_SameCalendar);
+  test('Operators_DifferentCalendars_Throws',
+      Operators_DifferentCalendars_Throws);
+  test('CompareTo_SameCalendar', CompareTo_SameCalendar);
+  test('CompareTo_DifferentCalendars_Throws',
+      CompareTo_DifferentCalendars_Throws);
+  test('IComparableCompareTo_SameCalendar', IComparableCompareTo_SameCalendar);
+  test(
+      'IComparableCompareTo_Null_Positive', IComparableCompareTo_Null_Positive);
+  test('IComparableCompareTo_WrongType_ArgumentException',
+      IComparableCompareTo_WrongType_ArgumentException);
+  test('WithOffset', WithOffset);
+  test('InUtc', InUtc);
+  test('InZoneStrictly_InWinter', InZoneStrictly_InWinter);
+  test('InZoneStrictly_InSummer', InZoneStrictly_InSummer);
+  test(
+      'InZoneStrictly_ThrowsWhenAmbiguous', InZoneStrictly_ThrowsWhenAmbiguous);
+  test('InZoneStrictly_ThrowsWhenSkipped', InZoneStrictly_ThrowsWhenSkipped);
+  test('InZoneLeniently_AmbiguousTime_ReturnsEarlierMapping',
+      InZoneLeniently_AmbiguousTime_ReturnsEarlierMapping);
+  test('InZoneLeniently_ReturnsStartOfSecondInterval',
+      InZoneLeniently_ReturnsStartOfSecondInterval);
+  test('InZone', InZone);
+  test('DefaultConstructor', DefaultConstructor);
+  test('MinMax_DifferentCalendars_Throws', MinMax_DifferentCalendars_Throws);
+  test('MinMax_SameCalendar', MinMax_SameCalendar);
 }
 
 Future setup() async {
@@ -26,7 +75,6 @@ Future setup() async {
       (await DateTimeZoneProviders.defaultProvider?['America/Los_Angeles'])!;
 }
 
-@Test()
 void ToDateTimeUnspecified() {
   LocalDateTime zoned = LocalDateTime(2011, 3, 5, 1, 0, 0);
   DateTime expected =
@@ -39,7 +87,6 @@ void ToDateTimeUnspecified() {
   expect(expected.isUtc, isFalse);
 }
 
-@Test()
 void PeriodUntilSince() {
   var start = LocalDateTime(2011, 3, 5, 1, 0, 0);
   var end = LocalDateTime(2012, 2, 4, 5, 1, 1);
@@ -52,10 +99,6 @@ void PeriodUntilSince() {
   expect(start.periodUntil(end), delta);
 }
 
-@Test()
-@TestCase([100])
-@TestCase([1900])
-@TestCase([2900])
 void ToDateTimeUnspecified_TruncatesTowardsStartOfTime(int year) {
   if (Platform.isWeb) {
     var ldt = LocalDateTime(year, 1, 1, 13, 15, 55).addNanoseconds(
@@ -89,7 +132,6 @@ void ToDateTimeUnspecified_OutOfRange()
   expect(() => ldt.ToDateTimeUnspecified(), throwsStateError);
 }*/
 
-@Test()
 void FromDateTime() {
   LocalDateTime expected = LocalDateTime(2011, 08, 18, 20, 53, 0);
   // for (DateTimeKind kind in Enum.GetValues(typeof(DateTimeKind)))
@@ -98,7 +140,6 @@ void FromDateTime() {
   expect(actual, expected);
 }
 
-@Test()
 void FromDateTimeBeforeEpoch() {
   LocalDateTime expected = LocalDateTime(1966, 08, 18, 20, 53, 0);
   // for (DateTimeKind kind in Enum.GetValues(typeof(DateTimeKind)))
@@ -107,7 +148,6 @@ void FromDateTimeBeforeEpoch() {
   expect(actual, expected);
 }
 
-@Test()
 void FromDateTime_WithCalendar() {
   // Julian calendar is 13 days behind Gregorian calendar in the 21st century
   LocalDateTime expected =
@@ -123,7 +163,6 @@ void FromDateTime_WithCalendar() {
   }
 }
 
-@Test()
 void TimeProperties_AfterEpoch() {
   // Use the largest valid year as part of validating against overflow
   LocalDateTime ldt = LocalDateTime(
@@ -150,7 +189,6 @@ void TimeProperties_AfterEpoch() {
   expect(123456789, ldt.nanosecondOfSecond);
 }
 
-@Test()
 void TimeProperties_BeforeEpoch() {
   // Use the smallest valid year number as part of validating against overflow
   LocalDateTime ldt = LocalDateTime(
@@ -191,7 +229,6 @@ void DateTime_Roundtrip_OtherCalendarInBcl()
   expect(original, _final);
 }*/
 
-@Test()
 void WithCalendar() {
   LocalDateTime isoEpoch = LocalDateTime(1970, 1, 1, 0, 0, 0);
   LocalDateTime julianEpoch = isoEpoch.withCalendar(CalendarSystem.julian);
@@ -202,7 +239,6 @@ void WithCalendar() {
 }
 
 // Verifies that negative local instant ticks don't cause a problem with the date
-@Test()
 void TimeOfDay_Before1970() {
   LocalDateTime dateTime = LocalDateTime(1965, 11, 8, 12, 5, 23);
   LocalTime expected = LocalTime(12, 5, 23);
@@ -210,7 +246,6 @@ void TimeOfDay_Before1970() {
 }
 
 // Verifies that positive local instant ticks don't cause a problem with the date
-@Test()
 void TimeOfDay_After1970() {
   LocalDateTime dateTime = LocalDateTime(1975, 11, 8, 12, 5, 23);
   LocalTime expected = LocalTime(12, 5, 23);
@@ -218,7 +253,6 @@ void TimeOfDay_After1970() {
 }
 
 // Verifies that negative local instant ticks don't cause a problem with the date
-@Test()
 void Date_Before1970() {
   LocalDateTime dateTime = LocalDateTime(1965, 11, 8, 12, 5, 23);
   LocalDate expected = LocalDate(1965, 11, 8);
@@ -226,14 +260,12 @@ void Date_Before1970() {
 }
 
 // Verifies that positive local instant ticks don't cause a problem with the date
-@Test()
 void Date_After1970() {
   LocalDateTime dateTime = LocalDateTime(1975, 11, 8, 12, 5, 23);
   LocalDate expected = LocalDate(1975, 11, 8);
   expect(expected, dateTime.calendarDate);
 }
 
-@Test()
 void DayOfWeek_AroundEpoch() {
   // Test about couple of months around the Unix epoch. If that works, I'm confident the rest will.
   LocalDateTime dateTime = LocalDateTime(1969, 12, 1, 0, 0, 0);
@@ -246,7 +278,6 @@ void DayOfWeek_AroundEpoch() {
   }
 }
 
-@Test()
 void ClockHourOfHalfDay() {
   expect(12, LocalDateTime(1975, 11, 8, 0, 0, 0).hourOf12HourClock);
   expect(1, LocalDateTime(1975, 11, 8, 1, 0, 0).hourOf12HourClock);
@@ -255,7 +286,6 @@ void ClockHourOfHalfDay() {
   expect(11, LocalDateTime(1975, 11, 8, 23, 0, 0).hourOf12HourClock);
 }
 
-@Test()
 void Operators_SameCalendar() {
   LocalDateTime value1 = LocalDateTime(2011, 1, 2, 10, 30, 0);
   LocalDateTime value2 = LocalDateTime(2011, 1, 2, 10, 30, 0);
@@ -263,7 +293,6 @@ void Operators_SameCalendar() {
   TestHelper.TestOperatorComparisonEquality(value1, value2, [value3]);
 }
 
-@Test()
 void Operators_DifferentCalendars_Throws() {
   LocalDateTime value1 = LocalDateTime(2011, 1, 2, 10, 30, 0);
   LocalDateTime value2 =
@@ -278,7 +307,6 @@ void Operators_DifferentCalendars_Throws() {
   expect(() => (value1 >= value2).toString(), throwsArgumentError);
 }
 
-@Test()
 void CompareTo_SameCalendar() {
   LocalDateTime value1 = LocalDateTime(2011, 1, 2, 10, 30, 0);
   LocalDateTime value2 = LocalDateTime(2011, 1, 2, 10, 30, 0);
@@ -289,7 +317,6 @@ void CompareTo_SameCalendar() {
   expect(value3.compareTo(value2), greaterThan(0));
 }
 
-@Test()
 void CompareTo_DifferentCalendars_Throws() {
   CalendarSystem islamic = CalendarSystem.getIslamicCalendar(
       IslamicLeapYearPattern.base15, IslamicEpoch.astronomical);
@@ -302,7 +329,6 @@ void CompareTo_DifferentCalendars_Throws() {
 }
 
 /// IComparable.CompareTo works properly for LocalDateTime inputs with different calendars.
-@Test()
 void IComparableCompareTo_SameCalendar() {
   LocalDateTime value1 = LocalDateTime(2011, 1, 2, 10, 30, 0);
   LocalDateTime value2 = LocalDateTime(2011, 1, 2, 10, 30, 0);
@@ -317,7 +343,6 @@ void IComparableCompareTo_SameCalendar() {
 }
 
 /// IComparable.CompareTo returns a positive number for a null input.
-@Test()
 void IComparableCompareTo_Null_Positive() {
   var instance = LocalDateTime(2012, 3, 5, 10, 45, 0);
   Comparable i_instance = /*(IComparable)*/ instance;
@@ -328,7 +353,6 @@ void IComparableCompareTo_Null_Positive() {
 
 /// IComparable.CompareTo throws an ArgumentException for non-null arguments
 /// that are not a LocalDateTime.
-@Test()
 void IComparableCompareTo_WrongType_ArgumentException() {
   var instance = LocalDateTime(2012, 3, 5, 10, 45, 0);
   Comparable i_instance = /*(IComparable)*/ instance;
@@ -336,7 +360,6 @@ void IComparableCompareTo_WrongType_ArgumentException() {
   expect(() => i_instance.compareTo(arg), willThrow<TypeError>());
 }
 
-@Test()
 void WithOffset() {
   var offset = Offset.hoursAndMinutes(5, 10);
   var localDateTime = LocalDateTime(2009, 12, 22, 21, 39, 30);
@@ -345,7 +368,6 @@ void WithOffset() {
   expect(offset, offsetDateTime.offset);
 }
 
-@Test()
 void InUtc() {
   var local = LocalDateTime(2009, 12, 22, 21, 39, 30);
   var zoned = local.inUtc();
@@ -355,7 +377,6 @@ void InUtc() {
   expect(identical(DateTimeZone.utc, zoned.zone), isTrue);
 }
 
-@Test()
 void InZoneStrictly_InWinter() {
   var local = LocalDateTime(2009, 12, 22, 21, 39, 30);
   var zoned = local.inZoneStrictly(Pacific);
@@ -363,7 +384,6 @@ void InZoneStrictly_InWinter() {
   expect(Offset.hours(-8), zoned.offset);
 }
 
-@Test()
 void InZoneStrictly_InSummer() {
   var local = LocalDateTime(2009, 6, 22, 21, 39, 30);
   var zoned = local.inZoneStrictly(Pacific);
@@ -373,7 +393,6 @@ void InZoneStrictly_InSummer() {
 
 /// Pacific time changed from -7 to -8 at 2am wall time on November 2nd 2009,
 /// so 2am became 1am.
-@Test()
 void InZoneStrictly_ThrowsWhenAmbiguous() {
   var local = LocalDateTime(2009, 11, 1, 1, 30, 0);
   expect(() => local.inZoneStrictly(Pacific), willThrow<AmbiguousTimeError>());
@@ -381,7 +400,6 @@ void InZoneStrictly_ThrowsWhenAmbiguous() {
 
 /// Pacific time changed from -8 to -7 at 2am wall time on March 8th 2009,
 /// so 2am became 3am. This means that 2.30am doesn't exist on that day.
-@Test()
 void InZoneStrictly_ThrowsWhenSkipped() {
   var local = LocalDateTime(2009, 3, 8, 2, 30, 0);
   expect(() => local.inZoneStrictly(Pacific), willThrow<SkippedTimeError>());
@@ -389,7 +407,6 @@ void InZoneStrictly_ThrowsWhenSkipped() {
 
 /// Pacific time changed from -7 to -8 at 2am wall time on November 2nd 2009,
 /// so 2am became 1am. We'll return the earlier result, i.e. with the offset of -7
-@Test()
 void InZoneLeniently_AmbiguousTime_ReturnsEarlierMapping() {
   var local = LocalDateTime(2009, 11, 1, 1, 30, 0);
   var zoned = local.inZoneLeniently(Pacific);
@@ -400,7 +417,6 @@ void InZoneLeniently_AmbiguousTime_ReturnsEarlierMapping() {
 /// Pacific time changed from -8 to -7 at 2am wall time on March 8th 2009,
 /// so 2am became 3am. This means that 2:30am doesn't exist on that day.
 /// We'll return 3:30am, the forward-shifted value.
-@Test()
 void InZoneLeniently_ReturnsStartOfSecondInterval() {
   var local = LocalDateTime(2009, 3, 8, 2, 30, 0);
   var zoned = local.inZoneLeniently(Pacific);
@@ -408,7 +424,6 @@ void InZoneLeniently_ReturnsStartOfSecondInterval() {
   expect(Offset.hours(-7), zoned.offset);
 }
 
-@Test()
 void InZone() {
   // Don't need much for this - it only delegates.
   var ambiguous = LocalDateTime(2009, 11, 1, 1, 30, 0);
@@ -420,7 +435,6 @@ void InZone() {
 }
 
 ///   Using the default constructor is equivalent to January 1st 1970, midnight, UTC, ISO calendar
-@Test()
 void DefaultConstructor() {
   // todo: LocalDateTime()
   var actual =
@@ -457,7 +471,6 @@ void DefaultConstructor() {
 //  TestHelper.AssertXmlInvalid<LocalDateTime>(xml, expectedExceptionType);
 //}
 
-@Test()
 void MinMax_DifferentCalendars_Throws() {
   LocalDateTime ldt1 = LocalDateTime(2011, 1, 2, 2, 20, 0);
   LocalDateTime ldt2 =
@@ -467,7 +480,6 @@ void MinMax_DifferentCalendars_Throws() {
   expect(() => LocalDateTime.min(ldt1, ldt2), throwsArgumentError);
 }
 
-@Test()
 void MinMax_SameCalendar() {
   LocalDateTime ldt1 =
       LocalDateTime(1500, 1, 1, 7, 20, 0, calendar: CalendarSystem.julian);
@@ -495,5 +507,3 @@ void MinMax_SameCalendar() {
 //  expect(expectedTime, actualTime);
 //  });
 //}
-
-

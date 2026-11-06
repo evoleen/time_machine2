@@ -3,9 +3,7 @@
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 import 'package:test/test.dart';
 
-import 'test_helper_interface.dart'
-    if (dart.library.html) 'test_helper_without_mirrors.dart'
-    if (dart.library.io) 'test_helper_with_mirrors.dart' as helping_machine;
+import 'test_helper_without_mirrors.dart' as helping_machine;
 
 late Function<T>(T value, T equalValue, T unequalValue)
     testOperatorEqualityFunction;

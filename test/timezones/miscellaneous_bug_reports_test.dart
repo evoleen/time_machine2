@@ -15,18 +15,21 @@ late DateTimeZoneProvider tzdb;
 /// Quite often the cause of a problem is nowhere near the test code; it's still useful
 /// to have the original test which showed up the problem, as a small contribution
 /// to regression testing.
-Future main() async {
-  await TimeMachineTest.initialize();
-  await setup();
+void main() {
+  setUpAll(TimeMachineTest.initialize);
+  setUpAll(setup);
 
-  await runTests();
+  test('Niue', Niue);
+  test('Kiritimati', Kiritimati);
+  test('Pyongyang', Pyongyang);
+  test('Khartoum', Khartoum);
+  test('Tbilisi', Tbilisi);
 }
 
 Future setup() async {
   tzdb = DateTimeZoneProviders.defaultProvider!;
 }
 
-@Test()
 Future Niue() async {
   DateTimeZone niue = await tzdb['Pacific/Niue'];
   var offset = niue.getUtcOffset(
@@ -35,7 +38,6 @@ Future Niue() async {
   expect(Offset.hours(-11), offset);
 }
 
-@Test()
 Future Kiritimati() async {
   DateTimeZone kiritimati = await tzdb['Pacific/Kiritimati'];
   var offset = kiritimati.getUtcOffset(
@@ -44,7 +46,6 @@ Future Kiritimati() async {
   expect(Offset.hours(14), offset);
 }
 
-@Test()
 Future Pyongyang() async {
   DateTimeZone pyongyang = await tzdb['Asia/Pyongyang'];
   var offset = pyongyang.getUtcOffset(
@@ -53,7 +54,6 @@ Future Pyongyang() async {
   expect(Offset.hours(9), offset);
 }
 
-@Test()
 Future Khartoum() async {
   DateTimeZone khartoum = await tzdb['Africa/Khartoum'];
   expect(khartoum, isNotNull);
@@ -70,7 +70,6 @@ Future Khartoum() async {
 }
 
 /// Tbilisi used daylight saving time for winter 1996/1997 too.
-@Test()
 Future Tbilisi() async {
   var zone = await tzdb['Asia/Tbilisi'];
   Instant summer1996 = Instant.utc(1996, 6, 1, 0, 0);

@@ -10,9 +10,24 @@ import 'package:time_machine2/time_machine2.dart';
 
 import 'time_machine_testing.dart';
 
-Future main() async {
-  await TimeMachineTest.initialize();
-  await runTests();
+void main() {
+  setUpAll(TimeMachineTest.initialize);
+
+  test('GetZoneIntervals_EndBeforeStart', GetZoneIntervals_EndBeforeStart);
+  test('GetZoneIntervals_EndEqualToStart', GetZoneIntervals_EndEqualToStart);
+  test('GetZoneIntervals_InvalidOptions', GetZoneIntervals_InvalidOptions);
+  test('GetZoneIntervals_FixedZone', GetZoneIntervals_FixedZone);
+  test('GetZoneIntervals_SingleTransitionZone_IntervalCoversTransition',
+      GetZoneIntervals_SingleTransitionZone_IntervalCoversTransition);
+  test('GetZoneIntervals_SingleTransitionZone_IntervalDoesNotCoverTransition',
+      GetZoneIntervals_SingleTransitionZone_IntervalDoesNotCoverTransition);
+  test('GetZoneIntervals_IncludesStart', GetZoneIntervals_IncludesStart);
+  test('GetZoneIntervals_ExcludesEnd', GetZoneIntervals_ExcludesEnd);
+  test('GetZoneIntervals_Complex', GetZoneIntervals_Complex);
+  test('GetZoneIntervals_WithOptions_NoCoalescing',
+      GetZoneIntervals_WithOptions_NoCoalescing);
+  test('GetZoneIntervals_WithOptions_Coalescing',
+      GetZoneIntervals_WithOptions_Coalescing);
 }
 
 // Tests for DateTimeZoneTest.GetZoneIntervals. The calls to toList()
@@ -22,7 +37,6 @@ Future main() async {
 final SingleTransitionDateTimeZone TestZone =
     SingleTransitionDateTimeZone.around(Instant.utc(2000, 1, 1, 0, 0), -3, 4);
 
-@Test()
 void GetZoneIntervals_EndBeforeStart() {
   // Assert.Throws<ArgumentOutOfRangeException>(() => DateTimeZone.Utc.GetZoneIntervals(new Instant.fromUnixTimeTicks(100L), new Instant.fromUnixTimeTicks(99L)));
   expect(
@@ -32,7 +46,6 @@ void GetZoneIntervals_EndBeforeStart() {
       throwsArgumentError);
 }
 
-@Test()
 void GetZoneIntervals_EndEqualToStart() {
   expect(
       DateTimeZone.utc.getZoneIntervalsFromTo(
@@ -40,7 +53,6 @@ void GetZoneIntervals_EndEqualToStart() {
       isEmpty);
 }
 
-@Test()
 void GetZoneIntervals_InvalidOptions() {
   var zone = DateTimeZone.utc;
   var interval =
@@ -52,7 +64,6 @@ void GetZoneIntervals_InvalidOptions() {
       throwsArgumentError);
 }
 
-@Test()
 void GetZoneIntervals_FixedZone() {
   var zone = DateTimeZone.forOffset(Offset.hours(3));
   var expected = [zone.getZoneInterval(Instant.minValue)];
@@ -63,7 +74,6 @@ void GetZoneIntervals_FixedZone() {
   expect(expected, actual.toList());
 }
 
-@Test()
 void GetZoneIntervals_SingleTransitionZone_IntervalCoversTransition() {
   Instant start = TestZone.Transition - Time(days: 5);
   Instant end = TestZone.Transition + Time(days: 5);
@@ -73,7 +83,6 @@ void GetZoneIntervals_SingleTransitionZone_IntervalCoversTransition() {
   expect(expected, actual.toList());
 }
 
-@Test()
 void GetZoneIntervals_SingleTransitionZone_IntervalDoesNotCoverTransition() {
   Instant start = TestZone.Transition - Time(days: 10);
   Instant end = TestZone.Transition - Time(days: 5);
@@ -83,7 +92,6 @@ void GetZoneIntervals_SingleTransitionZone_IntervalDoesNotCoverTransition() {
   expect(expected, actual.toList());
 }
 
-@Test()
 void GetZoneIntervals_IncludesStart() {
   Instant start = TestZone.Transition - Time.epsilon;
   Instant end = TestZone.Transition + Time(days: 5);
@@ -93,7 +101,6 @@ void GetZoneIntervals_IncludesStart() {
   expect(expected, actual.toList());
 }
 
-@Test()
 void GetZoneIntervals_ExcludesEnd() {
   Instant start = TestZone.Transition - Time(days: 10);
   Instant end = TestZone.Transition;
@@ -103,7 +110,6 @@ void GetZoneIntervals_ExcludesEnd() {
   expect(expected, actual.toList());
 }
 
-@Test()
 Future GetZoneIntervals_Complex() async {
   var london = await DateTimeZoneProviders.defaultProvider?['Europe/London'];
   // Transitions are always Spring/Autumn, so June and January should be clear.
@@ -129,7 +135,6 @@ Future GetZoneIntervals_Complex() async {
   expect(expected, actual?.toList());
 }
 
-@Test()
 void GetZoneIntervals_WithOptions_NoCoalescing() {
   // We'll ask for 1999-2003, so there are three transitions within that.
   var transition1 = Instant.utc(2000, 1, 1, 0, 0);
@@ -156,7 +161,6 @@ void GetZoneIntervals_WithOptions_NoCoalescing() {
       zoneIntervals.map((zi) => zi.end));
 }
 
-@Test()
 void GetZoneIntervals_WithOptions_Coalescing() {
   // We'll ask for 1999-2003, so there are three transitions within that.
   var transition1 = Instant.utc(2000, 1, 1, 0, 0);

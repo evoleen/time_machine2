@@ -1,22 +1,38 @@
 // Portions of this work are Copyright 2018 The Time Machine Authors. All rights reserved.
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
-import 'dart:async';
 
 import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
+import 'package:parameterized_test/parameterized_test.dart';
 
 import '../time_machine_testing.dart';
 import 'pattern_test_base.dart';
 import 'pattern_test_data.dart';
 import 'test_cultures.dart';
 
-Future main() async {
-  await runTests();
+void main() {
+  group('LocalDatePatternTest', () {
+    final fixture = LocalDatePatternTest();
+    test('WithCalendar', fixture.WithCalendar);
+    test('CreateWithCurrentCulture', fixture.CreateWithCurrentCulture);
+    parameterizedTest(
+        'InvalidPatterns', fixture.InvalidPatternData, fixture.InvalidPatterns,
+        customDescriptionBuilder: describeArguments);
+    parameterizedTest(
+        'ParseFailures', fixture.ParseFailureData, fixture.ParseFailures,
+        customDescriptionBuilder: describeArguments);
+    parameterizedTest('Parse', fixture.ParseData.toList(), fixture.Parse,
+        customDescriptionBuilder: describeArguments);
+    parameterizedTest('Format', fixture.FormatData.toList(), fixture.Format,
+        customDescriptionBuilder: describeArguments);
+    parameterizedTest(
+        'AppendFormat', fixture.FormatData.toList(), fixture.AppendFormat,
+        customDescriptionBuilder: describeArguments);
+  });
 }
 
-@Test()
 class LocalDatePatternTest extends PatternTestBase<LocalDate> {
   @private
   final LocalDate SampleLocalDate = LocalDate(1976, 6, 19);
@@ -530,14 +546,12 @@ void BclShortDatePatternGivesSameResultsInNoda(Culture culture)
 AssertBclNodaEquality(culture, culture.DateTimeFormat.ShortDatePattern);
 }*/
 
-  @Test()
   void WithCalendar() {
     var pattern = LocalDatePattern.iso.withCalendar(CalendarSystem.coptic);
     var value = pattern.parse('0284-08-29').value;
     expect(LocalDate(284, 8, 29, CalendarSystem.coptic), value);
   }
 
-  @Test()
   void CreateWithCurrentCulture() {
     var date = LocalDate(2017, 8, 23);
     Culture.current = TestCultures.FrFr;

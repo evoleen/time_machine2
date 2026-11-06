@@ -7,6 +7,7 @@ import 'dart:async';
 import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
+import 'package:parameterized_test/parameterized_test.dart';
 import 'package:time_machine2/time_machine2.dart';
 
 import 'time_machine_testing.dart';
@@ -22,11 +23,58 @@ DateTimeZone? Paris;
 DateTimeZone? NewYork;
 DateTimeZone? Pacific;
 
-Future main() async {
-  await TimeMachineTest.initialize();
-  await setup();
+void main() {
+  setUpAll(TimeMachineTest.initialize);
+  setUpAll(setup);
 
-  await runTests();
+  test('AmbiguousStartOfDay_TransitionAtMidnight',
+      AmbiguousStartOfDay_TransitionAtMidnight);
+  test('AmbiguousStartOfDay_TransitionAfterMidnight',
+      AmbiguousStartOfDay_TransitionAfterMidnight);
+  test('SkippedStartOfDay_TransitionAtMidnight',
+      SkippedStartOfDay_TransitionAtMidnight);
+  test('SkippedStartOfDay_TransitionBeforeMidnight',
+      SkippedStartOfDay_TransitionBeforeMidnight);
+  test('UnambiguousStartOfDay', UnambiguousStartOfDay);
+  test('GetOffsetFromLocal_LosAngelesFallTransition',
+      GetOffsetFromLocal_LosAngelesFallTransition);
+  test('GetOffsetFromLocal_LosAngelesSpringTransition',
+      GetOffsetFromLocal_LosAngelesSpringTransition);
+  test('GetOffsetFromLocal_NewZealandFallTransition',
+      GetOffsetFromLocal_NewZealandFallTransition);
+  test('GetOffsetFromLocal_NewZealandSpringTransition',
+      GetOffsetFromLocal_NewZealandSpringTransition);
+  test('GetOffsetFromLocal_BerlinSpringTransition',
+      GetOffsetFromLocal_BerlinSpringTransition);
+  test('GetOffsetFromLocal_ParisFallTransition',
+      GetOffsetFromLocal_ParisFallTransition);
+  test('GetOffsetFromLocal_ParisSpringTransition',
+      GetOffsetFromLocal_ParisSpringTransition);
+  test('MapLocalDateTime_UnambiguousDateReturnsUnambiguousMapping',
+      MapLocalDateTime_UnambiguousDateReturnsUnambiguousMapping);
+  test('MapLocalDateTime_AmbiguousDateReturnsAmbigousMapping',
+      MapLocalDateTime_AmbiguousDateReturnsAmbigousMapping);
+  test('MapLocalDateTime_SkippedDateReturnsSkippedMapping',
+      MapLocalDateTime_SkippedDateReturnsSkippedMapping);
+  parameterizedTest(
+      'AtStartOfDay_DayDoesntExist',
+      [
+        ['Pacific/Apia', "2011-12-30"],
+        ['Pacific/Enderbury', "1994-12-31"],
+        ['Pacific/Kiritimati', "1994-12-31"],
+        ['Pacific/Kwajalein', "1993-08-21"],
+      ],
+      AtStartOfDay_DayDoesntExist,
+      customDescriptionBuilder: describeArguments);
+  test('AtStrictly_InWinter', AtStrictly_InWinter);
+  test('AtStrictly_InSummer', AtStrictly_InSummer);
+  test('AtStrictly_ThrowsWhenAmbiguous', AtStrictly_ThrowsWhenAmbiguous);
+  test('AtStrictly_ThrowsWhenSkipped', AtStrictly_ThrowsWhenSkipped);
+  test('AtLeniently_AmbiguousTime_ReturnsEarlierMapping',
+      AtLeniently_AmbiguousTime_ReturnsEarlierMapping);
+  test('AtLeniently_ReturnsForwardShiftedValue',
+      AtLeniently_ReturnsForwardShiftedValue);
+  test('ResolveLocal', ResolveLocal);
 }
 
 Future setup() async {
@@ -60,7 +108,6 @@ final DateTimeZone TransitionBackwardAfterMidnightZone =
 
 final LocalDate TransitionDate = LocalDate(2000, 6, 1);
 
-@Test()
 void AmbiguousStartOfDay_TransitionAtMidnight() {
   // Occurrence before transition
   var expected = IZonedDateTime.trusted(
@@ -73,7 +120,6 @@ void AmbiguousStartOfDay_TransitionAtMidnight() {
       TransitionDate.atStartOfDayInZone(TransitionBackwardToMidnightZone));
 }
 
-@Test()
 void AmbiguousStartOfDay_TransitionAfterMidnight() {
   // Occurrence before transition
   var expected = IZonedDateTime.trusted(
@@ -86,7 +132,6 @@ void AmbiguousStartOfDay_TransitionAfterMidnight() {
       TransitionDate.atStartOfDayInZone(TransitionBackwardAfterMidnightZone));
 }
 
-@Test()
 void SkippedStartOfDay_TransitionAtMidnight() {
   // 1am because of the skip
   var expected = IZonedDateTime.trusted(
@@ -99,7 +144,6 @@ void SkippedStartOfDay_TransitionAtMidnight() {
       TransitionDate.atStartOfDayInZone(TransitionForwardAtMidnightZone));
 }
 
-@Test()
 void SkippedStartOfDay_TransitionBeforeMidnight() {
   // 12.20am because of the skip
   var expected = IZonedDateTime.trusted(
@@ -112,7 +156,6 @@ void SkippedStartOfDay_TransitionBeforeMidnight() {
       TransitionDate.atStartOfDayInZone(TransitionForwardBeforeMidnightZone));
 }
 
-@Test()
 void UnambiguousStartOfDay() {
   // Just a simple midnight in March.
   var expected = IZonedDateTime.trusted(
@@ -209,7 +252,6 @@ void AssertOffset(
 }
 
 // Los Angeles goes from -7 to -8 on November 7th 2010 at 2am wall time
-@Test()
 void GetOffsetFromLocal_LosAngelesFallTransition() {
   var before = LocalDateTime(2010, 11, 7, 0, 30, 0);
   var atTransition = LocalDateTime(2010, 11, 7, 1, 0, 0);
@@ -221,7 +263,6 @@ void GetOffsetFromLocal_LosAngelesFallTransition() {
   AssertOffset(-8, after, LosAngeles!);
 }
 
-@Test()
 void GetOffsetFromLocal_LosAngelesSpringTransition() {
   var before = LocalDateTime(2010, 3, 14, 1, 30, 0);
   var impossible = LocalDateTime(2010, 3, 14, 2, 30, 0);
@@ -234,7 +275,6 @@ void GetOffsetFromLocal_LosAngelesSpringTransition() {
 }
 
 // New Zealand goes from +13 to +12 on April 4th 2010 at 3am wall time
-@Test()
 void GetOffsetFromLocal_NewZealandFallTransition() {
   var before = LocalDateTime(2010, 4, 4, 1, 30, 0);
   var atTransition = LocalDateTime(2010, 4, 4, 2, 0, 0);
@@ -251,7 +291,6 @@ void GetOffsetFromLocal_NewZealandFallTransition() {
 // if it's a general bug in the gap detection logic, but the test below
 // works. This means that most likely the bug is introduced in the tzdb
 // compiler where the time zone for New Zealand is read incorrectly.
-@Test()
 void GetOffsetFromLocal_NewZealandSpringTransition() {
   var before = LocalDateTime(2010, 9, 26, 1, 30, 0);
   var impossible = LocalDateTime(2010, 9, 26, 2, 30, 0);
@@ -263,7 +302,6 @@ void GetOffsetFromLocal_NewZealandSpringTransition() {
   AssertOffset(13, after, NewZealand!);
 }
 
-@Test()
 void GetOffsetFromLocal_BerlinSpringTransition() async {
   final Berlin = await DateTimeZoneProviders.defaultProvider?['Europe/Berlin'];
   var before = LocalDateTime(2025, 3, 30, 1, 30, 0);
@@ -277,7 +315,6 @@ void GetOffsetFromLocal_BerlinSpringTransition() async {
 }
 
 // Paris goes from +1 to +2 on March 28th 2010 at 2am wall time
-@Test()
 void GetOffsetFromLocal_ParisFallTransition() {
   var before = LocalDateTime(2010, 10, 31, 1, 30, 0);
   var atTransition = LocalDateTime(2010, 10, 31, 2, 0, 0);
@@ -289,7 +326,6 @@ void GetOffsetFromLocal_ParisFallTransition() {
   AssertOffset(1, after, Paris!);
 }
 
-@Test()
 void GetOffsetFromLocal_ParisSpringTransition() {
   var before = LocalDateTime(2010, 3, 28, 1, 30, 0);
   var impossible = LocalDateTime(2010, 3, 28, 2, 30, 0);
@@ -301,7 +337,6 @@ void GetOffsetFromLocal_ParisSpringTransition() {
   AssertOffset(2, after, Paris!);
 }
 
-@Test()
 void MapLocalDateTime_UnambiguousDateReturnsUnambiguousMapping() {
   //2011-11-09 01:30:00 - not ambiguous in America/New York timezone
   var unambigiousTime = LocalDateTime(2011, 11, 9, 1, 30, 0);
@@ -309,7 +344,6 @@ void MapLocalDateTime_UnambiguousDateReturnsUnambiguousMapping() {
   expect(1, mapping?.count);
 }
 
-@Test()
 void MapLocalDateTime_AmbiguousDateReturnsAmbigousMapping() {
   //2011-11-06 01:30:00 - falls during DST - EST conversion in America/New York timezone
   var ambiguousTime = LocalDateTime(2011, 11, 6, 1, 30, 0);
@@ -317,7 +351,6 @@ void MapLocalDateTime_AmbiguousDateReturnsAmbigousMapping() {
   expect(2, mapping?.count);
 }
 
-@Test()
 void MapLocalDateTime_SkippedDateReturnsSkippedMapping() {
   //2011-03-13 02:30:00 - falls during EST - DST conversion in America/New York timezone
   var skippedTime = LocalDateTime(2011, 3, 13, 2, 30, 0);
@@ -328,11 +361,6 @@ void MapLocalDateTime_SkippedDateReturnsSkippedMapping() {
 // Some zones skipped dates by changing from UTC-lots to UTC+lots. For example, Samoa (Pacific/Apia)
 // skipped December 30th 2011, going from  23:59:59 December 29th local time UTC-10
 // to 00:00:00 December 31st local time UTC+14
-@Test()
-@TestCase(['Pacific/Apia', "2011-12-30"])
-@TestCase(['Pacific/Enderbury', "1994-12-31"])
-@TestCase(['Pacific/Kiritimati', "1994-12-31"])
-@TestCase(['Pacific/Kwajalein', "1993-08-21"])
 Future AtStartOfDay_DayDoesntExist(String zoneId, String localDate) async {
   LocalDate badDate = LocalDatePattern.iso.parse(localDate).value;
   DateTimeZone zone = await (await DateTimeZoneProviders.tzdb)[zoneId];
@@ -345,7 +373,6 @@ Future AtStartOfDay_DayDoesntExist(String zoneId, String localDate) async {
   expect(badDate.at(LocalTime.midnight), exception.localDateTime);
 }
 
-@Test()
 void AtStrictly_InWinter() {
   var when = ZonedDateTime.atStrictly(
       LocalDateTime(2009, 12, 22, 21, 39, 30), Pacific!);
@@ -360,7 +387,6 @@ void AtStrictly_InWinter() {
   expect(Offset.hours(-8), when.offset);
 }
 
-@Test()
 void AtStrictly_InSummer() {
   var when = ZonedDateTime.atStrictly(
       LocalDateTime(2009, 6, 22, 21, 39, 30), Pacific!);
@@ -376,7 +402,6 @@ void AtStrictly_InSummer() {
 
 /// Pacific time changed from -7 to -8 at 2am wall time on November 2nd 2009,
 /// so 2am became 1am.
-@Test()
 void AtStrictly_ThrowsWhenAmbiguous() {
   // Assert.Throws<AmbiguousTimeException>(() => Pacific.AtStrictly(new LocalDateTime.fromYMDHMS(2009, 11, 1, 1, 30, 0)));
   expect(
@@ -387,7 +412,6 @@ void AtStrictly_ThrowsWhenAmbiguous() {
 
 /// Pacific time changed from -8 to -7 at 2am wall time on March 8th 2009,
 /// so 2am became 3am. This means that 2.30am doesn't exist on that day.
-@Test()
 void AtStrictly_ThrowsWhenSkipped() {
   // Assert.Throws<SkippedTimeException>(() => Pacific.AtStrictly(new LocalDateTime.fromYMDHMS(2009, 3, 8, 2, 30, 0)));
   expect(
@@ -398,7 +422,6 @@ void AtStrictly_ThrowsWhenSkipped() {
 
 /// Pacific time changed from -7 to -8 at 2am wall time on November 2nd 2009,
 /// so 2am became 1am. We'll return the earlier result, i.e. with the offset of -7
-@Test()
 void AtLeniently_AmbiguousTime_ReturnsEarlierMapping() {
   var local = LocalDateTime(2009, 11, 1, 1, 30, 0);
   var zoned = ZonedDateTime.atLeniently(local, Pacific!);
@@ -409,7 +432,6 @@ void AtLeniently_AmbiguousTime_ReturnsEarlierMapping() {
 /// Pacific time changed from -8 to -7 at 2am wall time on March 8th 2009,
 /// so 2am became 3am. This means that 2:30am doesn't exist on that day.
 /// We'll return 3:30am, the forward-shifted value.
-@Test()
 void AtLeniently_ReturnsForwardShiftedValue() {
   var local = LocalDateTime(2009, 3, 8, 2, 30, 0);
   var zoned = ZonedDateTime.atLeniently(local, Pacific!);
@@ -417,7 +439,6 @@ void AtLeniently_ReturnsForwardShiftedValue() {
   expect(Offset.hours(-7), zoned.offset);
 }
 
-@Test()
 void ResolveLocal() {
   // Don't need much for this - it only delegates.
   var ambiguous = LocalDateTime(2009, 11, 1, 1, 30, 0);

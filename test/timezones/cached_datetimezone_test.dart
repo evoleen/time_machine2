@@ -10,11 +10,19 @@ import 'package:time_machine2/time_machine2.dart';
 
 import '../time_machine_testing.dart';
 
-Future main() async {
-  await TimeMachineTest.initialize();
-  await setup();
+void main() {
+  setUpAll(TimeMachineTest.initialize);
+  setUpAll(setup);
 
-  await runTests();
+  test('GetZoneIntervalInstant_NotNull', GetZoneIntervalInstant_NotNull);
+  test('GetZoneIntervalInstant_RepeatedCallsReturnSameObject',
+      GetZoneIntervalInstant_RepeatedCallsReturnSameObject);
+  test(
+      'GetZoneIntervalInstant_RepeatedCallsReturnSameObjectWithOthersInterspersed',
+      GetZoneIntervalInstant_RepeatedCallsReturnSameObjectWithOthersInterspersed);
+  test('MinMaxOffsets', MinMaxOffsets);
+  test('ForZone_Fixed', ForZone_Fixed);
+  test('ForZone_AlreadyCached', ForZone_AlreadyCached);
 }
 
 Future setup() async {
@@ -27,13 +35,11 @@ late CachedDateTimeZone
     timeZone; // = (CachedDateTimeZone) DateTimeZoneProviders.Tzdb['America/Los_Angeles'];
 Instant summer = Instant.utc(2010, 6, 1, 0, 0);
 
-@Test()
 void GetZoneIntervalInstant_NotNull() {
   var actual = timeZone.getZoneInterval(summer);
   expect(actual, isNotNull);
 }
 
-@Test()
 void GetZoneIntervalInstant_RepeatedCallsReturnSameObject() {
   var actual = timeZone.getZoneInterval(summer);
   for (int i = 0; i < 100; i++) {
@@ -42,7 +48,6 @@ void GetZoneIntervalInstant_RepeatedCallsReturnSameObject() {
   }
 }
 
-@Test()
 void
     GetZoneIntervalInstant_RepeatedCallsReturnSameObjectWithOthersInterspersed() {
   var actual = timeZone.getZoneInterval(summer);
@@ -60,19 +65,16 @@ void
   expect(identical(actual, newPeriod), isTrue);
 }
 
-@Test()
 void MinMaxOffsets() {
   expect(timeZone.timeZone.minOffset, timeZone.minOffset);
   expect(timeZone.timeZone.maxOffset, timeZone.maxOffset);
 }
 
-@Test()
 void ForZone_Fixed() {
   var zone = DateTimeZone.forOffset(Offset.hours(1));
   expect(identical(zone, CachedDateTimeZone.forZone(zone)), isTrue);
 }
 
-@Test()
 void ForZone_AlreadyCached() {
   expect(identical(timeZone, CachedDateTimeZone.forZone(timeZone)), isTrue);
 }

@@ -6,6 +6,7 @@ import 'dart:async';
 import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
+import 'package:parameterized_test/parameterized_test.dart';
 
 import '../time_machine_testing.dart';
 import 'pattern_test_base.dart';
@@ -28,16 +29,39 @@ Future main() async {
   }
   for (var culture in allCultures) {
     for (var format in AllStandardPatterns) {
-      _AllCulturesStandardPatterns.add(
-          TestCaseData([culture, format])..name = '$culture: $format');
+      _AllCulturesStandardPatterns.add([
+        culture,
+        format
+      ].options(customDescriptionBuilder: (_, __, ___) => '$culture: $format'));
     }
   }
   print('Time to load cultures: ${sw.elapsedMilliseconds} ms;');
 
-  await runTests();
+  group('LocalDateTimePatternTest', () {
+    final fixture = LocalDateTimePatternTest();
+    test('WithCalendar', fixture.WithCalendar);
+    test('CreateWithCurrentCulture', fixture.CreateWithCurrentCulture);
+    parameterizedTest(
+        'ParseFormattedStandardPattern',
+        fixture.AllCulturesStandardPatterns,
+        fixture.ParseFormattedStandardPattern,
+        customDescriptionBuilder: describeArguments);
+    parameterizedTest(
+        'InvalidPatterns', fixture.InvalidPatternData, fixture.InvalidPatterns,
+        customDescriptionBuilder: describeArguments);
+    parameterizedTest(
+        'ParseFailures', fixture.ParseFailureData, fixture.ParseFailures,
+        customDescriptionBuilder: describeArguments);
+    parameterizedTest('Parse', fixture.ParseData.toList(), fixture.Parse,
+        customDescriptionBuilder: describeArguments);
+    parameterizedTest('Format', fixture.FormatData.toList(), fixture.Format,
+        customDescriptionBuilder: describeArguments);
+    parameterizedTest(
+        'AppendFormat', fixture.FormatData.toList(), fixture.AppendFormat,
+        customDescriptionBuilder: describeArguments);
+  });
 }
 
-@Test()
 class LocalDateTimePatternTest extends PatternTestBase<LocalDateTime> {
   List get AllCulturesStandardPatterns => _AllCulturesStandardPatterns;
 
@@ -409,7 +433,6 @@ class LocalDateTimePatternTest extends PatternTestBase<LocalDateTime> {
   Iterable<Data> get FormatData =>
       [FormatOnlyData, FormatAndParseData].expand((x) => x);
 
-  @Test()
   void WithCalendar() {
     var pattern =
         LocalDateTimePattern.generalIso.withCalendar(CalendarSystem.coptic);
@@ -419,7 +442,6 @@ class LocalDateTimePatternTest extends PatternTestBase<LocalDateTime> {
         value);
   }
 
-  @Test()
   void CreateWithCurrentCulture() {
     var dateTime = LocalDateTime(2017, 8, 23, 12, 34, 56);
     Culture.current = TestCultures.FrFr;
@@ -445,8 +467,6 @@ class LocalDateTimePatternTest extends PatternTestBase<LocalDateTime> {
     AssertBclNodaEquality(culture, pattern);
   }*/
 
-  @Test()
-  @TestCaseSource(#AllCulturesStandardPatterns)
   void ParseFormattedStandardPattern(Culture culture, String patternText) {
     var pattern = CreatePatternOrNull(
         patternText, culture, LocalDateTime(2000, 1, 1, 0, 0, 0));

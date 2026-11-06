@@ -11,9 +11,16 @@ import 'package:time_machine2/time_machine2.dart';
 
 import '../time_machine_testing.dart';
 
-Future main() async {
-  await TimeMachineTest.initialize();
-  await runTests();
+void main() {
+  setUpAll(TimeMachineTest.initialize);
+
+  test('Various', Various);
+  test('ElidedTransitions', ElidedTransitions);
+  test('ForInterval', ForInterval);
+  test('WithOptions', WithOptions);
+  test('ElidedTransitions_Degenerate', ElidedTransitions_Degenerate);
+  test('ReferenceComparison', ReferenceComparison);
+  test('InvalidOptions', InvalidOptions);
 }
 
 // Sample instants for use in tests. They're on January 1st 2000...2009, midnight UTC.
@@ -23,7 +30,6 @@ List<Instant> Instants = (Iterable.generate(10, (i) => (i + 2000)))
 
 // Various tests using a pair of zones which can demonstrate a number of
 // different features.
-@Test()
 void Various() {
   // Names, some offsets, and first transition are all different.
   var zone1 = (MtdtzBuilder()
@@ -66,7 +72,6 @@ void Various() {
       ZoneEqualityComparerOptions.matchNames);
 }
 
-@Test()
 void ElidedTransitions() {
   var zone1 = (MtdtzBuilder()
         ..Add(Instants[3], 0, 0, 'a')
@@ -106,7 +111,6 @@ void ElidedTransitions() {
       ZoneEqualityComparerOptions.matchAllTransitions);
 }
 
-@Test()
 void ForInterval() {
   var interval = Interval(Instants[3], Instants[5]);
   var comparer = ZoneEqualityComparer.forInterval(interval);
@@ -115,7 +119,6 @@ void ForInterval() {
   expect(interval, IZoneEqualityComparer.intervalForTest(comparer));
 }
 
-@Test()
 void WithOptions() {
   var interval = Interval(Instants[3], Instants[5]);
   var firstComparer = ZoneEqualityComparer.forInterval(interval);
@@ -132,7 +135,6 @@ void WithOptions() {
   expect(interval, IZoneEqualityComparer.intervalForTest(firstComparer));
 }
 
-@Test()
 void ElidedTransitions_Degenerate() {
   // Transitions with *nothing* that we care about. (Normally
   // these wouldn't even be generated, but we could imagine some
@@ -158,7 +160,6 @@ void ElidedTransitions_Degenerate() {
       ZoneEqualityComparerOptions.matchAllTransitions);
 }
 
-@Test()
 Future ReferenceComparison() async {
   var comparer =
       ZoneEqualityComparer.forInterval(Interval(Instants[0], Instants[2]));
@@ -166,7 +167,6 @@ Future ReferenceComparison() async {
   expect(comparer.equals(zone!, zone), isTrue);
 }
 
-@Test()
 void InvalidOptions() {
   var comparer =
       ZoneEqualityComparer.forInterval(Interval(Instants[0], Instants[2]));

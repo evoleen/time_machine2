@@ -2,22 +2,99 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'dart:async';
-
 import 'package:time_machine2/src/time_machine_internal.dart';
 import 'package:test/test.dart';
+import 'package:parameterized_test/parameterized_test.dart';
 
 import 'time_machine_testing.dart';
 
-Future main() async {
-  await runTests();
+void main() {
+  parameterizedTest(
+      'Constructor_WithDays',
+      [
+        [1620].options(
+            customDescriptionBuilder: (_, __, ___) =>
+                'Leap year in non-optimized period'),
+        [1621].options(
+            customDescriptionBuilder: (_, __, ___) =>
+                'Non-leap year in non-optimized period'),
+        [1980].options(
+            customDescriptionBuilder: (_, __, ___) =>
+                'Leap year in optimized period'),
+        [1981].options(
+            customDescriptionBuilder: (_, __, ___) =>
+                'Non-leap year in optimized period'),
+      ],
+      Constructor_WithDays,
+      customDescriptionBuilder: describeArguments);
+  parameterizedTest(
+      'Constructor_WithDaysAndCalendar',
+      [
+        [1620].options(
+            customDescriptionBuilder: (_, __, ___) =>
+                'Leap year in non-optimized period'),
+        [1621].options(
+            customDescriptionBuilder: (_, __, ___) =>
+                'Non-leap year in non-optimized period'),
+        [1980].options(
+            customDescriptionBuilder: (_, __, ___) =>
+                'Leap year in optimized period'),
+        [1981].options(
+            customDescriptionBuilder: (_, __, ___) =>
+                'Non-leap year in optimized period'),
+      ],
+      Constructor_WithDaysAndCalendar,
+      customDescriptionBuilder: describeArguments);
+  test('Constructor_CalendarDefaultsToIso', Constructor_CalendarDefaultsToIso);
+  test('Constructor_PropertiesRoundTrip', Constructor_PropertiesRoundTrip);
+  test('Constructor_PropertiesRoundTrip_CustomCalendar',
+      Constructor_PropertiesRoundTrip_CustomCalendar);
+  parameterizedTest(
+      'Constructor_Invalid',
+      [
+        [GregorianYearMonthDayCalculator.maxGregorianYear + 1, 1, 1],
+        [GregorianYearMonthDayCalculator.minGregorianYear - 1, 1, 1],
+        [2010, 13, 1],
+        [2010, 0, 1],
+        [2010, 1, 100],
+        [2010, 2, 30],
+        [2010, 1, 0],
+      ],
+      Constructor_Invalid,
+      customDescriptionBuilder: describeArguments);
+  parameterizedTest(
+      'Constructor_Invalid_WithCalendar',
+      [
+        [GregorianYearMonthDayCalculator.maxGregorianYear + 1, 1, 1],
+        [GregorianYearMonthDayCalculator.minGregorianYear - 1, 1, 1],
+        [2010, 13, 1],
+        [2010, 0, 1],
+        [2010, 1, 100],
+        [2010, 2, 30],
+        [2010, 1, 0],
+      ],
+      Constructor_Invalid_WithCalendar,
+      customDescriptionBuilder: describeArguments);
+  test('Constructor_InvalidYearOfEra', Constructor_InvalidYearOfEra);
+  test('Constructor_WithYearOfEra_BC', Constructor_WithYearOfEra_BC);
+  test('Constructor_WithYearOfEra_AD', Constructor_WithYearOfEra_AD);
+  test('Constructor_WithYearOfEra_NonIsoCalendar',
+      Constructor_WithYearOfEra_NonIsoCalendar);
+  test('FromWeekYearWeekAndDay_InvalidWeek53',
+      FromWeekYearWeekAndDay_InvalidWeek53);
+  parameterizedTest(
+      'FromYearMonthWeekAndDay',
+      [
+        [2014, 8, 3, DayOfWeek.sunday, 17],
+        [2014, 8, 3, DayOfWeek.friday, 15],
+        [2014, 8, 3, DayOfWeek.thursday, 21],
+        [2014, 8, 5, DayOfWeek.sunday, 31],
+        [2014, 8, 5, DayOfWeek.monday, 25],
+      ],
+      FromYearMonthWeekAndDay,
+      customDescriptionBuilder: describeArguments);
 }
 
-@Test()
-@TestCase([1620], 'Leap year in non-optimized period')
-@TestCase([1621], 'Non-leap year in non-optimized period')
-@TestCase([1980], 'Leap year in optimized period')
-@TestCase([1981], 'Non-leap year in optimized period')
 void Constructor_WithDays(int year) {
   LocalDate start = LocalDate(year, 1, 1);
   int startDays = start.epochDay;
@@ -26,11 +103,6 @@ void Constructor_WithDays(int year) {
   }
 }
 
-@Test()
-@TestCase([1620], 'Leap year in non-optimized period')
-@TestCase([1621], 'Non-leap year in non-optimized period')
-@TestCase([1980], 'Leap year in optimized period')
-@TestCase([1981], 'Non-leap year in optimized period')
 void Constructor_WithDaysAndCalendar(int year) {
   LocalDate start = LocalDate(year, 1, 1);
   int startDays = start.epochDay;
@@ -40,13 +112,11 @@ void Constructor_WithDaysAndCalendar(int year) {
   }
 }
 
-@Test()
 void Constructor_CalendarDefaultsToIso() {
   LocalDate date = LocalDate(2000, 1, 1);
   expect(CalendarSystem.iso, date.calendar);
 }
 
-@Test()
 void Constructor_PropertiesRoundTrip() {
   LocalDate date = LocalDate(2023, 7, 27);
   expect(2023, date.year);
@@ -54,7 +124,6 @@ void Constructor_PropertiesRoundTrip() {
   expect(27, date.dayOfMonth);
 }
 
-@Test()
 void Constructor_PropertiesRoundTrip_CustomCalendar() {
   LocalDate date = LocalDate(2023, 7, 27, CalendarSystem.julian);
   expect(2023, date.year);
@@ -62,34 +131,17 @@ void Constructor_PropertiesRoundTrip_CustomCalendar() {
   expect(27, date.dayOfMonth);
 }
 
-@Test()
-@TestCase([GregorianYearMonthDayCalculator.maxGregorianYear + 1, 1, 1])
-@TestCase([GregorianYearMonthDayCalculator.minGregorianYear - 1, 1, 1])
-@TestCase([2010, 13, 1])
-@TestCase([2010, 0, 1])
-@TestCase([2010, 1, 100])
-@TestCase([2010, 2, 30])
-@TestCase([2010, 1, 0])
 void Constructor_Invalid(int year, int month, int day) {
   // Assert.Throws<ArgumentOutOfRangeException>
   expect(() => LocalDate(year, month, day), throwsRangeError);
 }
 
-@Test()
-@TestCase([GregorianYearMonthDayCalculator.maxGregorianYear + 1, 1, 1])
-@TestCase([GregorianYearMonthDayCalculator.minGregorianYear - 1, 1, 1])
-@TestCase([2010, 13, 1])
-@TestCase([2010, 0, 1])
-@TestCase([2010, 1, 100])
-@TestCase([2010, 2, 30])
-@TestCase([2010, 1, 0])
 void Constructor_Invalid_WithCalendar(int year, int month, int day) {
   // Assert.Throws<ArgumentOutOfRangeException>
   expect(
       () => LocalDate(year, month, day, CalendarSystem.iso), throwsRangeError);
 }
 
-@Test()
 void Constructor_InvalidYearOfEra() {
   // Assert.Throws<ArgumentOutOfRangeException>
   expect(() => LocalDate(0, 1, 1, null, Era.common), throwsRangeError);
@@ -101,21 +153,18 @@ void Constructor_InvalidYearOfEra() {
       throwsRangeError);
 }
 
-@Test()
 void Constructor_WithYearOfEra_BC() {
   LocalDate absolute = LocalDate(-10, 1, 1);
   LocalDate withEra = LocalDate(11, 1, 1, CalendarSystem.iso, Era.beforeCommon);
   expect(absolute, withEra);
 }
 
-@Test()
 void Constructor_WithYearOfEra_AD() {
   LocalDate absolute = LocalDate(50, 6, 19);
   LocalDate withEra = LocalDate(50, 6, 19, CalendarSystem.iso, Era.common);
   expect(absolute, withEra);
 }
 
-@Test()
 void Constructor_WithYearOfEra_NonIsoCalendar() {
   var calendar = CalendarSystem.coptic;
   LocalDate absolute = LocalDate(50, 6, 19, calendar);
@@ -124,7 +173,6 @@ void Constructor_WithYearOfEra_NonIsoCalendar() {
 }
 
 // Most tests are in IsoBasedWeekYearRuleTest.
-@Test()
 void FromWeekYearWeekAndDay_InvalidWeek53() {
   // Week year 2005 only has 52 weeks
   // Assert.Throws<ArgumentOutOfRangeException>
@@ -132,14 +180,8 @@ void FromWeekYearWeekAndDay_InvalidWeek53() {
       throwsRangeError);
 }
 
-@Test()
-@TestCase([2014, 8, 3, DayOfWeek.sunday, 17])
-@TestCase([2014, 8, 3, DayOfWeek.friday, 15])
 // Needs 'rewind' logic as August 1st 2014 is a Friday
-@TestCase([2014, 8, 3, DayOfWeek.thursday, 21])
-@TestCase([2014, 8, 5, DayOfWeek.sunday, 31])
 // Only 4 Mondays in August in 2014.
-@TestCase([2014, 8, 5, DayOfWeek.monday, 25])
 void FromYearMonthWeekAndDay(
     int year, int month, int occurrence, DayOfWeek dayOfWeek, int expectedDay) {
   var date = LocalDate.onDayOfWeekInMonth(year, month, occurrence, dayOfWeek);

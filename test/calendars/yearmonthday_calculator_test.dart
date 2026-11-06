@@ -2,25 +2,31 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'dart:async';
-
 import 'package:time_machine2/src/time_machine_internal.dart';
 import 'package:test/test.dart';
+import 'package:parameterized_test/parameterized_test.dart';
 
 import '../time_machine_testing.dart';
 
-Future main() async {
-  await runTests();
+void main() {
+  parameterizedTest('ValidateStartOfYear1Days', AllCalculators.toList(),
+      ValidateStartOfYear1Days,
+      customDescriptionBuilder: describeArguments);
+  parameterizedTest('GetYearConsistentWithGetYearDays', AllCalculators.toList(),
+      GetYearConsistentWithGetYearDays,
+      customDescriptionBuilder: describeArguments);
 }
 
 // todo: add the rest of the calendars
 
 // Here the term 'Islamic' only refers to whether the implementation is IslamicYearMonthDayCalculator,
 // not whether the calendar itself is based on Islamic scripture.
-List<TestCaseData> NonIslamicCalculators = [
-  TestCaseData(GregorianYearMonthDayCalculator())..name = 'Gregorian',
+List<Object> NonIslamicCalculators = [
+  GregorianYearMonthDayCalculator()
+      .options(customDescriptionBuilder: (_, __, ___) => 'Gregorian'),
   //new TestCaseData(new CopticYearMonthDayCalculator())..name='Coptic',
-  TestCaseData(JulianYearMonthDayCalculator())..name = 'Julian',
+  JulianYearMonthDayCalculator()
+      .options(customDescriptionBuilder: (_, __, ___) => 'Julian'),
 //new TestCaseData(new HebrewYearMonthDayCalculator(HebrewMonthNumbering.Civil)).SetName('Hebrew Civil'),
 //new TestCaseData(new HebrewYearMonthDayCalculator(HebrewMonthNumbering.Scriptural)).SetName('Hebrew Scriptural'),
 //new TestCaseData(new PersianYearMonthDayCalculator.Simple()).SetName('Persian Simple'),
@@ -29,7 +35,7 @@ List<TestCaseData> NonIslamicCalculators = [
 //new TestCaseData(new UmAlQuraYearMonthDayCalculator()).SetName('Um Al Qura'),
 ];
 
-List<TestCaseData> IslamicCalculators = [];
+List<Object> IslamicCalculators = [];
 /*
 (from epoch in Enum.GetValues(typeof(IslamicEpoch)).Cast<IslamicEpoch>()
 from leapYearPattern in Enum.GetValues(typeof(IslamicLeapYearPattern)).Cast<IslamicLeapYearPattern>()
@@ -37,15 +43,13 @@ let calculator = new IslamicYearMonthDayCalculator(leapYearPattern, epoch)
 select new TestCaseData(calculator).SetName($'Islamic: {epoch}, {leapYearPattern}'))
 .ToArray();*/
 
-Iterable<TestCaseData> AllCalculators =
+Iterable<Object> AllCalculators =
     [NonIslamicCalculators, IslamicCalculators].expand((x) => x);
 
 // Note for tests using TestCaseSource:
 // We can't make the parameter of type YearMonthDayCalculator, because that's internal.
 // We can't make the method internal, as then it isn't a test. Casting is all we've got.
 
-@Test()
-@TestCaseSource(#AllCalculators)
 void ValidateStartOfYear1Days(Object calculatorAsObject) {
   var calculator = calculatorAsObject as YearMonthDayCalculator;
   // Some calendars (e.g. Um Al Qura) don't support year 1, so the DaysAtStartOfYear1
@@ -57,8 +61,6 @@ void ValidateStartOfYear1Days(Object calculatorAsObject) {
   expect(calculator.getStartOfYearInDays(1), calculator.daysAtStartOfYear1);
 }
 
-@Test()
-@TestCaseSource(#AllCalculators)
 void GetYearConsistentWithGetYearDays(Object calculatorAsObject) {
   var calculator = calculatorAsObject as YearMonthDayCalculator;
   for (int year = calculator.minYear; year <= calculator.maxYear; year++) {

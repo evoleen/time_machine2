@@ -2,19 +2,24 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'dart:async';
-
 import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
 
-import 'time_machine_testing.dart';
-
-Future main() async {
-  await runTests();
+void main() {
+  test('PlusHours_Simple', PlusHours_Simple);
+  test('PlusHours_CrossingDayBoundary', PlusHours_CrossingDayBoundary);
+  test('PlusHours_CrossingSeveralDaysBoundary',
+      PlusHours_CrossingSeveralDaysBoundary);
+  test('PlusMinutes_Simple', PlusMinutes_Simple);
+  test('PlusSeconds_Simple', PlusSeconds_Simple);
+  test('PlusMilliseconds_Simple', PlusMilliseconds_Simple);
+  test('PlusMicroseconds_Simple', PlusMicroseconds_Simple);
+  test('PlusTicks_Long', PlusTicks_Long);
+  test('With', With);
+  test('PlusMinutes_WouldOverflowNaively', PlusMinutes_WouldOverflowNaively);
 }
 
-@Test()
 void PlusHours_Simple() {
   LocalTime start = LocalTime(12, 15, 8);
   LocalTime expectedForward = LocalTime(14, 15, 8);
@@ -23,7 +28,6 @@ void PlusHours_Simple() {
   expect(expectedBackward, start.addHours(-2));
 }
 
-@Test()
 void PlusHours_CrossingDayBoundary() {
   LocalTime start = LocalTime(12, 15, 8);
   LocalTime expected = LocalTime(8, 15, 8);
@@ -31,7 +35,6 @@ void PlusHours_CrossingDayBoundary() {
   expect(start, start.addHours(20).addHours(-20));
 }
 
-@Test()
 void PlusHours_CrossingSeveralDaysBoundary() {
   // Christmas day + 10 days and 1 hour
   LocalTime start = LocalTime(12, 15, 8);
@@ -42,7 +45,6 @@ void PlusHours_CrossingSeveralDaysBoundary() {
 
 // Having tested that hours cross boundaries correctly, the other time unit
 // tests are straightforward
-@Test()
 void PlusMinutes_Simple() {
   LocalTime start = LocalTime(12, 15, 8);
   LocalTime expectedForward = LocalTime(12, 17, 8);
@@ -51,7 +53,6 @@ void PlusMinutes_Simple() {
   expect(expectedBackward, start.addMinutes(-2));
 }
 
-@Test()
 void PlusSeconds_Simple() {
   LocalTime start = LocalTime(12, 15, 8);
   LocalTime expectedForward = LocalTime(12, 15, 18);
@@ -60,7 +61,6 @@ void PlusSeconds_Simple() {
   expect(expectedBackward, start.addSeconds(-10));
 }
 
-@Test()
 void PlusMilliseconds_Simple() {
   LocalTime start = LocalTime(12, 15, 8, ms: 300);
   LocalTime expectedForward = LocalTime(12, 15, 8, ms: 700);
@@ -69,7 +69,6 @@ void PlusMilliseconds_Simple() {
   expect(expectedBackward, start.addMilliseconds(-400));
 }
 
-@Test()
 void PlusMicroseconds_Simple() {
   LocalTime start = LocalTime(12, 15, 8, us: 300750);
   LocalTime expectedForward = LocalTime(12, 15, 8, us: 301150);
@@ -78,7 +77,6 @@ void PlusMicroseconds_Simple() {
   expect(expectedBackward, start.addMicroseconds(-400));
 }
 
-@Test()
 void PlusTicks_Long() {
   expect(TimeConstants.microsecondsPerDay > Platform.int32MaxValue, isTrue);
   LocalTime start = LocalTime(12, 15, 8);
@@ -94,7 +92,6 @@ void PlusTicks_Long() {
       expectedBackward);
 }
 
-@Test()
 void With() {
   LocalTime start = LocalTime(12, 15, 8,
       ns: 100 * TimeConstants.nanosecondsPerMillisecond + 1234 * 100);
@@ -102,7 +99,6 @@ void With() {
   expect(expected, start.adjust(TimeAdjusters.truncateToSecond));
 }
 
-@Test()
 void PlusMinutes_WouldOverflowNaively() {
   LocalTime start = LocalTime(12, 34, 56);
   // Very big value, which just wraps round a *lot* and adds one minute.

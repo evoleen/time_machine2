@@ -2,15 +2,22 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'dart:async';
-
 import 'package:time_machine2/src/time_machine_internal.dart';
 import 'package:test/test.dart';
 
 import '../time_machine_testing.dart';
 
-Future main() async {
-  await runTests();
+void main() {
+  test('ReturnEarlier', ReturnEarlier);
+  test('ReturnLater', ReturnLater);
+  test('ThrowWhenAmbiguous', ThrowWhenAmbiguous);
+  test('ReturnEndOfIntervalBefore', ReturnEndOfIntervalBefore);
+  test('ReturnStartOfIntervalAfter', ReturnStartOfIntervalAfter);
+  test('ReturnForwardShifted', ReturnForwardShifted);
+  test('ThrowWhenSkipped', ThrowWhenSkipped);
+  test('CreateResolver_Unambiguous', CreateResolver_Unambiguous);
+  test('CreateResolver_Ambiguous', CreateResolver_Ambiguous);
+  test('CreateResolver_Skipped', CreateResolver_Skipped);
 }
 
 /// Zone where the clocks go back at 1am at the start of the year 2000, back to midnight.
@@ -24,7 +31,6 @@ SingleTransitionDateTimeZone GapZone =
 /// Local time which is either skipped or ambiguous, depending on the zones above.
 LocalDateTime TimeInTransition = LocalDateTime(2000, 1, 1, 0, 20, 0);
 
-@Test()
 void ReturnEarlier() {
   var mapping = AmbiguousZone.mapLocal(TimeInTransition);
   expect(2, mapping.count);
@@ -32,7 +38,6 @@ void ReturnEarlier() {
   expect(mapping.first(), resolved);
 }
 
-@Test()
 void ReturnLater() {
   var mapping = AmbiguousZone.mapLocal(TimeInTransition);
   expect(2, mapping.count);
@@ -40,7 +45,6 @@ void ReturnLater() {
   expect(mapping.last(), resolved);
 }
 
-@Test()
 void ThrowWhenAmbiguous() {
   var mapping = AmbiguousZone.mapLocal(TimeInTransition);
   expect(2, mapping.count);
@@ -48,7 +52,6 @@ void ThrowWhenAmbiguous() {
       willThrow<AmbiguousTimeError>());
 }
 
-@Test()
 void ReturnEndOfIntervalBefore() {
   var mapping = GapZone.mapLocal(TimeInTransition);
   expect(0, mapping.count);
@@ -58,7 +61,6 @@ void ReturnEndOfIntervalBefore() {
   expect(GapZone, resolved.zone);
 }
 
-@Test()
 void ReturnStartOfIntervalAfter() {
   var mapping = GapZone.mapLocal(TimeInTransition);
   expect(0, mapping.count);
@@ -68,7 +70,6 @@ void ReturnStartOfIntervalAfter() {
   expect(GapZone, resolved.zone);
 }
 
-@Test()
 void ReturnForwardShifted() {
   var mapping = GapZone.mapLocal(TimeInTransition);
   expect(0, mapping.count);
@@ -85,7 +86,6 @@ void ReturnForwardShifted() {
   expect(GapZone, resolved.zone);
 }
 
-@Test()
 void ThrowWhenSkipped() {
   var mapping = GapZone.mapLocal(TimeInTransition);
   expect(0, mapping.count);
@@ -95,7 +95,6 @@ void ThrowWhenSkipped() {
       willThrow<SkippedTimeError>());
 }
 
-@Test()
 void CreateResolver_Unambiguous() {
   AmbiguousTimeResolver ambiguityResolver = (earlier, later) {
     /*Assert.Fail*/ throw StateError("Shouldn't be called");
@@ -117,7 +116,6 @@ void CreateResolver_Unambiguous() {
       resolved);
 }
 
-@Test()
 void CreateResolver_Ambiguous() {
   ZonedDateTime zoned = IZonedDateTime.trusted(
       TimeInTransition.addDays(1).withOffset(GapZone.EarlyInterval.wallOffset),
@@ -134,7 +132,6 @@ void CreateResolver_Ambiguous() {
   expect(zoned, resolved);
 }
 
-@Test()
 void CreateResolver_Skipped() {
   ZonedDateTime zoned = IZonedDateTime.trusted(
       TimeInTransition.addDays(1).withOffset(GapZone.EarlyInterval.wallOffset),

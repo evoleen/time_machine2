@@ -5,6 +5,7 @@
 import 'dart:async';
 
 import 'package:test/test.dart';
+import 'package:parameterized_test/parameterized_test.dart';
 import 'package:time_machine2/time_machine2.dart';
 
 import '../time_machine_testing.dart';
@@ -15,11 +16,11 @@ Future main() async {
   await TimeMachineTest.initialize();
   allTzdbZones = await DateTimeZoneProviders.defaultProvider!.getAllZones();
 
-  await runTests();
+  parameterizedTest('AllZonesStartAndEndOfTime', allTzdbZones.toList(),
+      AllZonesStartAndEndOfTime,
+      customDescriptionBuilder: describeArguments);
 }
 
-@Test()
-@TestCaseSource(#allTzdbZones)
 void AllZonesStartAndEndOfTime(DateTimeZone zone) {
   var firstInterval = zone.getZoneInterval(Instant.minValue);
   expect(firstInterval.hasStart, isFalse);

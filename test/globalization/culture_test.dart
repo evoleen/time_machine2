@@ -8,13 +8,13 @@ import 'package:test/test.dart';
 
 import '../time_machine_testing.dart';
 
-Future main() async {
-  await TimeMachineTest.initialize();
+void main() {
+  setUpAll(TimeMachineTest.initialize);
 
-  await runTests();
+  test('loadCultures', loadCultures);
+  test('loadBadCulture', loadBadCulture);
 }
 
-@Test()
 Future loadCultures() async {
   var ids = await Cultures.ids;
   expect(ids.length, greaterThan(0));
@@ -26,7 +26,6 @@ Future loadCultures() async {
 }
 
 // see: issue #13
-@Test()
 Future loadBadCulture() async {
   var culture = (await Cultures.getCulture('en-CN'))!;
   expect(culture.name, 'en');

@@ -2,19 +2,35 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'dart:async';
-
 import 'package:time_machine2/src/time_machine_internal.dart';
 import 'package:test/test.dart';
+import 'package:parameterized_test/parameterized_test.dart';
 
 import 'time_machine_testing.dart';
 
-Future main() async {
-  await TimeMachineTest.initialize();
-  await runTests();
+void main() {
+  setUpAll(TimeMachineTest.initialize);
+
+  test('AllYears', AllYears);
+  test('AllMonths', AllMonths);
+  test('AllDays', AllDays);
+  parameterizedTest(
+      'Comparisons',
+      [
+        ['1000-01-01', "1000-01-02"],
+        ['1000-01-01', "1000-02-01"],
+        ['999-16-64', "1000-01-01"],
+        ['-1-01-01', "-1-01-02"],
+        ['-1-01-01', "-1-02-01"],
+        ['-2-16-64', "-1-01-01"],
+        ['-1-16-64', "0-01-01"],
+        ['-1-16-64', "1-01-01"],
+      ],
+      Comparisons,
+      customDescriptionBuilder: describeArguments);
+  test('YearMonthDayToString', YearMonthDayToString);
 }
 
-@Test()
 void AllYears() {
   // Range of years we actually care about. We support more, but that's okay.
   for (int year = -9999; year <= 9999; year++) {
@@ -25,7 +41,6 @@ void AllYears() {
   }
 }
 
-@Test()
 void AllMonths() {
   // We'll never actually need 32 months, but we support that many...
   for (int month = 1; month < 32; month++) {
@@ -36,7 +51,6 @@ void AllMonths() {
   }
 }
 
-@Test()
 void AllDays() {
   // We'll never actually need 64 days, but we support that many...
   for (int day = 1; day < 64; day++) {
@@ -47,15 +61,6 @@ void AllDays() {
   }
 }
 
-@Test()
-@TestCase(['1000-01-01', "1000-01-02"])
-@TestCase(['1000-01-01', "1000-02-01"])
-@TestCase(['999-16-64', "1000-01-01"])
-@TestCase(['-1-01-01', "-1-01-02"])
-@TestCase(['-1-01-01', "-1-02-01"])
-@TestCase(['-2-16-64', "-1-01-01"])
-@TestCase(['-1-16-64', "0-01-01"])
-@TestCase(['-1-16-64', "1-01-01"])
 void Comparisons(String smallerText, String greaterText) {
   var smaller = YearMonthDay.parse(smallerText);
   var smaller2 = YearMonthDay.parse(smallerText);
@@ -65,7 +70,6 @@ void Comparisons(String smallerText, String greaterText) {
   TestHelper.TestEqualsStruct(smaller, smaller2, [greater]);
 }
 
-@Test()
 void YearMonthDayToString() {
   var ymd = const YearMonthDay(2017, 8, 25);
   expect('2017-08-25', ymd.toString());

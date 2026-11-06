@@ -2,19 +2,15 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'dart:async';
-
 import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
 
-import '../time_machine_testing.dart';
-
-Future main() async {
-  await runTests();
+void main() {
+  test('DaysInYear', DaysInYear);
+  test('DaysInMonth', DaysInMonth);
 }
 
-@Test()
 void DaysInYear() {
   // var bcl = BclCalendars.Hebrew;
   var minYear = 5343; // bcl.GetYear(bcl.MinSupportedDateTime);
@@ -26,7 +22,6 @@ void DaysInYear() {
   }
 }
 
-@Test()
 void DaysInMonth() {
   // var bcl = BclCalendars.Hebrew;
   // Not all months in the min/max years are supported

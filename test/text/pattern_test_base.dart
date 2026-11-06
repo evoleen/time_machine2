@@ -7,45 +7,31 @@ import 'package:time_machine2/src/time_machine_internal.dart';
 import 'package:test/test.dart';
 // import 'package:matcher/matcher.dart';
 
-import '../time_machine_testing.dart';
 import 'pattern_test_data.dart';
 
 /// Base class for all the pattern tests (when we've migrated OffsetPattern off FormattingTestSupport).
-/// Derived classes should have internal static fields with the names listed in the TestCaseSource
-/// attributes here: InvalidPatternData, ParseFailureData, ParseData, FormatData. Any field
-/// which is missing causes that test to be 'not runnable' for that concrete subclass.
-///
-/// XXX: Need to update this doc
-/// If a test isn't appropriate (e.g. there's no configurable pattern) just provide a property with
-/// an array containing a null value - that will be ignored.
+/// Derived classes provide the test cases as InvalidPatternData, ParseFailureData, ParseData and
+/// FormatData, and each subclass's test file registers these methods with parameterizedTest.
+/// If a test isn't appropriate (e.g. there's no configurable pattern), that file doesn't
+/// register it.
 abstract class PatternTestBase<T> {
-  @Test()
-  @TestCaseSource(#InvalidPatternData)
   void InvalidPatterns(PatternTestData<T> data) {
     data.TestInvalidPattern();
   }
 
-  @Test()
-  @TestCaseSource(#ParseFailureData)
   void ParseFailures(PatternTestData<T> data) {
     data.TestParseFailure();
   }
 
-  @Test()
-  @TestCaseSource(#ParseData)
   void Parse(PatternTestData<T> data) {
     data.TestParse();
   }
 
-  @Test()
-  @TestCaseSource(#FormatData)
   void Format(PatternTestData<T> data) {
     data.TestFormat();
   }
 
   // Testing this for every item is somewhat overkill, but not too slow.
-  @Test()
-  @TestCaseSource(#FormatData)
   void AppendFormat(PatternTestData<T> data) {
     data.TestAppendFormat();
   }

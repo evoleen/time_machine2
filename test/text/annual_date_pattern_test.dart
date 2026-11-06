@@ -7,17 +7,49 @@ import 'dart:async';
 import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
+import 'package:parameterized_test/parameterized_test.dart';
 
 import '../time_machine_testing.dart';
 import 'pattern_test_base.dart';
 import 'pattern_test_data.dart';
 import 'test_cultures.dart';
 
-Future main() async {
-  await runTests();
+void main() {
+  group('AnnualDatePatternTest', () {
+    final fixture = AnnualDatePatternTest();
+    test('CreateWithCurrentCulture', fixture.CreateWithCurrentCulture);
+    parameterizedTest(
+        'CreateWithCulture',
+        [
+          ['fr-FR', "08/23"],
+          ['fr-CA', "08-23"],
+        ],
+        fixture.CreateWithCulture,
+        customDescriptionBuilder: describeArguments);
+    parameterizedTest(
+        'CreateWithCultureAndTemplateValue',
+        [
+          ['fr-FR', "08/23"],
+          ['fr-CA', "08-23"],
+        ],
+        fixture.CreateWithCultureAndTemplateValue,
+        customDescriptionBuilder: describeArguments);
+    parameterizedTest(
+        'InvalidPatterns', fixture.InvalidPatternData, fixture.InvalidPatterns,
+        customDescriptionBuilder: describeArguments);
+    parameterizedTest(
+        'ParseFailures', fixture.ParseFailureData, fixture.ParseFailures,
+        customDescriptionBuilder: describeArguments);
+    parameterizedTest('Parse', fixture.ParseData.toList(), fixture.Parse,
+        customDescriptionBuilder: describeArguments);
+    parameterizedTest('Format', fixture.FormatData.toList(), fixture.Format,
+        customDescriptionBuilder: describeArguments);
+    parameterizedTest(
+        'AppendFormat', fixture.FormatData.toList(), fixture.AppendFormat,
+        customDescriptionBuilder: describeArguments);
+  });
 }
 
-@Test()
 class AnnualDatePatternTest extends PatternTestBase<AnnualDate> {
   @internal
   final List<Data> InvalidPatternData = [
@@ -225,7 +257,6 @@ class AnnualDatePatternTest extends PatternTestBase<AnnualDate> {
   Iterable<Data> get FormatData =>
       [FormatOnlyData, FormatAndParseData].expand((x) => x);
 
-  @Test()
   Future CreateWithCurrentCulture() async {
     var date = AnnualDate(8, 23);
     // using (CultureSaver.SetTestCultures(TestCultures.FrFr))
@@ -239,8 +270,6 @@ class AnnualDatePatternTest extends PatternTestBase<AnnualDate> {
     expect('08-23', pattern.format(date));
   }
 
-  @TestCase(['fr-FR', "08/23"])
-  @TestCase(['fr-CA', "08-23"])
   Future CreateWithCulture(String cultureId, String expected) async {
     var date = AnnualDate(8, 23);
     var culture = TestCultures.getCulture(cultureId)!;
@@ -248,8 +277,6 @@ class AnnualDatePatternTest extends PatternTestBase<AnnualDate> {
     expect(expected, pattern.format(date));
   }
 
-  @TestCase(['fr-FR', "08/23"])
-  @TestCase(['fr-CA', "08-23"])
   Future CreateWithCultureAndTemplateValue(
       String cultureId, String expected) async {
     var date = AnnualDate(8, 23);

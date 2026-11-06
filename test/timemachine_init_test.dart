@@ -9,15 +9,14 @@ import 'package:test/test.dart';
 
 import 'time_machine_testing.dart';
 
-Future main() async {
-  await runTests();
+void main() {
+  test('timezoneCanBeOverridden', timezoneCanBeOverridden);
 }
 
 Future<String> getTimeZone() async {
   return 'Europe/Paris';
 }
 
-@Test()
 Future timezoneCanBeOverridden() async {
   if (Platform.isWeb) return;
   await TimeMachineTest.initialize({'timeZone': await getTimeZone()});

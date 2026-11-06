@@ -11,16 +11,42 @@ import 'package:time_machine2/time_machine2.dart';
 
 import 'time_machine_testing.dart';
 
-Future main() async {
-  await TimeMachineTest.initialize();
-  await runTests();
+void main() {
+  setUpAll(TimeMachineTest.initialize);
+
+  test('SimpleProperties', SimpleProperties);
+  test('Add_AroundTimeZoneTransition', Add_AroundTimeZoneTransition);
+  test('Add_MethodEquivalents', Add_MethodEquivalents);
+  test('Subtract_AroundTimeZoneTransition', Subtract_AroundTimeZoneTransition);
+  test(
+      'SubtractDuration_MethodEquivalents', SubtractDuration_MethodEquivalents);
+  test('Subtraction_ZonedDateTime', Subtraction_ZonedDateTime);
+  test('WithZone', WithZone);
+  test('IsDaylightSavings', IsDaylightSavings);
+  test('ToDateTimeUtc', ToDateTimeUtc);
+  test('ToDateTimeUtc_InRangeAfterUtcAdjustment',
+      ToDateTimeUtc_InRangeAfterUtcAdjustment);
+  test('ToDateTimeUnspecified', ToDateTimeUnspecified);
+  test('ToOffsetDateTime', ToOffsetDateTime);
+  test('Equality', Equality);
+  test('Construct_FromLocal_ValidUnambiguousOffset',
+      Construct_FromLocal_ValidUnambiguousOffset);
+  test('Construct_FromLocal_ValidEarlierOffset',
+      Construct_FromLocal_ValidEarlierOffset);
+  test('Construct_FromLocal_ValidLaterOffset',
+      Construct_FromLocal_ValidLaterOffset);
+  test('Construct_FromLocal_InvalidOffset', Construct_FromLocal_InvalidOffset);
+  test('DefaultConstructor', DefaultConstructor);
+  test('ZonedDateTime_ToString', ZonedDateTime_ToString);
+  test('ZonedDateTime_ToString_WithFormat', ZonedDateTime_ToString_WithFormat);
+  test('LocalComparer', LocalComparer);
+  test('InstantComparer', InstantComparer);
 }
 
 /// Changes from UTC+3 to UTC+4 at 1am local time on June 13th 2011.
 final SingleTransitionDateTimeZone SampleZone =
     SingleTransitionDateTimeZone.around(Instant.utc(2011, 6, 12, 22, 0), 3, 4);
 
-@Test()
 void SimpleProperties() {
   var value = ZonedDateTime.atStrictly(
       LocalDateTime(2012, 2, 10, 8, 9, 10).addNanoseconds(123456789),
@@ -54,7 +80,6 @@ void SimpleProperties() {
       value.clockTime.timeSinceMidnight.inNanoseconds);
 }
 
-@Test()
 void Add_AroundTimeZoneTransition() {
   // Before the transition at 3pm...
   ZonedDateTime before = ZonedDateTime.atStrictly(
@@ -69,7 +94,6 @@ void Add_AroundTimeZoneTransition() {
   expect(afterExpected, afterOperator);
 }
 
-@Test()
 void Add_MethodEquivalents() {
   const int minutes = 23;
   const int hours = 3;
@@ -127,7 +151,6 @@ void Add_MethodEquivalents() {
   */
 }
 
-@Test()
 void Subtract_AroundTimeZoneTransition() {
   // After the transition at 4pm...
   ZonedDateTime after = ZonedDateTime.atStrictly(
@@ -142,7 +165,6 @@ void Subtract_AroundTimeZoneTransition() {
   expect(beforeExpected, beforeOperator);
 }
 
-@Test()
 void SubtractDuration_MethodEquivalents() {
   ZonedDateTime after = ZonedDateTime.atStrictly(
       LocalDateTime(2011, 6, 13, 16, 0, 0), SampleZone);
@@ -150,7 +172,6 @@ void SubtractDuration_MethodEquivalents() {
   expect(after - Time.oneDay, after.subtract(Time.oneDay));
 }
 
-@Test()
 void Subtraction_ZonedDateTime() {
   // Test all three approaches... not bothering to check a different calendar,
   // but we'll use two different time zones.
@@ -164,7 +185,6 @@ void Subtraction_ZonedDateTime() {
   expect(expected, ZonedDateTime.difference(end, start));
 }
 
-@Test()
 void WithZone() {
   Instant instant = Instant.utc(2012, 2, 4, 12, 35);
   ZonedDateTime zoned = ZonedDateTime(instant, SampleZone);
@@ -178,7 +198,6 @@ void WithZone() {
   expect(converted.toInstant(), instant);
 }
 
-@Test()
 Future IsDaylightSavings() async {
   // Use a real time zone rather than a single-transition zone, so that we can get
   // a savings offset.
@@ -283,7 +302,6 @@ void ToBclTypes_TruncateNanosTowardStartOfTime(int year)
   expect(expectedDateTimeOffset, actualDateTimeOffset);
 }
 */
-@Test()
 void ToDateTimeUtc() {
   ZonedDateTime zoned =
       ZonedDateTime.atStrictly(LocalDateTime(2011, 3, 5, 1, 0, 0), SampleZone);
@@ -295,7 +313,6 @@ void ToDateTimeUtc() {
   expect(actual.isUtc, isTrue);
 }
 
-@Test()
 void ToDateTimeUtc_InRangeAfterUtcAdjustment() {
   var zone = DateTimeZone.forOffset(Offset.hours(-1));
   var zdt = LocalDateTime(0, 12, 31, 23, 30, 0).inZoneStrictly(zone);
@@ -308,7 +325,6 @@ void ToDateTimeUtc_InRangeAfterUtcAdjustment() {
   expect(expected, actual);
 }
 
-@Test()
 void ToDateTimeUnspecified() {
   ZonedDateTime zoned =
       ZonedDateTime.atStrictly(LocalDateTime(2011, 3, 5, 1, 0, 0), SampleZone);
@@ -319,7 +335,6 @@ void ToDateTimeUnspecified() {
   expect(actual.isUtc, isFalse); // DateTimeKind.Unspecified, actual.Kind);
 }
 
-@Test()
 void ToOffsetDateTime() {
   var local = LocalDateTime(1911, 3, 5, 1, 0, 0); // Early interval
   var zoned = ZonedDateTime.atStrictly(local, SampleZone);
@@ -328,7 +343,6 @@ void ToOffsetDateTime() {
   expect(SampleZone.EarlyInterval.wallOffset, offsetDateTime.offset);
 }
 
-@Test()
 void Equality() {
   // Goes back from 2am to 1am on June 13th
   SingleTransitionDateTimeZone zone = SingleTransitionDateTimeZone.around(
@@ -372,7 +386,6 @@ void Constructor_ArgumentValidation()
   expect(() => new ZonedDateTime(new Instant.fromUnixTimeTicks(1000), SampleZone, null), throwsArgumentError);
 }*/
 
-@Test()
 void Construct_FromLocal_ValidUnambiguousOffset() {
   SingleTransitionDateTimeZone zone = SingleTransitionDateTimeZone.around(
       Instant.utc(2011, 6, 12, 22, 0), 4, 3);
@@ -383,7 +396,6 @@ void Construct_FromLocal_ValidUnambiguousOffset() {
   expect(zoned, local.inZoneStrictly(zone));
 }
 
-@Test()
 void Construct_FromLocal_ValidEarlierOffset() {
   SingleTransitionDateTimeZone zone = SingleTransitionDateTimeZone.around(
       Instant.utc(2011, 6, 12, 22, 0), 4, 3);
@@ -398,7 +410,6 @@ void Construct_FromLocal_ValidEarlierOffset() {
   expect(zoned, local.inZone(zone, resolver));
 }
 
-@Test()
 void Construct_FromLocal_ValidLaterOffset() {
   SingleTransitionDateTimeZone zone = SingleTransitionDateTimeZone.around(
       Instant.utc(2011, 6, 12, 22, 0), 4, 3);
@@ -413,7 +424,6 @@ void Construct_FromLocal_ValidLaterOffset() {
   expect(zoned, local.inZone(zone, resolver));
 }
 
-@Test()
 void Construct_FromLocal_InvalidOffset() {
   SingleTransitionDateTimeZone zone = SingleTransitionDateTimeZone.around(
       Instant.utc(2011, 6, 12, 22, 0), 4, 3);
@@ -426,7 +436,6 @@ void Construct_FromLocal_InvalidOffset() {
 }
 
 ///   Using the default constructor is equivalent to January 1st 1970, midnight, UTC, ISO calendar
-@Test()
 void DefaultConstructor() {
   // Note: The test documentation says this should be January 1st 1970, but the actual test
   // checks for '0001-01-01T00:00:00 UTC (+00)' -- we're going to differ from NodaTime's implementation here
@@ -546,14 +555,12 @@ void XmlSerialization_Invalid(string xml, Type expectedExceptionType)
 }
 */
 
-@Test()
 void ZonedDateTime_ToString() {
   var local = LocalDateTime(2013, 7, 23, 13, 05, 20);
   ZonedDateTime zoned = local.inZoneStrictly(SampleZone);
   expect('2013-07-23T13:05:20 Single (+04)', zoned.toString());
 }
 
-@Test()
 void ZonedDateTime_ToString_WithFormat() {
   var local = LocalDateTime(2013, 7, 23, 13, 05, 20);
   ZonedDateTime zoned = local.inZoneStrictly(SampleZone);
@@ -561,7 +568,6 @@ void ZonedDateTime_ToString_WithFormat() {
       zoned.toString("yyyy/MM/dd HH:mm:ss z", Culture.invariant));
 }
 
-@Test()
 Future LocalComparer() async {
   var london = await DateTimeZoneProviders.defaultProvider!['Europe/London'];
   var losAngeles =
@@ -597,7 +603,6 @@ Future LocalComparer() async {
       comparer.getHashCode(losAngelesAfternoon));
 }
 
-@Test()
 Future InstantComparer() async {
   var london = await DateTimeZoneProviders.defaultProvider!['Europe/London'];
   var losAngeles =

@@ -2,20 +2,18 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'dart:async';
-
 import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
 
-import '../time_machine_testing.dart';
-
 /// Tests for the Coptic calendar system.
-Future main() async {
-  await runTests();
+void main() {
+  test('CopticEpoch', CopticEpoch);
+  test('UnixEpoch', UnixEpoch);
+  test('SampleDate', SampleDate);
+  test('InvalidEra', InvalidEra);
 }
 
-@Test()
 void CopticEpoch() {
   CalendarSystem coptic = CalendarSystem.coptic;
   LocalDateTime copticEpoch = LocalDateTime(1, 1, 1, 0, 0, 0, calendar: coptic);
@@ -27,7 +25,6 @@ void CopticEpoch() {
   expect(expected, converted);
 }
 
-@Test()
 void UnixEpoch() {
   CalendarSystem coptic = CalendarSystem.coptic;
   // note: printing `unixEpoch` will call YearMonthDayCalculator.getStartOfYearInDays(int year) for -9998 and 10000 for VM, but not on JS -- and it appears to be a redundant call
@@ -40,7 +37,6 @@ void UnixEpoch() {
   expect(expected, unixEpochInCopticCalendar);
 }
 
-@Test()
 void SampleDate() {
   CalendarSystem copticCalendar = CalendarSystem.coptic;
   LocalDateTime iso = LocalDateTime(2004, 6, 9, 0, 0, 0);
@@ -66,7 +62,6 @@ void SampleDate() {
 }
 
 // Really testing SingleEraCalculator...
-@Test()
 void InvalidEra() {
   // expect(() => CalendarSystem.coptic.getAbsoluteYear(1720, null), throwsArgumentError);
   expect(() => CalendarSystem.coptic.getAbsoluteYear(1720, Era.annoHegirae),

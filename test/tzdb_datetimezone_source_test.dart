@@ -10,26 +10,72 @@
 import 'dart:async';
 
 import 'package:test/test.dart';
+import 'package:parameterized_test/parameterized_test.dart';
 import 'package:time_machine2/time_machine2.dart';
 import 'package:time_machine2/src/timezones/zone_guesser.dart';
 
 import 'time_machine_testing.dart';
 
-Future main() async {
-  await TimeMachineTest.initialize();
-  await runTests();
+void main() {
+  setUpAll(TimeMachineTest.initialize);
+
+  test('ForId_AllIds', ForId_AllIds);
+  test('UtcEqualsBuiltIn', UtcEqualsBuiltIn);
+  test('Aliases', Aliases);
+  test('CanonicalIdMap_Contents', CanonicalIdMap_Contents);
+  test('CanonicalIdMap_IsReadOnly', CanonicalIdMap_IsReadOnly);
+  test('TzdbVersion', TzdbVersion);
+  test('FixedDateTimeZoneName', FixedDateTimeZoneName);
+  test('VersionId', VersionId);
+  test('ValidateDefault', ValidateDefault);
+  test('GuessZoneIdByTransitionsUncached', GuessZoneIdByTransitionsUncached);
+  parameterizedTest(
+      'MapTimeZoneInfoId',
+      [
+        ['Pacific Standard Time', 0, 'America/Los_Angeles']
+            .options(customDescriptionBuilder: (_, __, ___) => 'Windows ID'),
+        ['America/Los_Angeles', 0, 'America/Los_Angeles']
+            .options(customDescriptionBuilder: (_, __, ___) => 'TZDB ID'),
+        ['Lilo and Stitch', -10, 'Etc/GMT+10'].options(
+            customDescriptionBuilder: (_, __, ___) => 'Guess by transitions'),
+      ],
+      MapTimeZoneInfoId,
+      customDescriptionBuilder: describeArguments);
+  test('ValidSample', ValidSample);
+  test('CanonicalIdMapValueIsNotAKey', CanonicalIdMapValueIsNotAKey);
+  test('CanonicalIdMapValueIsNotCanonical', CanonicalIdMapValueIsNotCanonical);
+  test('WindowsMappingWithoutPrimaryTerritory',
+      WindowsMappingWithoutPrimaryTerritory);
+  test('WindowsMappingPrimaryTerritoryNotInNonPrimary',
+      WindowsMappingPrimaryTerritoryNotInNonPrimary);
+  test('WindowsMappingUsesMissingId', WindowsMappingUsesMissingId);
+  test('WindowsMappingContainsDuplicateTzdbIds_SameTerritory',
+      WindowsMappingContainsDuplicateTzdbIds_SameTerritory);
+  test('WindowsMappingContainsDuplicateTzdbIds_SameWindowsIdDifferentTerritory',
+      WindowsMappingContainsDuplicateTzdbIds_SameWindowsIdDifferentTerritory);
+  test('WindowsMappingContainsDuplicateTzdbIds_DifferentTerritories',
+      WindowsMappingContainsDuplicateTzdbIds_DifferentTerritories);
+  test('WindowsMappingContainsWindowsIdWithNoPrimaryTerritory',
+      WindowsMappingContainsWindowsIdWithNoPrimaryTerritory);
+  test('WindowsMappingContainsWindowsIdWithDuplicateTerritories',
+      WindowsMappingContainsWindowsIdWithDuplicateTerritories);
+  test('WindowsToTzdbIds', WindowsToTzdbIds);
+  test('TzdbToWindowsIds', TzdbToWindowsIds);
+  test('TzdbToWindowsIdDocumentationExamples',
+      TzdbToWindowsIdDocumentationExamples);
+  test('UtcMappings', UtcMappings);
+  test('WindowsToTzdbIdDocumentationExamples',
+      WindowsToTzdbIdDocumentationExamples);
 }
 
 TzdbDateTimeZoneSource get source => TzdbDateTimeZoneSource.defaultSource;
 
-@Test()
 Future ForId_AllIds() async {
   for (var id in await source.getIds()) {
     expect(await source.forId(id), isNotNull);
   }
 }
 
-@Test()
 Future UtcEqualsBuiltIn() async {
   var zone = await source.forId('UTC');
   expect(zone.getUtcOffset(Instant.unixEpoch), Offset.zero);
@@ -39,7 +85,6 @@ Future UtcEqualsBuiltIn() async {
 // The following tests all make assumptions about the built-in TZDB data.
 // This is simpler than constructing fake data, and validates that the creation
 // mechanism matches the reading mechanism, too.
-@Test()
 void Aliases() {
   var aliases = source.aliases;
   expect(aliases['Europe/London'], [
@@ -55,36 +100,30 @@ void Aliases() {
   expect(aliases['Europe/Jersey'] ?? const <String>[], isEmpty);
 }
 
-@Test()
 void CanonicalIdMap_Contents() {
   var map = source.canonicalIdMap;
   expect(map['Europe/Jersey'], 'Europe/London');
   expect(map['Europe/London'], 'Europe/London');
 }
 
-@Test()
 void CanonicalIdMap_IsReadOnly() {
   var map = source.canonicalIdMap;
   expect(() => map['Foo'] = 'Bar', throwsUnsupportedError);
 }
 
-@Test()
 void TzdbVersion() {
   expect(source.tzdbVersion, startsWith('20'));
 }
 
-@Test()
 Future FixedDateTimeZoneName() async {
   var zulu = await DateTimeZoneProviders.defaultProvider!['Etc/Zulu'];
   expect(zulu.getZoneInterval(Instant.unixEpoch).name, 'UTC');
 }
 
-@Test()
 void VersionId() {
   expect(source.versionId, startsWith('TZDB: ${source.tzdbVersion}'));
 }
 
-@Test()
 void ValidateDefault() => source.validate();
 
 // By retrieving this once, we can massively speed up the guess test.
@@ -98,7 +137,6 @@ Future<List<DateTimeZone>> _canonicalZones() async {
 /// system's zones, so each Windows zone's TZDB zone stands in for the system
 /// zone: the guess must agree with it on at least 74% of the days in this
 /// year and next.
-@Test()
 Future GuessZoneIdByTransitionsUncached() async {
   var provider = DateTimeZoneProviders.defaultProvider!;
   var candidates = await _canonicalZones();
@@ -138,12 +176,8 @@ Future GuessZoneIdByTransitionsUncached() async {
 
 /// Noda Time maps `TimeZoneInfo.Local.Id`; Time Machine maps the Windows zone
 /// ID or the IANA ID read from the system in the same way.
-@Test()
-@TestCase(['Pacific Standard Time', 0, 'America/Los_Angeles'], 'Windows ID')
-@TestCase(['America/Los_Angeles', 0, 'America/Los_Angeles'], 'TZDB ID')
 // Both Pacific/Honolulu and Etc/GMT+10 match with the same score; we use
 // Etc/GMT+10 as it comes first lexically.
-@TestCase(['Lilo and Stitch', -10, 'Etc/GMT+10'], 'Guess by transitions')
 Future MapTimeZoneInfoId(
     String timeZoneInfoId, int standardUtc, String expectedId) async {
   var mappedId = source.mapSystemTimeZoneId(timeZoneInfoId) ??
@@ -169,7 +203,6 @@ void _assertInvalid(List<MapZone> mapZones,
       throwsA(isA<InvalidDateTimeZoneSourceError>()));
 }
 
-@Test()
 void ValidSample() => TzdbDateTimeZoneSource.validateData(
     _sampleCanonicalIdMap,
     WindowsZones('cldr-version', 'tzdb-version', 'windows-version', [
@@ -177,39 +210,32 @@ void ValidSample() => TzdbDateTimeZoneSource.validateData(
       MapZone('windows-id', 'UK', ['zone1']),
     ]));
 
-@Test()
 void CanonicalIdMapValueIsNotAKey() =>
     _assertInvalid(const [], {..._sampleCanonicalIdMap, 'zone4': 'zone5'});
 
-@Test()
 void CanonicalIdMapValueIsNotCanonical() =>
     _assertInvalid(const [], {..._sampleCanonicalIdMap, 'zone4': 'zone3'});
 
-@Test()
 void WindowsMappingWithoutPrimaryTerritory() => _assertInvalid([
       MapZone('windows-id', 'nonprimary', ['zone1', 'zone2'])
     ]);
 
-@Test()
 void WindowsMappingPrimaryTerritoryNotInNonPrimary() => _assertInvalid([
       MapZone('windows-id', MapZone.primaryTerritory, ['zone1']),
       MapZone('windows-id', 'UK', ['zone2']),
     ]);
 
-@Test()
 void WindowsMappingUsesMissingId() => _assertInvalid([
       MapZone('windows-id', MapZone.primaryTerritory, ['zone4']),
       MapZone('windows-id', 'UK', ['zone4']),
     ]);
 
-@Test()
 void WindowsMappingContainsDuplicateTzdbIds_SameTerritory() => _assertInvalid([
       MapZone('windows-id', MapZone.primaryTerritory, ['zone1']),
       MapZone('windows-id', 'UK', ['zone1']),
       MapZone('windows-id', 'CA', ['zone2', 'zone2']),
     ]);
 
-@Test()
 void WindowsMappingContainsDuplicateTzdbIds_SameWindowsIdDifferentTerritory() =>
     _assertInvalid([
       MapZone('windows-id', MapZone.primaryTerritory, ['zone1']),
@@ -217,7 +243,6 @@ void WindowsMappingContainsDuplicateTzdbIds_SameWindowsIdDifferentTerritory() =>
       MapZone('windows-id', 'CA', ['zone1']),
     ]);
 
-@Test()
 void WindowsMappingContainsDuplicateTzdbIds_DifferentTerritories() =>
     _assertInvalid([
       MapZone('windows-id1', MapZone.primaryTerritory, ['zone1']),
@@ -226,12 +251,10 @@ void WindowsMappingContainsDuplicateTzdbIds_DifferentTerritories() =>
       MapZone('windows-id2', 'UK', ['zone1']),
     ]);
 
-@Test()
 void WindowsMappingContainsWindowsIdWithNoPrimaryTerritory() => _assertInvalid([
       MapZone('windows-id1', 'CA', ['zone1']),
     ]);
 
-@Test()
 void WindowsMappingContainsWindowsIdWithDuplicateTerritories() =>
     _assertInvalid([
       MapZone('windows-id1', MapZone.primaryTerritory, ['zone1']),
@@ -266,7 +289,6 @@ final _complexWindowsMapping =
   MapZone('win4', 'CA', ['link3b']),
 ]);
 
-@Test()
 void WindowsToTzdbIds() {
   TzdbDateTimeZoneSource.validateData(
       _complexCanonicalIdMap, _complexWindowsMapping);
@@ -280,7 +302,6 @@ void WindowsToTzdbIds() {
   });
 }
 
-@Test()
 void TzdbToWindowsIds() {
   var actual = TzdbDateTimeZoneSource.buildTzdbToWindowsIdMap(
       _complexWindowsMapping, _complexCanonicalIdMap);
@@ -304,7 +325,6 @@ void TzdbToWindowsIds() {
 }
 
 // We'll need to adjust the documentation if either of these tests starts to fail.
-@Test()
 void TzdbToWindowsIdDocumentationExamples() {
   const kolkata = 'Asia/Kolkata';
   const calcutta = 'Asia/Calcutta';
@@ -325,7 +345,6 @@ void TzdbToWindowsIdDocumentationExamples() {
   expect(source.tzdbToWindowsIds[asmara], eastAfricaStandardTime);
 }
 
-@Test()
 void UtcMappings() {
   // Note: was Etc/GMT before CLDR v39.
   expect(source.windowsToTzdbIds['UTC'], 'Etc/UTC');
@@ -334,7 +353,6 @@ void UtcMappings() {
   expect(source.tzdbToWindowsIds['Etc/GMT+0'], 'UTC');
 }
 
-@Test()
 void WindowsToTzdbIdDocumentationExamples() {
   const kolkata = 'Asia/Kolkata';
   const calcutta = 'Asia/Calcutta';

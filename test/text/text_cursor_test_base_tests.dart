@@ -5,15 +5,12 @@
 import 'package:test/test.dart';
 import 'package:time_machine2/src/time_machine_internal.dart';
 
-import '../time_machine_testing.dart';
-
 //Future main() async {
 //  await runTests();
 //}
 
 /// Base class for tests of classes derived from TextCursor.
 abstract class TextCursorTestBase {
-  @Test()
   void TestConstructor() {
     const String testString = 'test';
     TextCursor cursor = MakeCursor(testString);
@@ -21,7 +18,6 @@ abstract class TextCursorTestBase {
     ValidateBeginningOfString(cursor);
   }
 
-  @Test()
   void TestMove() {
     TextCursor cursor = MakeCursor('test');
     ValidateBeginningOfString(cursor);
@@ -37,7 +33,6 @@ abstract class TextCursorTestBase {
     ValidateEndOfString(cursor);
   }
 
-  @Test()
   void TestMove_NextPrevious() {
     TextCursor cursor = MakeCursor('test');
     ValidateBeginningOfString(cursor);
@@ -55,7 +50,6 @@ abstract class TextCursorTestBase {
     ValidateCurrentCharacter(cursor, -1, TextCursor.nul);
   }
 
-  @Test()
   void TestMove_invalid() {
     TextCursor cursor = MakeCursor('test');
     ValidateBeginningOfString(cursor);

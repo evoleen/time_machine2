@@ -15,11 +15,11 @@ late DateTimeZone jordan;
 /// As of 2002, Jordan switches to DST at the *end* of the last Thursday of March.
 /// This is denoted in the zoneinfo database using lastThu 24:00, which was invalid
 /// in our parser.
-Future main() async {
-  await TimeMachineTest.initialize();
-  await setup();
+void main() {
+  setUpAll(TimeMachineTest.initialize);
+  setUpAll(setup);
 
-  await runTests();
+  test('Transitions2000To2010', Transitions2000To2010);
 }
 
 Future setup() async {
@@ -29,7 +29,6 @@ Future setup() async {
 
 /// If all of these transitions are right, we're probably okay... in particular,
 /// checking the 2005 transition occurs on the 1st of April is important.
-@Test()
 void Transitions2000To2010() {
   // These were fetched with Joda Time 1.6.2, which definitely uses the new rules.
   var expectedDates = [

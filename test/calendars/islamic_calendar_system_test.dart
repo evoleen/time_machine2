@@ -2,23 +2,42 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'dart:async';
-
 import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
 // import 'package:matcher/matcher.dart';
 
-import '../time_machine_testing.dart';
-
-Future main() async {
-  await runTests();
+void main() {
+  test('SampleDate1', SampleDate1);
+  test('SampleDate2', SampleDate2);
+  test('SampleDate3', SampleDate3);
+  test('InternalConsistency', InternalConsistency);
+  test('Base15LeapYear', Base15LeapYear);
+  test('Base16LeapYear', Base16LeapYear);
+  test('IndianBasedLeapYear', IndianBasedLeapYear);
+  test('HabashAlHasibBasedLeapYear', HabashAlHasibBasedLeapYear);
+  test('ThursdayEpoch', ThursdayEpoch);
+  test('FridayEpoch', FridayEpoch);
+  test('BclUsesAstronomicalEpoch', BclUsesAstronomicalEpoch);
+  test('SampleDateBclCompatibility', SampleDateBclCompatibility, skip: true);
+  test('BclThroughHistory', BclThroughHistory, skip: true);
+  test('GetDaysInMonth', GetDaysInMonth);
+  test('GetInstance_Caching', GetInstance_Caching, skip: true);
+  test('GetInstance_ArgumentValidation', GetInstance_ArgumentValidation,
+      skip: true);
+  test('PlusYears_Simple', PlusYears_Simple);
+  test('PlusYears_TruncatesAtLeapYear', PlusYears_TruncatesAtLeapYear);
+  test('PlusYears_DoesNotTruncateFromOneLeapYearToAnother',
+      PlusYears_DoesNotTruncateFromOneLeapYearToAnother);
+  test('PlusMonths_Simple', PlusMonths_Simple);
+  test('Constructor_InvalidEnumsForCoverage',
+      Constructor_InvalidEnumsForCoverage,
+      skip: "Doesn't make sense in Dart");
 }
 
 final CalendarSystem SampleCalendar = CalendarSystem.getIslamicCalendar(
     IslamicLeapYearPattern.base16, IslamicEpoch.civil);
 
-@Test()
 void SampleDate1() {
   // Note: field checks removed from the tests.
   LocalDateTime ldt =
@@ -40,7 +59,6 @@ void SampleDate1() {
   expect(0, ldt.microsecondOfSecond);
 }
 
-@Test()
 void SampleDate2() {
   LocalDateTime ldt =
       LocalDateTime(2005, 11, 26, 0, 0, 0, calendar: CalendarSystem.iso);
@@ -59,7 +77,6 @@ void SampleDate2() {
   expect(0, ldt.microsecondOfSecond);
 }
 
-@Test()
 void SampleDate3() {
   LocalDateTime ldt =
       LocalDateTime(1426, 12, 24, 0, 0, 0, calendar: SampleCalendar);
@@ -76,7 +93,6 @@ void SampleDate3() {
   expect(0, ldt.microsecondOfSecond);
 }
 
-@Test()
 void InternalConsistency() {
   var calendar = CalendarSystem.getIslamicCalendar(
       IslamicLeapYearPattern.base15, IslamicEpoch.civil);
@@ -94,7 +110,6 @@ void InternalConsistency() {
   }
 }
 
-@Test()
 void Base15LeapYear() {
   CalendarSystem calendar = CalendarSystem.getIslamicCalendar(
       IslamicLeapYearPattern.base15, IslamicEpoch.civil);
@@ -131,7 +146,6 @@ void Base15LeapYear() {
   expect(false, calendar.isLeapYear(30));
 }
 
-@Test()
 void Base16LeapYear() {
   CalendarSystem calendar = CalendarSystem.getIslamicCalendar(
       IslamicLeapYearPattern.base16, IslamicEpoch.civil);
@@ -168,7 +182,6 @@ void Base16LeapYear() {
   expect(false, calendar.isLeapYear(30));
 }
 
-@Test()
 void IndianBasedLeapYear() {
   CalendarSystem calendar = CalendarSystem.getIslamicCalendar(
       IslamicLeapYearPattern.indian, IslamicEpoch.civil);
@@ -205,7 +218,6 @@ void IndianBasedLeapYear() {
   expect(false, calendar.isLeapYear(30));
 }
 
-@Test()
 void HabashAlHasibBasedLeapYear() {
   CalendarSystem calendar = CalendarSystem.getIslamicCalendar(
       IslamicLeapYearPattern.habashAlHasib, IslamicEpoch.civil);
@@ -242,7 +254,6 @@ void HabashAlHasibBasedLeapYear() {
   expect(true, calendar.isLeapYear(30));
 }
 
-@Test()
 void ThursdayEpoch() {
   CalendarSystem thursdayEpochCalendar = CalendarSystem.islamicBcl;
   CalendarSystem julianCalendar = CalendarSystem.julian;
@@ -252,7 +263,6 @@ void ThursdayEpoch() {
   expect(thursdayEpochJulian, thursdayEpoch.withCalendar(julianCalendar));
 }
 
-@Test()
 void FridayEpoch() {
   CalendarSystem fridayEpochCalendar = CalendarSystem.getIslamicCalendar(
       IslamicLeapYearPattern.base16, IslamicEpoch.civil);
@@ -263,7 +273,6 @@ void FridayEpoch() {
   expect(fridayEpochJulian, fridayEpoch.withCalendar(julianCalendar));
 }
 
-@Test()
 void BclUsesAstronomicalEpoch() {
   // Calendar hijri = BclCalendars.Hijri;
   // DateTime bclDirect = hijri.ToDateTime(1, 1, 1, 0, 0, 0, 0);
@@ -279,8 +288,6 @@ void BclUsesAstronomicalEpoch() {
   expect(bclDirect, bclFromNoda);
 }
 
-@Test()
-@SkipMe()
 void SampleDateBclCompatibility() {
   dynamic hijri; // = BclCalendars.Hijri;
   DateTime bclDirect = hijri.ToDateTime(1302, 10, 15, 0, 0, 0, 0);
@@ -292,8 +299,6 @@ void SampleDateBclCompatibility() {
 }
 
 /// This tests every day for 9000 (ISO) years, to check that it always matches the year, month and day.
-@Test()
-@SkipMe()
 // [Category('Slow')]
 void BclThroughHistory() {
   //var bcl = BclCalendars.Hijri;
@@ -301,7 +306,6 @@ void BclThroughHistory() {
   //BclEquivalenceHelper.AssertEquivalent(bcl, noda);
 }
 
-@Test()
 void GetDaysInMonth() {
   // Just check that we've got the long/short the right way round...
   CalendarSystem calendar = CalendarSystem.getIslamicCalendar(
@@ -323,8 +327,6 @@ void GetDaysInMonth() {
   expect(30, calendar.getDaysInMonth(8, 12));
 }
 
-@Test()
-@SkipMe()
 void GetInstance_Caching() {
   /*
   var queue = new Queue<CalendarSystem>();
@@ -354,8 +356,6 @@ void GetInstance_Caching() {
   }*/
 }
 
-@Test()
-@SkipMe()
 void GetInstance_ArgumentValidation() {
   /*
   var epochs = Enum.GetValues(typeof(IslamicEpoch)).Cast<IslamicEpoch>();
@@ -367,7 +367,6 @@ void GetInstance_ArgumentValidation() {
   */
 }
 
-@Test()
 void PlusYears_Simple() {
   var calendar = CalendarSystem.getIslamicCalendar(
       IslamicLeapYearPattern.base15, IslamicEpoch.civil);
@@ -377,7 +376,6 @@ void PlusYears_Simple() {
   expect(expectedEnd, start.addYears(5));
 }
 
-@Test()
 void PlusYears_TruncatesAtLeapYear() {
   var calendar = CalendarSystem.getIslamicCalendar(
       IslamicLeapYearPattern.base15, IslamicEpoch.civil);
@@ -391,7 +389,6 @@ void PlusYears_TruncatesAtLeapYear() {
   expect(expectedEnd, start.addYears(1));
 }
 
-@Test()
 void PlusYears_DoesNotTruncateFromOneLeapYearToAnother() {
   var calendar = CalendarSystem.getIslamicCalendar(
       IslamicLeapYearPattern.base15, IslamicEpoch.civil);
@@ -405,7 +402,6 @@ void PlusYears_DoesNotTruncateFromOneLeapYearToAnother() {
   expect(expectedEnd, start.addYears(3));
 }
 
-@Test()
 void PlusMonths_Simple() {
   var calendar = CalendarSystem.getIslamicCalendar(
       IslamicLeapYearPattern.base15, IslamicEpoch.civil);
@@ -419,8 +415,6 @@ void PlusMonths_Simple() {
   expect(expectedEnd, start.addMonths(11));
 }
 
-@Test()
-@SkipMe("Doesn't make sense in Dart")
 void Constructor_InvalidEnumsForCoverage() {
   // expect(() => new IslamicYearMonthDayCalculator(IslamicLeapYearPattern.base15 + 100, IslamicEpoch.astronomical), throwsRangeError);
   // expect(() => new IslamicYearMonthDayCalculator(IslamicLeapYearPattern.base15, IslamicEpoch.astronomical + 100), throwsRangeError);

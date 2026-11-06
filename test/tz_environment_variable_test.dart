@@ -12,6 +12,11 @@
 // unrecognised TZ (e.g. a POSIX rule like EST5EDT) is ignored and Windows' own
 // zone is used. (Dart's own DateTime applies only POSIX-style TZ values on
 // Windows, through the C runtime, so the two can disagree when TZ is set.)
+
+// Uses files and links, which the web doesn't have.
+@TestOn('vm')
+library;
+
 import 'dart:async';
 import 'dart:convert';
 
@@ -23,9 +28,44 @@ import 'package:universal_io/io.dart' as io;
 
 import 'time_machine_testing.dart';
 
-Future main() async {
-  await TimeMachineTest.initialize();
-  await runTests();
+void main() {
+  setUpAll(TimeMachineTest.initialize);
+
+  test('Tz_Id', Tz_Id);
+  test('Tz_ColonPrefix', Tz_ColonPrefix);
+  test('Tz_Alias', Tz_Alias);
+  test('Tz_Empty_IsUtc', Tz_Empty_IsUtc);
+  test('Tz_ColonOnly_IsUtc', Tz_ColonOnly_IsUtc);
+  test('Tz_PosixAndRightPrefixes', Tz_PosixAndRightPrefixes);
+  test('Tz_UnknownId_IsNotResolved', Tz_UnknownId_IsNotResolved);
+  test('Tz_PosixRule_IsNotResolved', Tz_PosixRule_IsNotResolved);
+  test(
+      'Tz_Unset_NoLocaltime_IsNotResolved', Tz_Unset_NoLocaltime_IsNotResolved);
+  test('TzUnset_UsesEtcLocaltimeSymlink', TzUnset_UsesEtcLocaltimeSymlink);
+  test('TzUnset_RelativeEtcLocaltimeSymlink',
+      TzUnset_RelativeEtcLocaltimeSymlink);
+  test('TzUnset_EtcLocaltimeSymlink_PosixAndRightPrefixes',
+      TzUnset_EtcLocaltimeSymlink_PosixAndRightPrefixes);
+  test('TzUnset_DanglingEtcLocaltimeSymlink',
+      TzUnset_DanglingEtcLocaltimeSymlink);
+  test('TzUnset_EtcLocaltimeSymlinkToUnknownName_MatchedByContents',
+      TzUnset_EtcLocaltimeSymlinkToUnknownName_MatchedByContents);
+  test('TzUnset_EtcLocaltimeCopy_MatchedByContents',
+      TzUnset_EtcLocaltimeCopy_MatchedByContents);
+  test(
+      'Tz_TakesPrecedenceOverEtcLocaltime', Tz_TakesPrecedenceOverEtcLocaltime);
+  test('Tz_AbsolutePathInZoneInfo', Tz_AbsolutePathInZoneInfo);
+  test('Tz_AbsolutePathOutsideZoneInfo_MatchedByContents',
+      Tz_AbsolutePathOutsideZoneInfo_MatchedByContents);
+  test('Unix_TzIsUsedForLocalZone', Unix_TzIsUsedForLocalZone);
+  test('Windows_TzIdIsUsedForLocalZone', Windows_TzIdIsUsedForLocalZone);
+  test('WindowsTz_Candidates', WindowsTz_Candidates);
+  test('WindowsTz_WindowsId', WindowsTz_WindowsId);
+  test('WindowsTz_UnsetOrEmpty_IsIgnored', WindowsTz_UnsetOrEmpty_IsIgnored);
+  test('WindowsTz_Id', WindowsTz_Id);
+  test('WindowsTz_PosixRuleOrUnknown_IsIgnored',
+      WindowsTz_PosixRuleOrUnknown_IsIgnored);
+  test('WindowsTz_PathToZoneFile', WindowsTz_PathToZoneFile);
 }
 
 const _ids = [
@@ -46,24 +86,18 @@ String? _resolve(Map<String, String> environment,
 
 // The rules for TZ itself, which don't touch the file system. Run everywhere.
 
-@Test()
 void Tz_Id() => expect(_resolve({'TZ': 'Europe/Berlin'}), 'Europe/Berlin');
 
-@Test()
 void Tz_ColonPrefix() =>
     expect(_resolve({'TZ': ':Europe/Berlin'}), 'Europe/Berlin');
 
-@Test()
 void Tz_Alias() => expect(_resolve({'TZ': 'Japan'}), 'Japan');
 
-@Test()
 void Tz_Empty_IsUtc() => expect(_resolve({'TZ': ''}), 'UTC');
 
-@Test()
 void Tz_ColonOnly_IsUtc() => expect(_resolve({'TZ': ':'}), 'UTC');
 
 /// A 'posix/' or 'right/' prefix is dropped, as for /etc/localtime's target.
-@Test()
 void Tz_PosixAndRightPrefixes() {
   expect(_resolve({'TZ': 'posix/Europe/Berlin'}), 'Europe/Berlin');
   expect(_resolve({'TZ': ':right/Japan'}), 'Japan');
@@ -71,17 +105,14 @@ void Tz_PosixAndRightPrefixes() {
 }
 
 /// An unknown TZ isn't resolved, and /etc/localtime isn't consulted instead.
-@Test()
 void Tz_UnknownId_IsNotResolved() =>
     expect(_resolve({'TZ': 'Mars/Olympus_Mons'}), isNull);
 
 /// POSIX rule strings such as EST5EDT aren't IDs Time Machine knows here;
 /// detection then guesses from the offsets Dart reports.
-@Test()
 void Tz_PosixRule_IsNotResolved() =>
     expect(_resolve({'TZ': 'XST5XDT,M3.2.0,M11.1.0'}), isNull);
 
-@Test()
 void Tz_Unset_NoLocaltime_IsNotResolved() =>
     expect(_resolve({'TZDIR': '/nonexistent/zoneinfo'}), isNull);
 
@@ -109,7 +140,6 @@ Future<void> _withZoneInfo(
   }
 }
 
-@Test()
 Future TzUnset_UsesEtcLocaltimeSymlink() async {
   if (skipUnless(_isUnix, 'Unix only: uses Unix paths and symlinks')) {
     return;
@@ -121,7 +151,6 @@ Future TzUnset_UsesEtcLocaltimeSymlink() async {
   });
 }
 
-@Test()
 Future TzUnset_RelativeEtcLocaltimeSymlink() async {
   if (skipUnless(_isUnix, 'Unix only: uses Unix paths and symlinks')) {
     return;
@@ -135,7 +164,6 @@ Future TzUnset_RelativeEtcLocaltimeSymlink() async {
 
 /// A 'posix/' or 'right/' prefix in the link target is dropped (.NET keeps it,
 /// and Noda Time then guesses).
-@Test()
 Future TzUnset_EtcLocaltimeSymlink_PosixAndRightPrefixes() async {
   if (skipUnless(_isUnix, 'Unix only: uses Unix paths and symlinks')) {
     return;
@@ -158,7 +186,6 @@ Future TzUnset_EtcLocaltimeSymlink_PosixAndRightPrefixes() async {
 
 /// A dangling link (e.g. on an image without tzdata) still names the zone;
 /// one naming an unknown zone gives null.
-@Test()
 Future TzUnset_DanglingEtcLocaltimeSymlink() async {
   if (skipUnless(_isUnix, 'Unix only: uses Unix paths and symlinks')) {
     return;
@@ -178,7 +205,6 @@ Future TzUnset_DanglingEtcLocaltimeSymlink() async {
 
 /// A link to a file whose path isn't a known ID (e.g. zoneinfo/localtime)
 /// falls back to matching its contents.
-@Test()
 Future TzUnset_EtcLocaltimeSymlinkToUnknownName_MatchedByContents() async {
   if (skipUnless(_isUnix, 'Unix only: uses Unix paths and symlinks')) {
     return;
@@ -193,7 +219,6 @@ Future TzUnset_EtcLocaltimeSymlinkToUnknownName_MatchedByContents() async {
 
 /// A copied /etc/localtime is matched by contents, preferring canonical IDs
 /// (Asia/Tokyo over its identical alias Japan).
-@Test()
 Future TzUnset_EtcLocaltimeCopy_MatchedByContents() async {
   if (skipUnless(_isUnix, 'Unix only: uses Unix paths and symlinks')) {
     return;
@@ -205,7 +230,6 @@ Future TzUnset_EtcLocaltimeCopy_MatchedByContents() async {
   });
 }
 
-@Test()
 Future Tz_TakesPrecedenceOverEtcLocaltime() async {
   if (skipUnless(_isUnix, 'Unix only: uses Unix paths and symlinks')) {
     return;
@@ -219,7 +243,6 @@ Future Tz_TakesPrecedenceOverEtcLocaltime() async {
   });
 }
 
-@Test()
 Future Tz_AbsolutePathInZoneInfo() async {
   if (skipUnless(_isUnix, 'Unix only: uses Unix paths and symlinks')) {
     return;
@@ -230,7 +253,6 @@ Future Tz_AbsolutePathInZoneInfo() async {
   });
 }
 
-@Test()
 Future Tz_AbsolutePathOutsideZoneInfo_MatchedByContents() async {
   if (skipUnless(_isUnix, 'Unix only: uses Unix paths and symlinks')) {
     return;
@@ -270,7 +292,6 @@ Future<String> _localZoneWithTz(String tz) async {
   return LineSplitter.split(result.stdout as String).last.trim();
 }
 
-@Test()
 Future Unix_TzIsUsedForLocalZone() async {
   if (skipUnless(_isUnix, 'Unix only: uses Unix paths and symlinks')) {
     return;
@@ -284,7 +305,6 @@ Future Unix_TzIsUsedForLocalZone() async {
 
 /// As Python's tzlocal and Node.js: an IANA ID in TZ is used on Windows;
 /// empty and unrecognised values (POSIX rules) leave Windows' own zone.
-@Test()
 Future Windows_TzIdIsUsedForLocalZone() async {
   if (skipUnless(io.Platform.isWindows, 'Windows only')) return;
   var windowsZone = await _localZoneWithTz('');
@@ -311,7 +331,6 @@ final _knownIds = {
   'Tokyo Standard Time',
 };
 
-@Test()
 void WindowsTz_Candidates() {
   expect(windowsTzEnvironmentCandidates(null), isEmpty);
   expect(windowsTzEnvironmentCandidates(''), isEmpty);
@@ -324,7 +343,6 @@ void WindowsTz_Candidates() {
       ['/missing/zoneinfo/Asia/Tokyo']);
 }
 
-@Test()
 void WindowsTz_WindowsId() {
   expect(windowsTzEnvironmentZoneId('Tokyo Standard Time', _knownIds),
       'Tokyo Standard Time');
@@ -333,14 +351,12 @@ void WindowsTz_WindowsId() {
   expect(windowsTzEnvironmentZoneId('tokyo standard time', _knownIds), isNull);
 }
 
-@Test()
 void WindowsTz_UnsetOrEmpty_IsIgnored() {
   expect(windowsTzEnvironmentZoneId(null, _knownIds), isNull);
   expect(windowsTzEnvironmentZoneId('', _knownIds), isNull);
   expect(windowsTzEnvironmentZoneId(':', _knownIds), isNull);
 }
 
-@Test()
 void WindowsTz_Id() {
   expect(windowsTzEnvironmentZoneId('Asia/Tokyo', _knownIds), 'Asia/Tokyo');
   expect(windowsTzEnvironmentZoneId(':Asia/Tokyo', _knownIds), 'Asia/Tokyo');
@@ -348,7 +364,6 @@ void WindowsTz_Id() {
   expect(windowsTzEnvironmentZoneId('UTC', _knownIds), 'UTC');
 }
 
-@Test()
 void WindowsTz_PosixRuleOrUnknown_IsIgnored() {
   expect(windowsTzEnvironmentZoneId('XST5XDT', _knownIds), isNull);
   expect(
@@ -357,7 +372,6 @@ void WindowsTz_PosixRuleOrUnknown_IsIgnored() {
   expect(windowsTzEnvironmentZoneId('asia/tokyo', _knownIds), isNull);
 }
 
-@Test()
 void WindowsTz_PathToZoneFile() {
   var root = io.Directory.systemTemp.createTempSync('tm_wtz_');
   try {

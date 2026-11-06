@@ -2,19 +2,16 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'dart:async';
-
 import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
 
-import '../time_machine_testing.dart';
-
-Future main() async {
-  await runTests();
+void main() {
+  test('LeapYears', LeapYears);
+  test('EraProperty', EraProperty);
+  test('AddMonths_BoundaryCondition', AddMonths_BoundaryCondition);
 }
 
-@Test()
 void LeapYears() {
   var calendar = CalendarSystem.gregorian;
   expect(calendar.isLeapYear(1900), isFalse);
@@ -26,7 +23,6 @@ void LeapYears() {
   expect(calendar.isLeapYear(2400), isTrue);
 }
 
-@Test()
 void EraProperty() {
   CalendarSystem calendar = CalendarSystem.gregorian;
   LocalDateTime startOfEra =
@@ -35,7 +31,6 @@ void EraProperty() {
   expect(Era.beforeCommon, startOfEra.addMicroseconds(-1).era);
 }
 
-@Test()
 void AddMonths_BoundaryCondition() {
   var start = LocalDate(2017, 8, 20);
   var end = start.addMonths(-19);

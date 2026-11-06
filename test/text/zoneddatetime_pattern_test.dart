@@ -7,6 +7,7 @@ import 'dart:async';
 import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
+import 'package:parameterized_test/parameterized_test.dart';
 import 'package:time_machine2/time_machine2.dart';
 
 import '../time_machine_testing.dart';
@@ -39,7 +40,28 @@ Future main() async {
   await TimeMachineTest.initialize();
   await setup();
 
-  await runTests();
+  group('ZonedDateTimePatternTest', () {
+    final fixture = ZonedDateTimePatternTest();
+    test('WithTemplateValue', fixture.WithTemplateValue);
+    test('WithCalendar', fixture.WithCalendar);
+    test('WithPatternText', fixture.WithPatternText);
+    test('CreateWithCurrentCulture', fixture.CreateWithCurrentCulture);
+    test('WithCulture', fixture.WithCulture);
+    test('FindLongestZoneId', fixture.FindLongestZoneId);
+    parameterizedTest(
+        'InvalidPatterns', fixture.InvalidPatternData, fixture.InvalidPatterns,
+        customDescriptionBuilder: describeArguments);
+    parameterizedTest(
+        'ParseFailures', fixture.ParseFailureData, fixture.ParseFailures,
+        customDescriptionBuilder: describeArguments);
+    parameterizedTest('Parse', fixture.ParseData.toList(), fixture.Parse,
+        customDescriptionBuilder: describeArguments);
+    parameterizedTest('Format', fixture.FormatData.toList(), fixture.Format,
+        customDescriptionBuilder: describeArguments);
+    parameterizedTest(
+        'AppendFormat', fixture.FormatData.toList(), fixture.AppendFormat,
+        customDescriptionBuilder: describeArguments);
+  });
 }
 
 Future setup() async {
@@ -58,7 +80,6 @@ Future setup() async {
       await FakeDateTimeZoneSourceBuilder([etcGMT_12]).Build().ToProvider();
 }
 
-@Test()
 class ZonedDateTimePatternTest extends PatternTestBase<ZonedDateTime> {
   // @private static final IDateTimeZoneProvider TestProvider =
   // new FakeDateTimeZoneSourceBuilder([TestZone1, TestZone2, TestZone3]).Build().ToProvider();
@@ -579,7 +600,6 @@ class ZonedDateTimePatternTest extends PatternTestBase<ZonedDateTime> {
   Iterable<Data> get FormatData =>
       [FormatOnlyData, FormatAndParseData].expand((x) => x);
 
-  @Test()
   void WithTemplateValue() {
     var pattern = ZonedDateTimePattern.createWithInvariantCulture(
             'yyyy-MM-dd', TestProvider)
@@ -592,7 +612,6 @@ class ZonedDateTimePatternTest extends PatternTestBase<ZonedDateTime> {
     expect(Offset.hours(2), parsed.offset);
   }
 
-  @Test()
   void WithCalendar() {
     var pattern = ZonedDateTimePattern.createWithInvariantCulture(
             'yyyy-MM-dd', TestProvider)
@@ -602,7 +621,6 @@ class ZonedDateTimePatternTest extends PatternTestBase<ZonedDateTime> {
         parsed.localDateTime);
   }
 
-  @Test()
   void WithPatternText() {
     var pattern =
         ZonedDateTimePattern.createWithInvariantCulture('yyyy', TestProvider)
@@ -611,7 +629,6 @@ class ZonedDateTimePatternTest extends PatternTestBase<ZonedDateTime> {
     expect('1970-01-01', text);
   }
 
-  @Test()
   void CreateWithCurrentCulture() {
     Culture.current = TestCultures.DotTimeSeparator;
     {
@@ -622,7 +639,6 @@ class ZonedDateTimePatternTest extends PatternTestBase<ZonedDateTime> {
     }
   }
 
-  @Test()
   void WithCulture() {
     var pattern = ZonedDateTimePattern.createWithInvariantCulture('HH:mm', null)
         .withCulture(TestCultures.DotTimeSeparator);
@@ -631,7 +647,6 @@ class ZonedDateTimePatternTest extends PatternTestBase<ZonedDateTime> {
   }
 
   // Test to hit each exit condition in the time zone ID parsing part of ZonedDateTimePatternParser
-  @Test()
   Future FindLongestZoneId() async {
     DateTimeZone CreateZone(String id) => SingleTransitionDateTimeZone.withId(
         TimeConstants.unixEpoch - Time(days: 1),

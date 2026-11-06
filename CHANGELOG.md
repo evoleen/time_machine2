@@ -5,6 +5,7 @@
 - Expose the CLDR Windows time zone mapping on `TzdbDateTimeZoneSource` (`windowsMapping`, `windowsToTzdbIds`, `tzdbToWindowsIds`, `canonicalIdMap`, `aliases`, `validate()`), and export `TzdbDateTimeZoneSource`, `MapZone` and `WindowsZones`.
 - Add `SystemDateTimeZoneSource` and `DateTimeZoneProviders.system`: time zones from the platform's own database (the Windows time zone API, TZif files on Linux, macOS and iOS, Android's tzdata bundle, and the browser's `Intl` data on the web), with no fallback to the embedded TZDB data. On Windows, zone IDs are Windows IDs, and IANA IDs are accepted too (mapped with Windows' own ICU, as .NET does).
 - Require `archive` ^4.6.0.
+- Tests use `package:test` and `parameterized_test` instead of a `dart:mirrors` harness (#17).
 
 ## 0.14.0
 - Update TZDB to 2026a

@@ -2,8 +2,6 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'dart:async';
-
 import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
@@ -11,12 +9,18 @@ import 'package:test/test.dart';
 
 import 'time_machine_testing.dart';
 
-Future main() async {
-  await TimeMachineTest.initialize();
-  await runTests();
+void main() {
+  setUpAll(TimeMachineTest.initialize);
+
+  test('LocalDateProperties', LocalDateProperties);
+  test('ComponentProperties', ComponentProperties);
+  test('Equality', Equality);
+  test('At', At);
+  test('WithOffset', WithOffset);
+  test('WithCalendar', WithCalendar);
+  test('WithAdjuster', WithAdjuster);
 }
 
-@Test()
 void LocalDateProperties() {
 // todo: determine equivalent of this test
 //  LocalDate local = new LocalDate.forCalendar(2012, 6, 19, CalendarSystem.Julian);
@@ -37,7 +41,6 @@ void LocalDateProperties() {
 //  }
 }
 
-@Test()
 void ComponentProperties() {
   var date = LocalDate(2012, 1, 2);
   var offset = Offset.hours(5);
@@ -47,7 +50,6 @@ void ComponentProperties() {
   expect(date, offsetDate.calendarDate);
 }
 
-@Test()
 void Equality() {
   LocalDate date1 = LocalDate(2012, 10, 6);
   LocalDate date2 = LocalDate(2012, 9, 5);
@@ -66,7 +68,6 @@ void Equality() {
   TestHelper.TestOperatorEquality(equal1, equal2, unequalByLocal);
 }
 
-@Test()
 void At() {
   var date = LocalDate(2012, 6, 19, CalendarSystem.julian);
   var offset = Offset.hours(5);
@@ -75,7 +76,6 @@ void At() {
   expect(OffsetDate(date, offset).at(time), date.at(time).withOffset(offset));
 }
 
-@Test()
 void WithOffset() {
   var date = LocalDate(2012, 6, 19);
   var initial = OffsetDate(date, Offset.hours(2));
@@ -84,7 +84,6 @@ void WithOffset() {
   expect(expected, actual);
 }
 
-@Test()
 void WithCalendar() {
   var julianDate = LocalDate(2012, 6, 19, CalendarSystem.julian);
   var isoDate = julianDate.withCalendar(CalendarSystem.iso);
@@ -94,7 +93,6 @@ void WithCalendar() {
   expect(expected, actual);
 }
 
-@Test()
 void WithAdjuster() {
   var initial = OffsetDate(LocalDate(2016, 6, 19), Offset.hours(-5));
   var actual = initial.adjust(DateAdjusters.startOfMonth);
@@ -135,4 +133,3 @@ void ToString_NoFormat()
 }
 
 */
-

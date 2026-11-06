@@ -2,21 +2,62 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'dart:async';
-
 import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
+import 'package:parameterized_test/parameterized_test.dart';
 // import 'package:matcher/matcher.dart';
 
 import 'time_machine_testing.dart';
 
-Future main() async {
-  await TimeMachineTest.initialize();
-  await runTests();
+void main() {
+  setUpAll(TimeMachineTest.initialize);
+
+  test('Equality', Equality);
+  test('MinusOffset_Zero_IsNeutralElement', MinusOffset_Zero_IsNeutralElement);
+  parameterizedTest(
+      'ToString_Valid',
+      [
+        [0, 0, '1970-01-01T00:00:00 LOC'],
+        [0, 1, '1970-01-01T00:00:00.000000001 LOC'],
+        [0, 1000, '1970-01-01T00:00:00.000001 LOC'],
+        [0, 1000000, '1970-01-01T00:00:00.001 LOC'],
+        [
+          -1,
+          TimeConstants.nanosecondsPerDay - 1,
+          '1969-12-31T23:59:59.999999999 LOC'
+        ],
+      ],
+      ToString_Valid,
+      customDescriptionBuilder: describeArguments);
+  test('ToString_Extremes', ToString_Extremes);
+  test('SafeMinus_NormalTime', SafeMinus_NormalTime);
+  parameterizedTest(
+      'SafeMinus_NearStartOfTime',
+      [
+        [null, 0, null],
+        [null, 1, null],
+        [null, -1, null],
+        [1, 1, 0],
+        [1, 2, null],
+        [2, 1, 1],
+      ],
+      SafeMinus_NearStartOfTime,
+      customDescriptionBuilder: describeArguments);
+  parameterizedTest(
+      'SafeMinus_NearEndOfTime',
+      [
+        [null, 0, null],
+        [null, 1, null],
+        [null, -1, null],
+        [-1, -1, 0],
+        [-1, -2, null],
+        [-2, -1, -1],
+      ],
+      SafeMinus_NearEndOfTime,
+      customDescriptionBuilder: describeArguments);
 }
 
-@Test()
 void Equality() {
   LocalInstant equal = LocalInstant.daysNanos(1, 100);
   LocalInstant equal2 = LocalInstant.daysNanos(1, 100);
@@ -30,7 +71,6 @@ void Equality() {
   TestHelper.TestOperatorEquality(equal, equal2, different2);
 }
 
-@Test()
 void MinusOffset_Zero_IsNeutralElement() {
   Instant sampleInstant = IInstant.trusted(Time(days: 1, nanoseconds: 23456));
   LocalInstant sampleLocalInstant = LocalInstant.daysNanos(1, 23456);
@@ -38,23 +78,12 @@ void MinusOffset_Zero_IsNeutralElement() {
   expect(sampleInstant, sampleLocalInstant.minusZeroOffset());
 }
 
-@Test()
-@TestCase([0, 0, '1970-01-01T00:00:00 LOC'])
-@TestCase([0, 1, '1970-01-01T00:00:00.000000001 LOC'])
-@TestCase([0, 1000, '1970-01-01T00:00:00.000001 LOC'])
-@TestCase([0, 1000000, '1970-01-01T00:00:00.001 LOC'])
-@TestCase([
-  -1,
-  TimeConstants.nanosecondsPerDay - 1,
-  '1969-12-31T23:59:59.999999999 LOC'
-])
 void ToString_Valid(int day, int nanoOfDay, String expectedText) {
   var localInstant = LocalInstant.daysNanos(day, nanoOfDay);
   expect(localInstant.daysSinceEpoch, day);
   expect(localInstant.toString(), expectedText);
 }
 
-@Test()
 void ToString_Extremes() {
   expect(InstantPatternParser.beforeMinValueText,
       LocalInstant.beforeMinValue.toString());
@@ -62,7 +91,6 @@ void ToString_Extremes() {
       LocalInstant.afterMaxValue.toString());
 }
 
-@Test()
 void SafeMinus_NormalTime() {
   var start = LocalInstant.daysNanos(0, 0);
   var end = start.safeMinus(Offset.hours(1));
@@ -70,13 +98,6 @@ void SafeMinus_NormalTime() {
 }
 
 // A null offset indicates 'BeforeMinValue'. Otherwise, MinValue.Plus(offset)
-@Test()
-@TestCase([null, 0, null])
-@TestCase([null, 1, null])
-@TestCase([null, -1, null])
-@TestCase([1, 1, 0])
-@TestCase([1, 2, null])
-@TestCase([2, 1, 1])
 void SafeMinus_NearStartOfTime(
     int? initialOffset, int offsetToSubtract, int? finalOffset) {
   var start = initialOffset == null
@@ -90,13 +111,6 @@ void SafeMinus_NearStartOfTime(
 }
 
 // A null offset indicates 'AfterMaxValue'. Otherwise, MaxValue.Plus(offset)
-@Test()
-@TestCase([null, 0, null])
-@TestCase([null, 1, null])
-@TestCase([null, -1, null])
-@TestCase([-1, -1, 0])
-@TestCase([-1, -2, null])
-@TestCase([-2, -1, -1])
 void SafeMinus_NearEndOfTime(
     int? initialOffset, int offsetToSubtract, int? finalOffset) {
   var start = initialOffset == null

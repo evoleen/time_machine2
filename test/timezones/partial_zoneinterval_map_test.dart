@@ -6,13 +6,37 @@ import 'dart:async';
 
 import 'package:time_machine2/src/time_machine_internal.dart';
 import 'package:test/test.dart';
+import 'package:parameterized_test/parameterized_test.dart';
 
 import '../time_machine_testing.dart';
 
-Future main() async {
-  await setup();
+void main() {
+  setUpAll(setup);
 
-  await runTests();
+  parameterizedTest(
+      'ConvertToFullMap',
+      [
+        [''],
+        ['A'],
+        ['C'],
+        ['E'],
+        ['G'],
+        ['H'],
+        ['AB'],
+        ['AC'],
+        ['AD'],
+        ['AG'],
+        ['AH'],
+        ['CG'],
+        ['CH'],
+        ['ACD'],
+        ['ACG'],
+        ['ACH'],
+        ['DEF'],
+        ['ABCDEFGHI'],
+      ],
+      ConvertToFullMap,
+      customDescriptionBuilder: describeArguments);
 }
 
 Future setup() async {
@@ -43,25 +67,6 @@ late DateTimeZone expectedZone;
 // This is just a variety of interesting tests, hopefully covering everything we need. Imagine a time line,
 // and the letters in the string break it up into partial maps (all based on the original zone). We should
 // be able to break it up anywhere and still get back to something equivalent to the original zone.
-@Test()
-@TestCase([''])
-@TestCase(['A'])
-@TestCase(['C'])
-@TestCase(['E'])
-@TestCase(['G'])
-@TestCase(['H'])
-@TestCase(['AB'])
-@TestCase(['AC'])
-@TestCase(['AD'])
-@TestCase(['AG'])
-@TestCase(['AH'])
-@TestCase(['CG'])
-@TestCase(['CH'])
-@TestCase(['ACD'])
-@TestCase(['ACG'])
-@TestCase(['ACH'])
-@TestCase(['DEF'])
-@TestCase(['ABCDEFGHI'])
 void ConvertToFullMap(String intervalBreaks) {
   var maps = <PartialZoneIntervalMap>[];
   // We just reuse ExpectedZone as the IZoneIntervalMap; PartialZoneIntervalMap itself will clamp the ends.

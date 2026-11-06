@@ -2,15 +2,209 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'dart:async';
-
 import 'package:time_machine2/src/time_machine_internal.dart';
 import 'package:test/test.dart';
+import 'package:parameterized_test/parameterized_test.dart';
 
 import 'time_machine_testing.dart';
 
-Future main() async {
-  await runTests();
+void main() {
+  test('BetweenLocalDateTimes_WithoutSpecifyingUnits_OmitsWeeks',
+      BetweenLocalDateTimes_WithoutSpecifyingUnits_OmitsWeeks);
+  test('BetweenLocalDateTimes_MovingForwardWithAllFields_GivesExactResult',
+      BetweenLocalDateTimes_MovingForwardWithAllFields_GivesExactResult);
+  test('BetweenLocalDateTimes_MovingBackwardWithAllFields_GivesExactResult',
+      BetweenLocalDateTimes_MovingBackwardWithAllFields_GivesExactResult);
+  test(
+      'BetweenLocalDateTimes_MovingForwardWithHoursAndMinutes_RoundsTowardsStart',
+      BetweenLocalDateTimes_MovingForwardWithHoursAndMinutes_RoundsTowardsStart);
+  test(
+      'BetweenLocalDateTimes_MovingBackwardWithHoursAndMinutes_RoundsTowardsStart',
+      BetweenLocalDateTimes_MovingBackwardWithHoursAndMinutes_RoundsTowardsStart);
+  test('BetweenLocalDateTimes_AcrossDays', BetweenLocalDateTimes_AcrossDays);
+  test('BetweenLocalDateTimes_AcrossDays_MinutesAndSeconds',
+      BetweenLocalDateTimes_AcrossDays_MinutesAndSeconds);
+  test('BetweenLocalDateTimes_NotInt64Representable',
+      BetweenLocalDateTimes_NotInt64Representable);
+  test('BetweenLocalDates_InvalidUnits', BetweenLocalDates_InvalidUnits);
+  test('BetweenLocalDates_DifferentCalendarSystems_Throws',
+      BetweenLocalDates_DifferentCalendarSystems_Throws);
+  parameterizedTest(
+      'BetweenLocalDates_SingleUnit',
+      [
+        ['2016-05-16', "2019-03-13", PeriodUnits.years, 2],
+        ['2016-05-16', "2017-07-13", PeriodUnits.months, 13],
+        ['2016-05-16', "2016-07-13", PeriodUnits.weeks, 8],
+        ['2016-05-16', "2016-07-13", PeriodUnits.days, 58],
+      ],
+      BetweenLocalDates_SingleUnit,
+      customDescriptionBuilder: describeArguments);
+  test('BetweenLocalDates_MovingForwardNoLeapYears_WithExactResults',
+      BetweenLocalDates_MovingForwardNoLeapYears_WithExactResults);
+  test('BetweenLocalDates_MovingForwardInLeapYear_WithExactResults',
+      BetweenLocalDates_MovingForwardInLeapYear_WithExactResults);
+  test('BetweenLocalDates_MovingBackwardNoLeapYears_WithExactResults',
+      BetweenLocalDates_MovingBackwardNoLeapYears_WithExactResults);
+  test('BetweenLocalDates_MovingBackwardInLeapYear_WithExactResults',
+      BetweenLocalDates_MovingBackwardInLeapYear_WithExactResults);
+  test('BetweenLocalDates_MovingForward_WithJustMonths',
+      BetweenLocalDates_MovingForward_WithJustMonths);
+  test('BetweenLocalDates_MovingBackward_WithJustMonths',
+      BetweenLocalDates_MovingBackward_WithJustMonths);
+  test('BetweenLocalDates_AssymetricForwardAndBackward',
+      BetweenLocalDates_AssymetricForwardAndBackward);
+  test('BetweenLocalDates_EndOfMonth', BetweenLocalDates_EndOfMonth);
+  test('BetweenLocalDates_OnLeapYear', BetweenLocalDates_OnLeapYear);
+  test('BetweenLocalDates_AfterLeapYear', BetweenLocalDates_AfterLeapYear);
+  test('BetweenLocalDateTimes_OnLeapYear', BetweenLocalDateTimes_OnLeapYear);
+  test('BetweenLocalDateTimes_OnLeapYearIslamic',
+      BetweenLocalDateTimes_OnLeapYearIslamic);
+  test(
+      'BetweenLocalDateTimes_InvalidUnits', BetweenLocalDateTimes_InvalidUnits);
+  test('BetweenLocalTimes_InvalidUnits', BetweenLocalTimes_InvalidUnits);
+  parameterizedTest(
+      'BetweenLocalTimes_SingleUnit',
+      [
+        ['01:02:03', "05:00:00", PeriodUnits.hours, 3],
+        ['01:02:03', "03:00:00", PeriodUnits.minutes, 117],
+        ['01:02:03', "01:05:02", PeriodUnits.seconds, 179],
+        ['01:02:03', "01:02:04.1234", PeriodUnits.milliseconds, 1123],
+        ['01:02:03', "01:02:04.1234", PeriodUnits.microseconds, 1123400],
+        ['01:02:03', "01:02:04.1234", PeriodUnits.nanoseconds, 1123400000],
+      ],
+      BetweenLocalTimes_SingleUnit,
+      customDescriptionBuilder: describeArguments);
+  test('BetweenLocalTimes_MovingForwards', BetweenLocalTimes_MovingForwards);
+  test('BetweenLocalTimes_MovingBackwards', BetweenLocalTimes_MovingBackwards);
+  test('BetweenLocalTimes_MovingForwards_WithJustHours',
+      BetweenLocalTimes_MovingForwards_WithJustHours);
+  test('BetweenLocalTimes_MovingBackwards_WithJustHours',
+      BetweenLocalTimes_MovingBackwards_WithJustHours);
+  test(
+      'Addition_WithDifferent_PeriodTypes', Addition_WithDifferent_PeriodTypes);
+  test(
+      'Addition_With_IdenticalPeriodTypes', Addition_With_IdenticalPeriodTypes);
+  test('Addition_DayCrossingMonthBoundary', Addition_DayCrossingMonthBoundary);
+  test('Addition_OneYearOnLeapDay', Addition_OneYearOnLeapDay);
+  test('Addition_FourYearsOnLeapDay', Addition_FourYearsOnLeapDay);
+  test('Addition_YearMonthDay', Addition_YearMonthDay);
+  test('Subtraction_WithDifferent_PeriodTypes',
+      Subtraction_WithDifferent_PeriodTypes);
+  test('Subtraction_With_IdenticalPeriodTypes',
+      Subtraction_With_IdenticalPeriodTypes);
+  test('Equality_WhenEqual', Equality_WhenEqual);
+  test('Equality_WithDifferentPeriodTypes_OnlyConsidersValues',
+      Equality_WithDifferentPeriodTypes_OnlyConsidersValues);
+  test('Equality_WhenUnequal', Equality_WhenUnequal);
+  parameterizedTest(
+      'HasTimeComponent_SingleValued',
+      [
+        [PeriodUnits.years, false],
+        [PeriodUnits.weeks, false],
+        [PeriodUnits.months, false],
+        [PeriodUnits.days, false],
+        [PeriodUnits.hours, true],
+        [PeriodUnits.minutes, true],
+        [PeriodUnits.seconds, true],
+        [PeriodUnits.milliseconds, true],
+        [PeriodUnits.microseconds, true],
+        [PeriodUnits.nanoseconds, true],
+      ],
+      HasTimeComponent_SingleValued,
+      customDescriptionBuilder: describeArguments);
+  parameterizedTest(
+      'HasDateComponent_SingleValued',
+      [
+        [PeriodUnits.years, true],
+        [PeriodUnits.weeks, true],
+        [PeriodUnits.months, true],
+        [PeriodUnits.days, true],
+        [PeriodUnits.hours, false],
+        [PeriodUnits.minutes, false],
+        [PeriodUnits.seconds, false],
+        [PeriodUnits.milliseconds, false],
+        [PeriodUnits.microseconds, false],
+        [PeriodUnits.nanoseconds, false],
+      ],
+      HasDateComponent_SingleValued,
+      customDescriptionBuilder: describeArguments);
+  test('HasTimeComponent_Compound', HasTimeComponent_Compound);
+  test('HasDateComponent_Compound', HasDateComponent_Compound);
+  test('ToString_Positive', ToString_Positive);
+  test('ToString_AllUnits', ToString_AllUnits);
+  test('ToString_Negative', ToString_Negative);
+  test('ToString_Mixed', ToString_Mixed);
+  test('ToString_Zero', ToString_Zero);
+  test('ToBuilder_SingleUnit', ToBuilder_SingleUnit);
+  test('ToBuilder_MultipleUnits', ToBuilder_MultipleUnits);
+  test('Normalize_Weeks', Normalize_Weeks);
+  test('Normalize_Hours', Normalize_Hours);
+  test('Normalize_Minutes', Normalize_Minutes);
+  test('Normalize_Seconds', Normalize_Seconds);
+  test('Normalize_Milliseconds', Normalize_Milliseconds);
+  test('Normalize_Microseconds', Normalize_Microseconds);
+  test('Normalize_Nanoseconds', Normalize_Nanoseconds);
+  test('Normalize_MultipleFields', Normalize_MultipleFields);
+  test('Normalize_AllNegative', Normalize_AllNegative);
+  test('Normalize_MixedSigns_PositiveResult',
+      Normalize_MixedSigns_PositiveResult);
+  test('Normalize_MixedSigns_NegativeResult',
+      Normalize_MixedSigns_NegativeResult);
+  test('Normalize_DoesntAffectMonthsAndYears',
+      Normalize_DoesntAffectMonthsAndYears);
+  test('Normalize_ZeroResult', Normalize_ZeroResult);
+  test('ToString_SingleUnit', ToString_SingleUnit);
+  test('ToString_MultipleUnits', ToString_MultipleUnits);
+  test('ToDuration_InvalidWithYears', ToDuration_InvalidWithYears);
+  test('ToDuration_InvalidWithMonths', ToDuration_InvalidWithMonths);
+  test(
+      'ToDuration_ValidAllAcceptableUnits', ToDuration_ValidAllAcceptableUnits);
+  test('ToDuration_ValidWithZeroValuesInMonthYearUnits',
+      ToDuration_ValidWithZeroValuesInMonthYearUnits);
+  test('NormalizingEqualityComparer_PeriodToItself',
+      NormalizingEqualityComparer_PeriodToItself);
+  test('NormalizingEqualityComparer_NonEqualAfterNormalization',
+      NormalizingEqualityComparer_NonEqualAfterNormalization);
+  test('NormalizingEqualityComparer_EqualAfterNormalization',
+      NormalizingEqualityComparer_EqualAfterNormalization);
+  test('NormalizingEqualityComparer_GetHashCodeAfterNormalization',
+      NormalizingEqualityComparer_GetHashCodeAfterNormalization);
+  test('Comparer_NullWithNull', Comparer_NullWithNull);
+  test('Comparer_NullWithNonNull', Comparer_NullWithNonNull);
+  test('Comparer_NonNullWithNull', Comparer_NonNullWithNull);
+  test('Comparer_DurationablePeriods', Comparer_DurationablePeriods);
+  test('Comparer_NonDurationablePeriods', Comparer_NonDurationablePeriods);
+  parameterizedTest(
+      'Between_ExtremeValues', AllPeriodUnits, Between_ExtremeValues,
+      customDescriptionBuilder: describeArguments);
+  test('Between_ExtremeValues_Overflow', Between_ExtremeValues_Overflow);
+  parameterizedTest(
+      'Between_LocalDateTime_AwkwardTimeOfDayWithSingleUnit',
+      [
+        ['2015-02-28T16:00:00', "2016-02-29T08:00:00", PeriodUnits.years, 1, 0],
+        [
+          '2015-02-28T16:00:00',
+          "2016-02-29T08:00:00",
+          PeriodUnits.months,
+          12,
+          -11
+        ],
+        ['2014-01-01T16:00:00', "2014-01-03T08:00:00", PeriodUnits.days, 1, -1],
+        [
+          '2014-01-01T16:00:00',
+          "2014-01-03T08:00:00",
+          PeriodUnits.hours,
+          40,
+          -40
+        ],
+      ],
+      Between_LocalDateTime_AwkwardTimeOfDayWithSingleUnit,
+      customDescriptionBuilder: describeArguments);
+  test('Between_LocalDateTime_SameValue', Between_LocalDateTime_SameValue);
+  test('Between_LocalDateTime_AwkwardTimeOfDayWithMultipleUnits',
+      Between_LocalDateTime_AwkwardTimeOfDayWithMultipleUnits);
+  test('FromNanoseconds', FromNanoseconds);
+  test('AddPeriodToPeriod_NoOverflow', AddPeriodToPeriod_NoOverflow);
 }
 
 // June 19th 2010, 2:30:15am
@@ -29,7 +223,6 @@ final PeriodUnits HoursMinutesPeriodType =
 
 final List<PeriodUnits> AllPeriodUnits = PeriodUnits.values;
 
-@Test()
 void BetweenLocalDateTimes_WithoutSpecifyingUnits_OmitsWeeks() {
   Period actual = Period.differenceBetweenDateTime(
       LocalDateTime(2012, 2, 21, 0, 0, 0), LocalDateTime(2012, 2, 28, 0, 0, 0));
@@ -37,7 +230,6 @@ void BetweenLocalDateTimes_WithoutSpecifyingUnits_OmitsWeeks() {
   expect(expected, actual);
 }
 
-@Test()
 void BetweenLocalDateTimes_MovingForwardWithAllFields_GivesExactResult() {
   Period actual =
       Period.differenceBetweenDateTime(TestDateTime1, TestDateTime2);
@@ -47,7 +239,6 @@ void BetweenLocalDateTimes_MovingForwardWithAllFields_GivesExactResult() {
   expect(expected, actual);
 }
 
-@Test()
 void BetweenLocalDateTimes_MovingBackwardWithAllFields_GivesExactResult() {
   Period actual =
       Period.differenceBetweenDateTime(TestDateTime2, TestDateTime1);
@@ -57,7 +248,6 @@ void BetweenLocalDateTimes_MovingBackwardWithAllFields_GivesExactResult() {
   expect(expected, actual);
 }
 
-@Test()
 void
     BetweenLocalDateTimes_MovingForwardWithHoursAndMinutes_RoundsTowardsStart() {
   Period actual = Period.differenceBetweenDateTime(
@@ -66,7 +256,6 @@ void
   expect(expected, actual);
 }
 
-@Test()
 void
     BetweenLocalDateTimes_MovingBackwardWithHoursAndMinutes_RoundsTowardsStart() {
   Period actual = Period.differenceBetweenDateTime(
@@ -75,7 +264,6 @@ void
   expect(expected, actual);
 }
 
-@Test()
 void BetweenLocalDateTimes_AcrossDays() {
   Period expected = const Period(hours: 23) + const Period(minutes: 59);
   Period actual = Period.differenceBetweenDateTime(
@@ -83,7 +271,6 @@ void BetweenLocalDateTimes_AcrossDays() {
   expect(expected, actual);
 }
 
-@Test()
 void BetweenLocalDateTimes_AcrossDays_MinutesAndSeconds() {
   Period expected =
       const Period(minutes: 24 * 60 - 1) + const Period(seconds: 59);
@@ -94,7 +281,6 @@ void BetweenLocalDateTimes_AcrossDays_MinutesAndSeconds() {
   expect(expected, actual);
 }
 
-@Test()
 void BetweenLocalDateTimes_NotInt64Representable() {
   LocalDateTime start = LocalDateTime(-5000, 1, 1, 0, 1, 2, ms: 123);
   LocalDateTime end = LocalDateTime(9000, 1, 1, 1, 2, 3, ms: 456);
@@ -117,7 +303,6 @@ void BetweenLocalDateTimes_NotInt64Representable() {
   expect(actual, expected);
 }
 
-@Test()
 void BetweenLocalDates_InvalidUnits() {
   expect(
       () => Period.differenceBetweenDates(
@@ -137,18 +322,12 @@ void BetweenLocalDates_InvalidUnits() {
       throwsArgumentError);
 }
 
-@Test()
 void BetweenLocalDates_DifferentCalendarSystems_Throws() {
   LocalDate start = LocalDate(2017, 11, 1, CalendarSystem.coptic);
   LocalDate end = LocalDate(2017, 11, 5, CalendarSystem.gregorian);
   expect(() => Period.differenceBetweenDates(start, end), throwsArgumentError);
 }
 
-@Test()
-@TestCase(['2016-05-16', "2019-03-13", PeriodUnits.years, 2])
-@TestCase(['2016-05-16', "2017-07-13", PeriodUnits.months, 13])
-@TestCase(['2016-05-16', "2016-07-13", PeriodUnits.weeks, 8])
-@TestCase(['2016-05-16', "2016-07-13", PeriodUnits.days, 58])
 void BetweenLocalDates_SingleUnit(
     String startText, String endText, PeriodUnits units, int expectedValue) {
   var start = LocalDatePattern.iso.parse(startText).value;
@@ -158,14 +337,12 @@ void BetweenLocalDates_SingleUnit(
   expect(expected, actual);
 }
 
-@Test()
 void BetweenLocalDates_MovingForwardNoLeapYears_WithExactResults() {
   Period actual = Period.differenceBetweenDates(TestDate1, TestDate2);
   Period expected = const Period(months: 8) + const Period(days: 10);
   expect(expected, actual);
 }
 
-@Test()
 void BetweenLocalDates_MovingForwardInLeapYear_WithExactResults() {
   Period actual = Period.differenceBetweenDates(TestDate1, TestDate3);
   Period expected =
@@ -173,14 +350,12 @@ void BetweenLocalDates_MovingForwardInLeapYear_WithExactResults() {
   expect(expected, actual);
 }
 
-@Test()
 void BetweenLocalDates_MovingBackwardNoLeapYears_WithExactResults() {
   Period actual = Period.differenceBetweenDates(TestDate2, TestDate1);
   Period expected = const Period(months: -8) + const Period(days: -12);
   expect(expected, actual);
 }
 
-@Test()
 void BetweenLocalDates_MovingBackwardInLeapYear_WithExactResults() {
   // This is asymmetric with moving forward, because we first take off a whole year, which
   // takes us to March 1st 2011, then 8 months to take us to July 1st 2010, then 12 days
@@ -193,7 +368,6 @@ void BetweenLocalDates_MovingBackwardInLeapYear_WithExactResults() {
   expect(expected, actual);
 }
 
-@Test()
 void BetweenLocalDates_MovingForward_WithJustMonths() {
   Period actual =
       Period.differenceBetweenDates(TestDate1, TestDate3, PeriodUnits.months);
@@ -201,7 +375,6 @@ void BetweenLocalDates_MovingForward_WithJustMonths() {
   expect(expected, actual);
 }
 
-@Test()
 void BetweenLocalDates_MovingBackward_WithJustMonths() {
   Period actual =
       Period.differenceBetweenDates(TestDate3, TestDate1, PeriodUnits.months);
@@ -209,7 +382,6 @@ void BetweenLocalDates_MovingBackward_WithJustMonths() {
   expect(expected, actual);
 }
 
-@Test()
 void BetweenLocalDates_AssymetricForwardAndBackward() {
   // February 10th 2010
   LocalDate d1 = LocalDate(2010, 2, 10);
@@ -223,7 +395,6 @@ void BetweenLocalDates_AssymetricForwardAndBackward() {
       Period.differenceBetweenDates(d2, d1));
 }
 
-@Test()
 void BetweenLocalDates_EndOfMonth() {
   LocalDate d1 = LocalDate(2013, 3, 31);
   LocalDate d2 = LocalDate(2013, 4, 30);
@@ -231,7 +402,6 @@ void BetweenLocalDates_EndOfMonth() {
   expect(const Period(days: -30), Period.differenceBetweenDates(d2, d1));
 }
 
-@Test()
 void BetweenLocalDates_OnLeapYear() {
   LocalDate d1 = LocalDate(2012, 2, 29);
   LocalDate d2 = LocalDate(2013, 2, 28);
@@ -241,7 +411,6 @@ void BetweenLocalDates_OnLeapYear() {
       Period.differenceBetweenDates(d2, d1));
 }
 
-@Test()
 void BetweenLocalDates_AfterLeapYear() {
   LocalDate d1 = LocalDate(2012, 3, 5);
   LocalDate d2 = LocalDate(2013, 3, 5);
@@ -249,7 +418,6 @@ void BetweenLocalDates_AfterLeapYear() {
   expect(const Period(years: -1), Period.differenceBetweenDates(d2, d1));
 }
 
-@Test()
 void BetweenLocalDateTimes_OnLeapYear() {
   LocalDateTime dt1 = LocalDateTime(2012, 2, 29, 2, 0, 0);
   LocalDateTime dt2 = LocalDateTime(2012, 2, 29, 4, 0, 0);
@@ -261,7 +429,6 @@ void BetweenLocalDateTimes_OnLeapYear() {
   expect(Parse('P-11M-27DT-23H'), Period.differenceBetweenDateTime(dt3, dt2));
 }
 
-@Test()
 void BetweenLocalDateTimes_OnLeapYearIslamic() {
   var calendar = CalendarSystem.getIslamicCalendar(
       IslamicLeapYearPattern.base15, IslamicEpoch.civil);
@@ -284,7 +451,6 @@ void BetweenLocalDateTimes_OnLeapYearIslamic() {
   expect(Parse('P-11M-28DT-23H'), Period.differenceBetweenDateTime(dt3, dt2));
 }
 
-@Test()
 void BetweenLocalDateTimes_InvalidUnits() {
   expect(
       () => Period.differenceBetweenDates(
@@ -296,7 +462,6 @@ void BetweenLocalDateTimes_InvalidUnits() {
       throwsArgumentError);
 }
 
-@Test()
 void BetweenLocalTimes_InvalidUnits() {
   LocalTime t1 = LocalTime(10, 0, 0);
   LocalTime t2 = LocalTime(15, 30, 45,
@@ -313,13 +478,6 @@ void BetweenLocalTimes_InvalidUnits() {
       throwsArgumentError);
 }
 
-@Test()
-@TestCase(['01:02:03', "05:00:00", PeriodUnits.hours, 3])
-@TestCase(['01:02:03', "03:00:00", PeriodUnits.minutes, 117])
-@TestCase(['01:02:03', "01:05:02", PeriodUnits.seconds, 179])
-@TestCase(['01:02:03', "01:02:04.1234", PeriodUnits.milliseconds, 1123])
-@TestCase(['01:02:03', "01:02:04.1234", PeriodUnits.microseconds, 1123400])
-@TestCase(['01:02:03', "01:02:04.1234", PeriodUnits.nanoseconds, 1123400000])
 void BetweenLocalTimes_SingleUnit(
     String startText, String endText, PeriodUnits units, int expectedValue) {
   var start = LocalTimePattern.extendedIso.parse(startText).value;
@@ -329,7 +487,6 @@ void BetweenLocalTimes_SingleUnit(
   expect(expected, actual);
 }
 
-@Test()
 void BetweenLocalTimes_MovingForwards() {
   // todo: this test and the MovingBackwards() test, originally tested Period.fromTicks() -- rewrite it for .fromMicroseconds()?
   LocalTime t1 = LocalTime(10, 0, 0);
@@ -344,7 +501,6 @@ void BetweenLocalTimes_MovingForwards() {
       Period.differenceBetweenTimes(t1, t2));
 }
 
-@Test()
 void BetweenLocalTimes_MovingBackwards() {
   LocalTime t1 = LocalTime(15, 30, 45,
       ns: 20 * TimeConstants.nanosecondsPerMillisecond + 5 * 100);
@@ -358,7 +514,6 @@ void BetweenLocalTimes_MovingBackwards() {
       Period.differenceBetweenTimes(t1, t2));
 }
 
-@Test()
 void BetweenLocalTimes_MovingForwards_WithJustHours() {
   LocalTime t1 = LocalTime(11, 30, 0);
   LocalTime t2 = LocalTime(17, 15, 0);
@@ -366,7 +521,6 @@ void BetweenLocalTimes_MovingForwards_WithJustHours() {
       Period.differenceBetweenTimes(t1, t2, PeriodUnits.hours));
 }
 
-@Test()
 void BetweenLocalTimes_MovingBackwards_WithJustHours() {
   LocalTime t1 = LocalTime(17, 15, 0);
   LocalTime t2 = LocalTime(11, 30, 0);
@@ -374,7 +528,6 @@ void BetweenLocalTimes_MovingBackwards_WithJustHours() {
       Period.differenceBetweenTimes(t1, t2, PeriodUnits.hours));
 }
 
-@Test()
 void Addition_WithDifferent_PeriodTypes() {
   Period p1 = const Period(hours: 3);
   Period p2 = const Period(minutes: 20);
@@ -383,7 +536,6 @@ void Addition_WithDifferent_PeriodTypes() {
   expect(20, sum.minutes);
 }
 
-@Test()
 void Addition_With_IdenticalPeriodTypes() {
   Period p1 = const Period(hours: 3);
   Period p2 = const Period(hours: 2);
@@ -391,14 +543,12 @@ void Addition_With_IdenticalPeriodTypes() {
   expect(5, sum.hours);
 }
 
-@Test()
 void Addition_DayCrossingMonthBoundary() {
   LocalDateTime start = LocalDateTime(2010, 2, 20, 10, 0, 0);
   LocalDateTime result = start + const Period(days: 10);
   expect(LocalDateTime(2010, 3, 2, 10, 0, 0), result);
 }
 
-@Test()
 void Addition_OneYearOnLeapDay() {
   LocalDateTime start = LocalDateTime(2012, 2, 29, 10, 0, 0);
   LocalDateTime result = start + const Period(years: 1);
@@ -406,7 +556,6 @@ void Addition_OneYearOnLeapDay() {
   expect(LocalDateTime(2013, 2, 28, 10, 0, 0), result);
 }
 
-@Test()
 void Addition_FourYearsOnLeapDay() {
   LocalDateTime start = LocalDateTime(2012, 2, 29, 10, 0, 0);
   LocalDateTime result = start + const Period(years: 4);
@@ -414,7 +563,6 @@ void Addition_FourYearsOnLeapDay() {
   expect(LocalDateTime(2016, 2, 29, 10, 0, 0), result);
 }
 
-@Test()
 void Addition_YearMonthDay() {
   // One year, one month, two days
   Period period =
@@ -429,7 +577,6 @@ void Addition_YearMonthDay() {
   expect(LocalDateTime(2008, 3, 2, 0, 0, 0), result);
 }
 
-@Test()
 void Subtraction_WithDifferent_PeriodTypes() {
   Period p1 = const Period(hours: 3);
   Period p2 = const Period(minutes: 20);
@@ -438,7 +585,6 @@ void Subtraction_WithDifferent_PeriodTypes() {
   expect(-20, sum.minutes);
 }
 
-@Test()
 void Subtraction_With_IdenticalPeriodTypes() {
   Period p1 = const Period(hours: 3);
   Period p2 = const Period(hours: 2);
@@ -446,14 +592,12 @@ void Subtraction_With_IdenticalPeriodTypes() {
   expect(1, sum.hours);
 }
 
-@Test()
 void Equality_WhenEqual() {
   expect(const Period(hours: 10), const Period(hours: 10));
   expect(const Period(minutes: 15), const Period(minutes: 15));
   expect(const Period(days: 5), const Period(days: 5));
 }
 
-@Test()
 void Equality_WithDifferentPeriodTypes_OnlyConsidersValues() {
   Period allFields = const Period(minutes: 1) +
       const Period(hours: 1) -
@@ -462,46 +606,22 @@ void Equality_WithDifferentPeriodTypes_OnlyConsidersValues() {
   expect(allFields, justHours);
 }
 
-@Test()
 void Equality_WhenUnequal() {
   expect(const Period(hours: 10).equals(const Period(hours: 20)), isFalse);
   expect(const Period(minutes: 15).equals(const Period(seconds: 15)), isFalse);
   expect(const Period(hours: 1).equals(const Period(minutes: 60)), isFalse);
 }
 
-@Test()
-@TestCase([PeriodUnits.years, false])
-@TestCase([PeriodUnits.weeks, false])
-@TestCase([PeriodUnits.months, false])
-@TestCase([PeriodUnits.days, false])
-@TestCase([PeriodUnits.hours, true])
-@TestCase([PeriodUnits.minutes, true])
-@TestCase([PeriodUnits.seconds, true])
-@TestCase([PeriodUnits.milliseconds, true])
-@TestCase([PeriodUnits.microseconds, true])
-@TestCase([PeriodUnits.nanoseconds, true])
 void HasTimeComponent_SingleValued(PeriodUnits unit, bool hasTimeComponent) {
   var period = (PeriodBuilder()..[unit] = 1).build();
   expect(hasTimeComponent, period.hasTimeComponent);
 }
 
-@Test()
-@TestCase([PeriodUnits.years, true])
-@TestCase([PeriodUnits.weeks, true])
-@TestCase([PeriodUnits.months, true])
-@TestCase([PeriodUnits.days, true])
-@TestCase([PeriodUnits.hours, false])
-@TestCase([PeriodUnits.minutes, false])
-@TestCase([PeriodUnits.seconds, false])
-@TestCase([PeriodUnits.milliseconds, false])
-@TestCase([PeriodUnits.microseconds, false])
-@TestCase([PeriodUnits.nanoseconds, false])
 void HasDateComponent_SingleValued(PeriodUnits unit, bool hasDateComponent) {
   var period = (PeriodBuilder()..[unit] = 1).build();
   expect(hasDateComponent, period.hasDateComponent);
 }
 
-@Test()
 void HasTimeComponent_Compound() {
   LocalDateTime dt1 = LocalDateTime(2000, 1, 1, 10, 45, 0);
   LocalDateTime dt2 = LocalDateTime(2000, 2, 4, 11, 50, 0);
@@ -535,7 +655,6 @@ void HasTimeComponent_Compound() {
       isTrue);
 }
 
-@Test()
 void HasDateComponent_Compound() {
   LocalDateTime dt1 = LocalDateTime(2000, 1, 1, 10, 45, 0);
   LocalDateTime dt2 = LocalDateTime(2000, 2, 4, 11, 50, 0);
@@ -568,13 +687,11 @@ void HasDateComponent_Compound() {
       isTrue);
 }
 
-@Test()
 void ToString_Positive() {
   Period period = const Period(days: 1) + const Period(hours: 2);
   expect('P1DT2H', period.toString());
 }
 
-@Test()
 void ToString_AllUnits() {
   // Period({this.Years: 0, this.Months: 0, this.Weeks: 0, this.Days: 0,
   //    this.Hours: 0, this.Minutes: 0, this.Seconds: 0,
@@ -593,31 +710,26 @@ void ToString_AllUnits() {
   expect('P1Y2M3W4DT5H6M7S8s9t10n', period.toString());
 }
 
-@Test()
 void ToString_Negative() {
   Period period = const Period(days: -1) + const Period(hours: -2);
   expect('P-1DT-2H', period.toString());
 }
 
-@Test()
 void ToString_Mixed() {
   Period period = const Period(days: -1) + const Period(hours: 2);
   expect('P-1DT2H', period.toString());
 }
 
-@Test()
 void ToString_Zero() {
   expect('P', Period.zero.toString());
 }
 
-@Test()
 void ToBuilder_SingleUnit() {
   var builder = const Period(hours: 5).toBuilder();
   var expected = (PeriodBuilder()..hours = 5).build();
   expect(expected, builder.build());
 }
 
-@Test()
 void ToBuilder_MultipleUnits() {
   var builder = (const Period(hours: 5) + const Period(weeks: 2)).toBuilder();
   var expected = (PeriodBuilder()
@@ -627,7 +739,6 @@ void ToBuilder_MultipleUnits() {
   expect(expected, builder.build());
 }
 
-@Test()
 void Normalize_Weeks() {
   var original = (PeriodBuilder()
         ..weeks = 2
@@ -638,7 +749,6 @@ void Normalize_Weeks() {
   expect(expected, normalized);
 }
 
-@Test()
 void Normalize_Hours() {
   var original = (PeriodBuilder()
         ..hours = 25
@@ -652,7 +762,6 @@ void Normalize_Hours() {
   expect(expected, normalized);
 }
 
-@Test()
 void Normalize_Minutes() {
   var original = (PeriodBuilder()
         ..hours = 1
@@ -666,7 +775,6 @@ void Normalize_Minutes() {
   expect(expected, normalized);
 }
 
-@Test()
 void Normalize_Seconds() {
   var original = (PeriodBuilder()
         ..minutes = 1
@@ -680,7 +788,6 @@ void Normalize_Seconds() {
   expect(expected, normalized);
 }
 
-@Test()
 void Normalize_Milliseconds() {
   var original = (PeriodBuilder()
         ..seconds = 1
@@ -694,7 +801,6 @@ void Normalize_Milliseconds() {
   expect(expected, normalized);
 }
 
-@Test()
 void Normalize_Microseconds() {
   var original = (PeriodBuilder()
         ..milliseconds = 1
@@ -709,7 +815,6 @@ void Normalize_Microseconds() {
   expect(expected, normalized);
 }
 
-@Test()
 void Normalize_Nanoseconds() {
   var original = (PeriodBuilder()
         ..microseconds = 1
@@ -720,7 +825,6 @@ void Normalize_Nanoseconds() {
   expect(expected, normalized);
 }
 
-@Test()
 void Normalize_MultipleFields() {
   var original = (PeriodBuilder()
         ..hours = 1
@@ -736,7 +840,6 @@ void Normalize_MultipleFields() {
   expect(expected, normalized);
 }
 
-@Test()
 void Normalize_AllNegative() {
   var original = (PeriodBuilder()
         ..hours = -1
@@ -752,7 +855,6 @@ void Normalize_AllNegative() {
   expect(expected, normalized);
 }
 
-@Test()
 void Normalize_MixedSigns_PositiveResult() {
   var original = (PeriodBuilder()
         ..hours = 3
@@ -766,7 +868,6 @@ void Normalize_MixedSigns_PositiveResult() {
   expect(expected, normalized);
 }
 
-@Test()
 void Normalize_MixedSigns_NegativeResult() {
   var original = (PeriodBuilder()
         ..hours = 1
@@ -780,7 +881,6 @@ void Normalize_MixedSigns_NegativeResult() {
   expect(expected, normalized);
 }
 
-@Test()
 void Normalize_DoesntAffectMonthsAndYears() {
   var original = (PeriodBuilder()
         ..years = 2
@@ -790,7 +890,6 @@ void Normalize_DoesntAffectMonthsAndYears() {
   expect(original, original.normalize());
 }
 
-@Test()
 void Normalize_ZeroResult() {
   var original = (PeriodBuilder()..years = 0).build();
   expect(Period.zero, original.normalize());
@@ -804,13 +903,11 @@ void Normalize_Overflow()
   expect(() => period.Normalize(), throwsStateError);
 }*/
 
-@Test()
 void ToString_SingleUnit() {
   var period = const Period(hours: 5);
   expect('PT5H', period.toString());
 }
 
-@Test()
 void ToString_MultipleUnits() {
   var period = (PeriodBuilder()
         ..hours = 5
@@ -819,19 +916,16 @@ void ToString_MultipleUnits() {
   expect('PT5H30M', period.toString());
 }
 
-@Test()
 void ToDuration_InvalidWithYears() {
   Period period = const Period(years: 1);
   expect(() => period.toTime(), throwsStateError);
 }
 
-@Test()
 void ToDuration_InvalidWithMonths() {
   Period period = const Period(months: 1);
   expect(() => period.toTime(), throwsStateError);
 }
 
-@Test()
 void ToDuration_ValidAllAcceptableUnits() {
   Period period = (PeriodBuilder()
         ..weeks = 1
@@ -853,7 +947,6 @@ void ToDuration_ValidAllAcceptableUnits() {
       period.toTime().totalMicroseconds);
 }
 
-@Test()
 void ToDuration_ValidWithZeroValuesInMonthYearUnits() {
   Period period = const Period(months: 1) + const Period(years: 1);
   period = period - period + const Period(days: 1);
@@ -880,14 +973,12 @@ void ToDuration_Overflow()
 //  expect(() => period.ToSpan(), throwsStateError);
 //}
 
-@Test()
 void NormalizingEqualityComparer_PeriodToItself() {
   Period period = const Period(years: 1);
   expect(NormalizingPeriodEqualityComparer.instance.equals(period, period),
       isTrue);
 }
 
-@Test()
 void NormalizingEqualityComparer_NonEqualAfterNormalization() {
   Period period1 = const Period(hours: 2);
   Period period2 = const Period(minutes: 150);
@@ -895,7 +986,6 @@ void NormalizingEqualityComparer_NonEqualAfterNormalization() {
       isFalse);
 }
 
-@Test()
 void NormalizingEqualityComparer_EqualAfterNormalization() {
   Period period1 = const Period(hours: 2);
   Period period2 = const Period(minutes: 120);
@@ -903,7 +993,6 @@ void NormalizingEqualityComparer_EqualAfterNormalization() {
       isTrue);
 }
 
-@Test()
 void NormalizingEqualityComparer_GetHashCodeAfterNormalization() {
   Period period1 = const Period(hours: 2);
   Period period2 = const Period(minutes: 120);
@@ -911,25 +1000,21 @@ void NormalizingEqualityComparer_GetHashCodeAfterNormalization() {
       NormalizingPeriodEqualityComparer.instance.getHashCode(period2));
 }
 
-@Test()
 void Comparer_NullWithNull() {
   var comparer = Period.createComparer(LocalDateTime(2000, 1, 1, 0, 0, 0));
   expect(0, comparer.compare(null, null));
 }
 
-@Test()
 void Comparer_NullWithNonNull() {
   var comparer = Period.createComparer(LocalDateTime(2000, 1, 1, 0, 0, 0));
   expect(comparer.compare(null, Period.zero), lessThan(0));
 }
 
-@Test()
 void Comparer_NonNullWithNull() {
   var comparer = Period.createComparer(LocalDateTime(2000, 1, 1, 0, 0, 0));
   expect(comparer.compare(Period.zero, null), greaterThan(0));
 }
 
-@Test()
 void Comparer_DurationablePeriods() {
   var bigger = const Period(hours: 25);
   var smaller = const Period(days: 1);
@@ -939,7 +1024,6 @@ void Comparer_DurationablePeriods() {
   expect(0, comparer.compare(bigger, bigger));
 }
 
-@Test()
 void Comparer_NonDurationablePeriods() {
   var month = const Period(months: 1);
   var days = const Period(days: 30);
@@ -958,9 +1042,7 @@ void Comparer_NonDurationablePeriods() {
   expect(0, februaryComparer.compare(month, month));
 }
 
-@Test()
 // [TestCaseSource(nameof(AllPeriodUnits))]
-@TestCaseSource(Symbol('AllPeriodUnits'))
 void Between_ExtremeValues(PeriodUnits units) {
   // We can't use None, and Nanoseconds will *correctly* overflow.
   if (units == PeriodUnits.none || units == PeriodUnits.nanoseconds) {
@@ -971,7 +1053,6 @@ void Between_ExtremeValues(PeriodUnits units) {
   Period.differenceBetweenDateTime(minValue, maxValue, units);
 }
 
-@Test()
 void Between_ExtremeValues_Overflow() {
   var minValue = LocalDate.minIsoValue.at(LocalTime.minValue);
   var maxValue = LocalDate.maxIsoValue.at(LocalTime.maxValue);
@@ -981,15 +1062,6 @@ void Between_ExtremeValues_Overflow() {
       throwsRangeError); // throwsStateError);
 }
 
-@Test()
-@TestCase(
-    ['2015-02-28T16:00:00', "2016-02-29T08:00:00", PeriodUnits.years, 1, 0])
-@TestCase(
-    ['2015-02-28T16:00:00', "2016-02-29T08:00:00", PeriodUnits.months, 12, -11])
-@TestCase(
-    ['2014-01-01T16:00:00', "2014-01-03T08:00:00", PeriodUnits.days, 1, -1])
-@TestCase(
-    ['2014-01-01T16:00:00', "2014-01-03T08:00:00", PeriodUnits.hours, 40, -40])
 void Between_LocalDateTime_AwkwardTimeOfDayWithSingleUnit(
     String startText,
     String endText,
@@ -1004,13 +1076,11 @@ void Between_LocalDateTime_AwkwardTimeOfDayWithSingleUnit(
   expect(expectedBackward, backward.toBuilder()[units]);
 }
 
-@Test()
 void Between_LocalDateTime_SameValue() {
   LocalDateTime start = LocalDateTime(2014, 1, 1, 16, 0, 0);
   expect(Period.zero, Period.differenceBetweenDateTime(start, start));
 }
 
-@Test()
 void Between_LocalDateTime_AwkwardTimeOfDayWithMultipleUnits() {
   LocalDateTime start = LocalDateTime(2014, 1, 1, 16, 0, 0);
   LocalDateTime end = LocalDateTime(2015, 2, 3, 8, 0, 0);
@@ -1039,13 +1109,11 @@ void BinaryRoundTrip()
 }
 */
 
-@Test()
 void FromNanoseconds() {
   var period = const Period(nanoseconds: 1234567890);
   expect(1234567890, period.nanoseconds);
 }
 
-@Test()
 void AddPeriodToPeriod_NoOverflow() {
   Period p1 = const Period(hours: Platform.int64MaxValue);
   Period p2 = const Period(minutes: 60);

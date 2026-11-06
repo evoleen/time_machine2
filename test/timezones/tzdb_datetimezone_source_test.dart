@@ -4,15 +4,10 @@
 
 // todo: Need to review more carefully, but seems to be testing the BCL
 
-import 'dart:async';
 //import 'dart:math' as math;
 
 //import 'package:time_machine2/src/time_machine_internal.dart';
 //import 'package:test/test.dart';
 //import 'package:matcher/matcher.dart';
 
-import '../time_machine_testing.dart';
-
-Future main() async {
-  await runTests();
-}
+void main() {}

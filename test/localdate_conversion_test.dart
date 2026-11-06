@@ -2,25 +2,23 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'dart:async';
-
 import 'package:time_machine2/src/time_machine_internal.dart';
 import 'package:test/test.dart';
 
-import 'time_machine_testing.dart';
-
-Future main() async {
-  await runTests();
+void main() {
+  test('AtMidnight', AtMidnight);
+  test('WithCalendar', WithCalendar);
+  test('WithOffset', WithOffset);
+  test('ToDateTimeUnspecified', ToDateTimeUnspecified);
+  test('WithCalendar_OutOfRange', WithCalendar_OutOfRange);
 }
 
-@Test()
 void AtMidnight() {
   LocalDate date = LocalDate(2011, 6, 29);
   LocalDateTime expected = LocalDateTime(2011, 6, 29, 0, 0, 0);
   expect(date.atMidnight(), expected);
 }
 
-@Test()
 void WithCalendar() {
   LocalDate isoEpoch = LocalDate(1970, 1, 1);
   LocalDate julianEpoch = isoEpoch.withCalendar(CalendarSystem.julian);
@@ -29,7 +27,6 @@ void WithCalendar() {
   expect(19, julianEpoch.dayOfMonth);
 }
 
-@Test()
 void WithOffset() {
   var date = LocalDate(2011, 6, 29);
   var offset = Offset.hours(5);
@@ -37,7 +34,6 @@ void WithOffset() {
   expect(expected, date.withOffset(offset));
 }
 
-@Test()
 void ToDateTimeUnspecified() {
   LocalDate noda = LocalDate(2015, 4, 2);
   DateTime bcl = DateTime(2015, 4, 2, 0, 0, 0); //, DateTimeKind.Unspecified);
@@ -70,7 +66,6 @@ void ToDateTimeUnspecified() {
 //  }
 //}
 
-@Test()
 void WithCalendar_OutOfRange() {
   LocalDate start = LocalDate(1, 1, 1);
   // Assert.Throws<ArgumentOutOfRangeException>

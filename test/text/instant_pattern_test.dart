@@ -1,22 +1,39 @@
 // Portions of this work are Copyright 2018 The Time Machine Authors. All rights reserved.
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
-import 'dart:async';
 
 import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
+import 'package:parameterized_test/parameterized_test.dart';
 
 import '../time_machine_testing.dart';
 import 'pattern_test_base.dart';
 import 'pattern_test_data.dart';
 import 'test_cultures.dart';
 
-Future main() async {
-  await runTests();
+void main() {
+  group('InstantPatternTest', () {
+    final fixture = InstantPatternTest();
+    test('IsoHandlesCommas', fixture.IsoHandlesCommas);
+    test('CreateWithCurrentCulture', fixture.CreateWithCurrentCulture);
+    test('Create', fixture.Create);
+    parameterizedTest(
+        'InvalidPatterns', fixture.InvalidPatternData, fixture.InvalidPatterns,
+        customDescriptionBuilder: describeArguments);
+    parameterizedTest(
+        'ParseFailures', fixture.ParseFailureData, fixture.ParseFailures,
+        customDescriptionBuilder: describeArguments);
+    parameterizedTest('Parse', fixture.ParseData.toList(), fixture.Parse,
+        customDescriptionBuilder: describeArguments);
+    parameterizedTest('Format', fixture.FormatData.toList(), fixture.Format,
+        customDescriptionBuilder: describeArguments);
+    parameterizedTest(
+        'AppendFormat', fixture.FormatData.toList(), fixture.AppendFormat,
+        customDescriptionBuilder: describeArguments);
+  });
 }
 
-@Test()
 class InstantPatternTest extends PatternTestBase<Instant> {
   @internal
   final List<Data> InvalidPatternData = [
@@ -77,7 +94,6 @@ class InstantPatternTest extends PatternTestBase<Instant> {
   @internal
   List<Data> FormatOnlyData = [];
 
-  @Test()
   void IsoHandlesCommas() {
     Instant expected = Instant.utc(2012, 1, 1, 0, 0) + Time.epsilon;
     Instant actual = InstantPattern.extendedIso
@@ -86,7 +102,6 @@ class InstantPatternTest extends PatternTestBase<Instant> {
     expect(expected, actual);
   }
 
-  @Test()
   void CreateWithCurrentCulture() {
     // using (CultureSaver.SetCultures(TestCultures.DotTimeSeparator))
     Culture.current = TestCultures.DotTimeSeparator;
@@ -97,7 +112,6 @@ class InstantPatternTest extends PatternTestBase<Instant> {
     }
   }
 
-  @Test()
   void Create() {
     var pattern = InstantPattern.createWithCulture(
         'HH:mm:ss', TestCultures.DotTimeSeparator);

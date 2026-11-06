@@ -2,18 +2,21 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'dart:async';
-
 import 'package:time_machine2/src/time_machine_internal.dart';
 import 'package:test/test.dart';
 
-import 'time_machine_testing.dart';
-
-Future main() async {
-  await runTests();
+void main() {
+  test('Addition_WithPeriod', Addition_WithPeriod);
+  test('Addition_TruncatesOnShortMonth', Addition_TruncatesOnShortMonth);
+  test('Subtraction_WithPeriod', Subtraction_WithPeriod);
+  test('Subtraction_TruncatesOnShortMonth', Subtraction_TruncatesOnShortMonth);
+  test('Addition_PeriodWithTime', Addition_PeriodWithTime);
+  test('Subtraction_PeriodWithTime', Subtraction_PeriodWithTime);
+  test('PeriodAddition_MethodEquivalents', PeriodAddition_MethodEquivalents);
+  test('PeriodSubtraction_MethodEquivalents',
+      PeriodSubtraction_MethodEquivalents);
 }
 
-@Test()
 void Addition_WithPeriod() {
   LocalDate start = LocalDate(2010, 6, 19);
   Period period = const Period(months: 3) + const Period(days: 10);
@@ -21,7 +24,6 @@ void Addition_WithPeriod() {
   expect(expected, start + period);
 }
 
-@Test()
 void Addition_TruncatesOnShortMonth() {
   LocalDate start = LocalDate(2010, 1, 30);
   Period period = const Period(months: 1);
@@ -39,7 +41,6 @@ void Addition_TruncatesOnShortMonth() {
 //   expect(() => (date + p).toString(), throwsArgumentError);
 // }
 
-@Test()
 void Subtraction_WithPeriod() {
   LocalDate start = LocalDate(2010, 9, 29);
   Period period = const Period(months: 3) + const Period(days: 10);
@@ -47,7 +48,6 @@ void Subtraction_WithPeriod() {
   expect(expected, start - period);
 }
 
-@Test()
 void Subtraction_TruncatesOnShortMonth() {
   LocalDate start = LocalDate(2010, 3, 30);
   Period period = const Period(months: 1);
@@ -65,7 +65,6 @@ void Subtraction_TruncatesOnShortMonth() {
 //   expect(() => (date - p).toString(), willThrow<ArgumentError>());
 // }
 
-@Test()
 void Addition_PeriodWithTime() {
   LocalDate date = LocalDate(2010, 1, 1);
   Period period = const Period(hours: 1);
@@ -74,7 +73,6 @@ void Addition_PeriodWithTime() {
   expect(() => LocalDate.plus(date, period), throwsArgumentError);
 }
 
-@Test()
 void Subtraction_PeriodWithTime() {
   LocalDate date = LocalDate(2010, 1, 1);
   Period period = const Period(hours: 1);
@@ -83,7 +81,6 @@ void Subtraction_PeriodWithTime() {
   expect(() => LocalDate.minus(date, period), throwsArgumentError);
 }
 
-@Test()
 void PeriodAddition_MethodEquivalents() {
   LocalDate start = LocalDate(2010, 6, 19);
   Period period = const Period(months: 3) + const Period(days: 10);
@@ -91,7 +88,6 @@ void PeriodAddition_MethodEquivalents() {
   expect(start + period, start.add(period));
 }
 
-@Test()
 void PeriodSubtraction_MethodEquivalents() {
   LocalDate start = LocalDate(2010, 6, 19);
   Period period = const Period(months: 3) + const Period(days: 10);

@@ -22,11 +22,11 @@ Offset InitialOffset = TestObjects.CreatePositiveOffset(0, 9, 21);
 /// 2010 spring transition: March 28th
 /// 2010 fall transition: October 31st
 /// 2011 spring transition: March 27th
-Future main() async {
-  await TimeMachineTest.initialize();
-  await setup();
+void main() {
+  setUpAll(TimeMachineTest.initialize);
+  setUpAll(setup);
 
-  await runTests();
+  test('FirstTransitions', FirstTransitions);
 }
 
 Future setup() async {
@@ -35,7 +35,6 @@ Future setup() async {
   paris = Uncached(await tzdb['Europe/Paris']);
 }
 
-@Test()
 void FirstTransitions() {
   // Paris had a name change in 1891, and then moved from +0:09:21 to UTC in 1911
   var nameChangeInstant = Instant.utc(1891, 3, 15, 23, 50, 39);

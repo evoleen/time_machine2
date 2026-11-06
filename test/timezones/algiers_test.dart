@@ -14,11 +14,12 @@ import '../time_machine_testing.dart';
 /// we use that to test a time zone whose transitions run out. (When Algiers
 /// decided to stop using DST, it changed its standard offset to be what had previously
 /// been its DST offset, i.e. +1.)
-Future main() async {
-  await TimeMachineTest.initialize();
-  await setup();
+void main() {
+  setUpAll(TimeMachineTest.initialize);
+  setUpAll(setup);
 
-  await runTests();
+  test('GetPeriod_BeforeLast', GetPeriod_BeforeLast);
+  test('GetPeriod_AfterLastTransition', GetPeriod_AfterLastTransition);
 }
 
 Future setup() async {
@@ -27,7 +28,6 @@ Future setup() async {
 
 late DateTimeZone algiers;
 
-@Test()
 void GetPeriod_BeforeLast() {
   Instant april1981 = Instant.utc(1981, 4, 1, 0, 0);
   var actual = algiers.getZoneInterval(april1981);
@@ -40,7 +40,6 @@ void GetPeriod_BeforeLast() {
   expect(expected, actual);
 }
 
-@Test()
 void GetPeriod_AfterLastTransition() {
   var may1981 = ZonedDateTime.atStrictly(
           LocalDateTime(1981, 5, 1, 0, 0, 1), DateTimeZone.utc)

@@ -2,15 +2,18 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'dart:async';
-
 import 'package:time_machine2/src/time_machine_internal.dart';
 import 'package:test/test.dart';
 
-import '../time_machine_testing.dart';
-
-Future main() async {
-  await runTests();
+void main() {
+  test('FieldsOf_UnixEpoch', FieldsOf_UnixEpoch);
+  test('FieldsOf_GreatAchievement', FieldsOf_GreatAchievement);
+  test('ConstructLocalInstant_WithAllFields',
+      ConstructLocalInstant_WithAllFields);
+  test('IsLeapYear', IsLeapYear);
+  test('GetDaysInMonth', GetDaysInMonth);
+  test('BeforeCommonEra', BeforeCommonEra);
+  test('BeforeCommonEra_BySpecifyingEra', BeforeCommonEra_BySpecifyingEra);
 }
 
 // DateTime doesn't do Ticks -- only Microseconds, so we lose some precision (+ we don't either anymore)
@@ -25,7 +28,6 @@ DateTime TimeOfGreatAchievement = DateTime.utc(2009, 11, 27, 18, 38, 25, 345)
 
 CalendarSystem Iso = CalendarSystem.iso;
 
-@Test()
 void FieldsOf_UnixEpoch() {
   // It's easiest to test this using a LocalDateTime in the ISO calendar system.
   // LocalDateTime just passes everything through anyway.
@@ -48,7 +50,6 @@ void FieldsOf_UnixEpoch() {
   expect(0, epoch.microsecondOfSecond);
 }
 
-@Test()
 void FieldsOf_GreatAchievement() {
   // LocalDateTime now = new Instant.fromUnixTimeTicks((TimeOfGreatAchievement.difference(UnixEpochDateTime)).Ticks).InUtc().LocalDateTime;
   LocalDateTime now = Instant.fromEpochMicroseconds(
@@ -82,7 +83,6 @@ void FieldsOf_GreatAchievement() {
   }
 }
 
-@Test()
 void ConstructLocalInstant_WithAllFields() {
   LocalInstant localAchievement = ILocalDateTime.toLocalInstant(
       LocalDateTime(2009, 11, 27, 18, 38, 25, ms: 345)
@@ -105,7 +105,6 @@ void ConstructLocalInstant_WithAllFields() {
   }
 }
 
-@Test()
 void IsLeapYear() {
   expect(CalendarSystem.iso.isLeapYear(2012), isTrue); // 4 year rule
   expect(CalendarSystem.iso.isLeapYear(2011), isFalse); // 4 year rule
@@ -113,7 +112,6 @@ void IsLeapYear() {
   expect(CalendarSystem.iso.isLeapYear(2000), isTrue); // 400 year rule
 }
 
-@Test()
 void GetDaysInMonth() {
   expect(30, CalendarSystem.iso.getDaysInMonth(2010, 9));
   expect(31, CalendarSystem.iso.getDaysInMonth(2010, 1));
@@ -121,7 +119,6 @@ void GetDaysInMonth() {
   expect(29, CalendarSystem.iso.getDaysInMonth(2012, 2));
 }
 
-@Test()
 void BeforeCommonEra() {
   // Year -1 in absolute terms is 2BCE
   LocalDate localDate = LocalDate(-1, 1, 1);
@@ -130,7 +127,6 @@ void BeforeCommonEra() {
   expect(2, localDate.yearOfEra);
 }
 
-@Test()
 void BeforeCommonEra_BySpecifyingEra() {
   // Year -1 in absolute terms is 2BCE
   LocalDate localDate =

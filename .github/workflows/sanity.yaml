@@ -138,7 +138,7 @@ jobs:
         run: dart pub publish --dry-run
 
   # SystemDateTimeZoneSource on the web: the platform-agnostic checks in
-  # test/system_source (the mirrors-based suite can't be compiled for the web).
+  # test/system_source, as on Android and iOS below.
   Web:
     name: System time zones (${{ matrix.name }})
     strategy:

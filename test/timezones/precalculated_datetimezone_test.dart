@@ -2,15 +2,47 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'dart:async';
-
 import 'package:time_machine2/src/time_machine_internal.dart';
 import 'package:test/test.dart';
 
 import '../time_machine_testing.dart';
 
-Future main() async {
-  await runTests();
+void main() {
+  test('MinMaxOffsets', MinMaxOffsets);
+  test('MinMaxOffsetsWithOtherTailZone', MinMaxOffsetsWithOtherTailZone);
+  test('MinMaxOffsetsWithNullTailZone', MinMaxOffsetsWithNullTailZone);
+  test('GetZoneIntervalInstant_End', GetZoneIntervalInstant_End);
+  test('GetZoneIntervalInstant_Start', GetZoneIntervalInstant_Start);
+  test('GetZoneIntervalInstant_FinalInterval_End',
+      GetZoneIntervalInstant_FinalInterval_End);
+  test('GetZoneIntervalInstant_FinalInterval_Start',
+      GetZoneIntervalInstant_FinalInterval_Start);
+  test('GetZoneIntervalInstant_TailZone', GetZoneIntervalInstant_TailZone);
+  test('MapLocal_UnambiguousInPrecalculated',
+      MapLocal_UnambiguousInPrecalculated);
+  test('MapLocal_UnambiguousInTailZone', MapLocal_UnambiguousInTailZone);
+  test('MapLocal_AmbiguousWithinPrecalculated',
+      MapLocal_AmbiguousWithinPrecalculated);
+  test('MapLocal_AmbiguousAroundTailZoneTransition',
+      MapLocal_AmbiguousAroundTailZoneTransition);
+  test('MapLocal_AmbiguousButTooEarlyInTailZoneTransition',
+      MapLocal_AmbiguousButTooEarlyInTailZoneTransition);
+  test('MapLocal_GapWithinPrecalculated', MapLocal_GapWithinPrecalculated);
+  test('MapLocal_SingleIntervalAroundTailZoneTransition',
+      MapLocal_SingleIntervalAroundTailZoneTransition);
+  test('MapLocal_GapAroundTailZoneTransition',
+      MapLocal_GapAroundTailZoneTransition);
+  test('MapLocal_GapAroundAndInTailZoneTransition',
+      MapLocal_GapAroundAndInTailZoneTransition);
+  test('GetZoneIntervals_NullTailZone_Eot', GetZoneIntervals_NullTailZone_Eot);
+  test('Validation_EmptyPeriodArray', Validation_EmptyPeriodArray);
+  test('Validation_BadFirstStartingPoint', Validation_BadFirstStartingPoint);
+  test('Validation_NonAdjoiningIntervals', Validation_NonAdjoiningIntervals);
+  test('Validation_Success', Validation_Success);
+  test('Validation_NullTailZoneWithMiddleOfTimeFinalPeriod',
+      Validation_NullTailZoneWithMiddleOfTimeFinalPeriod);
+  test('Validation_NullTailZoneWithEotPeriodEnd',
+      Validation_NullTailZoneWithEotPeriodEnd);
 }
 
 final ZoneInterval firstInterval = IZoneInterval.newZoneInterval(
@@ -60,13 +92,11 @@ final ZoneInterval clampedTailZoneInterval = IZoneInterval.withStart(
 final PrecalculatedDateTimeZone TestZone = PrecalculatedDateTimeZone(
     'Test', [firstInterval, secondInterval, thirdInterval], tailZone);
 
-@Test()
 void MinMaxOffsets() {
   expect(Offset.hours(-6), TestZone.minOffset);
   expect(Offset.hours(4), TestZone.maxOffset);
 }
 
-@Test()
 void MinMaxOffsetsWithOtherTailZone() {
   var tailZone = FixedDateTimeZone.forIdOffset('TestFixed', Offset.hours(8));
   var testZone = PrecalculatedDateTimeZone(
@@ -75,7 +105,6 @@ void MinMaxOffsetsWithOtherTailZone() {
   expect(Offset.hours(8), testZone.maxOffset);
 }
 
-@Test()
 void MinMaxOffsetsWithNullTailZone() {
   var testZone = PrecalculatedDateTimeZone(
       'Test',
@@ -91,52 +120,43 @@ void MinMaxOffsetsWithNullTailZone() {
   expect(Offset.hours(4), testZone.maxOffset);
 }
 
-@Test()
 void GetZoneIntervalInstant_End() {
   expect(secondInterval,
       TestZone.getZoneInterval(secondInterval.end - Time.epsilon));
 }
 
-@Test()
 void GetZoneIntervalInstant_Start() {
   expect(secondInterval, TestZone.getZoneInterval(secondInterval.start));
 }
 
-@Test()
 void GetZoneIntervalInstant_FinalInterval_End() {
   expect(thirdInterval,
       TestZone.getZoneInterval(thirdInterval.end - Time.epsilon));
 }
 
-@Test()
 void GetZoneIntervalInstant_FinalInterval_Start() {
   expect(thirdInterval, TestZone.getZoneInterval(thirdInterval.start));
 }
 
-@Test()
 void GetZoneIntervalInstant_TailZone() {
   expect(clampedTailZoneInterval, TestZone.getZoneInterval(thirdInterval.end));
 }
 
-@Test()
 void MapLocal_UnambiguousInPrecalculated() {
   CheckMapping(
       LocalDateTime(2000, 6, 1, 0, 0, 0), secondInterval, secondInterval, 1);
 }
 
-@Test()
 void MapLocal_UnambiguousInTailZone() {
   CheckMapping(LocalDateTime(2005, 2, 1, 0, 0, 0), clampedTailZoneInterval,
       clampedTailZoneInterval, 1);
 }
 
-@Test()
 void MapLocal_AmbiguousWithinPrecalculated() {
   // Transition from +4 to -5 has a 9 hour ambiguity
   CheckMapping(thirdInterval.isoLocalStart, secondInterval, thirdInterval, 2);
 }
 
-@Test()
 void MapLocal_AmbiguousAroundTailZoneTransition() {
   // Transition from -5 to -6 has a 1 hour ambiguity
   // CheckMapping(thirdInterval.IsoLocalEnd.PlusNanoseconds(-1L), thirdInterval, clampedTailZoneInterval, 2);
@@ -144,7 +164,6 @@ void MapLocal_AmbiguousAroundTailZoneTransition() {
       clampedTailZoneInterval, 2);
 }
 
-@Test()
 void MapLocal_AmbiguousButTooEarlyInTailZoneTransition() {
   // Tail zone is +10 / +8, with the transition occurring just after
   // the transition *to* the tail zone from the precalculated zone.
@@ -161,14 +180,12 @@ void MapLocal_AmbiguousButTooEarlyInTailZoneTransition() {
   expect(1, mapping.count);
 }
 
-@Test()
 void MapLocal_GapWithinPrecalculated() {
   // Transition from +3 to +4 has a 1 hour gap
   expect(firstInterval.isoLocalEnd < secondInterval.isoLocalStart, isTrue);
   CheckMapping(firstInterval.isoLocalEnd, firstInterval, secondInterval, 0);
 }
 
-@Test()
 void MapLocal_SingleIntervalAroundTailZoneTransition() {
   // Tail zone is fixed at +5. A local instant of one hour before the transition
   // from the precalculated zone (which is -5) will therefore give an instant from
@@ -183,7 +200,6 @@ void MapLocal_SingleIntervalAroundTailZoneTransition() {
   expect(1, mapping.count);
 }
 
-@Test()
 void MapLocal_GapAroundTailZoneTransition() {
   // Tail zone is fixed at +5. A local time at the transition
   // from the precalculated zone (which is -5) will therefore give an instant from
@@ -201,7 +217,6 @@ void MapLocal_GapAroundTailZoneTransition() {
   expect(0, mapping.count);
 }
 
-@Test()
 void MapLocal_GapAroundAndInTailZoneTransition() {
   // Tail zone is -10 / +5, with the transition occurring just after
   // the transition *to* the tail zone from the precalculated zone.
@@ -220,7 +235,6 @@ void MapLocal_GapAroundAndInTailZoneTransition() {
   expect(0, mapping.count);
 }
 
-@Test()
 void GetZoneIntervals_NullTailZone_Eot() {
   List<ZoneInterval> intervals = [
     IZoneInterval.newZoneInterval('foo', IInstant.beforeMinValue,
@@ -240,7 +254,6 @@ void CheckMapping(LocalDateTime localDateTime, ZoneInterval earlyInterval,
   expect(count, mapping.count);
 }
 
-@Test()
 void Validation_EmptyPeriodArray() {
   // Assert.Throws<ArgumentException>
   expect(
@@ -249,7 +262,6 @@ void Validation_EmptyPeriodArray() {
       throwsArgumentError);
 }
 
-@Test()
 void Validation_BadFirstStartingPoint() {
   List<ZoneInterval> intervals = [
     IZoneInterval.newZoneInterval('foo', Instant.fromEpochMicroseconds(1),
@@ -264,7 +276,6 @@ void Validation_BadFirstStartingPoint() {
       throwsArgumentError);
 }
 
-@Test()
 void Validation_NonAdjoiningIntervals() {
   List<ZoneInterval> intervals = [
     IZoneInterval.newZoneInterval('foo', IInstant.beforeMinValue,
@@ -283,7 +294,6 @@ void Validation_NonAdjoiningIntervals() {
       throwsArgumentError);
 }
 
-@Test()
 void Validation_Success() {
   List<ZoneInterval> intervals = [
     IZoneInterval.newZoneInterval('foo', IInstant.beforeMinValue,
@@ -298,7 +308,6 @@ void Validation_Success() {
   PrecalculatedDateTimeZone.validatePeriods(intervals, DateTimeZone.utc);
 }
 
-@Test()
 void Validation_NullTailZoneWithMiddleOfTimeFinalPeriod() {
   List<ZoneInterval> intervals = [
     IZoneInterval.newZoneInterval('foo', IInstant.beforeMinValue,
@@ -311,7 +320,6 @@ void Validation_NullTailZoneWithMiddleOfTimeFinalPeriod() {
       throwsArgumentError);
 }
 
-@Test()
 void Validation_NullTailZoneWithEotPeriodEnd() {
   List<ZoneInterval> intervals = [
     IZoneInterval.newZoneInterval('foo', IInstant.beforeMinValue,
@@ -337,4 +345,3 @@ void Validation_NullTailZoneWithEotPeriodEnd() {
 //  var reloadedZoneIntervals = TestZone.GetZoneIntervals(interval, ZoneEqualityComparer.Options.StrictestMatch).ToList();
 //  Collectionexpect(originalZoneIntervals, reloadedZoneIntervals);
 //}
-

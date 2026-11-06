@@ -2,15 +2,24 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'dart:async';
-
 import 'package:time_machine2/src/time_machine_internal.dart';
 import 'package:test/test.dart';
 
 import '../time_machine_testing.dart';
 
-Future main() async {
-  await runTests();
+void main() {
+  test('PassthroughProperties', PassthroughProperties);
+  test('ComputedProperties', ComputedProperties);
+  test('Contains_Instant_Normal', Contains_Instant_Normal);
+  test('Contains_Instant_WholeOfTime_ViaNullity',
+      Contains_Instant_WholeOfTime_ViaNullity);
+  test('Contains_Instant_WholeOfTime_ViaSpecialInstants',
+      Contains_Instant_WholeOfTime_ViaSpecialInstants);
+  test('Contains_LocalInstant_WholeOfTime', Contains_LocalInstant_WholeOfTime);
+  test('Contains_OutsideLocalInstantange', Contains_OutsideLocalInstantange);
+  test('IsoLocalStartAndEnd_Infinite', IsoLocalStartAndEnd_Infinite);
+  test('IsoLocalStartAndEnd_OutOfRange', IsoLocalStartAndEnd_OutOfRange);
+  test('Equality', Equality);
 }
 
 final Instant SampleStart = Instant.utc(2011, 6, 3, 10, 15);
@@ -19,7 +28,6 @@ final Instant SampleEnd = Instant.utc(2011, 8, 2, 13, 45);
 final ZoneInterval SampleInterval = IZoneInterval.newZoneInterval(
     'TestTime', SampleStart, SampleEnd, Offset.hours(9), Offset.hours(1));
 
-@Test()
 void PassthroughProperties() {
   expect('TestTime', SampleInterval.name);
   expect(Offset.hours(8), SampleInterval.standardOffset);
@@ -32,7 +40,6 @@ void PassthroughProperties() {
 // Having one test per property feels like a waste of time to me (Jon)...
 // If any of them fail, I'm going to be looking here anyway, and they're
 // fairly interrelated anyway.
-@Test()
 void ComputedProperties() {
   LocalDateTime start = LocalDateTime(2011, 6, 3, 19, 15, 0);
   LocalDateTime end = LocalDateTime(2011, 8, 2, 22, 45, 0);
@@ -41,7 +48,6 @@ void ComputedProperties() {
   expect(SampleStart.timeUntil(SampleEnd), SampleInterval.totalTime);
 }
 
-@Test()
 void Contains_Instant_Normal() {
   expect(SampleInterval.contains(SampleStart), isTrue);
   expect(SampleInterval.contains(SampleEnd), isFalse);
@@ -49,7 +55,6 @@ void Contains_Instant_Normal() {
   expect(SampleInterval.contains(Instant.maxValue), isFalse);
 }
 
-@Test()
 void Contains_Instant_WholeOfTime_ViaNullity() {
   ZoneInterval interval = IZoneInterval.newZoneInterval(
       'All Time', null, null, Offset.hours(9), Offset.hours(1));
@@ -58,7 +63,6 @@ void Contains_Instant_WholeOfTime_ViaNullity() {
   expect(interval.contains(Instant.maxValue), isTrue);
 }
 
-@Test()
 void Contains_Instant_WholeOfTime_ViaSpecialInstants() {
   ZoneInterval interval = IZoneInterval.newZoneInterval(
       'All Time',
@@ -71,7 +75,6 @@ void Contains_Instant_WholeOfTime_ViaSpecialInstants() {
   expect(interval.contains(Instant.maxValue), isTrue);
 }
 
-@Test()
 void Contains_LocalInstant_WholeOfTime() {
   ZoneInterval interval = IZoneInterval.newZoneInterval(
       'All Time',
@@ -93,7 +96,6 @@ void Contains_LocalInstant_WholeOfTime() {
       isTrue);
 }
 
-@Test()
 void Contains_OutsideLocalInstantange() {
   ZoneInterval veryEarly = IZoneInterval.newZoneInterval(
       'Very early',
@@ -121,7 +123,6 @@ void Contains_OutsideLocalInstantange() {
       isFalse);
 }
 
-@Test()
 void IsoLocalStartAndEnd_Infinite() {
   var interval = IZoneInterval.newZoneInterval(
       'All time', null, null, Offset.zero, Offset.zero);
@@ -130,7 +131,6 @@ void IsoLocalStartAndEnd_Infinite() {
   expect(() => interval.isoLocalEnd.toString(), throwsStateError);
 }
 
-@Test()
 void IsoLocalStartAndEnd_OutOfRange() {
   var interval = IZoneInterval.newZoneInterval(
       'All time', Instant.minValue, null, Offset.hours(-1), Offset.zero);
@@ -141,7 +141,6 @@ void IsoLocalStartAndEnd_OutOfRange() {
   expect(() => interval.isoLocalEnd.toString(), throwsRangeError);
 }
 
-@Test()
 void Equality() {
   TestHelper.TestEqualsClass(
       // Equal values

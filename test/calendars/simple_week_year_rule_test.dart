@@ -2,21 +2,122 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'dart:async';
-
 import 'package:time_machine2/src/time_machine_internal.dart';
 import 'package:test/test.dart';
+import 'package:parameterized_test/parameterized_test.dart';
 
 import '../time_machine_testing.dart';
 
-Future main() async {
-  await runTests();
+void main() {
+  test('RoundtripFirstDay_Iso7', RoundtripFirstDay_Iso7);
+  test('RoundtripLastDay_Iso1', RoundtripLastDay_Iso1);
+  test('OutOfRange_ValidWeekYearAndWeek_TooEarly',
+      OutOfRange_ValidWeekYearAndWeek_TooEarly);
+  test('OutOfRange_ValidWeekYearAndWeek_TooLate',
+      OutOfRange_ValidWeekYearAndWeek_TooLate);
+  parameterizedTest(
+      'WeekYearDifferentToYear',
+      [
+        [2011, 1, 1, 2010, 52, DayOfWeek.saturday],
+        [2012, 12, 31, 2013, 1, DayOfWeek.monday],
+        [1960, 1, 19, 1960, 3, DayOfWeek.tuesday],
+        [2012, 10, 19, 2012, 42, DayOfWeek.friday],
+        [2011, 1, 1, 2010, 52, DayOfWeek.saturday],
+        [2012, 12, 31, 2013, 1, DayOfWeek.monday],
+        [2005, 1, 2, 2004, 53, DayOfWeek.sunday],
+      ],
+      WeekYearDifferentToYear,
+      customDescriptionBuilder: describeArguments);
+  parameterizedTest(
+      'GetWeeksInWeekYear',
+      [
+        [2009, 53],
+        [2010, 52],
+        [2011, 52],
+        [2012, 52],
+        [2013, 52],
+        [2014, 52],
+        [2015, 53],
+        [2016, 52],
+        [2017, 52],
+        [2018, 52],
+        [2019, 52],
+      ],
+      GetWeeksInWeekYear,
+      customDescriptionBuilder: describeArguments);
+  parameterizedTest(
+      'WeekOfWeekYear_ComparisonWithOracle',
+      [
+        [2007, 12, 31, 1],
+        [2008, 1, 6, 1],
+        [2008, 1, 7, 2],
+        [2008, 12, 28, 52],
+        [2008, 12, 29, 1],
+        [2009, 1, 4, 1],
+        [2009, 1, 5, 2],
+        [2009, 12, 27, 52],
+        [2009, 12, 28, 53],
+        [2010, 1, 3, 53],
+        [2010, 1, 4, 1],
+      ],
+      WeekOfWeekYear_ComparisonWithOracle,
+      customDescriptionBuilder: describeArguments);
+  parameterizedTest(
+      'Gregorian',
+      [
+        [2000, DayOfWeek.saturday, 2],
+        [2001, DayOfWeek.monday, 7],
+        [2002, DayOfWeek.tuesday, 6],
+        [2003, DayOfWeek.wednesday, 5],
+        [2004, DayOfWeek.thursday, 4],
+        [2005, DayOfWeek.saturday, 2],
+        [2006, DayOfWeek.sunday, 1],
+      ],
+      Gregorian,
+      customDescriptionBuilder: describeArguments);
+  parameterizedTest(
+      'Iso',
+      [
+        [2000, 12, 31, 2000, 52, DayOfWeek.sunday],
+        [2001, 1, 1, 2001, 1, DayOfWeek.monday],
+        [2005, 1, 1, 2004, 53, DayOfWeek.saturday],
+        [2007, 12, 31, 2008, 1, DayOfWeek.monday],
+      ],
+      Iso,
+      customDescriptionBuilder: describeArguments);
+  parameterizedTest(
+      'HebrewCalendar',
+      [
+        [5400, DayOfWeek.thursday, 1639, 9, 29, 51, 5400, 1],
+        [5401, DayOfWeek.monday, 1640, 9, 17, 50, 5401, 1],
+        [5402, DayOfWeek.thursday, 1641, 9, 5, 55, 5402, 1],
+        [5403, DayOfWeek.thursday, 1642, 9, 25, 51, 5403, 1],
+        [5404, DayOfWeek.monday, 1643, 9, 14, 55, 5404, 1],
+        [5405, DayOfWeek.saturday, 1644, 10, 1, 50, 5404, 55],
+        [5406, DayOfWeek.thursday, 1645, 9, 21, 51, 5406, 1],
+        [5407, DayOfWeek.monday, 1646, 9, 10, 55, 5407, 1],
+        [5408, DayOfWeek.monday, 1647, 9, 30, 50, 5408, 1],
+        [5409, DayOfWeek.thursday, 1648, 9, 17, 51, 5409, 1],
+        [5410, DayOfWeek.tuesday, 1649, 9, 7, 55, 5410, 1],
+      ],
+      HebrewCalendar,
+      customDescriptionBuilder: describeArguments);
+  parameterizedTest(
+      'NonMondayFirstDayOfWeek',
+      [
+        [1, DayOfWeek.wednesday, 2015, 2, DayOfWeek.friday, 2015, 1, 9],
+        [7, DayOfWeek.wednesday, 2015, 2, DayOfWeek.friday, 2015, 1, 16],
+        [1, DayOfWeek.wednesday, 2015, 1, DayOfWeek.wednesday, 2014, 12, 31],
+        [3, DayOfWeek.friday, 2016, 1, DayOfWeek.friday, 2016, 1, 1],
+        [3, DayOfWeek.friday, 2017, 1, DayOfWeek.friday, 2016, 12, 30],
+      ],
+      NonMondayFirstDayOfWeek,
+      customDescriptionBuilder: describeArguments);
 }
 
 // List<DayOfWeek> BclDaysOfWeek = []; //(DayOfWeek[])Enum.GetValues(typeof(DayOfWeek));
 List<CalendarWeekRule> CalendarWeekRules = CalendarWeekRule.values;
 
-@Test()
 void RoundtripFirstDay_Iso7() {
   // In the Gregorian calendar with a minimum of 7 days in the first
   // week, Tuesday January 1st -9998 is in week year -9999. We should be able to
@@ -29,7 +130,6 @@ void RoundtripFirstDay_Iso7() {
           date.dayOfWeek, CalendarSystem.iso));
 }
 
-@Test()
 void RoundtripLastDay_Iso1() {
   // In the Gregorian calendar with a minimum of 1 day in the first
   // week, Friday December 31st 9999 is in week year 10000. We should be able to
@@ -42,7 +142,6 @@ void RoundtripLastDay_Iso1() {
           date.dayOfWeek, CalendarSystem.iso));
 }
 
-@Test()
 void OutOfRange_ValidWeekYearAndWeek_TooEarly() {
   // Gregorian 4: Week year 1 starts on Monday December 31st -9999,
   // and is therefore out of range, even though the week-year
@@ -57,7 +156,6 @@ void OutOfRange_ValidWeekYearAndWeek_TooEarly() {
       .getLocalDate(-9998, 1, DayOfWeek.tuesday, CalendarSystem.iso);
 }
 
-@Test()
 void OutOfRange_ValidWeekYearAndWeek_TooLate() {
 // Gregorian 4: December 31st 9999 is a Friday, so the Saturday of the
 // same week is therefore out of range, even though the week-year
@@ -76,14 +174,6 @@ void OutOfRange_ValidWeekYearAndWeek_TooLate() {
 }
 
 // Tests ported from IsoCalendarSystemTest and LocalDateTest.Construction
-@Test()
-@TestCase([2011, 1, 1, 2010, 52, DayOfWeek.saturday])
-@TestCase([2012, 12, 31, 2013, 1, DayOfWeek.monday])
-@TestCase([1960, 1, 19, 1960, 3, DayOfWeek.tuesday])
-@TestCase([2012, 10, 19, 2012, 42, DayOfWeek.friday])
-@TestCase([2011, 1, 1, 2010, 52, DayOfWeek.saturday])
-@TestCase([2012, 12, 31, 2013, 1, DayOfWeek.monday])
-@TestCase([2005, 1, 2, 2004, 53, DayOfWeek.sunday])
 void WeekYearDifferentToYear(int year, int month, int day, int weekYear,
     int weekOfWeekYear, DayOfWeek dayOfWeek) {
   var date = LocalDate(year, month, day);
@@ -97,18 +187,6 @@ void WeekYearDifferentToYear(int year, int month, int day, int weekYear,
 }
 
 // Ported from CalendarSystemTest.Validation
-@Test()
-@TestCase([2009, 53])
-@TestCase([2010, 52])
-@TestCase([2011, 52])
-@TestCase([2012, 52])
-@TestCase([2013, 52])
-@TestCase([2014, 52])
-@TestCase([2015, 53])
-@TestCase([2016, 52])
-@TestCase([2017, 52])
-@TestCase([2018, 52])
-@TestCase([2019, 52])
 void GetWeeksInWeekYear(int weekYear, int expectedResult) {
   expect(expectedResult,
       WeekYearRules.iso.getWeeksInWeekYear(weekYear, CalendarSystem.iso));
@@ -116,32 +194,12 @@ void GetWeeksInWeekYear(int weekYear, int expectedResult) {
 
 // Ported from LocalDateTest.BasicProperties
 // See http://stackoverflow.com/questions/8010125
-@Test()
-@TestCase([2007, 12, 31, 1])
-@TestCase([2008, 1, 6, 1])
-@TestCase([2008, 1, 7, 2])
-@TestCase([2008, 12, 28, 52])
-@TestCase([2008, 12, 29, 1])
-@TestCase([2009, 1, 4, 1])
-@TestCase([2009, 1, 5, 2])
-@TestCase([2009, 12, 27, 52])
-@TestCase([2009, 12, 28, 53])
-@TestCase([2010, 1, 3, 53])
-@TestCase([2010, 1, 4, 1])
 void WeekOfWeekYear_ComparisonWithOracle(
     int year, int month, int day, int weekOfWeekYear) {
   var date = LocalDate(year, month, day);
   expect(weekOfWeekYear, WeekYearRules.iso.getWeekOfWeekYear(date));
 }
 
-@Test()
-@TestCase([2000, DayOfWeek.saturday, 2])
-@TestCase([2001, DayOfWeek.monday, 7])
-@TestCase([2002, DayOfWeek.tuesday, 6])
-@TestCase([2003, DayOfWeek.wednesday, 5])
-@TestCase([2004, DayOfWeek.thursday, 4])
-@TestCase([2005, DayOfWeek.saturday, 2])
-@TestCase([2006, DayOfWeek.sunday, 1])
 void Gregorian(int year, DayOfWeek firstDayOfYear,
     int maxMinDaysInFirstWeekForSameWeekYear) {
   var startOfCalendarYear = LocalDate(year, 1, 1);
@@ -165,11 +223,6 @@ void Gregorian(int year, DayOfWeek firstDayOfYear,
 // Test cases from https://blogs.msdn.microsoft.com/shawnste/2006/01/24/iso-8601-week-of-year-format-in-microsoft-net/
 // which distinguish our ISO option from the BCL. When we implement the BCL equivalents, we should have similar
 // tests there...
-@Test()
-@TestCase([2000, 12, 31, 2000, 52, DayOfWeek.sunday])
-@TestCase([2001, 1, 1, 2001, 1, DayOfWeek.monday])
-@TestCase([2005, 1, 1, 2004, 53, DayOfWeek.saturday])
-@TestCase([2007, 12, 31, 2008, 1, DayOfWeek.monday])
 void Iso(int year, int month, int day, int weekYear, int weekOfWeekYear,
     DayOfWeek dayOfWeek) {
   var viaCalendar = LocalDate(year, month, day);
@@ -183,18 +236,6 @@ void Iso(int year, int month, int day, int weekYear, int weekOfWeekYear,
 }
 
 /// Just a sample test of not using the Gregorian/ISO calendar system.
-@Test()
-@TestCase([5400, DayOfWeek.thursday, 1639, 9, 29, 51, 5400, 1])
-@TestCase([5401, DayOfWeek.monday, 1640, 9, 17, 50, 5401, 1])
-@TestCase([5402, DayOfWeek.thursday, 1641, 9, 5, 55, 5402, 1])
-@TestCase([5403, DayOfWeek.thursday, 1642, 9, 25, 51, 5403, 1])
-@TestCase([5404, DayOfWeek.monday, 1643, 9, 14, 55, 5404, 1])
-@TestCase([5405, DayOfWeek.saturday, 1644, 10, 1, 50, 5404, 55])
-@TestCase([5406, DayOfWeek.thursday, 1645, 9, 21, 51, 5406, 1])
-@TestCase([5407, DayOfWeek.monday, 1646, 9, 10, 55, 5407, 1])
-@TestCase([5408, DayOfWeek.monday, 1647, 9, 30, 50, 5408, 1])
-@TestCase([5409, DayOfWeek.thursday, 1648, 9, 17, 51, 5409, 1])
-@TestCase([5410, DayOfWeek.tuesday, 1649, 9, 7, 55, 5410, 1])
 void HebrewCalendar(
     int year,
     DayOfWeek expectedFirstDay,
@@ -240,12 +281,6 @@ void HebrewCalendar(
 // Jan 1st 2015 = Thursday
 // Jan 1st 2016 = IsoDayOfWeek.friday
 // Jan 1st 2017 = Sunday
-@Test()
-@TestCase([1, DayOfWeek.wednesday, 2015, 2, DayOfWeek.friday, 2015, 1, 9])
-@TestCase([7, DayOfWeek.wednesday, 2015, 2, DayOfWeek.friday, 2015, 1, 16])
-@TestCase([1, DayOfWeek.wednesday, 2015, 1, DayOfWeek.wednesday, 2014, 12, 31])
-@TestCase([3, DayOfWeek.friday, 2016, 1, DayOfWeek.friday, 2016, 1, 1])
-@TestCase([3, DayOfWeek.friday, 2017, 1, DayOfWeek.friday, 2016, 12, 30])
 // We might want to add more tests here...
 void NonMondayFirstDayOfWeek(
     int minDaysInFirstWeek,
@@ -371,5 +406,3 @@ date.DayOfWeek));
 */
 
 // TODO: Test the difference in ValidateWeekYear for 9999 between regular and non-regular rules.
-
-

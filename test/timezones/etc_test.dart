@@ -19,13 +19,14 @@ Future main() async {
   await TimeMachineTest.initialize();
   tzdb = DateTimeZoneProviders.defaultProvider!;
 
-  await runTests();
+  test('FixedEasternZone', FixedEasternZone,
+      skip: 'Aliases not yet available?');
+  test('FixedWesternZone', FixedWesternZone,
+      skip: 'Aliases not yet available?');
 }
 
 // todo: these don't work at all; I'm guessing these come from Aliases?
 
-@Test()
-@SkipMe('Aliases not yet available?')
 Future FixedEasternZone() async {
   String id = 'Etc/GMT+5';
   var zone = await tzdb[id];
@@ -35,8 +36,6 @@ Future FixedEasternZone() async {
   expect(Offset.hours(-5), fixedZone.offset);
 }
 
-@Test()
-@SkipMe('Aliases not yet available?')
 Future FixedWesternZone() async {
   String id = 'Etc/GMT-4';
   var zone = await tzdb[id];

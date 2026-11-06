@@ -7,6 +7,7 @@ import 'dart:async';
 import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
+import 'package:parameterized_test/parameterized_test.dart';
 
 import '../time_machine_testing.dart';
 import 'pattern_test_base.dart';
@@ -20,7 +21,27 @@ Future main() async {
   await TimeMachineTest.initialize();
   await setup();
 
-  await runTests();
+  group('LocalTimePatternTest', () {
+    final fixture = LocalTimePatternTest();
+    test('TemplateValue_DefaultsToMidnight',
+        fixture.TemplateValue_DefaultsToMidnight);
+    test('CreateWithCurrentCulture', fixture.CreateWithCurrentCulture);
+    test('WithTemplateValue_PropertyFetch',
+        fixture.WithTemplateValue_PropertyFetch);
+    parameterizedTest(
+        'InvalidPatterns', fixture.InvalidPatternData, fixture.InvalidPatterns,
+        customDescriptionBuilder: describeArguments);
+    parameterizedTest(
+        'ParseFailures', fixture.ParseFailureData, fixture.ParseFailures,
+        customDescriptionBuilder: describeArguments);
+    parameterizedTest('Parse', fixture.ParseData.toList(), fixture.Parse,
+        customDescriptionBuilder: describeArguments);
+    parameterizedTest('Format', fixture.FormatData.toList(), fixture.Format,
+        customDescriptionBuilder: describeArguments);
+    parameterizedTest(
+        'AppendFormat', fixture.FormatData.toList(), fixture.AppendFormat,
+        customDescriptionBuilder: describeArguments);
+  });
 }
 
 Future setup() async {
@@ -33,7 +54,6 @@ Future setup() async {
   print('Time to load cultures: ${sw.elapsedMilliseconds} ms;');
 }
 
-@Test()
 class LocalTimePatternTest extends PatternTestBase<LocalTime> {
   List<Culture> get Cultures => _allCultures;
   @private
@@ -1036,13 +1056,11 @@ AssertBclNodaEquality(culture, culture.DateTimeFormat.ShortTimePattern);
   //   expect(() => LocalTimePattern.createWithCulture('HH', null), throwsArgumentError);
   // }
 
-  @Test()
   void TemplateValue_DefaultsToMidnight() {
     var pattern = LocalTimePattern.createWithInvariantCulture('HH');
     expect(LocalTime.midnight, pattern.templateValue);
   }
 
-  @Test()
   void CreateWithCurrentCulture() {
     // using (CultureSaver.SetCultures(TestCultures.DotTimeSeparator))
     Culture.current = TestCultures.DotTimeSeparator;
@@ -1053,7 +1071,6 @@ AssertBclNodaEquality(culture, culture.DateTimeFormat.ShortTimePattern);
     }
   }
 
-  @Test()
   void WithTemplateValue_PropertyFetch() {
     LocalTime newValue = LocalTime(1, 23, 45);
     var pattern = LocalTimePattern.createWithInvariantCulture('HH')

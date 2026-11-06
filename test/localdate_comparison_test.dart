@@ -2,18 +2,25 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'dart:async';
-
 import 'package:time_machine2/src/time_machine_internal.dart';
 import 'package:test/test.dart';
 
-import 'time_machine_testing.dart';
-
-Future main() async {
-  await runTests();
+void main() {
+  test('Equals_EqualValues', Equals_EqualValues);
+  test('Equals_DifferentDates', Equals_DifferentDates);
+  test('Equals_DifferentCalendars', Equals_DifferentCalendars);
+  test('Equals_DifferentToOtherType', Equals_DifferentToOtherType);
+  test('ComparisonOperators_SameCalendar', ComparisonOperators_SameCalendar);
+  test('ComparisonOperators_DifferentCalendars_Throws',
+      ComparisonOperators_DifferentCalendars_Throws);
+  test('CompareTo_SameCalendar', CompareTo_SameCalendar);
+  test('CompareTo_DifferentCalendars_Throws',
+      CompareTo_DifferentCalendars_Throws);
+  test('IComparableCompareTo_SameCalendar', IComparableCompareTo_SameCalendar);
+  test('MinMax_DifferentCalendars_Throws', MinMax_DifferentCalendars_Throws);
+  test('MinMax_SameCalendar', MinMax_SameCalendar);
 }
 
-@Test()
 void Equals_EqualValues() {
   CalendarSystem calendar = CalendarSystem.julian;
   LocalDate date1 = LocalDate(2011, 1, 2, calendar);
@@ -25,7 +32,6 @@ void Equals_EqualValues() {
   expect(date1.equals(date2), isTrue); // IEquatable implementation
 }
 
-@Test()
 void Equals_DifferentDates() {
   CalendarSystem calendar = CalendarSystem.julian;
   LocalDate date1 = LocalDate(2011, 1, 2, calendar);
@@ -37,7 +43,6 @@ void Equals_DifferentDates() {
   expect(date1.equals(date2), isFalse); // IEquatable implementation
 }
 
-@Test()
 void Equals_DifferentCalendars() {
   CalendarSystem calendar = CalendarSystem.julian;
   LocalDate date1 = LocalDate(2011, 1, 2, calendar);
@@ -49,14 +54,12 @@ void Equals_DifferentCalendars() {
   expect(date1.equals(date2), isFalse); // IEquatable implementation
 }
 
-@Test()
 void Equals_DifferentToOtherType() {
   LocalDate date = LocalDate(2011, 1, 2);
   // ignore: unrelated_type_equality_checks
   expect(date == Instant.fromEpochMicroseconds(0), isFalse);
 }
 
-@Test()
 void ComparisonOperators_SameCalendar() {
   LocalDate date1 = LocalDate(2011, 1, 2);
   LocalDate date2 = LocalDate(2011, 1, 2);
@@ -83,7 +86,6 @@ void ComparisonOperators_SameCalendar() {
   expect(date3 >= date1, isTrue);
 }
 
-@Test()
 void ComparisonOperators_DifferentCalendars_Throws() {
   LocalDate date1 = LocalDate(2011, 1, 2);
   LocalDate date2 = LocalDate(2011, 1, 3, CalendarSystem.julian);
@@ -95,7 +97,6 @@ void ComparisonOperators_DifferentCalendars_Throws() {
   expect(() => (date1 >= date2).toString(), throwsArgumentError);
 }
 
-@Test()
 void CompareTo_SameCalendar() {
   LocalDate date1 = LocalDate(2011, 1, 2);
   LocalDate date2 = LocalDate(2011, 1, 2);
@@ -106,7 +107,6 @@ void CompareTo_SameCalendar() {
   expect(date3.compareTo(date2), greaterThan(0));
 }
 
-@Test()
 void CompareTo_DifferentCalendars_Throws() {
   CalendarSystem islamic = CalendarSystem.getIslamicCalendar(
       IslamicLeapYearPattern.base15, IslamicEpoch.astronomical);
@@ -121,7 +121,6 @@ void CompareTo_DifferentCalendars_Throws() {
 }
 
 /// IComparable.CompareTo works properly with LocalDate inputs with same calendar.
-@Test()
 void IComparableCompareTo_SameCalendar() {
   var instance = LocalDate(2012, 3, 5);
   Comparable<LocalDate> i_instance = instance;
@@ -160,7 +159,6 @@ void IComparableCompareTo_SameCalendar() {
 //  expect(() => i_instance.compareTo(arg), throwsArgumentError);
 //}
 
-@Test()
 void MinMax_DifferentCalendars_Throws() {
   LocalDate date1 = LocalDate(2011, 1, 2);
   LocalDate date2 = LocalDate(1500, 1, 1, CalendarSystem.julian);
@@ -170,7 +168,6 @@ void MinMax_DifferentCalendars_Throws() {
   expect(() => LocalDate.min(date1, date2), throwsArgumentError);
 }
 
-@Test()
 void MinMax_SameCalendar() {
   LocalDate date1 = LocalDate(1500, 1, 2, CalendarSystem.julian);
   LocalDate date2 = LocalDate(1500, 1, 1, CalendarSystem.julian);

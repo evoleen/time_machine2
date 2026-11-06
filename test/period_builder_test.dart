@@ -2,20 +2,21 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'dart:async';
-
 import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
 //import 'package:matcher/matcher.dart';
 
-import 'time_machine_testing.dart';
-
-Future main() async {
-  await runTests();
+void main() {
+  test('Indexer_Getter_ValidUnits', Indexer_Getter_ValidUnits);
+  test('Index_Getter_InvalidUnits', Index_Getter_InvalidUnits);
+  test('Indexer_Setter_ValidUnits', Indexer_Setter_ValidUnits);
+  test('Index_Setter_InvalidUnits', Index_Setter_InvalidUnits);
+  test('Build_SingleUnit', Build_SingleUnit);
+  test('Build_MultipleUnits', Build_MultipleUnits);
+  test('Build_Zero', Build_Zero);
 }
 
-@Test()
 void Indexer_Getter_ValidUnits() {
   var builder = PeriodBuilder()
     ..months = 1
@@ -42,7 +43,6 @@ void Indexer_Getter_ValidUnits() {
 
 void Call(Object ignored) {}
 
-@Test()
 void Index_Getter_InvalidUnits() {
   var builder = PeriodBuilder();
   expect(() => Call(builder[const PeriodUnits(0)]), throwsArgumentError);
@@ -50,7 +50,6 @@ void Index_Getter_InvalidUnits() {
   expect(() => Call(builder[PeriodUnits.dateAndTime]), throwsArgumentError);
 }
 
-@Test()
 void Indexer_Setter_ValidUnits() {
   var builder = PeriodBuilder();
   builder[PeriodUnits.months] = 1;
@@ -76,7 +75,6 @@ void Indexer_Setter_ValidUnits() {
   expect(expected, builder.build());
 }
 
-@Test()
 void Index_Setter_InvalidUnits() {
   var builder = PeriodBuilder();
   expect(() => builder[const PeriodUnits(0)] = 1, throwsArgumentError);
@@ -84,14 +82,12 @@ void Index_Setter_InvalidUnits() {
   expect(() => builder[PeriodUnits.dateAndTime] = 1, throwsArgumentError);
 }
 
-@Test()
 void Build_SingleUnit() {
   Period period = (PeriodBuilder()..hours = 10).build();
   Period expected = const Period(hours: 10);
   expect(expected, period);
 }
 
-@Test()
 void Build_MultipleUnits() {
   Period period = (PeriodBuilder()
         ..days = 5
@@ -101,7 +97,6 @@ void Build_MultipleUnits() {
   expect(expected, period);
 }
 
-@Test()
 void Build_Zero() {
   expect(Period.zero, PeriodBuilder().build());
 }

@@ -2,15 +2,49 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'dart:async';
-
 import 'package:time_machine2/src/time_machine_internal.dart';
 import 'package:test/test.dart';
 
 import '../time_machine_testing.dart';
 
-Future main() async {
-  await runTests();
+void main() {
+  test('Construct_InvalidMonth_Exception', Construct_InvalidMonth_Exception);
+  test('Construct_InvalidDayOfMonth_Exception',
+      Construct_InvalidDayOfMonth_Exception);
+  test('Construct_InvalidDayOfWeek_Exception',
+      Construct_InvalidDayOfWeek_Exception);
+  test('Construct_ValidMonths', Construct_ValidMonths);
+  test('Construct_ValidDays', Construct_ValidDays);
+  test('Construct_ValidDaysOfWeek', Construct_ValidDaysOfWeek);
+  test('GetOccurrenceForYear_Defaults_Epoch',
+      GetOccurrenceForYear_Defaults_Epoch);
+  test('GetOccurrenceForYear_Year_1971', GetOccurrenceForYear_Year_1971);
+  test('GetOccurrenceForYear_Milliseconds', GetOccurrenceForYear_Milliseconds);
+  test('GetOccurrenceForYear_WednesdayForward',
+      GetOccurrenceForYear_WednesdayForward);
+  test('GetOccurrenceForYear_WednesdayBackward',
+      GetOccurrenceForYear_WednesdayBackward);
+  test('GetOccurrenceForYear_JanMinusTwo', GetOccurrenceForYear_JanMinusTwo);
+  test('GetOccurrenceForYear_JanFive', GetOccurrenceForYear_JanFive);
+  test('GetOccurrenceForYear_Feb', GetOccurrenceForYear_Feb);
+  test('GetOccurrenceForYear_LastSundayInOctober',
+      GetOccurrenceForYear_LastSundayInOctober);
+  test('GetOccurrenceForYear_ExactlyFeb29th_LeapYear',
+      GetOccurrenceForYear_ExactlyFeb29th_LeapYear);
+  test('GetOccurrenceForYear_ExactlyFeb29th_NotLeapYear',
+      GetOccurrenceForYear_ExactlyFeb29th_NotLeapYear);
+  test('GetOccurrenceForYear_AtLeastFeb29th_LeapYear',
+      GetOccurrenceForYear_AtLeastFeb29th_LeapYear);
+  test('GetOccurrenceForYear_AtLeastFeb29th_NotLeapYear',
+      GetOccurrenceForYear_AtLeastFeb29th_NotLeapYear);
+  test('GetOccurrenceForYear_AtMostFeb29th_LeapYear',
+      GetOccurrenceForYear_AtMostFeb29th_LeapYear);
+  test('GetOccurrenceForYear_AtMostFeb29th_NotLeapYear',
+      GetOccurrenceForYear_AtMostFeb29th_NotLeapYear);
+  test('GetOccurrenceForYear_WithAddDay', GetOccurrenceForYear_WithAddDay);
+  test('GetOccurrenceForYear_WithAddDay_December31st9999',
+      GetOccurrenceForYear_WithAddDay_December31st9999);
+  test('IEquatable_Tests', IEquatable_Tests);
 }
 
 class BclDayOfWeek {
@@ -23,7 +57,6 @@ class BclDayOfWeek {
   static const int Saturday = 6;
 }
 
-@Test()
 void Construct_InvalidMonth_Exception() {
   expect(
       () => ZoneYearOffset(
@@ -42,7 +75,6 @@ void Construct_InvalidMonth_Exception() {
       reason: 'Month -3');
 }
 
-@Test()
 void Construct_InvalidDayOfMonth_Exception() {
   expect(
       () => ZoneYearOffset(
@@ -66,7 +98,6 @@ void Construct_InvalidDayOfMonth_Exception() {
       reason: 'Day of Month -32');
 }
 
-@Test()
 void Construct_InvalidDayOfWeek_Exception() {
   expect(
       () => ZoneYearOffset(
@@ -90,7 +121,6 @@ void Construct_InvalidDayOfWeek_Exception() {
       reason: 'Day of Week -347');
 }
 
-@Test()
 void Construct_ValidMonths() {
   for (int month = 1; month <= 12; month++) {
     expect(
@@ -101,7 +131,6 @@ void Construct_ValidMonths() {
   }
 }
 
-@Test()
 void Construct_ValidDays() {
   for (int day = 1; day <= 31; day++) {
     expect(
@@ -119,7 +148,6 @@ void Construct_ValidDays() {
   }
 }
 
-@Test()
 void Construct_ValidDaysOfWeek() {
   for (int dayOfWeek = 0; dayOfWeek <= 7; dayOfWeek++) {
     expect(
@@ -130,7 +158,6 @@ void Construct_ValidDaysOfWeek() {
   }
 }
 
-@Test()
 void GetOccurrenceForYear_Defaults_Epoch() {
   var offset =
       ZoneYearOffset(TransitionMode.utc, 1, 1, 0, true, LocalTime.midnight);
@@ -140,7 +167,6 @@ void GetOccurrenceForYear_Defaults_Epoch() {
   expect(expected, actual);
 }
 
-@Test()
 void GetOccurrenceForYear_Year_1971() {
   var offset =
       ZoneYearOffset(TransitionMode.utc, 1, 1, 0, true, LocalTime.midnight);
@@ -150,7 +176,6 @@ void GetOccurrenceForYear_Year_1971() {
   expect(expected, actual);
 }
 
-@Test()
 void GetOccurrenceForYear_Milliseconds() {
   var offset = ZoneYearOffset(
       TransitionMode.utc, 1, 1, 0, true, LocalTime(0, 0, 0, ms: 1));
@@ -160,7 +185,6 @@ void GetOccurrenceForYear_Milliseconds() {
   expect(expected, actual);
 }
 
-@Test()
 void GetOccurrenceForYear_WednesdayForward() {
   var offset = ZoneYearOffset(TransitionMode.utc, 1, 1, BclDayOfWeek.Wednesday,
       true, LocalTime.midnight);
@@ -170,7 +194,6 @@ void GetOccurrenceForYear_WednesdayForward() {
   expect(expected, actual);
 }
 
-@Test()
 void GetOccurrenceForYear_WednesdayBackward() {
   var offset = ZoneYearOffset(TransitionMode.utc, 1, 15, BclDayOfWeek.Wednesday,
       false, LocalTime.midnight);
@@ -180,7 +203,6 @@ void GetOccurrenceForYear_WednesdayBackward() {
   expect(expected, actual);
 }
 
-@Test()
 void GetOccurrenceForYear_JanMinusTwo() {
   var offset =
       ZoneYearOffset(TransitionMode.utc, 1, -2, 0, true, LocalTime.midnight);
@@ -190,7 +212,6 @@ void GetOccurrenceForYear_JanMinusTwo() {
   expect(expected, actual);
 }
 
-@Test()
 void GetOccurrenceForYear_JanFive() {
   var offset =
       ZoneYearOffset(TransitionMode.utc, 1, 5, 0, true, LocalTime.midnight);
@@ -200,7 +221,6 @@ void GetOccurrenceForYear_JanFive() {
   expect(expected, actual);
 }
 
-@Test()
 void GetOccurrenceForYear_Feb() {
   var offset =
       ZoneYearOffset(TransitionMode.utc, 2, 1, 0, true, LocalTime.midnight);
@@ -210,7 +230,6 @@ void GetOccurrenceForYear_Feb() {
   expect(expected, actual);
 }
 
-@Test()
 void GetOccurrenceForYear_LastSundayInOctober() {
   ZoneYearOffset offset = ZoneYearOffset(TransitionMode.utc, 10, -1,
       DayOfWeek.sunday.value, false, LocalTime.midnight);
@@ -220,7 +239,6 @@ void GetOccurrenceForYear_LastSundayInOctober() {
   expect(expected, actual);
 }
 
-@Test()
 void GetOccurrenceForYear_ExactlyFeb29th_LeapYear() {
   ZoneYearOffset offset =
       ZoneYearOffset(TransitionMode.utc, 2, 29, 0, false, LocalTime.midnight);
@@ -230,7 +248,6 @@ void GetOccurrenceForYear_ExactlyFeb29th_LeapYear() {
   expect(expected, actual);
 }
 
-@Test()
 void GetOccurrenceForYear_ExactlyFeb29th_NotLeapYear() {
   ZoneYearOffset offset =
       ZoneYearOffset(TransitionMode.utc, 2, 29, 0, false, LocalTime.midnight);
@@ -240,7 +257,6 @@ void GetOccurrenceForYear_ExactlyFeb29th_NotLeapYear() {
   expect(expected, actual);
 }
 
-@Test()
 void GetOccurrenceForYear_AtLeastFeb29th_LeapYear() {
   ZoneYearOffset offset = ZoneYearOffset(TransitionMode.utc, 2, 29,
       DayOfWeek.sunday.value, true, LocalTime.midnight);
@@ -250,7 +266,6 @@ void GetOccurrenceForYear_AtLeastFeb29th_LeapYear() {
   expect(expected, actual);
 }
 
-@Test()
 void GetOccurrenceForYear_AtLeastFeb29th_NotLeapYear() {
   ZoneYearOffset offset = ZoneYearOffset(TransitionMode.utc, 2, 29,
       DayOfWeek.sunday.value, true, LocalTime.midnight);
@@ -260,7 +275,6 @@ void GetOccurrenceForYear_AtLeastFeb29th_NotLeapYear() {
   expect(expected, actual);
 }
 
-@Test()
 void GetOccurrenceForYear_AtMostFeb29th_LeapYear() {
   ZoneYearOffset offset = ZoneYearOffset(TransitionMode.utc, 2, 29,
       DayOfWeek.sunday.value, false, LocalTime.midnight);
@@ -270,7 +284,6 @@ void GetOccurrenceForYear_AtMostFeb29th_LeapYear() {
   expect(expected, actual);
 }
 
-@Test()
 void GetOccurrenceForYear_AtMostFeb29th_NotLeapYear() {
   ZoneYearOffset offset = ZoneYearOffset(TransitionMode.utc, 2, 29,
       DayOfWeek.sunday.value, false, LocalTime.midnight);
@@ -280,7 +293,6 @@ void GetOccurrenceForYear_AtMostFeb29th_NotLeapYear() {
   expect(expected, actual);
 }
 
-@Test()
 void GetOccurrenceForYear_WithAddDay() {
   // Last Thursday in October, then add 24 hours. The last Thursday in October 2013 is the 31st, so
   // we should get the start of November 1st.
@@ -292,7 +304,6 @@ void GetOccurrenceForYear_WithAddDay() {
   expect(expected, actual);
 }
 
-@Test()
 void GetOccurrenceForYear_WithAddDay_December31st9999() {
   var offset = ZoneYearOffset(
       TransitionMode.utc, 12, 31, 0, false, LocalTime.midnight, true);
@@ -315,7 +326,6 @@ void Serialization()
   dio.TestZoneYearOffset(expected);
 }*/
 
-@Test()
 void IEquatable_Tests() {
   var value = ZoneYearOffset(TransitionMode.utc, 10, 31,
       DayOfWeek.wednesday.value, true, LocalTime.midnight);

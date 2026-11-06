@@ -4,20 +4,175 @@
 // --- https://github.com/nodatime/nodatime/blob/master/src/NodaTime.Test/InstantTest.cs
 // --- 0913621  on Aug 26, 2017
 
-import 'dart:async';
-
 import 'package:time_machine2/src/time_machine_internal.dart';
 import 'package:test/test.dart';
+import 'package:parameterized_test/parameterized_test.dart';
 
 import 'time_machine_testing.dart';
 
-Future main() async {
-  await TimeMachineTest.initialize();
-  await runTests();
+void main() {
+  setUpAll(TimeMachineTest.initialize);
+
+  test('DefaultConstructor', DefaultConstructor);
+  parameterizedTest(
+      'Int64Conversions',
+      [
+        [Platform.int64MinValue + 1],
+        [-TimeConstants.nanosecondsPerDay - 1],
+        [-TimeConstants.nanosecondsPerDay],
+        [-TimeConstants.nanosecondsPerDay + 1],
+        [-1],
+        [0],
+        [1],
+        [TimeConstants.nanosecondsPerDay - 1],
+        [TimeConstants.nanosecondsPerDay],
+        [TimeConstants.nanosecondsPerDay + 1],
+        [Platform.int64MaxValue - 1],
+        [Platform.int64MaxValue],
+      ],
+      Int64Conversions,
+      customDescriptionBuilder: describeArguments);
+  parameterizedTest(
+      'BigIntegerConversions',
+      [
+        [Platform.int64MinValue],
+        [Platform.int64MinValue + 1],
+        [-TimeConstants.nanosecondsPerDay - 1],
+        [-TimeConstants.nanosecondsPerDay],
+        [-TimeConstants.nanosecondsPerDay + 1],
+        [-1],
+        [0],
+        [1],
+        [TimeConstants.nanosecondsPerDay - 1],
+        [TimeConstants.nanosecondsPerDay],
+        [TimeConstants.nanosecondsPerDay + 1],
+        [Platform.int64MaxValue - 1],
+        [Platform.int64MaxValue],
+      ],
+      BigIntegerConversions,
+      customDescriptionBuilder: describeArguments);
+  test('ConstituentParts_Positive', ConstituentParts_Positive);
+  test('ConstituentParts_Negative', ConstituentParts_Negative);
+  test('ConstituentParts_Large', ConstituentParts_Large);
+  parameterizedTest(
+      'Addition_Subtraction',
+      [
+        [1, 100, 2, 200, 3, 300],
+        [1, TimeConstants.nanosecondsPerDay - 5, 3, 100, 5, 95]
+            .options(customDescriptionBuilder: (_, __, ___) => 'Overflow'),
+        [
+          1,
+          10,
+          -1,
+          TimeConstants.nanosecondsPerDay - 100,
+          0,
+          TimeConstants.nanosecondsPerDay - 90
+        ].options(customDescriptionBuilder: (_, __, ___) => 'Underflow'),
+      ],
+      Addition_Subtraction,
+      customDescriptionBuilder: describeArguments);
+  test('Equality', Equality);
+  test('Comparison', Comparison);
+  parameterizedTest(
+      'Multiplication',
+      [
+        [
+          1,
+          5,
+          2,
+          2,
+          10
+        ].options(customDescriptionBuilder: (_, __, ___) => 'Small, positive'),
+        [
+          -1,
+          TimeConstants.nanosecondsPerDay - 10,
+          2,
+          -1,
+          TimeConstants.nanosecondsPerDay - 20
+        ].options(customDescriptionBuilder: (_, __, ___) => 'Small, negative'),
+        [365000, 1, 2, 365000 * 2, 2].options(
+            customDescriptionBuilder: (_, __, ___) =>
+                'More than 2^63 nanos before multiplication'),
+        [1000, 1, 365, 365000, 365].options(
+            customDescriptionBuilder: (_, __, ___) =>
+                'More than 2^63 nanos after multiplication'),
+        [1000, 1, -365, -365001, TimeConstants.nanosecondsPerDay - 365].options(
+            customDescriptionBuilder: (_, __, ___) =>
+                'Less than -2^63 nanos after multiplication'),
+        [0, 1, TimeConstants.nanosecondsPerDay, 1, 0]
+            .options(customDescriptionBuilder: (_, __, ___) => 'Large scalar'),
+      ],
+      Multiplication,
+      customDescriptionBuilder: describeArguments);
+  parameterizedTest(
+      'UnaryNegation',
+      [
+        [0, 0, 0, 0],
+        [1, 0, -1, 0],
+        [0, 500, -1, TimeConstants.nanosecondsPerDay - 500],
+        [365000, 500, -365001, TimeConstants.nanosecondsPerDay - 500],
+      ],
+      UnaryNegation,
+      customDescriptionBuilder: describeArguments);
+  parameterizedTest(
+      'Division',
+      [
+        [
+          -1,
+          TimeConstants.nanosecondsPerDay - 1,
+          TimeConstants.nanosecondsPerDay,
+          0,
+          0
+        ],
+        [0, 0, TimeConstants.nanosecondsPerDay, 0, 0],
+        [0, 1, TimeConstants.nanosecondsPerDay, 0, 0],
+        [
+          -2,
+          TimeConstants.nanosecondsPerDay - 1,
+          TimeConstants.nanosecondsPerDay,
+          -1,
+          TimeConstants.nanosecondsPerDay - 1
+        ],
+        [
+          -1,
+          0,
+          TimeConstants.nanosecondsPerDay,
+          -1,
+          TimeConstants.nanosecondsPerDay - 1
+        ],
+        [-1, 1, TimeConstants.nanosecondsPerDay, 0, 0],
+        [
+          0,
+          TimeConstants.nanosecondsPerDay - 1,
+          TimeConstants.nanosecondsPerDay,
+          0,
+          0
+        ],
+        [1, 0, TimeConstants.nanosecondsPerDay, 0, 1],
+        [
+          1,
+          TimeConstants.nanosecondsPerDay - 1,
+          TimeConstants.nanosecondsPerDay,
+          0,
+          1
+        ],
+        [10, 20, 5, 2, 4],
+        [365000, 3000, 1000, 365, 3],
+      ],
+      Division,
+      customDescriptionBuilder: describeArguments);
+  test('Validation', Validation);
+  test('PositiveComponents', PositiveComponents);
+  test('NegativeComponents', NegativeComponents);
+  test('PositiveTotals', PositiveTotals);
+  test('NegativeTotals', NegativeTotals);
+  test('MaxMinRelationship', MaxMinRelationship);
+  test('Max', Max);
+  test('Min', Min);
+  test('ComplexConstructor', ComplexConstructor);
 }
 
 /// Using the default constructor is equivalent to Span.Zero.
-@Test()
 void DefaultConstructor() {
   var actual = Time();
   expect(Time.zero, actual);
@@ -26,21 +181,8 @@ void DefaultConstructor() {
 // Tests copied from Nanoseconds in its brief existence... there may well be some overlap between
 // this and older Time tests.
 
-@Test()
 // todo: this doesn't work so well, because the `%` operation fails here, see Duration.Dart#L128 :: nanoseconds = nanoseconds % TimeConstants.nanosecondsPerMillisecond;
 // @TestCase(const [Platform.int64MinValue])
-@TestCase([Platform.int64MinValue + 1])
-@TestCase([-TimeConstants.nanosecondsPerDay - 1])
-@TestCase([-TimeConstants.nanosecondsPerDay])
-@TestCase([-TimeConstants.nanosecondsPerDay + 1])
-@TestCase([-1])
-@TestCase([0])
-@TestCase([1])
-@TestCase([TimeConstants.nanosecondsPerDay - 1])
-@TestCase([TimeConstants.nanosecondsPerDay])
-@TestCase([TimeConstants.nanosecondsPerDay + 1])
-@TestCase([Platform.int64MaxValue - 1])
-@TestCase([Platform.int64MaxValue])
 void Int64Conversions(int int64Nanos) {
   if (Platform.isVM) {
     var nanoseconds = Time(nanoseconds: int64Nanos);
@@ -48,20 +190,6 @@ void Int64Conversions(int int64Nanos) {
   }
 }
 
-@Test()
-@TestCase([Platform.int64MinValue])
-@TestCase([Platform.int64MinValue + 1])
-@TestCase([-TimeConstants.nanosecondsPerDay - 1])
-@TestCase([-TimeConstants.nanosecondsPerDay])
-@TestCase([-TimeConstants.nanosecondsPerDay + 1])
-@TestCase([-1])
-@TestCase([0])
-@TestCase([1])
-@TestCase([TimeConstants.nanosecondsPerDay - 1])
-@TestCase([TimeConstants.nanosecondsPerDay])
-@TestCase([TimeConstants.nanosecondsPerDay + 1])
-@TestCase([Platform.int64MaxValue - 1])
-@TestCase([Platform.int64MaxValue])
 void BigIntegerConversions(int int64Nanos) {
   var bigIntegerNanos = BigInt.from(int64Nanos);
   var nanoseconds = Time.bigIntNanoseconds(bigIntegerNanos);
@@ -73,7 +201,6 @@ void BigIntegerConversions(int int64Nanos) {
   expect(bigIntegerNanos, nanoseconds.inNanosecondsAsBigInt);
 }
 
-@Test()
 void ConstituentParts_Positive() {
   var nanos = Time(nanoseconds: TimeConstants.nanosecondsPerDay * 5 + 100);
   expect(5, Instant.epochTime(nanos).epochDay);
@@ -82,7 +209,6 @@ void ConstituentParts_Positive() {
   expect(100, Instant.epochTime(nanos).epochDayTime.inNanoseconds);
 }
 
-@Test()
 void ConstituentParts_Negative() {
   var nanos = Time(nanoseconds: TimeConstants.nanosecondsPerDay * -5 + 100);
   expect(-5, Instant.epochTime(nanos).epochDay);
@@ -91,7 +217,6 @@ void ConstituentParts_Negative() {
   expect(100, ITime.nanosecondOfEpochDay(nanos));
 }
 
-@Test()
 void ConstituentParts_Large() {
   // And outside the normal range of long...
   var nanos = Time.bigIntNanoseconds(
@@ -105,17 +230,6 @@ void ConstituentParts_Large() {
   }
 }
 
-@Test()
-@TestCase([1, 100, 2, 200, 3, 300])
-@TestCase([1, TimeConstants.nanosecondsPerDay - 5, 3, 100, 5, 95], 'Overflow')
-@TestCase([
-  1,
-  10,
-  -1,
-  TimeConstants.nanosecondsPerDay - 100,
-  0,
-  TimeConstants.nanosecondsPerDay - 90
-], 'Underflow')
 void Addition_Subtraction(int leftDays, int leftNanos, int rightDays,
     int rightNanos, int resultDays, int resultNanos) {
   var left = Time(days: leftDays, nanoseconds: leftNanos);
@@ -131,7 +245,6 @@ void Addition_Subtraction(int leftDays, int leftNanos, int rightDays,
 // expect(left, Span.subtract(result, right));
 }
 
-@Test()
 void Equality() {
   var equal1 = Time(days: 1, nanoseconds: TimeConstants.nanosecondsPerHour);
   var equal2 = Time(microseconds: TimeConstants.microsecondsPerHour * 25);
@@ -146,7 +259,6 @@ void Equality() {
   TestHelper.TestOperatorEquality(equal1, equal2, different2);
 }
 
-@Test()
 void Comparison() {
   var equal1 = Time(days: 1, nanoseconds: TimeConstants.nanosecondsPerHour);
   var equal2 = Time(microseconds: TimeConstants.microsecondsPerHour * 25);
@@ -160,22 +272,6 @@ void Comparison() {
       equal1, equal2, [greater1, greater2]);
 }
 
-@Test()
-@TestCase([1, 5, 2, 2, 10], 'Small, positive')
-@TestCase([
-  -1,
-  TimeConstants.nanosecondsPerDay - 10,
-  2,
-  -1,
-  TimeConstants.nanosecondsPerDay - 20
-], 'Small, negative')
-@TestCase(
-    [365000, 1, 2, 365000 * 2, 2], 'More than 2^63 nanos before multiplication')
-@TestCase(
-    [1000, 1, 365, 365000, 365], 'More than 2^63 nanos after multiplication')
-@TestCase([1000, 1, -365, -365001, TimeConstants.nanosecondsPerDay - 365],
-    'Less than -2^63 nanos after multiplication')
-@TestCase([0, 1, TimeConstants.nanosecondsPerDay, 1, 0], 'Large scalar')
 void Multiplication(int startDays, int startNanoOfDay, int scalar,
     int expectedDays, int expectedNanoOfDay) {
   var start = Time(days: startDays, nanoseconds: startNanoOfDay);
@@ -183,11 +279,6 @@ void Multiplication(int startDays, int startNanoOfDay, int scalar,
   expect(expected, start * scalar);
 }
 
-@Test()
-@TestCase([0, 0, 0, 0])
-@TestCase([1, 0, -1, 0])
-@TestCase([0, 500, -1, TimeConstants.nanosecondsPerDay - 500])
-@TestCase([365000, 500, -365001, TimeConstants.nanosecondsPerDay - 500])
 void UnaryNegation(int startDays, int startNanoOfDay, int expectedDays,
     int expectedNanoOfDay) {
   var start = Time(days: startDays, nanoseconds: startNanoOfDay);
@@ -197,55 +288,15 @@ void UnaryNegation(int startDays, int startNanoOfDay, int expectedDays,
   expect(start, -expected);
 }
 
-@Test()
 // Test cases around 0
-@TestCase([
-  -1,
-  TimeConstants.nanosecondsPerDay - 1,
-  TimeConstants.nanosecondsPerDay,
-  0,
-  0
-])
-@TestCase([0, 0, TimeConstants.nanosecondsPerDay, 0, 0])
-@TestCase([0, 1, TimeConstants.nanosecondsPerDay, 0, 0])
 
 // Test cases around dividing -1 day by 'nanos per day'
-@TestCase([
-  -2,
-  TimeConstants.nanosecondsPerDay - 1,
-  TimeConstants.nanosecondsPerDay,
-  -1,
-  TimeConstants.nanosecondsPerDay - 1
-]) // -1ns
-@TestCase([
-  -1,
-  0,
-  TimeConstants.nanosecondsPerDay,
-  -1,
-  TimeConstants.nanosecondsPerDay - 1
-]) // -1ns
-@TestCase([-1, 1, TimeConstants.nanosecondsPerDay, 0, 0])
+// -1ns
+// -1ns
 
 // Test cases around dividing 1 day by 'nanos per day'
-@TestCase([
-  0,
-  TimeConstants.nanosecondsPerDay - 1,
-  TimeConstants.nanosecondsPerDay,
-  0,
-  0
-])
-@TestCase([1, 0, TimeConstants.nanosecondsPerDay, 0, 1])
-@TestCase([
-  1,
-  TimeConstants.nanosecondsPerDay - 1,
-  TimeConstants.nanosecondsPerDay,
-  0,
-  1
-])
-@TestCase([10, 20, 5, 2, 4])
 
 // Large value, which will use decimal arithmetic
-@TestCase([365000, 3000, 1000, 365, 3])
 void Division(int startDays, int startNanoOfDay, int divisor, int expectedDays,
     int expectedNanoOfDay) {
   var start = Time(days: startDays, nanoseconds: startNanoOfDay);
@@ -303,7 +354,6 @@ void Division(int startDays, int startNanoOfDay, int divisor, int expectedDays,
 //  Assert.Throws<OverflowException>(() => Span.MinValue.BclCompatibleTicks.ToString());
 //}
 
-@Test()
 void Validation() {
 //TestHelper.AssertValid(Span.FromDays, (1 << 24) - 1);
 //TestHelper.AssertOutOfRange(Span.FromDays, 1 << 24);
@@ -325,7 +375,6 @@ void Validation() {
 //  Assert.Throws<OverflowException>(() => maxTicks.BclCompatibleTicks.ToString());
 //}
 
-@Test()
 void PositiveComponents() {
   // Worked out with a calculator :)
   Time duration = Time(nanoseconds: 1234567890123456);
@@ -339,7 +388,6 @@ void PositiveComponents() {
   expect(890123456, duration.nanosecondOfSecond);
 }
 
-@Test()
 void NegativeComponents() {
   // Worked out with a calculator :) // -1234567 890123456
   Time duration = Time(nanoseconds: -1234567890123456);
@@ -353,7 +401,6 @@ void NegativeComponents() {
   expect(-890123456, duration.nanosecondOfSecond);
 }
 
-@Test()
 void PositiveTotals() {
   Time duration = Time(days: 4) +
       Time(hours: 3) +
@@ -369,7 +416,6 @@ void PositiveTotals() {
   expect(356521123456789 /*d*/, closeTo(duration.totalNanoseconds, 1));
 }
 
-@Test()
 void NegativeTotals() {
   Time duration = Time(days: -4) +
       Time(hours: -3) +
@@ -384,14 +430,12 @@ void NegativeTotals() {
   expect(-356521123456789 /*d*/, closeTo(duration.totalNanoseconds, 1));
 }
 
-@Test()
 void MaxMinRelationship() {
   // Max and Min work like they do for other signed types - basically the max value is one less than the absolute
   // of the min value.
   expect(Time.minValue, -Time.maxValue - Time.epsilon);
 }
 
-@Test()
 void Max() {
   Time x = Time(nanoseconds: 100);
   Time y = Time(nanoseconds: 200);
@@ -403,7 +447,6 @@ void Max() {
   expect(Time.maxValue, Time.max(x, Time.maxValue));
 }
 
-@Test()
 void Min() {
   Time x = Time(nanoseconds: 100);
   Time y = Time(nanoseconds: 200);
@@ -415,7 +458,6 @@ void Min() {
   expect(x, Time.min(x, Time.maxValue));
 }
 
-@Test()
 void ComplexConstructor() {
   expect(Time(days: 1.5).totalDays, 1.5);
   expect(Time(hours: 1.5).totalHours, 1.5);

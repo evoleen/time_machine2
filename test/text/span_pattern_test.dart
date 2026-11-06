@@ -2,22 +2,37 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'dart:async';
-
 import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
+import 'package:parameterized_test/parameterized_test.dart';
 
 import '../time_machine_testing.dart';
 import 'pattern_test_base.dart';
 import 'pattern_test_data.dart';
 import 'test_cultures.dart';
 
-Future main() async {
-  await runTests();
+void main() {
+  group('SpanPatternTest', () {
+    final fixture = SpanPatternTest();
+    test('WithCulture', fixture.WithCulture);
+    test('CreateWithCurrentCulture', fixture.CreateWithCurrentCulture);
+    parameterizedTest(
+        'InvalidPatterns', fixture.InvalidPatternData, fixture.InvalidPatterns,
+        customDescriptionBuilder: describeArguments);
+    parameterizedTest(
+        'ParseFailures', fixture.ParseFailureData, fixture.ParseFailures,
+        customDescriptionBuilder: describeArguments);
+    parameterizedTest('Parse', fixture.ParseData.toList(), fixture.Parse,
+        customDescriptionBuilder: describeArguments);
+    parameterizedTest('Format', fixture.FormatData.toList(), fixture.Format,
+        customDescriptionBuilder: describeArguments);
+    parameterizedTest(
+        'AppendFormat', fixture.FormatData.toList(), fixture.AppendFormat,
+        customDescriptionBuilder: describeArguments);
+  });
 }
 
-@Test()
 class SpanPatternTest extends PatternTestBase<Time> {
   /// Test data that can only be used to test formatting.
   @internal
@@ -266,7 +281,6 @@ class SpanPatternTest extends PatternTestBase<Time> {
   // @Test()
   // void ParseNull() => AssertParseNull(TimePattern.roundtrip);
 
-  @Test()
   void WithCulture() {
     var pattern = TimePattern.createWithInvariantCulture('H:mm')
         .withCulture(TestCultures.DotTimeSeparator);
@@ -274,7 +288,6 @@ class SpanPatternTest extends PatternTestBase<Time> {
     expect('1.30', text);
   }
 
-  @Test()
   void CreateWithCurrentCulture() {
     Culture.current = TestCultures.DotTimeSeparator;
     // using (CultureSaver.SetCultures(TestCultures.DotTimeSeparator))

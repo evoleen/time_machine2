@@ -2,19 +2,31 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'dart:async';
-
 import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
 
-import 'time_machine_testing.dart';
-
-Future main() async {
-  await runTests();
+void main() {
+  test('Addition_WithPeriod', Addition_WithPeriod);
+  test('Addition_WrapsAtMidnight', Addition_WrapsAtMidnight);
+  test('Subtraction_WithPeriod', Subtraction_WithPeriod);
+  test('Subtraction_WrapsAtMidnight', Subtraction_WrapsAtMidnight);
+  test('Addition_PeriodWithDate', Addition_PeriodWithDate);
+  test('Subtraction_PeriodWithTime', Subtraction_PeriodWithTime);
+  test('PeriodAddition_MethodEquivalents', PeriodAddition_MethodEquivalents);
+  test('PeriodSubtraction_MethodEquivalents',
+      PeriodSubtraction_MethodEquivalents);
+  test('ComparisonOperators', ComparisonOperators);
+  test(
+      'Comparison_IgnoresOriginalCalendar', Comparison_IgnoresOriginalCalendar);
+  test('CompareTo', CompareTo);
+  test('IComparableCompareTo', IComparableCompareTo);
+  test(
+      'IComparableCompareTo_Null_Positive', IComparableCompareTo_Null_Positive);
+  test('IComparableCompareTo_WrongType_ArgumentException',
+      IComparableCompareTo_WrongType_ArgumentException);
 }
 
-@Test()
 void Addition_WithPeriod() {
   LocalTime start = LocalTime(3, 30, 0);
   Period period = const Period(hours: 2) + const Period(seconds: 1);
@@ -22,7 +34,6 @@ void Addition_WithPeriod() {
   expect(expected, start + period);
 }
 
-@Test()
 void Addition_WrapsAtMidnight() {
   LocalTime start = LocalTime(22, 0, 0);
   Period period = const Period(hours: 3);
@@ -39,7 +50,6 @@ void Addition_WrapsAtMidnight() {
 //   expect(() => (date + period).toString(), throwsArgumentError);
 // }
 
-@Test()
 void Subtraction_WithPeriod() {
   LocalTime start = LocalTime(5, 30, 1);
   Period period = const Period(hours: 2) + const Period(seconds: 1);
@@ -47,7 +57,6 @@ void Subtraction_WithPeriod() {
   expect(expected, start - period);
 }
 
-@Test()
 void Subtraction_WrapsAtMidnight() {
   LocalTime start = LocalTime(1, 0, 0);
   Period period = const Period(hours: 3);
@@ -64,7 +73,6 @@ void Subtraction_WrapsAtMidnight() {
 //   expect(() => (date - period).toString(), throwsArgumentError);
 // }
 
-@Test()
 void Addition_PeriodWithDate() {
   LocalTime time = LocalTime(20, 30, 0);
   Period period = const Period(days: 1);
@@ -72,7 +80,6 @@ void Addition_PeriodWithDate() {
   expect(() => LocalTime.plus(time, period), throwsArgumentError);
 }
 
-@Test()
 void Subtraction_PeriodWithTime() {
   LocalTime time = LocalTime(20, 30, 0);
   Period period = const Period(days: 1);
@@ -80,7 +87,6 @@ void Subtraction_PeriodWithTime() {
   expect(() => LocalTime.minus(time, period), throwsArgumentError);
 }
 
-@Test()
 void PeriodAddition_MethodEquivalents() {
   LocalTime start = LocalTime(20, 30, 0);
   Period period = const Period(hours: 3) + const Period(minutes: 10);
@@ -88,7 +94,6 @@ void PeriodAddition_MethodEquivalents() {
   expect(start + period, start.add(period));
 }
 
-@Test()
 void PeriodSubtraction_MethodEquivalents() {
   LocalTime start = LocalTime(20, 30, 0);
   Period period = const Period(hours: 3) + const Period(minutes: 10);
@@ -102,7 +107,6 @@ void PeriodSubtraction_MethodEquivalents() {
   expect(period, end.periodSince(start));
 }
 
-@Test()
 void ComparisonOperators() {
   LocalTime time1 = LocalTime(10, 30, 45);
   LocalTime time2 = LocalTime(10, 30, 45);
@@ -134,7 +138,6 @@ void ComparisonOperators() {
   expect(time3 >= time1, isTrue);
 }
 
-@Test()
 void Comparison_IgnoresOriginalCalendar() {
   LocalDateTime dateTime1 = LocalDateTime(1900, 1, 1, 10, 30, 0);
   LocalDateTime dateTime2 = dateTime1.withCalendar(CalendarSystem.julian);
@@ -144,7 +147,6 @@ void Comparison_IgnoresOriginalCalendar() {
   expect(dateTime1.clockTime == dateTime2.clockTime, isTrue);
 }
 
-@Test()
 void CompareTo() {
   LocalTime time1 = LocalTime(10, 30, 45);
   LocalTime time2 = LocalTime(10, 30, 45);
@@ -156,7 +158,6 @@ void CompareTo() {
 }
 
 /// IComparable.CompareTo works properly for LocalTime inputs.
-@Test()
 void IComparableCompareTo() {
   LocalTime time1 = LocalTime(10, 30, 45);
   LocalTime time2 = LocalTime(10, 30, 45);
@@ -171,7 +172,6 @@ void IComparableCompareTo() {
 }
 
 /// IComparable.CompareTo returns a positive number for a null input.
-@Test()
 void IComparableCompareTo_Null_Positive() {
   var instance = LocalTime(10, 30, 45);
   Comparable i_instance = instance;
@@ -182,7 +182,6 @@ void IComparableCompareTo_Null_Positive() {
 
 /// IComparable.CompareTo throws an ArgumentException for non-null arguments
 /// that are not a LocalTime.
-@Test()
 void IComparableCompareTo_WrongType_ArgumentException() {
   var instance = LocalTime(10, 30, 45);
   Comparable i_instance = instance;

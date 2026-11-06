@@ -11,12 +11,35 @@ import 'package:time_machine2/time_machine2.dart';
 
 import 'time_machine_testing.dart';
 
-Future main() async {
-  await TimeMachineTest.initialize();
-  await runTests();
+void main() {
+  setUpAll(TimeMachineTest.initialize);
+
+  test('LocalDateTimeProperties', LocalDateTimeProperties);
+  test('OffsetProperty', OffsetProperty);
+  test('LocalDateTimeProperty', LocalDateTimeProperty);
+  test('ToInstant', ToInstant);
+  test('Equality', Equality);
+  test('InFixedZone', InFixedZone);
+  test('ToString_WholeHourOffset', ToString_WholeHourOffset);
+  test('ToString_PartHourOffset', ToString_PartHourOffset);
+  test('ToString_Utc', ToString_Utc);
+  test('LocalComparer', LocalComparer, skip: true);
+  test('InstantComparer', InstantComparer, skip: true);
+  test('DefaultConstructor', DefaultConstructor);
+  test('Subtraction_Duration', Subtraction_Duration);
+  test('Addition_Duration', Addition_Duration);
+  test('Subtraction_OffsetDateTime', Subtraction_OffsetDateTime);
+  test('WithOffset', WithOffset);
+  test('WithOffset_CrossDates', WithOffset_CrossDates);
+  test('WithOffset_TwoDaysForwardAndBack', WithOffset_TwoDaysForwardAndBack);
+  test('WithCalendar', WithCalendar);
+  test('With_TimeAdjuster', With_TimeAdjuster);
+  test('With_DateAdjuster', With_DateAdjuster);
+  test('InZone', InZone);
+  test('ToOffsetDate', ToOffsetDate);
+  test('ToOffsetTime', ToOffsetTime);
 }
 
-@Test()
 void LocalDateTimeProperties() {
   // todo: find equivalence
   /*
@@ -39,7 +62,6 @@ void LocalDateTimeProperties() {
   }*/
 }
 
-@Test()
 void OffsetProperty() {
   Offset offset = Offset.hours(5);
 
@@ -48,7 +70,6 @@ void OffsetProperty() {
   expect(offset, odt.offset);
 }
 
-@Test()
 void LocalDateTimeProperty() {
   LocalDateTime local =
       LocalDateTime(2012, 6, 19, 1, 2, 3, calendar: CalendarSystem.julian)
@@ -59,7 +80,6 @@ void LocalDateTimeProperty() {
   expect(local, odt.localDateTime);
 }
 
-@Test()
 void ToInstant() {
   Instant instant = Instant.utc(2012, 6, 25, 16, 5, 20);
   LocalDateTime local = LocalDateTime(2012, 6, 25, 21, 35, 20);
@@ -69,7 +89,6 @@ void ToInstant() {
   expect(instant, odt.toInstant());
 }
 
-@Test()
 void Equality() {
   LocalDateTime local1 = LocalDateTime(2012, 10, 6, 1, 2, 3);
   LocalDateTime local2 = LocalDateTime(2012, 9, 5, 1, 2, 3);
@@ -184,7 +203,6 @@ void Equality() {
 //  expect(expected, actual);
 //}
 
-@Test()
 void InFixedZone() {
   Offset offset = Offset.hours(5);
   LocalDateTime local = LocalDateTime(2012, 1, 2, 3, 4, 0);
@@ -195,7 +213,6 @@ void InFixedZone() {
       ZonedDateTime.atStrictly(local, DateTimeZone.forOffset(offset)), zoned);
 }
 
-@Test()
 void ToString_WholeHourOffset() {
   LocalDateTime local = LocalDateTime(2012, 10, 6, 1, 2, 3);
   Offset offset = Offset.hours(1);
@@ -203,7 +220,6 @@ void ToString_WholeHourOffset() {
   expect('2012-10-06T01:02:03+01', odt.toString());
 }
 
-@Test()
 void ToString_PartHourOffset() {
   LocalDateTime local = LocalDateTime(2012, 10, 6, 1, 2, 3);
   Offset offset = Offset.hoursAndMinutes(1, 30);
@@ -211,7 +227,6 @@ void ToString_PartHourOffset() {
   expect('2012-10-06T01:02:03+01:30', odt.toString());
 }
 
-@Test()
 void ToString_Utc() {
   LocalDateTime local = LocalDateTime(2012, 10, 6, 1, 2, 3);
   OffsetDateTime odt = OffsetDateTime(local, Offset.zero);
@@ -228,8 +243,6 @@ void ToString_Utc() {
 //  expect('2012/10/06 01:02:03 01', odt.toString("yyyy/MM/dd HH:mm:ss o<-HH>", Culture.invariantCulture));
 //}
 
-@Test()
-@SkipMe()
 void LocalComparer() {
   var localControl = LocalDateTime(2013, 4, 2, 19, 54, 0);
   var control = OffsetDateTime(localControl, Offset.zero);
@@ -280,8 +293,6 @@ void LocalComparer() {
   expect(comparer.getHashCode(control), isNot(comparer.getHashCode(control)));
 }
 
-@Test()
-@SkipMe()
 void InstantComparer() {
   var localControl = LocalDateTime(2013, 4, 2, 19, 54, 0);
   var control = OffsetDateTime(localControl, Offset.zero);
@@ -330,7 +341,6 @@ void InstantComparer() {
 }
 
 /// Using the default constructor is equivalent to January 1st 1970, midnight, UTC, ISO calendar
-@Test()
 void DefaultConstructor() {
   // todo: I owe you a default constructor
   var actual = OffsetDateTime(
@@ -340,7 +350,6 @@ void DefaultConstructor() {
   expect(Offset.zero, actual.offset);
 }
 
-@Test()
 void Subtraction_Duration() {
   // Test all three approaches... not bothering to check a different calendar,
   // but we'll use two different offsets.
@@ -354,7 +363,6 @@ void Subtraction_Duration() {
   expect(expected, OffsetDateTime.minus(end, duration));
 }
 
-@Test()
 void Addition_Duration() {
   const int minutes = 23;
   const int hours = 3;
@@ -418,7 +426,6 @@ void Addition_Duration() {
   */
 }
 
-@Test()
 void Subtraction_OffsetDateTime() {
   // Test all three approaches... not bothering to check a different calendar,
   // but we'll use two different offsets.
@@ -433,7 +440,6 @@ void Subtraction_OffsetDateTime() {
   expect(expected, OffsetDateTime.difference(end, start));
 }
 
-@Test()
 void WithOffset() {
   LocalDateTime morning = LocalDateTime(2014, 1, 31, 9, 30, 0);
   OffsetDateTime original = OffsetDateTime(morning, Offset.hours(-8));
@@ -443,7 +449,6 @@ void WithOffset() {
   expect(expected, original.withOffset(newOffset));
 }
 
-@Test()
 void WithOffset_CrossDates() {
   OffsetDateTime noon =
       OffsetDateTime(LocalDateTime(2017, 8, 22, 12, 0, 0), Offset.hours(0));
@@ -453,7 +458,6 @@ void WithOffset_CrossDates() {
   expect(LocalDateTime(2017, 8, 23, 2, 0, 0), nextMorning.localDateTime);
 }
 
-@Test()
 void WithOffset_TwoDaysForwardAndBack() {
   // Go from UTC-18 to UTC+18
   OffsetDateTime night =
@@ -464,7 +468,6 @@ void WithOffset_TwoDaysForwardAndBack() {
   expect(night, backAgain);
 }
 
-@Test()
 void WithCalendar() {
   CalendarSystem julianCalendar = CalendarSystem.julian;
   OffsetDateTime gregorianEpoch =
@@ -477,7 +480,6 @@ void WithCalendar() {
   expect(expected, actual);
 }
 
-@Test()
 void With_TimeAdjuster() {
   Offset offset = Offset.hoursAndMinutes(2, 30);
   OffsetDateTime start = LocalDateTime(2014, 6, 27, 12, 15, 8)
@@ -488,7 +490,6 @@ void With_TimeAdjuster() {
   expect(expected, start.adjustTime(TimeAdjusters.truncateToSecond));
 }
 
-@Test()
 void With_DateAdjuster() {
   Offset offset = Offset.hoursAndMinutes(2, 30);
   OffsetDateTime start = LocalDateTime(2014, 6, 27, 12, 5, 8)
@@ -500,7 +501,6 @@ void With_DateAdjuster() {
   expect(expected, start.adjustDate(DateAdjusters.endOfMonth));
 }
 
-@Test()
 Future InZone() async {
   Offset offset = Offset.hours(-7);
   OffsetDateTime start =
@@ -516,7 +516,6 @@ Future InZone() async {
   expect(expected, zoned);
 }
 
-@Test()
 void ToOffsetDate() {
   var offset = Offset.hoursAndMinutes(2, 30);
   var odt = LocalDateTime(2014, 6, 27, 12, 15, 8)
@@ -526,7 +525,6 @@ void ToOffsetDate() {
   expect(expected, odt.toOffsetDate());
 }
 
-@Test()
 void ToOffsetTime() {
   var offset = Offset.hoursAndMinutes(2, 30);
   var odt = LocalDateTime(2014, 6, 27, 12, 15, 8)

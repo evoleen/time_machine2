@@ -4,7 +4,6 @@
 
 // Port of Noda Time's NodaTime.Test/TimeZones/Cldr/MapZoneTest.cs and
 // WindowsZonesTest.cs.
-import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:test/test.dart';
@@ -15,9 +14,14 @@ import 'package:time_machine2/src/utility/binary_writer.dart';
 
 import 'time_machine_testing.dart';
 
-Future main() async {
-  await TimeMachineTest.initialize();
-  await runTests();
+void main() {
+  setUpAll(TimeMachineTest.initialize);
+
+  test('MapZone_Equality', MapZone_Equality);
+  test('MapZone_ToString', MapZone_ToString);
+  test('MapZone_ReadWrite', MapZone_ReadWrite);
+  test('WindowsZones_Properties', WindowsZones_Properties);
+  test('WindowsZones_ReadWrite', WindowsZones_ReadWrite);
 }
 
 /// Equivalent of Noda Time's TestHelper.TestEqualsClass.
@@ -40,7 +44,6 @@ T _roundTrip<T>(void Function(IDateTimeZoneWriter writer) write,
 
 // MapZoneTest
 
-@Test()
 void MapZone_Equality() {
   var zone1 = MapZone('windowsId', 'territory', ['id1', 'id2', 'id3']);
   var zone2 = MapZone('windowsId', 'territory', ['id1', 'id2', 'id3']);
@@ -55,14 +58,12 @@ void MapZone_Equality() {
   _testEqualsClass(zone1, zone2, zone6);
 }
 
-@Test()
 void MapZone_ToString() {
   var zone = MapZone('windowsId', 'territory', ['id1', 'id2', 'id3']);
   expect(zone.toString(),
       'Windows ID: windowsId; Territory: territory; TzdbIds: id1 id2 id3');
 }
 
-@Test()
 void MapZone_ReadWrite() {
   var zone = MapZone('windowsId', 'territory', ['id1', 'id2', 'id3']);
   var zone2 = _roundTrip(zone.write, MapZone.read);
@@ -78,7 +79,6 @@ final _mapZone2 =
 final _mapZone3 =
     MapZone('windowsId3', MapZone.primaryTerritory, ['primaryId3']);
 
-@Test()
 void WindowsZones_Properties() {
   var zones = WindowsZones('version', 'tzdbVersion', 'windowsVersion',
       [_mapZone1, _mapZone2, _mapZone3]);
@@ -90,7 +90,6 @@ void WindowsZones_Properties() {
   expect(zones.mapZones, [_mapZone1, _mapZone2, _mapZone3]);
 }
 
-@Test()
 void WindowsZones_ReadWrite() {
   var zones = WindowsZones('version', 'tzdbVersion', 'windowsVersion',
       [_mapZone1, _mapZone2, _mapZone3]);

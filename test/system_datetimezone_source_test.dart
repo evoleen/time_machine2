@@ -1,9 +1,15 @@
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
+
+// Uses dart:ffi (the Windows backend) and dart:io.
+@TestOn('vm')
+library;
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:test/test.dart';
+import 'package:parameterized_test/parameterized_test.dart';
 import 'package:time_machine2/time_machine2.dart';
 import 'package:time_machine2/src/time_machine_internal.dart';
 import 'package:time_machine2/src/platforms/windows_time_zone.dart';
@@ -18,10 +24,78 @@ import 'package:universal_io/io.dart' as io;
 
 import 'time_machine_testing.dart';
 
-Future main() async {
-  await TimeMachineTest.initialize();
-  await runTests();
+void main() {
+  setUpAll(TimeMachineTest.initialize);
+
+  test('MapDateTimeZoneIsFixedWhenOffsetBoundsAreEqual',
+      MapDateTimeZoneIsFixedWhenOffsetBoundsAreEqual);
+  test('SystemZonesReportIsFixedFromTheirOffsets',
+      SystemZonesReportIsFixedFromTheirOffsets);
+  test('UnsupportedPlatformThrowsAndNeverFallsBack',
+      UnsupportedPlatformThrowsAndNeverFallsBack);
+  test('UnknownIdIsNotFound', UnknownIdIsNotFound);
+  test('WindowsFloatingTransition', WindowsFloatingTransition);
+  test('WindowsLastWeekTransition', WindowsLastWeekTransition);
+  test('WindowsTransitionOneMillisecondBeforeMidnight',
+      WindowsTransitionOneMillisecondBeforeMidnight);
+  test('WindowsAbsoluteTransition', WindowsAbsoluteTransition);
+  test('WindowsStartOfYearMarkerIsJanuaryFirst',
+      WindowsStartOfYearMarkerIsJanuaryFirst);
+  test('WindowsRuleOffsets', WindowsRuleOffsets);
+  test('WindowsYearRulesAreCoalesced', WindowsYearRulesAreCoalesced);
+  test('WindowsSingleRuleZone', WindowsSingleRuleZone);
+  test('WindowsFixedZone', WindowsFixedZone);
+  test('WindowsRuleChangeAtNewYearUsesPreviousRuleOffset',
+      WindowsRuleChangeAtNewYearUsesPreviousRuleOffset);
+  test('WindowsStartOfYearMarkers', WindowsStartOfYearMarkers);
+  test('PosixStandardOnly', PosixStandardOnly);
+  test('PosixWithRules', PosixWithRules);
+  parameterizedTest(
+      'PosixInvalid',
+      [
+        [''],
+        ['5'],
+        ['EST'],
+        ['EST5EDT,M3.2.0'],
+        ['EST5EDT,M13.2.0,M11.1.0'],
+        ['EST5EDT,M3.6.0,M11.1.0'],
+        ['EST5EDT,J0,J365'],
+        ['<+03-3'],
+        ['EST5EDT,M3.2.0/168,M11.1.0'],
+        ['EST5EDT,M3.2.0,M11.1.0x'],
+      ],
+      PosixInvalid,
+      customDescriptionBuilder: describeArguments);
+  test('PosixUsRules', PosixUsRules);
+  test('PosixSouthernHemisphere', PosixSouthernHemisphere);
+  test('PosixExtendedHours', PosixExtendedHours);
+  test('PosixJulianAndZeroBasedDays', PosixJulianAndZeroBasedDays);
+  test('PosixDaylightAllYear', PosixDaylightAllYear);
+  test('PosixFarFromNow', PosixFarFromNow);
+  test('TzifParse', TzifParse);
+  test('TzifParseVersion1', TzifParseVersion1);
+  test('TzifRejectsMalformedData', TzifRejectsMalformedData);
+  test('TzifZone', TzifZone);
+  test('TzifZoneVersion1WithoutFooter', TzifZoneVersion1WithoutFooter);
+  test('TzifSavingsUseTheStandardOffsetInEffect',
+      TzifSavingsUseTheStandardOffsetInEffect);
+  test('TzifWithoutTransitions', TzifWithoutTransitions);
+  test('AndroidBundle', AndroidBundle);
+  test('AndroidBundleRejectsMalformedData', AndroidBundleRejectsMalformedData);
+  test('TzifDirectory', TzifDirectory);
+  test('TzifDirectoryMissing', TzifDirectoryMissing);
+  // Comparisons with the OS: every zone, so slower than the default 30s
+  // timeout allows on a busy machine.
+  test('WindowsSourceMatchesTheOperatingSystem',
+      WindowsSourceMatchesTheOperatingSystem,
+      timeout: _osComparisonTimeout);
+  test('WindowsNamesVersionAndDefault', WindowsNamesVersionAndDefault);
+  test('TzifSourceMatchesZdump', TzifSourceMatchesZdump,
+      timeout: _osComparisonTimeout);
+  test('TzifSourceDefaultsAndProvider', TzifSourceDefaultsAndProvider);
 }
+
+const _osComparisonTimeout = Timeout(Duration(minutes: 5));
 
 Instant _utc(int year, int month, int day, [int hour = 0, int minute = 0]) =>
     Instant.utc(year, month, day, hour, minute);
@@ -61,7 +135,6 @@ class _FakeBackend implements SystemTimeZoneBackend {
 
 /// MapDateTimeZone (used for Windows zones and TZif rules) is fixed exactly
 /// when its offset bounds are equal, e.g. a zone in DST all year.
-@Test()
 void MapDateTimeZoneIsFixedWhenOffsetBoundsAreEqual() {
   var interval = IZoneInterval.newZoneInterval('XDT', IInstant.beforeMinValue,
       IInstant.afterMaxValue, Offset.hours(3), Offset.hours(1));
@@ -78,7 +151,6 @@ void MapDateTimeZoneIsFixedWhenOffsetBoundsAreEqual() {
 
 /// A zone is fixed only if it has the same offset at every instant, as in
 /// Noda Time.
-@Test()
 Future SystemZonesReportIsFixedFromTheirOffsets() async {
   if (skipUnless(SystemDateTimeZoneSource.isSupported,
       'No system time zone data on this platform')) {
@@ -95,7 +167,6 @@ Future SystemZonesReportIsFixedFromTheirOffsets() async {
       reason: variable);
 }
 
-@Test()
 Future UnsupportedPlatformThrowsAndNeverFallsBack() async {
   var source = SystemDateTimeZoneSource.withBackend(
       const UnsupportedSystemTimeZoneBackend('test'));
@@ -104,7 +175,6 @@ Future UnsupportedPlatformThrowsAndNeverFallsBack() async {
   expect(source.systemDefaultId, isNull);
 }
 
-@Test()
 Future UnknownIdIsNotFound() async {
   var source = SystemDateTimeZoneSource.withBackend(_FakeBackend());
   expect(await source.getIds(), ['Fake/Zone']);
@@ -121,7 +191,6 @@ Future UnknownIdIsNotFound() async {
 // Windows rule conversion (pure Dart)
 // ---------------------------------------------------------------------------
 
-@Test()
 void WindowsFloatingTransition() {
   // Second Sunday in March, 02:00.
   var offset = windowsTransitionToZoneYearOffset(
@@ -132,7 +201,6 @@ void WindowsFloatingTransition() {
       ILocalDateTime.toLocalInstant(LocalDateTime(2025, 3, 9, 2, 0, 0)));
 }
 
-@Test()
 void WindowsLastWeekTransition() {
   // Last Sunday in October, 03:00.
   var offset = windowsTransitionToZoneYearOffset(
@@ -143,7 +211,6 @@ void WindowsLastWeekTransition() {
       ILocalDateTime.toLocalInstant(LocalDateTime(2021, 10, 31, 3, 0, 0)));
 }
 
-@Test()
 void WindowsTransitionOneMillisecondBeforeMidnight() {
   // Brazil's old rule: third Saturday in February at 23:59:59.999, i.e.
   // midnight at the start of the Sunday.
@@ -159,7 +226,6 @@ void WindowsTransitionOneMillisecondBeforeMidnight() {
       ILocalDateTime.toLocalInstant(LocalDateTime(2012, 2, 19, 0, 0, 0)));
 }
 
-@Test()
 void WindowsAbsoluteTransition() {
   var offset = windowsTransitionToZoneYearOffset(
       const WindowsTransitionDate(year: 2010, month: 4, day: 4, hour: 3));
@@ -167,7 +233,6 @@ void WindowsAbsoluteTransition() {
       ILocalDateTime.toLocalInstant(LocalDateTime(2010, 4, 4, 3, 0, 0)));
 }
 
-@Test()
 void WindowsStartOfYearMarkerIsJanuaryFirst() {
   // "First Thursday of January at 00:00", written for a year starting on a
   // Thursday, means January 1st in every year (as Windows treats it).
@@ -182,7 +247,6 @@ void WindowsStartOfYearMarkerIsJanuaryFirst() {
       ILocalDateTime.toLocalInstant(LocalDateTime(1971, 1, 1, 0, 0, 0)));
 }
 
-@Test()
 void WindowsRuleOffsets() {
   const rule = WindowsZoneRule(bias: 300, standardBias: 0, daylightBias: -60);
   expect(rule.standardOffset, Offset.hours(-5));
@@ -191,7 +255,6 @@ void WindowsRuleOffsets() {
   expect(rule.observesDaylightTime, isFalse); // no transition dates
 }
 
-@Test()
 void WindowsYearRulesAreCoalesced() {
   const a = WindowsZoneRule(bias: 0);
   const b = WindowsZoneRule(bias: 60);
@@ -205,7 +268,6 @@ const _usDaylight =
 const _usStandard =
     WindowsTransitionDate(month: 11, dayOfWeek: 0, day: 1, hour: 2);
 
-@Test()
 void WindowsSingleRuleZone() {
   var zone = buildWindowsZone('Eastern Standard Time', 'Eastern Standard Time',
       'Eastern Daylight Time', const [
@@ -228,7 +290,6 @@ void WindowsSingleRuleZone() {
   expect(zone.maxOffset, Offset.hours(-4));
 }
 
-@Test()
 void WindowsFixedZone() {
   var zone = buildWindowsZone(
       'UTC', 'Coordinated Universal Time', 'Coordinated Universal Time', const [
@@ -239,7 +300,6 @@ void WindowsFixedZone() {
       'Coordinated Universal Time');
 }
 
-@Test()
 void WindowsRuleChangeAtNewYearUsesPreviousRuleOffset() {
   // Like "Turks And Caicos Standard Time": -04 with no DST in 2017, then
   // -05 with US DST from 2018. Windows switches at midnight local time
@@ -261,7 +321,6 @@ void WindowsRuleChangeAtNewYearUsesPreviousRuleOffset() {
   expect(zone.getUtcOffset(_utc(2030, 1, 1)), Offset.hours(-5));
 }
 
-@Test()
 void WindowsStartOfYearMarkers() {
   // Like "N. Central Asia Standard Time": +07 in 2013; in 2014 "daylight"
   // (+07) from the start of the year until October, then +06.
@@ -296,7 +355,6 @@ void WindowsStartOfYearMarkers() {
 // POSIX TZ strings
 // ---------------------------------------------------------------------------
 
-@Test()
 void PosixStandardOnly() {
   var tz = PosixTimeZone.parse('EST5')!;
   expect(tz.standardName, 'EST');
@@ -318,7 +376,6 @@ void PosixStandardOnly() {
   expect(tz.standardOffset, 53 * 60 + 28);
 }
 
-@Test()
 void PosixWithRules() {
   var tz = PosixTimeZone.parse('EST5EDT,M3.2.0,M11.1.0')!;
   expect(tz.daylightName, 'EDT');
@@ -355,22 +412,10 @@ void PosixWithRules() {
   expect(tz.start, const PosixTransition.monthWeekDay(3, 2, 0, 7200));
 }
 
-@Test()
-@TestCase([''])
-@TestCase(['5'])
-@TestCase(['EST'])
-@TestCase(['EST5EDT,M3.2.0'])
-@TestCase(['EST5EDT,M13.2.0,M11.1.0'])
-@TestCase(['EST5EDT,M3.6.0,M11.1.0'])
-@TestCase(['EST5EDT,J0,J365'])
-@TestCase(['<+03-3'])
-@TestCase(['EST5EDT,M3.2.0/168,M11.1.0'])
-@TestCase(['EST5EDT,M3.2.0,M11.1.0x'])
 void PosixInvalid(String text) {
   expect(PosixTimeZone.parse(text), isNull);
 }
 
-@Test()
 void PosixUsRules() {
   var map = PosixTimeZone.parse('EST5EDT,M3.2.0,M11.1.0')!.toZoneIntervalMap();
   var summer = map.getZoneInterval(_utc(2024, 7, 1));
@@ -388,7 +433,6 @@ void PosixUsRules() {
   expect(map.maxOffset, Offset.hours(-4));
 }
 
-@Test()
 void PosixSouthernHemisphere() {
   var map = PosixTimeZone.parse('NZST-12NZDT-13,M9.5.0,M4.1.0/3')!
       .toZoneIntervalMap();
@@ -399,7 +443,6 @@ void PosixSouthernHemisphere() {
   expect(summer.end, _utc(2025, 4, 5, 14));
 }
 
-@Test()
 void PosixExtendedHours() {
   // Israel: Friday before the last Sunday in March (the fourth Thursday at
   // 26:00), to the last Sunday in October at 02:00.
@@ -418,7 +461,6 @@ void PosixExtendedHours() {
   expect(summer.end, _utc(2024, 10, 27, 1)); // Sat 23:00 -02
 }
 
-@Test()
 void PosixJulianAndZeroBasedDays() {
   // J60 is always March 1st; zero-based 59 is February 29th in leap years.
   var map = PosixTimeZone.parse('AAA0BBB,J60/0,J300/0')!.toZoneIntervalMap();
@@ -429,7 +471,6 @@ void PosixJulianAndZeroBasedDays() {
   expect(map.getZoneInterval(_utc(2023, 6, 1)).start, _utc(2023, 3, 1));
 }
 
-@Test()
 void PosixDaylightAllYear() {
   // tzfile(5): DST all year.
   var tz = PosixTimeZone.parse('WART4WARST,J1/0,J365/25')!;
@@ -441,7 +482,6 @@ void PosixDaylightAllYear() {
   expect(interval.savings, Offset.hours(1));
 }
 
-@Test()
 void PosixFarFromNow() {
   var map = PosixTimeZone.parse('EST5EDT,M3.2.0,M11.1.0')!.toZoneIntervalMap();
   expect(map.getZoneInterval(_utc(9999, 12, 31, 12)).name, 'EST');
@@ -545,7 +585,6 @@ Uint8List _londonLike({int version = 2, int leapCount = 0}) => _buildTzif(
       footer: version >= 2 ? 'GMT0BST,M3.5.0/1,M10.5.0' : null,
     );
 
-@Test()
 void TzifParse() {
   var data = parseTzif(_londonLike(leapCount: 2));
   expect(data.version, 2);
@@ -558,7 +597,6 @@ void TzifParse() {
   expect(data.footer, 'GMT0BST,M3.5.0/1,M10.5.0');
 }
 
-@Test()
 void TzifParseVersion1() {
   var data = parseTzif(_londonLike(version: 1));
   expect(data.version, 1);
@@ -567,7 +605,6 @@ void TzifParseVersion1() {
   expect(data.footer, isNull);
 }
 
-@Test()
 void TzifRejectsMalformedData() {
   expect(() => parseTzif(Uint8List.fromList(ascii.encode('TZxf'))),
       throwsFormatException);
@@ -575,7 +612,6 @@ void TzifRejectsMalformedData() {
   expect(() => parseTzif(truncated), throwsFormatException);
 }
 
-@Test()
 void TzifZone() {
   var zone = tzifToDateTimeZone('Test/London', parseTzif(_londonLike()));
   expect(zone.id, 'Test/London');
@@ -607,7 +643,6 @@ void TzifZone() {
   expect(zone.getZoneInterval(_utc(1997, 7, 1)).end, _utc(1997, 10, 26, 1));
 }
 
-@Test()
 void TzifZoneVersion1WithoutFooter() {
   var zone = tzifToDateTimeZone('Test/V1', parseTzif(_londonLike(version: 1)));
   // The last transition's type continues forever.
@@ -615,7 +650,6 @@ void TzifZoneVersion1WithoutFooter() {
   expect(zone.getZoneInterval(_utc(2024, 1, 1)).hasEnd, isFalse);
 }
 
-@Test()
 void TzifSavingsUseTheStandardOffsetInEffect() {
   var zone = tzifToDateTimeZone(
       'Test/Savings',
@@ -648,7 +682,6 @@ void TzifSavingsUseTheStandardOffsetInEffect() {
   expect(fixed.hasEnd, isFalse);
 }
 
-@Test()
 void TzifWithoutTransitions() {
   var zone = tzifToDateTimeZone(
       'Etc/Test',
@@ -696,7 +729,6 @@ Uint8List _buildAndroidBundle(String version, Map<String, Uint8List> zones) {
       .takeBytes();
 }
 
-@Test()
 void AndroidBundle() {
   var bundle = AndroidTzdataBundle.parse(_buildAndroidBundle('2025b', {
     'Europe/London': _londonLike(),
@@ -717,7 +749,6 @@ void AndroidBundle() {
   expect(backend.getIds(), ['Etc/UTC', 'Europe/London']);
 }
 
-@Test()
 void AndroidBundleRejectsMalformedData() {
   expect(
       () => AndroidTzdataBundle.parse(
@@ -733,7 +764,6 @@ void AndroidBundleRejectsMalformedData() {
 // The TZif directory backend, over a synthetic zoneinfo directory
 // ---------------------------------------------------------------------------
 
-@Test()
 void TzifDirectory() {
   var temp = io.Directory.systemTemp.createTempSync('zoneinfo');
   try {
@@ -774,7 +804,6 @@ void TzifDirectory() {
   }
 }
 
-@Test()
 void TzifDirectoryMissing() {
   var backend = TzifDirectoryBackend('/no/such/zoneinfo/directory');
   expect(backend.isSupported, isFalse);
@@ -786,7 +815,6 @@ void TzifDirectoryMissing() {
 // Windows: compare every zone with the OS itself
 // ---------------------------------------------------------------------------
 
-@Test()
 Future WindowsSourceMatchesTheOperatingSystem() async {
   if (skipUnless(io.Platform.isWindows, 'Windows only')) return;
   var backend = WindowsSystemTimeZoneBackend();
@@ -856,7 +884,6 @@ Future WindowsSourceMatchesTheOperatingSystem() async {
   expect(mismatches, isEmpty);
 }
 
-@Test()
 Future WindowsNamesVersionAndDefault() async {
   if (skipUnless(io.Platform.isWindows, 'Windows only')) return;
   var source = SystemDateTimeZoneSource();
@@ -911,7 +938,6 @@ const _months = [
   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
 ];
 
-@Test()
 Future TzifSourceMatchesZdump() async {
   if (skipUnless(
       io.Platform.isLinux || io.Platform.isMacOS, 'Linux and macOS only')) {
@@ -1030,7 +1056,6 @@ Future TzifSourceMatchesZdump() async {
 bool _usesNegativeTransitionTimes(String? tz) =>
     tz != null && RegExp(r',[^,]*/-').hasMatch(tz);
 
-@Test()
 Future TzifSourceDefaultsAndProvider() async {
   if (skipUnless(
       io.Platform.isLinux || io.Platform.isMacOS, 'Linux and macOS only')) {

@@ -2,20 +2,17 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'dart:async';
-
 import 'package:time_machine2/src/time_machine_internal.dart';
 import 'package:test/test.dart';
 
-import '../time_machine_testing.dart';
-
-Future main() async {
-  await runTests();
+void main() {
+  test('GetMaxYearOfEra', GetMaxYearOfEra);
+  test('GetMinYearOfEra', GetMinYearOfEra);
+  test('GetAbsoluteYear', GetAbsoluteYear);
 }
 
 CalendarSystem Iso = CalendarSystem.iso;
 
-@Test()
 void GetMaxYearOfEra() {
   LocalDate date = LocalDate(Iso.maxYear, 1, 1);
   expect(date.yearOfEra, Iso.getMaxYearOfEra(Era.common));
@@ -26,7 +23,6 @@ void GetMaxYearOfEra() {
   expect(Era.beforeCommon, date.era);
 }
 
-@Test()
 void GetMinYearOfEra() {
   LocalDate date = LocalDate(1, 1, 1);
   expect(date.yearOfEra, Iso.getMinYearOfEra(Era.common));
@@ -36,7 +32,6 @@ void GetMinYearOfEra() {
   expect(Era.beforeCommon, date.era);
 }
 
-@Test()
 void GetAbsoluteYear() {
   expect(1, Iso.getAbsoluteYear(1, Era.common));
   expect(0, Iso.getAbsoluteYear(1, Era.beforeCommon));

@@ -1,24 +1,32 @@
 // Portions of this work are Copyright 2018 The Time Machine Authors. All rights reserved.
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
-import 'dart:async';
 
 import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
+import 'package:parameterized_test/parameterized_test.dart';
 
 import '../time_machine_testing.dart';
 
-Future main() async {
-  await runTests();
+void main() {
+  parameterizedTest(
+      'IsoPattern',
+      [
+        ['2017-02-23T16:40:50.123456789'],
+        ['2017-02-23T16:40:50.123'],
+        ['2017-02-23T16:40:50'],
+        ['2017-02-23T16:40'],
+      ],
+      IsoPattern,
+      customDescriptionBuilder: describeArguments);
+  test('Format_NoValidPattern', Format_NoValidPattern);
+  test('Parse', Parse);
+  test('Build_Empty', Build_Empty);
+  test('Enumerators', Enumerators, skip: 'unimplemented');
 }
 
 // See https://github.com/nodatime/nodatime/issues/607
-@Test()
-@TestCase(['2017-02-23T16:40:50.123456789'])
-@TestCase(['2017-02-23T16:40:50.123'])
-@TestCase(['2017-02-23T16:40:50'])
-@TestCase(['2017-02-23T16:40'])
 void IsoPattern(String text) {
   // We assert that the text round-trips. If it does, it's
   // reasonable to assume it parsed correctly...
@@ -34,7 +42,6 @@ void IsoPattern(String text) {
   expect(text, formatted);
 }
 
-@Test()
 void Format_NoValidPattern() {
   var pattern = (CompositePatternBuilder<LocalDate>()
         ..add(LocalDatePattern.iso, (_) => false)
@@ -46,7 +53,6 @@ void Format_NoValidPattern() {
       willThrow<FormatException>());
 }
 
-@Test()
 void Parse() {
   var pattern = (CompositePatternBuilder<LocalDate>()
         ..add(LocalDatePattern.iso, (_) => true)
@@ -58,14 +64,11 @@ void Parse() {
   expect(pattern.parse('2017').success, isTrue);
 }
 
-@Test()
 void Build_Empty() {
   var pattern = CompositePatternBuilder<LocalDate>();
   expect(() => pattern.build(), throwsStateError);
 }
 
-@Test()
-@SkipMe.unimplemented()
 void Enumerators() {
   var pattern1 = LocalDatePattern.iso;
   var pattern2 = LocalDatePattern.createWithInvariantCulture('yyyy');

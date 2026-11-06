@@ -2,20 +2,17 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'dart:async';
-
 import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
 // import 'package:matcher/matcher.dart';
 
-import 'time_machine_testing.dart';
-
-Future main() async {
-  await runTests();
+void main() {
+  test('Max', Max);
+  test('Min', Min);
+  test('DefaultConstructor', DefaultConstructor);
 }
 
-@Test()
 void Max() {
   Offset x = Offset(100);
   Offset y = Offset(200);
@@ -27,7 +24,6 @@ void Max() {
   expect(Offset.maxValue, Offset.max(x, Offset.maxValue));
 }
 
-@Test()
 void Min() {
   Offset x = Offset(100);
   Offset y = Offset(200);
@@ -69,7 +65,6 @@ void FromTimeSpan_Simple()
 }*/
 
 ///   Using the default constructor is equivalent to Offset.Zero
-@Test()
 void DefaultConstructor() {
   var actual = Offset();
   expect(Offset.zero, actual);

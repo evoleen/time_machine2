@@ -2,26 +2,26 @@
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
-import 'dart:async';
-
 import 'package:time_machine2/src/time_machine_internal.dart';
 
 import 'package:test/test.dart';
 // import 'package:matcher/matcher.dart';
 
-import '../time_machine_testing.dart';
-
-Future main() async {
-  await runTests();
+void main() {
+  test('BclEquivalence', BclEquivalence, skip: 'Need Dart Equivalent Test');
+  test('GetStartOfYearInDays', GetStartOfYearInDays);
+  test('GetYearMonthDay_DaysSinceEpoch', GetYearMonthDay_DaysSinceEpoch);
+  test('GetYearMonthDay_YearAndDayOfYear', GetYearMonthDay_YearAndDayOfYear);
+  test('GetDaysFromStartOfYearToStartOfMonth',
+      GetDaysFromStartOfYearToStartOfMonth);
+  test('GetYearMonthDay_InvalidValueForCoverage',
+      GetYearMonthDay_InvalidValueForCoverage);
 }
 
-@Test()
-@SkipMe('Need Dart Equivalent Test')
 void BclEquivalence() {
   // BclEquivalenceHelper.AssertEquivalent(BclCalendars.UmAlQura, CalendarSystem.UmAlQura);
 }
 
-@Test()
 void GetStartOfYearInDays() {
   var daysSinceEpoch = [
     -25448,
@@ -219,7 +219,6 @@ void GetStartOfYearInDays() {
   }
 }
 
-@Test()
 void GetYearMonthDay_DaysSinceEpoch() {
   var calculator = UmAlQuraYearMonthDayCalculator();
   int daysSinceEpoch = calculator.getStartOfYearInDays(calculator.minYear);
@@ -236,7 +235,6 @@ void GetYearMonthDay_DaysSinceEpoch() {
   }
 }
 
-@Test()
 void GetYearMonthDay_YearAndDayOfYear() {
   var calculator = UmAlQuraYearMonthDayCalculator();
   for (int year = calculator.minYear; year <= calculator.maxYear; year++) {
@@ -252,7 +250,6 @@ void GetYearMonthDay_YearAndDayOfYear() {
   }
 }
 
-@Test()
 void GetDaysFromStartOfYearToStartOfMonth() {
   var calculator = UmAlQuraYearMonthDayCalculator();
   for (int year = calculator.minYear; year <= calculator.maxYear; year++) {
@@ -266,7 +263,6 @@ void GetDaysFromStartOfYearToStartOfMonth() {
   }
 }
 
-@Test()
 void GetYearMonthDay_InvalidValueForCoverage() {
   var calculator = UmAlQuraYearMonthDayCalculator();
   expect(() => calculator.getYearMonthDay(calculator.minYear, 1000),

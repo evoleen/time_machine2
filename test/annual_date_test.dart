@@ -1,19 +1,25 @@
 // Portions of this work are Copyright 2018 The Time Machine Authors. All rights reserved.
 // Portions of this work are Copyright 2018 The Noda Time Authors. All rights reserved.
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
-import 'dart:async';
 
 import 'package:time_machine2/src/time_machine_internal.dart';
 import 'package:test/test.dart';
 
 import 'time_machine_testing.dart';
 
-Future main() async {
-  await TimeMachineTest.initialize();
-  await runTests();
+void main() {
+  setUpAll(TimeMachineTest.initialize);
+
+  test('Feb29', Feb29);
+  test('June19', June19);
+  test('Validation', Validation);
+  test('Equality', Equality);
+  test('DefaultValueIsJanuary1st', DefaultValueIsJanuary1st);
+  test('Comparision', Comparision);
+  test('Operators', Operators);
+  test('ToStringTest', ToStringTest);
 }
 
-@Test()
 void Feb29() {
   var date = AnnualDate(2, 29);
   expect(29, date.day);
@@ -24,7 +30,6 @@ void Feb29() {
   expect(date.isValidYear(2015), isFalse);
 }
 
-@Test()
 void June19() {
   var date = AnnualDate(6, 19);
   expect(19, date.day);
@@ -35,7 +40,6 @@ void June19() {
   expect(date.isValidYear(2015), isTrue);
 }
 
-@Test()
 void Validation() {
   // Feb 30th is invalid, but January 30th is fine
   expect(() => AnnualDate(2, 30), throwsRangeError);
@@ -47,31 +51,26 @@ void Validation() {
 // Assert.Throws<ArgumentOutOfRangeException>(() => new AnnualDate(13, 1));
 }
 
-@Test()
 void Equality() {
   TestHelper.TestEqualsStruct(AnnualDate(3, 15), AnnualDate(3, 15),
       [AnnualDate(4, 15), AnnualDate(3, 16)]);
 }
 
-@Test()
 void DefaultValueIsJanuary1st() {
   // todo: I don't see a default constructor in the original C# code?
   expect(AnnualDate(1, 1), AnnualDate());
 }
 
-@Test()
 void Comparision() {
   TestHelper.TestCompareToStruct(AnnualDate(6, 19), AnnualDate(6, 19),
       [AnnualDate(6, 20), AnnualDate(7, 1)]);
 }
 
-@Test()
 void Operators() {
   TestHelper.TestOperatorComparisonEquality(AnnualDate(6, 19),
       AnnualDate(6, 19), [AnnualDate(6, 20), AnnualDate(7, 1)]);
 }
 
-@Test()
 void ToStringTest() {
   expect('02-01', AnnualDate(2, 1).toString());
   expect('02-10', AnnualDate(2, 10).toString());
