@@ -4,6 +4,8 @@
 - Find the local time zone as Noda Time and .NET do. Fixes Windows, which detected UTC on most systems, including non-English Windows. `TZ` is honoured on Windows as Python's tzlocal and Node.js do (IANA or Windows zone IDs).
 - Expose the CLDR Windows time zone mapping on `TzdbDateTimeZoneSource` (`windowsMapping`, `windowsToTzdbIds`, `tzdbToWindowsIds`, `canonicalIdMap`, `aliases`, `validate()`), and export `TzdbDateTimeZoneSource`, `MapZone` and `WindowsZones`.
 - Require `archive` ^4.6.0.
+- Port Noda Time's calendar fixes since 2.3.0: Badíʿ `addMonths` results ending in month 19, the Ayyám-i-Há length of Badíʿ years 249, 253, 645, 649 and 653, and Badíʿ week-year 0 (dates in it couldn't be round-tripped through week-year rules); `addMonths` beyond a calendar's year range now throws `RangeError` instead of returning an invalid date; `LocalDatePattern` uses the calendar's default era when a pattern has a year-of-era and calendar but no era, and reports a template year that is out of range for the parsed calendar as a parse failure.
+- Calendar parity with Noda Time: Islamic calendar IDs now match Noda Time (e.g. `Hijri Civil-Indian`; they were `Hijri IslamicEpoch.civil-IslamicLeapYearPattern.indian`, so IDs stored by earlier versions no longer resolve), month names format as the month number for months the culture has no name for (Badíʿ months 14–19 used to throw, including in `LocalDate.toString()`, and month 13 formatted as an empty string), `LocalDatePattern.fullRoundtrip` and the `R`/`r` standard `LocalDate` patterns, `WeekYearRuleExtensions` is exported, and an invalid week-year/week/day-of-week combination throws `RangeError`. Ports the remaining non-.NET-specific Noda Time calendar tests.
 
 ## 0.14.0
 - Update TZDB to 2026a

@@ -82,6 +82,11 @@ abstract class ICalendarSystem {
   static Era getEra(CalendarSystem calendar, int absoluteYear) =>
       calendar._getEra(absoluteYear);
 
+  /// Returns the default era to use when a year-of-era is supplied without
+  /// an explicit era.
+  static Era defaultEra(CalendarSystem calendar) =>
+      calendar._eraCalculator.defaultEra;
+
   static DayOfWeek getDayOfWeek(
           CalendarSystem calendar, YearMonthDay yearMonthDay) =>
       calendar._getDayOfWeek(yearMonthDay);
@@ -125,10 +130,20 @@ class CalendarSystem {
   static const String _islamicIdBase = _islamicName;
 
   // Not part of IslamicCalendars as we want to be able to call it without triggering type initialization.
+  // The epoch and leap year pattern names are those of Noda Time's enum members (e.g. "Hijri Civil-Indian"),
+  // so that IDs are interchangeable with Noda Time.
   static String getIslamicId(
       IslamicLeapYearPattern leapYearPattern, IslamicEpoch epoch) {
-    return '$_islamicIdBase $epoch-$leapYearPattern';
+    return '$_islamicIdBase ${_islamicEpochNames[epoch.index]}-${_islamicLeapYearPatternNames[leapYearPattern.index]}';
   }
+
+  static const List<String> _islamicEpochNames = ['Astronomical', 'Civil'];
+  static const List<String> _islamicLeapYearPatternNames = [
+    'Base15',
+    'Base16',
+    'Indian',
+    'HabashAlHasib'
+  ];
 
   static const String _persianName = 'Persian';
   static const String _persianIdBase = _persianName;
@@ -158,8 +173,7 @@ class CalendarSystem {
   }
 
   /// Fetches a calendar system by its unique identifier. This provides full round-tripping of a calendar
-  /// system. It is not guaranteed that calling this method twice with the same identifier will return
-  /// identical references, but the references objects will be equal.
+  /// system. This method will always return the same reference for the same ID.
   ///
   /// * [id]: The ID of the calendar system. This is case-sensitive.
   ///
@@ -171,7 +185,7 @@ class CalendarSystem {
     Preconditions.checkNotNull(id, 'id');
     CalendarSystem Function()? factory = _idToFactoryMap[id];
     if (factory == null) {
-      throw ArgumentError('No calendar system for ID {id} exists');
+      throw ArgumentError('No calendar system for ID $id exists');
     }
     return factory();
   }
@@ -212,6 +226,8 @@ class CalendarSystem {
   static Iterable<String> get ids => _idToFactoryMap.keys;
 
   // todo: make const
+  // Note: each factory method must return the same reference on every invocation.
+  // If the delegate calls a method, that method must have the same guarantee.
   static final Map<String, CalendarSystem Function()> _idToFactoryMap = {
     _isoId: () => iso,
     _persianSimpleId: () => persianSimple,
@@ -261,14 +277,14 @@ class CalendarSystem {
   /// and consistency.
   static final CalendarSystem iso = _isoCalendarSystem;
 
-  /// Returns a Hebrew calendar, as described at http://en.wikipedia.org/wiki/Hebrew_calendar. This is a
+  /// Returns a Hebrew calendar, as described at https://en.wikipedia.org/wiki/Hebrew_calendar. This is a
   /// purely mathematical calculator, applied proleptically to the period where the real calendar was observational.
   ///
-  /// Please note that in version 1.3.0 of Time Machine, support for the Hebrew calendar is somewhat experimental,
+  /// Please note that support for the Hebrew calendar is somewhat experimental,
   /// particularly in terms of calculations involving adding or subtracting years. Additionally, text formatting
   /// and parsing using month names is not currently supported, due to the challenges of handling leap months.
   /// It is hoped that this will be improved in future versions.
-  /// The implementation for this was taken from http://www.cs.tau.ac.il/~nachum/calendar-book/papers/calendar.ps,
+  /// The implementation for this was taken from https://www.cs.tau.ac.il/~nachum/calendar-book/papers/calendar.ps,
   /// which is a domain algorithm presumably equivalent to that given in the Calendrical Calculations book
   /// by the same authors (Nachum Dershowitz and Edward Reingold).
   ///
@@ -281,10 +297,10 @@ class CalendarSystem {
     return _HebrewCalendars.byMonthNumbering[monthNumbering.index];
   }
 
-  /// Returns the Wondrous (Badí') calendar, as described at https://en.wikipedia.org/wiki/Badi_calendar.
+  /// Returns the Badíʿ (meaning "wondrous" or "unique") calendar, as described at https://en.wikipedia.org/wiki/Badi_calendar.
   /// This is a purely solar calendar with years starting at the vernal equinox.
   ///
-  /// The Wondrous calendar was developed and defined by the founders of the Bahá'í Faith in the mid to late
+  /// The Badíʿ calendar was developed and defined by the founders of the Bahá'í Faith in the mid to late
   /// 1800's A.D. The first year in the calendar coincides with 1844 A.D. Years are labeled "B.E." for Bahá'í Era.
   /// A year consists of 19 months, each with 19 days. Each day starts at sunset. Years are grouped into sets
   /// of 19 'Unities' (Váḥid) and 19 Unities make up 1 "All Things" (Kull-i-Shay’).
@@ -296,12 +312,12 @@ class CalendarSystem {
   /// Ayyám-i-Há is internally modelled as extra days added to the 18th month. As a result, a few functions will
   /// not work as expected for Ayyám-i-Há, such as EndOfMonth.
   ///
-  /// Returns: The Wondrous calendar system.
+  /// Returns: The Badíʿ calendar system.
   static CalendarSystem get badi => _MiscellaneousCalendars.badi;
 
   /// Returns an Islamic, or Hijri, calendar system.
   ///
-  /// This returns a tablular calendar, rather than one based on lunar observation. This calendar is a
+  /// This returns a tabular calendar, rather than one based on lunar observation. This calendar is a
   /// lunar calendar with 12 months, each of 29 or 30 days, resulting in a year of 354 days (or 355 on a leap
   /// year).
   ///
@@ -391,7 +407,7 @@ class CalendarSystem {
   /// ISO | [CalendarSystem.iso]
   /// Gregorian | [CalendarSystem.gregorian]
   /// Coptic | [CalendarSystem.coptic]
-  /// Wondrous | [CalendarSystem.badi]
+  /// Badi | [CalendarSystem.badi]
   /// Julian | [CalendarSystem.julian]
   /// Hijri Civil-Indian | [CalendarSystem.GetIslamicCalendar](IslamicLeapYearPattern.Indian, IslamicEpoch.Civil)
   /// Hijri Civil-Base15 | [CalendarSystem.GetIslamicCalendar](IslamicLeapYearPattern.Base15, IslamicEpoch.Civil)
@@ -403,10 +419,14 @@ class CalendarSystem {
   /// Hijri Astronomical-HabashAlHasib | [CalendarSystem.GetIslamicCalendar](IslamicLeapYearPattern.HabashAlHasib, IslamicEpoch.Astronomical)
   /// Persian Simple | [CalendarSystem.persianSimple]
   /// Persian Arithmetic | [CalendarSystem.persianArithmetic]
-  /// Persian Astronomical | [CalendarSystem.persianAstronomical]
+  /// Persian Algorithmic | [CalendarSystem.persianAstronomical] (see note)
   /// Um Al Qura | [CalendarSystem.UmAlQura]()
   /// Hebrew Civil | [CalendarSystem.hebrewCivil]
   /// Hebrew Scriptural | [CalendarSystem.hebrewScriptural]
+  ///
+  /// The ID "Persian Algorithmic" for the Persian Astronomical calendar is an unfortunate error. The ID has been incorrect
+  /// in Noda Time (and so Time Machine) for so long that "fixing" it now would cause compatibility issues between systems
+  /// storing or exchanging Time Machine or Noda Time data.
   final String id;
 
   /// Returns the name of this calendar system. Each kind of calendar system has a unique name, but this
@@ -473,7 +493,7 @@ class CalendarSystem {
   ///
   /// * [era]: The era in which to find the greatest year
   ///
-  /// Returns: The minimum valid year in the given eraera.
+  /// Returns: The minimum valid year in the given era.
   ///
   /// * [ArgumentException]: [era] is not an era used in this calendar.
   int getMinYearOfEra(Era era) => _eraCalculator.getMinYearOfEra(era);
@@ -669,6 +689,12 @@ class CalendarSystem {
   /// in each cycle are leap years.
   static CalendarSystem get persianSimple => _PersianCalendars.simple;
 
+  /// Returns a Persian (also known as Solar Hijri) calendar system implementing the behaviour
+  /// proposed by Ahmad Birashk with nested cycles of years determining which years are leap years.
+  ///
+  /// This calendar is also known as the algorithmic Solar Hijri calendar.
+  static CalendarSystem get persianArithmetic => _PersianCalendars.arithmetic;
+
   // todo: keep?
   /// Returns a Persian (also known as Solar Hijri) calendar system implementing the behaviour of the
   /// BCL `PersianCalendar` from .NET 4.6 onwards (and Windows 10), and the astronomical
@@ -677,12 +703,6 @@ class CalendarSystem {
   /// This implementation uses data derived from the .NET 4.6 implementation (with the data built into Time Machine, so there's
   /// no BCL dependency) for simplicity; the actual implementation involves computing the time of noon in Iran, and
   /// is complex.
-  static CalendarSystem get persianArithmetic => _PersianCalendars.arithmetic;
-
-  /// Returns a Persian (also known as Solar Hijri) calendar system implementing the behaviour
-  /// proposed by Ahmad Birashk with nested cycles of years determining which years are leap years.
-  ///
-  /// This calendar is also known as the algorithmic Solar Hijri calendar.
   static CalendarSystem get persianAstronomical =>
       _PersianCalendars.astronomical;
 

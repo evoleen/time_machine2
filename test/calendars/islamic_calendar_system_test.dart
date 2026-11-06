@@ -3,6 +3,7 @@
 // Use of this source code is governed by the Apache License 2.0, as found in the LICENSE.txt file.
 
 import 'dart:async';
+import 'dart:collection';
 
 import 'package:time_machine2/src/time_machine_internal.dart';
 
@@ -280,20 +281,22 @@ void BclUsesAstronomicalEpoch() {
 }
 
 @Test()
-@SkipMe()
 void SampleDateBclCompatibility() {
-  dynamic hijri; // = BclCalendars.Hijri;
-  DateTime bclDirect = hijri.ToDateTime(1302, 10, 15, 0, 0, 0, 0);
+  // Calendar hijri = BclCalendars.Hijri;
+  // DateTime bclDirect = hijri.ToDateTime(1302, 10, 15, 0, 0, 0, 0);
+  // There's no BCL HijriCalendar in Dart: this is the same date computed independently with the
+  // arithmetic Islamic calendar from Calendrical Calculations (fixed-from-islamic: Base16 leap
+  // years, epoch Julian 622-07-15), which is what HijriCalendar implements.
+  var bclDirect = LocalDate(1885, 7, 27);
 
   CalendarSystem islamicCalendar = CalendarSystem.islamicBcl;
   LocalDate iso = LocalDate(1302, 10, 15, islamicCalendar);
-  DateTime bclFromNoda = iso.atMidnight().toDateTimeLocal();
-  expect(bclDirect, bclFromNoda);
+  expect(iso.withCalendar(CalendarSystem.iso), bclDirect);
 }
 
 /// This tests every day for 9000 (ISO) years, to check that it always matches the year, month and day.
 @Test()
-@SkipMe()
+@SkipMe('.NET only: compares with the BCL HijriCalendar')
 // [Category('Slow')]
 void BclThroughHistory() {
   //var bcl = BclCalendars.Hijri;
@@ -324,38 +327,33 @@ void GetDaysInMonth() {
 }
 
 @Test()
-@SkipMe()
 void GetInstance_Caching() {
-  /*
-  var queue = new Queue<CalendarSystem>();
-  var set = new HashSet<CalendarSystem>();
-  var ids = new HashSet<String>();
+  var queue = Queue<CalendarSystem>();
+  var set = <CalendarSystem>{};
+  var ids = <String>{};
 
-  for (IslamicLeapYearPattern leapYearPattern in Enum.GetValues(typeof(IslamicLeapYearPattern)))
-  {
-  for (IslamicEpoch epoch in Enum.GetValues(typeof(IslamicEpoch)))
-  {
-  var calendar = CalendarSystem.getIslamicCalendar(leapYearPattern, epoch);
-  queue.Enqueue(calendar);
-  expect(set.Add(calendar), isTrue); // Check we haven't already seen it...
-  expect(ids.Add(calendar.Id), isTrue);
-  }
+  for (var leapYearPattern in IslamicLeapYearPattern.values) {
+    for (var epoch in IslamicEpoch.values) {
+      var calendar = CalendarSystem.getIslamicCalendar(leapYearPattern, epoch);
+      queue.add(calendar);
+      expect(set.add(calendar), isTrue); // Check we haven't already seen it...
+      expect(ids.add(calendar.id), isTrue);
+    }
   }
 
   // Now check we get the same references again...
-  for (IslamicLeapYearPattern leapYearPattern in Enum.GetValues(typeof(IslamicLeapYearPattern)))
-  {
-  for (IslamicEpoch epoch in Enum.GetValues(typeof(IslamicEpoch)))
-  {
-  var oldCalendar = queue.Dequeue();
-  var newCalendar = CalendarSystem.getIslamicCalendar(leapYearPattern, epoch);
-  Assert.AreSame(oldCalendar, newCalendar);
+  for (var leapYearPattern in IslamicLeapYearPattern.values) {
+    for (var epoch in IslamicEpoch.values) {
+      var oldCalendar = queue.removeFirst();
+      var newCalendar =
+          CalendarSystem.getIslamicCalendar(leapYearPattern, epoch);
+      expect(identical(oldCalendar, newCalendar), isTrue);
+    }
   }
-  }*/
 }
 
 @Test()
-@SkipMe()
+@SkipMe('Not applicable: Dart enums cannot hold out-of-range values')
 void GetInstance_ArgumentValidation() {
   /*
   var epochs = Enum.GetValues(typeof(IslamicEpoch)).Cast<IslamicEpoch>();
@@ -420,7 +418,7 @@ void PlusMonths_Simple() {
 }
 
 @Test()
-@SkipMe("Doesn't make sense in Dart")
+@SkipMe('Not applicable: Dart enums cannot hold out-of-range values')
 void Constructor_InvalidEnumsForCoverage() {
   // expect(() => new IslamicYearMonthDayCalculator(IslamicLeapYearPattern.base15 + 100, IslamicEpoch.astronomical), throwsRangeError);
   // expect(() => new IslamicYearMonthDayCalculator(IslamicLeapYearPattern.base15, IslamicEpoch.astronomical + 100), throwsRangeError);

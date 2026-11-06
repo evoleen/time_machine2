@@ -159,7 +159,9 @@ abstract class PatternTestData<T> {
         builder.write('Template=$template;');
       }
       return builder.toString();
-    } on Exception {
+    } catch (_) {
+      // As in Noda Time, any failure (not just an Exception: e.g. a RangeError when formatting a template
+      // value with a month that's invalid in the ISO calendar) falls back to a fixed name.
       return 'Formatting of test name failed';
     }
   }

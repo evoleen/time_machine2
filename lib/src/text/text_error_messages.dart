@@ -105,6 +105,8 @@ abstract class TextErrorMessages {
       "The period unit specifier '{0}' appears multiple times in the input string.";
   static const String skippedLocalTime =
       'The local date/time is skipped in the target time zone.';
+  static const String templateYearOutOfRange =
+      'The year {0} from the template value is out of range for the {1} calendar.';
   static const String timeFieldAndEmbeddedTime =
       'Custom time specifiers cannot be specified in the same pattern as an embedded time specifier';
   static const String timeSeparatorMismatch =

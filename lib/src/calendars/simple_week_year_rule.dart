@@ -57,7 +57,7 @@ class SimpleWeekYearRule implements WeekYearRule {
     int days = startOfWeekYear + (weekOfWeekYear - 1) * 7 + daysIntoWeek;
     if (days < ICalendarSystem.minDays(calendar) ||
         days > ICalendarSystem.maxDays(calendar)) {
-      throw ArgumentError.value(weekYear, 'weekYear',
+      throw RangeError.value(weekYear, 'weekYear',
           "The combination of weekYear, weekOfWeekYear and dayOfWeek is invalid");
     }
     LocalDate ret = ILocalDate.trusted(yearMonthDayCalculator
@@ -75,7 +75,7 @@ class SimpleWeekYearRule implements WeekYearRule {
     // will always be right.
     if (_irregularWeeks && weekYear != ret.year) {
       if (getWeekYear(ret) != weekYear) {
-        throw ArgumentError.value(weekYear, 'weekYear',
+        throw RangeError.value(weekYear, 'weekYear',
             'The combination of weekYear, weekOfWeekYear and dayOfWeek is invalid');
       }
     }

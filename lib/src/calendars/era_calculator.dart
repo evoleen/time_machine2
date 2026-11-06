@@ -16,6 +16,8 @@ abstract class EraCalculator {
   EraCalculator(Iterable<Era> eras)
       : eras = eras; // new ReadOnlyCollection<Era>(eras);
 
+  /// The era to use when a year-of-era is specified without an explicit era.
+  Era get defaultEra;
   int getMinYearOfEra(Era era);
   int getMaxYearOfEra(Era era);
   Era getEra(int absoluteYear);

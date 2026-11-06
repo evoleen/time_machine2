@@ -129,6 +129,17 @@ class HebrewYearMonthDayCalculator extends YearMonthDayCalculator {
 
   @override
   YearMonthDay addMonths(YearMonthDay yearMonthDay, int months) {
+    var result = _addMonthsUnchecked(yearMonthDay, months);
+    if (result.year < minYear || result.year > maxYear) {
+      throw RangeError('Date computation would overflow calendar bounds.');
+    }
+    return result;
+  }
+
+  /// [addMonths] without the range check, for [monthsBetween]: its search
+  /// steps one month past the result, which may be outside the calendar's
+  /// years (e.g. from the last month of 9999), but still compares correctly.
+  YearMonthDay _addMonthsUnchecked(YearMonthDay yearMonthDay, int months) {
     // Note: this method gives the same result regardless of the month numbering used
     // by the instance. The method works in terms of civil month numbers for most of
     // the time in order to simplify the logic.
@@ -183,11 +194,11 @@ class HebrewYearMonthDayCalculator extends YearMonthDayCalculator {
 
     if (compare(start, end) <= 0) {
       // Go backwards until we've got a tight upper bound...
-      while (compare(addMonths(start, diff), end) > 0) {
+      while (compare(_addMonthsUnchecked(start, diff), end) > 0) {
         diff--;
       }
       // Go forwards until we've overshot
-      while (compare(addMonths(start, diff), end) <= 0) {
+      while (compare(_addMonthsUnchecked(start, diff), end) <= 0) {
         diff++;
       }
       // Take account of the overshoot
@@ -195,11 +206,11 @@ class HebrewYearMonthDayCalculator extends YearMonthDayCalculator {
     } else {
       // Moving backwards, so we need to end up with a result greater than or equal to end...
       // Go forwards until we've got a tight upper bound...
-      while (compare(addMonths(start, diff), end) < 0) {
+      while (compare(_addMonthsUnchecked(start, diff), end) < 0) {
         diff++;
       }
       // Go backwards until we've overshot
-      while (compare(addMonths(start, diff), end) >= 0) {
+      while (compare(_addMonthsUnchecked(start, diff), end) >= 0) {
         diff--;
       }
       // Take account of the overshoot

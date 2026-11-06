@@ -56,7 +56,7 @@ export 'src/utility/invalid_time_data_error.dart' show InvalidTimeDataError;
 
 // Calendars
 export 'src/calendars/era.dart' show Era;
-export 'src/calendars/week_rule.dart' show WeekYearRule;
+export 'src/calendars/week_rule.dart' show WeekYearRule, WeekYearRuleExtensions;
 export 'src/calendars/week_year_rules.dart'
     show WeekYearRules, CalendarWeekRule;
 export 'src/calendars/hebrew_month_numbering.dart' show HebrewMonthNumbering;

@@ -218,19 +218,18 @@ class LocalDatePatternTest extends PatternTestBase<LocalDate> {
       ..message = TextErrorMessages.noMatchingCalendarSystem,
 
     // Invalid year
-    /* todo: @SkipMe.unimplemented()
-    new Data()
-      ..Template = new LocalDate.forCalendar(1, 1, 1, CalendarSystem.IslamicBcl)
-      ..Pattern = 'uuuu'
-      ..Text = '9999'
-      ..Message = TextErrorMessages.FieldValueOutOfRange
-      ..Parameters.addAll([9999, 'u', 'LocalDate']),
-    new Data()
-      ..Template = new LocalDate.forCalendar(1, 1, 1, CalendarSystem.IslamicBcl)
-      ..Pattern = 'yyyy'
-      ..Text = '9999'
-      ..Message = TextErrorMessages.YearOfEraOutOfRange
-      ..Parameters.addAll([9999, 'EH', "Hijri"]),*/
+    Data()
+      ..template = LocalDate(1, 1, 1, CalendarSystem.islamicBcl)
+      ..pattern = 'uuuu'
+      ..text = '9999'
+      ..message = TextErrorMessages.fieldValueOutOfRange
+      ..parameters.addAll([9999, 'u', 'LocalDate']),
+    Data()
+      ..template = LocalDate(1, 1, 1, CalendarSystem.islamicBcl)
+      ..pattern = 'yyyy'
+      ..text = '9999'
+      ..message = TextErrorMessages.yearOfEraOutOfRange
+      ..parameters.addAll([9999, 'EH', 'Hijri']),
 
     // https://github.com/nodatime/nodatime/issues/414
     Data()
@@ -249,6 +248,26 @@ class LocalDatePatternTest extends PatternTestBase<LocalDate> {
       ..pattern = 'yyyy MM dd c'
       ..text = '2011 10 09 iso'
       ..message = TextErrorMessages.noMatchingCalendarSystem,
+
+    // Template field values not specified in pattern are out of range
+    // See https://github.com/nodatime/nodatime/issues/1919
+    Data()
+      ..template = LocalDate(100, 15, 1, CalendarSystem.badi)
+      ..pattern = "uuuu'-'dd' ('c')'"
+      ..text = '0100-01 (ISO)'
+      ..message = TextErrorMessages.monthOutOfRange
+      ..parameters.addAll([15, 100]),
+    Data()
+      ..pattern = "MM'-'dd' ('c')'"
+      ..text = '05-06 (Um Al Qura)'
+      ..message = TextErrorMessages.templateYearOutOfRange
+      ..parameters.addAll([2000, 'Um Al Qura']),
+    Data()
+      ..template = LocalDate(2000, 1, 31)
+      ..pattern = "uuuu'-'MM"
+      ..text = '2005-02'
+      ..message = TextErrorMessages.dayOfMonthOutOfRange
+      ..parameters.addAll([31, 2, 2005]),
   ];
 
   @internal
@@ -326,6 +345,18 @@ class LocalDatePatternTest extends PatternTestBase<LocalDate> {
     Data.ymd(2011, 10, 20)
       ..pattern = 'D'
       ..text = 'Thursday, 20 October 2011',
+    // ISO pattern uses a sensible format
+    Data.ymd(2011, 10, 20)
+      ..standardPattern = LocalDatePattern.iso
+      ..standardPatternCode = 'LocalDatePattern.iso'
+      ..pattern = 'R'
+      ..text = '2011-10-20',
+    // Round trip with calendar system
+    Data.ymdc(2011, 10, 20, CalendarSystem.coptic)
+      ..standardPattern = LocalDatePattern.fullRoundtrip
+      ..standardPatternCode = 'LocalDatePattern.fullRoundtrip'
+      ..pattern = 'r'
+      ..text = '2011-10-20 (Coptic)',
 
     // Custom patterns
     Data.ymd(2011, 10, 3)
@@ -454,17 +485,55 @@ class LocalDatePatternTest extends PatternTestBase<LocalDate> {
     Data.ymd(2011, 10, 9)
       ..pattern = 'yyyy MM dd c'
       ..text = '2011 10 09 ISO',
-    /* todo: @SkipMe.unimplemented()
-    new Data.ymdc(2011, 10, 9, CalendarSystem.Coptic)
-      ..Pattern = 'c uuuu MM dd'
-      ..Text = 'Coptic 2011 10 09',
-    new Data.ymdc(2011, 10, 9, CalendarSystem.Coptic)
-      ..Pattern = 'uuuu MM dd c'
-      ..Text = '2011 10 09 Coptic',
+    Data.ymdc(2011, 10, 9, CalendarSystem.coptic)
+      ..pattern = 'c uuuu MM dd'
+      ..text = 'Coptic 2011 10 09',
+    Data.ymdc(2011, 10, 9, CalendarSystem.coptic)
+      ..pattern = 'uuuu MM dd c'
+      ..text = '2011 10 09 Coptic',
+    Data.ymdc(180, 15, 19, CalendarSystem.badi)
+      ..pattern = 'uuuu MM dd c'
+      ..text = '0180 15 19 Badi',
 
-    new Data.ymdc(180, 15, 19, CalendarSystem.Badi)
-      ..Pattern = 'uuuu MM dd c'
-      ..Text = '0180 15 19 Badi',*/
+    // Calendar handling with year-of-era. See https://github.com/nodatime/nodatime/issues/1911
+    Data.ymdc(5787, 2, 5, CalendarSystem.hebrewCivil)
+      ..pattern = "yyyy'-'MM'-'dd' ('c')'"
+      ..text = '5787-02-05 (Hebrew Civil)',
+    Data.ymdc(4, 2, 5, CalendarSystem.gregorian)
+      ..pattern = "yyyy'-'MM'-'dd' ('c')'"
+      ..text = '0004-02-05 (Gregorian)',
+    Data.ymdc(4, 2, 5, CalendarSystem.julian)
+      ..pattern = "yyyy'-'MM'-'dd' ('c')'"
+      ..text = '0004-02-05 (Julian)',
+    Data.ymdc(4, 2, 5, CalendarSystem.iso)
+      ..pattern = "yyyy'-'MM'-'dd' ('c')'"
+      ..text = '0004-02-05 (ISO)',
+    // Template value uses the BCE era to make sure we can roundtrip
+    Data.ymdc(-3, 2, 5, CalendarSystem.gregorian)
+      ..template = LocalDate(-1, 1, 1)
+      ..pattern = "yyyy'-'MM'-'dd' ('c')'"
+      ..text = '0004-02-05 (Gregorian)',
+    Data.ymdc(-3, 2, 5, CalendarSystem.julian)
+      ..template = LocalDate(-1, 1, 1)
+      ..pattern = "yyyy'-'MM'-'dd' ('c')'"
+      ..text = '0004-02-05 (Julian)',
+    Data.ymd(-3, 2, 5)
+      ..template = LocalDate(-1, 1, 1)
+      ..pattern = "yyyy'-'MM'-'dd' ('c')'"
+      ..text = '0004-02-05 (ISO)',
+    // Default era for Gregorian/Julian calendar systems is CE
+    Data.ymdc(4, 2, 5, CalendarSystem.gregorian)
+      ..template = LocalDate(5787, 2, 5, CalendarSystem.hebrewCivil)
+      ..pattern = "yyyy'-'MM'-'dd' ('c')'"
+      ..text = '0004-02-05 (Gregorian)',
+    Data.ymdc(4, 2, 5, CalendarSystem.julian)
+      ..template = LocalDate(5787, 2, 5, CalendarSystem.hebrewCivil)
+      ..pattern = "yyyy'-'MM'-'dd' ('c')'"
+      ..text = '0004-02-05 (Julian)',
+    Data.ymd(4, 2, 5)
+      ..template = LocalDate(5787, 2, 5, CalendarSystem.hebrewCivil)
+      ..pattern = "yyyy'-'MM'-'dd' ('c')'"
+      ..text = '0004-02-05 (ISO)',
 
     // Awkward day-of-week handling
     // December 14th 2012 was a Friday. Friday is 'Foo' or "FooBar" in AwkwardDayOfWeekCulture.

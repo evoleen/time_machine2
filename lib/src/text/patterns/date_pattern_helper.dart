@@ -24,7 +24,19 @@ class _MonthFormatActionHolder<TResult, TBucket extends ParseBucket<TResult>>
         : (genitive
             ? _formatInfo.longMonthGenitiveNames
             : _formatInfo.longMonthNames);
-    return (value, sb) => sb.write(textValues[_getter(value)]);
+    return (value, sb) {
+      int month = _getter(value);
+      // Culture month names only cover 12 (or 13) months. Calendars with more months (the Badíʿ
+      // calendar has 19) or a 13th month with an empty name (e.g. the Hebrew leap month) have no
+      // name to format, so format the month number instead. (Noda Time throws for months beyond
+      // the names list, and formats an empty string for an empty name.)
+      String? name = month < textValues.length ? textValues[month] : null;
+      if (name == null || name.isEmpty) {
+        sb.write(month);
+      } else {
+        sb.write(name);
+      }
+    };
   }
 }
 

@@ -38,9 +38,21 @@ void ValidateProperties(
   var localDate = LocalDate.fromEpochDay(daysSinceEpoch, calendar);
   expect(localDate.year, expectedYear);
 
-// todo: investigate test and replicate
-//  for (var property in typeof(LocalDate).GetTypeInfo().DeclaredProperties)
-//  {
-//    property.GetValue(localDate, null);
-//  }
+  // Fetch every public instance property of LocalDate, as Noda Time does by
+  // reflection (listed here so the test also runs without dart:mirrors).
+  for (var property in <Object Function()>[
+    () => localDate.calendar,
+    () => localDate.year,
+    () => localDate.monthOfYear,
+    () => localDate.dayOfMonth,
+    () => localDate.epochDay,
+    () => localDate.dayOfWeek,
+    () => localDate.yearOfEra,
+    () => localDate.era,
+    () => localDate.dayOfYear,
+    () => localDate.yearMonthDayCalendar,
+    () => localDate.hashCode,
+  ]) {
+    property();
+  }
 }

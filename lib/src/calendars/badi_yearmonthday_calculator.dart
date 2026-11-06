@@ -65,7 +65,9 @@ static BadiYearMonthDayCalculator()
             _unixEpochDayAtStartOfYear1);
 
   static int getDaysInAyyamiHa(int year) {
-    Preconditions.checkArgumentRange('year', year, _badiMinYear, _badiMaxYear);
+    // Year 0 is valid here, for the length of the week-year before the first year: see calculateStartOfYearDays.
+    Preconditions.checkArgumentRange(
+        'year', year, _badiMinYear - 1, _badiMaxYear);
     if (year < firstYearOfStandardizedCalendar) {
       return ICalendarSystem.yearMonthDayCalculator(CalendarSystem.iso)
               .isLeapYear(year + gregorianYearOfFirstBadiYear)
@@ -73,11 +75,13 @@ static BadiYearMonthDayCalculator()
           : _daysInAyyamiHaInNormalYear;
     }
     int num = _yearInfoRaw[year - firstYearOfStandardizedCalendar];
-    return num > 10 ? _daysInAyyamiHaInLeapYear : _daysInAyyamiHaInNormalYear;
+    return num >= 10 ? _daysInAyyamiHaInLeapYear : _daysInAyyamiHaInNormalYear;
   }
 
   static int _getNawRuzDayInMarch(int year) {
-    Preconditions.checkArgumentRange('year', year, _badiMinYear, _badiMaxYear);
+    // Year 0 is valid here: see calculateStartOfYearDays.
+    Preconditions.checkArgumentRange(
+        'year', year, _badiMinYear - 1, _badiMaxYear);
     if (year < firstYearOfStandardizedCalendar) {
       return 21;
     }
@@ -89,7 +93,11 @@ static BadiYearMonthDayCalculator()
   @protected
   @override
   int calculateStartOfYearDays(int year) {
-    Preconditions.checkArgumentRange('year', year, _badiMinYear, _badiMaxYear);
+    // As documented in YearMonthDayCalculator, the year may be one outside the calendar's range: week-year
+    // rules need the start of the year before the first year (year 0, which starts on March 21st 1843 like
+    // every year before the standardized calendar) and after the last year (_badiMaxYear, one more than maxYear).
+    Preconditions.checkArgumentRange(
+        'year', year, _badiMinYear - 1, _badiMaxYear);
 
     // The epoch is the same regardless of calendar system, so if we work out when the
     // start of the Badíʿ year is in terms of the Gregorian year, we can just use that
@@ -125,6 +133,8 @@ static BadiYearMonthDayCalculator()
 
     var nextDay = thisDay;
 
+    // TODO: It's not clear that this is correct. If we add 19 months,
+    // it's probably okay to stay in Ayyam-i-Ha.
     if (isInAyyamiHa(start)) {
       nextDay = thisDay - daysInMonth;
 
@@ -137,16 +147,17 @@ static BadiYearMonthDayCalculator()
     var nextMonthNum = thisMonth + months;
 
     if (nextMonthNum > _monthsInYear) {
-      nextYear = thisYear + nextMonthNum ~/ _monthsInYear;
-      nextMonthNum = nextMonthNum % _monthsInYear;
+      nextYear = thisYear + (nextMonthNum - 1) ~/ _monthsInYear;
+      nextMonthNum = (nextMonthNum - 1) % _monthsInYear + 1;
     } else if (nextMonthNum < 1) {
       nextMonthNum = _monthsInYear - nextMonthNum;
       nextYear = thisYear - nextMonthNum ~/ _monthsInYear;
       nextMonthNum = _monthsInYear - arithmeticMod(nextMonthNum, _monthsInYear);
     }
 
-    Preconditions.checkArgumentRange(
-        'nextYear', nextYear, _badiMinYear, _badiMaxYear);
+    if (nextYear < minYear || nextYear > maxYear) {
+      throw RangeError('Date computation would overflow calendar bounds.');
+    }
 
     var result = YearMonthDay(nextYear, nextMonthNum, nextDay);
 
@@ -201,7 +212,7 @@ static BadiYearMonthDayCalculator()
     return YearMonthDay(year, month, day);
   }
 
-  bool isInAyyamiHa(YearMonthDay ymd) =>
+  static bool isInAyyamiHa(YearMonthDay ymd) =>
       ymd.month == month18 && ymd.day > daysInMonth;
 
   @override

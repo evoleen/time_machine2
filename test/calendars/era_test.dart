@@ -14,29 +14,34 @@ import '../time_machine_testing.dart';
 
 Future main() async {
   var eraType = reflectType(Era) as ClassMirror;
+  // Named by field, as two eras share the name 'AM'.
   Eras = eraType.declarations.values
       .where((v) => v is VariableMirror && v.isStatic)
-      .map((v) => eraType.getField(v.simpleName).reflectee)
-      .toList()
-      .cast();
+      .map((v) => TestCaseData(eraType.getField(v.simpleName).reflectee)
+        ..name = MirrorSystem.getName(v.simpleName))
+      .toList();
 
   await runTests();
 }
 
-List<Era> Eras =
+List<TestCaseData> Eras =
     []; /*typeof(Era).GetTypeInfo()
     .DeclaredProperties // TODO: Only static and ones...
     .Where(property => property.PropertyType == typeof(Era))
 .Select(property => property.GetValue(null, null))
 .Cast<Era>();*/
 
-@TestCaseSource(#Eras)
 @Test()
-@SkipMe.unimplemented()
-void ResourcePresence(Era? era) {
-  // todo: get us resources?
-  var valueByName; // PatternResources.ResourceManager.GetString(era.ResourceIdentifier, Culture.invariantCulture);
-  expect(valueByName, isNotNull,
-      reason: 'Missing resource for ' +
-          (era != null ? IEra.resourceIdentifier(era) : 'null'));
+@TestCaseSource(#Eras)
+void ResourcePresence(Era era) {
+  var valueByName = PatternResources.getString(
+      IEra.resourceIdentifier(era), Culture.invariant);
+  expect(valueByName, isNotEmpty,
+      reason: 'Missing resource for ${IEra.resourceIdentifier(era)}');
+}
+
+@Test()
+@TestCaseSource(#Eras)
+void ToStringReturnsName(Era era) {
+  expect(era.toString(), era.name);
 }

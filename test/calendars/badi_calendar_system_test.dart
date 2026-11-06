@@ -33,6 +33,15 @@ void BadiEpoch() {
 }
 
 @Test()
+void YearZeroIsInvalidForPublicCalendarOperations() {
+  // Week-year calculations need year 0 internally, but calendar years still start at 1.
+  expect(() {
+    LocalDate(0, 1, 1, CalendarSystem.badi);
+  }, throwsRangeError);
+  expect(() => CalendarSystem.badi.isLeapYear(0), throwsRangeError);
+}
+
+@Test()
 void UnixEpoch() {
   CalendarSystem badi = CalendarSystem.badi;
   LocalDate unixEpochInBadiCalendar = TimeConstants.unixEpoch
@@ -66,7 +75,6 @@ void SampleDate() {
 @TestCase([2016, 2, 26, 172, AyyamiHaMonth, 1])
 @TestCase([2016, 2, 29, 172, AyyamiHaMonth, 4])
 @TestCase([2016, 3, 1, 172, 19, 1])
-@TestCase([2016, 3, 20, 173, 1, 1])
 @TestCase([2016, 3, 20, 173, 1, 1])
 @TestCase([2016, 3, 21, 173, 1, 2])
 @TestCase([2016, 5, 26, 173, 4, 11])
@@ -138,7 +146,6 @@ void GeneralConversionNearNawRuz(
 @TestCase([2012, 2, 29, 168, AyyamiHaMonth, 4])
 @TestCase([2012, 3, 1, 168, AyyamiHaMonth, 5])
 @TestCase([2015, 3, 1, 171, AyyamiHaMonth, 4])
-@TestCase([2015, 3, 1, 171, AyyamiHaMonth, 4])
 @TestCase([2016, 3, 1, 172, 19, 1])
 @TestCase([2016, 3, 19, 172, 19, 19])
 @TestCase([2017, 3, 1, 173, 19, 1])
@@ -173,18 +180,15 @@ void SpecialCases(
 @TestCase([169, 1, 1, 2012, 3, 21])
 @TestCase([170, 1, 1, 2013, 3, 21])
 @TestCase([171, 1, 1, 2014, 3, 21])
-@TestCase([171, 1, 1, 2014, 3, 21])
 @TestCase([172, AyyamiHaMonth, 1, 2016, 2, 26])
 @TestCase([172, AyyamiHaMonth, 2, 2016, 2, 27])
 @TestCase([172, AyyamiHaMonth, 3, 2016, 2, 28])
 @TestCase([172, AyyamiHaMonth, 4, 2016, 2, 29])
 @TestCase([172, 1, 1, 2015, 3, 21])
-@TestCase([172, 1, 1, 2015, 3, 21])
 @TestCase([172, 17, 18, 2016, 2, 5])
 @TestCase([172, 18, 17, 2016, 2, 23])
 @TestCase([172, 18, 19, 2016, 2, 25])
 @TestCase([172, 19, 1, 2016, 3, 1])
-@TestCase([173, 1, 1, 2016, 3, 20])
 @TestCase([173, 1, 1, 2016, 3, 20])
 @TestCase([174, 1, 1, 2017, 3, 20])
 @TestCase([175, 1, 1, 2018, 3, 21])
@@ -301,6 +305,12 @@ void GeneralWtoG(
 @TestCase([219, 4])
 @TestCase([220, 5])
 @TestCase([221, 4])
+// These are as fixed in https://github.com/nodatime/nodatime/pull/1912
+@TestCase([249, 5])
+@TestCase([253, 5])
+@TestCase([645, 5])
+@TestCase([649, 5])
+@TestCase([653, 5])
 void DaysInAyyamiHa(int bYear, int days) {
   expect(days, BadiYearMonthDayCalculator.getDaysInAyyamiHa(bYear));
 }
@@ -415,7 +425,7 @@ void BetweenLocalDates_InvalidUnits() {
 
 @Test()
 void SetYear() {
-  // crafted to test SetYear with 0
+  // Crafted to test SetYear with 0
   var d1 = CreateBadiDate(180, 1, 1);
   LocalDate result = d1 + const Period(years: 0);
   expect(180, result.year);
@@ -578,6 +588,66 @@ void Addition_YearMonthDay() {
   // Add two days: 172.3.2
   LocalDate result = start + period;
   expect(CreateBadiDate(172, 3, 2), result);
+}
+
+// See https://github.com/nodatime/nodatime/issues/1914
+@Test()
+@TestCase([180, 19, 1, 19, 181, 19, 1])
+@TestCase([180, 1, 5, 37, 181, 19, 5])
+@TestCase([180, 19, 5, 38, 182, 19, 5])
+void PlusMonths_ToLastMonthOfNextYear(int year, int month, int day, int months,
+    int expectedYear, int expectedMonth, int expectedDay) {
+  var start = CreateBadiDate(year, month, day);
+  var actual = start.addMonths(months);
+  var expected = CreateBadiDate(expectedYear, expectedMonth, expectedDay);
+  expect(ILocalDate.yearMonthDay(actual), ILocalDate.yearMonthDay(expected));
+}
+
+@Test()
+void PlusMonths_Overflow() {
+  var calendar = CalendarSystem.badi;
+  var earlyDate = LocalDate(calendar.minYear, 1, 1, calendar);
+  var lateDate = LocalDate(calendar.maxYear, 19, 1, calendar);
+
+  // Block-bodied closures: if a call returned an out-of-range date instead of throwing, the matcher would
+  // format it, which itself throws a RangeError and would make the test pass.
+  expect(() {
+    earlyDate.addMonths(-1);
+  }, throwsRangeError);
+  expect(() {
+    lateDate.addMonths(1);
+  }, throwsRangeError);
+}
+
+// Not in Noda Time, which throws when formatting a month beyond the culture's month names: culture
+// month names only cover 12 (or 13) months, so the Badíʿ months after that are formatted as numbers.
+@Test()
+void FormatMonthNames() {
+  var pattern = LocalDatePattern.createWithInvariantCulture('uuuu MMMM dd');
+  expect(pattern.format(CreateBadiDate(180, 1, 2)), '0180 January 02');
+  expect(pattern.format(CreateBadiDate(180, 12, 2)), '0180 December 02');
+  // The invariant culture's 13th month name is empty.
+  expect(pattern.format(CreateBadiDate(180, 13, 2)), '0180 13 02');
+  expect(pattern.format(CreateBadiDate(180, 18, 19)), '0180 18 19');
+  expect(pattern.format(CreateBadiDate(180, AyyamiHaMonth, 1)), '0180 18 20');
+  expect(pattern.format(CreateBadiDate(180, 19, 19)), '0180 19 19');
+  expect(
+      LocalDatePattern.createWithInvariantCulture('MMM')
+          .format(CreateBadiDate(180, 15, 1)),
+      '15');
+  for (int month = 1; month <= 19; month++) {
+    // The default (long date) format uses the month name.
+    expect(CreateBadiDate(180, month, 1).toString(), isNotEmpty);
+  }
+}
+
+// See https://github.com/nodatime/nodatime/issues/1908
+@Test()
+void EpochDaysRoundtrip() {
+  const int daysSinceEpoch = 45003;
+  var calculator = BadiYearMonthDayCalculator();
+  var ymd = calculator.getYearMonthDayFromDaysSinceEpoch(daysSinceEpoch);
+  expect(calculator.getDaysSinceEpoch(ymd), daysSinceEpoch);
 }
 
 /// <summary>

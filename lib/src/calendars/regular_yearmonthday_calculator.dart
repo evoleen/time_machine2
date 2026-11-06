@@ -65,6 +65,9 @@ abstract class RegularYearMonthDayCalculator extends YearMonthDayCalculator {
 
     // Quietly force DOM to nearest sane value.
     int dayToUse = yearMonthDay.day;
+    if (yearToUse < minYear || yearToUse > maxYear) {
+      throw RangeError('Date computation would overflow calendar bounds.');
+    }
     int maxDay = getDaysInMonth(yearToUse, monthToUse);
     dayToUse = math.min(dayToUse, maxDay);
     return YearMonthDay(yearToUse, monthToUse, dayToUse);

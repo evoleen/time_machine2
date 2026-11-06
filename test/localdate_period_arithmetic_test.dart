@@ -103,3 +103,22 @@ void PeriodSubtraction_MethodEquivalents() {
       period, LocalDate.difference(end, start)); // LocalDate.Minus(end, start)
   expect(period, end.periodSince(start));
 }
+
+@Test()
+@TestCase([9999, 12, 31, 1])
+@TestCase([9999, 12, 1, 1])
+@TestCase([9999, 11, 30, 2])
+@TestCase([9999, 11, 1, 2])
+@TestCase([9998, 12, 31, 13])
+@TestCase([9998, 12, 1, 13])
+@TestCase([-9998, 1, 1, -1])
+@TestCase([-9998, 2, 1, -2])
+@TestCase([-9997, 1, 1, -13])
+void PlusMonths_Overflow(int year, int month, int day, int monthsToAdd) {
+  var start = LocalDate(year, month, day);
+  // Block-bodied closures: if a call returned an out-of-range date instead of throwing, the matcher would
+  // format it, which itself throws a RangeError and would make the test pass.
+  expect(() {
+    start.addMonths(monthsToAdd);
+  }, throwsRangeError);
+}

@@ -62,7 +62,8 @@ void FieldsOf_GreatAchievement() {
   expect(48, WeekYearRules.iso.getWeekOfWeekYear(now.calendarDate));
   expect(11, now.monthOfYear);
   expect(27, now.dayOfMonth);
-  // expect(TimeOfGreatAchievement.dayOfYear, now.DayOfYear);
+  // Dart's DateTime has no day-of-year; November 27th 2009 is day 304 + 27.
+  expect(331, now.dayOfYear);
   expect(DayOfWeek.friday, now.dayOfWeek);
   expect(Era.common, now.era);
   expect(18, now.hourOfDay);

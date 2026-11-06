@@ -42,6 +42,76 @@ void RoundtripLastDay_Iso1() {
           date.dayOfWeek, CalendarSystem.iso));
 }
 
+/// As [RoundtripFirstDay_Iso7] and [RoundtripLastDay_Iso1], for every calendar and rule:
+/// the first and last days of a calendar may be in the week-year before its first year or after its last year, which
+/// [WeekYearRule.getLocalDate] documents as valid.
+@Test()
+@TestCaseSource(#CalendarBoundaryRules)
+void RoundtripFirstAndLastDays_AllCalendars(
+    String calendarId, WeekYearRule rule) {
+  var calendar = CalendarSystem.forId(calendarId);
+  var firstDay = LocalDate(calendar.minYear, 1, 1, calendar);
+  var lastMonth = calendar.getMonthsInYear(calendar.maxYear);
+  var lastDay = LocalDate(calendar.maxYear, lastMonth,
+      calendar.getDaysInMonth(calendar.maxYear, lastMonth), calendar);
+
+  for (var date in [firstDay, lastDay]) {
+    var weekYear = rule.getWeekYear(date);
+    var weekOfWeekYear = rule.getWeekOfWeekYear(date);
+    var description = '${date.year}-${date.monthOfYear}-${date.dayOfMonth}';
+    expect(weekOfWeekYear,
+        inInclusiveRange(1, rule.getWeeksInWeekYear(weekYear, calendar)),
+        reason: description);
+    expect(
+        rule.getLocalDate(weekYear, weekOfWeekYear, date.dayOfWeek, calendar),
+        date,
+        reason: description);
+  }
+}
+
+List<TestCaseData> get CalendarBoundaryRules {
+  var daysOfWeek = [for (var i = 1; i <= 7; i++) DayOfWeek(i)];
+  var rules = <(String, WeekYearRule)>[];
+  for (var minDays = 1; minDays <= 7; minDays++) {
+    for (var firstDayOfWeek in daysOfWeek) {
+      rules.add((
+        'forMinDaysInFirstWeek($minDays, $firstDayOfWeek)',
+        WeekYearRules.forMinDaysInFirstWeek(minDays, firstDayOfWeek)
+      ));
+    }
+  }
+  for (var calendarWeekRule in CalendarWeekRules) {
+    for (var firstDayOfWeek in daysOfWeek) {
+      rules.add((
+        'fromCalendarWeekRule(${calendarWeekRule.name}, $firstDayOfWeek)',
+        WeekYearRules.fromCalendarWeekRule(calendarWeekRule, firstDayOfWeek)
+      ));
+    }
+  }
+
+  return [
+    for (var calendarId in CalendarSystem.ids)
+      for (var (name, rule) in rules)
+        TestCaseData([calendarId, rule])..name = '($calendarId, $name)'
+  ];
+}
+
+@Test()
+void FirstDayInWeekYearBeforeFirstYear_Badi() {
+  // 1 Bahá 1 BE is Thursday March 21st 1844. With weeks starting on Monday and at least 5 days in the first
+  // week, its week (Monday March 18th to Sunday March 24th 1844) has only 4 days in year 1, so it's the last
+  // week of week-year 0. Year 0 starts on Tuesday March 21st 1843, so week 1 of week-year 0 starts on Monday
+  // March 20th 1843, and the week of 1 Bahá 1 is week 53.
+  var rule = WeekYearRules.forMinDaysInFirstWeek(5, DayOfWeek.monday);
+  var date = LocalDate(1, 1, 1, CalendarSystem.badi);
+  expect(date.withCalendar(CalendarSystem.iso), LocalDate(1844, 3, 21));
+  expect(rule.getWeekYear(date), 0);
+  expect(rule.getWeekOfWeekYear(date), 53);
+  expect(rule.getWeeksInWeekYear(0, CalendarSystem.badi), 53);
+  expect(
+      rule.getLocalDate(0, 53, DayOfWeek.thursday, CalendarSystem.badi), date);
+}
+
 @Test()
 void OutOfRange_ValidWeekYearAndWeek_TooEarly() {
   // Gregorian 4: Week year 1 starts on Monday December 31st -9999,
@@ -81,8 +151,6 @@ void OutOfRange_ValidWeekYearAndWeek_TooLate() {
 @TestCase([2012, 12, 31, 2013, 1, DayOfWeek.monday])
 @TestCase([1960, 1, 19, 1960, 3, DayOfWeek.tuesday])
 @TestCase([2012, 10, 19, 2012, 42, DayOfWeek.friday])
-@TestCase([2011, 1, 1, 2010, 52, DayOfWeek.saturday])
-@TestCase([2012, 12, 31, 2013, 1, DayOfWeek.monday])
 @TestCase([2005, 1, 2, 2004, 53, DayOfWeek.sunday])
 void WeekYearDifferentToYear(int year, int month, int day, int weekYear,
     int weekOfWeekYear, DayOfWeek dayOfWeek) {
@@ -115,7 +183,7 @@ void GetWeeksInWeekYear(int weekYear, int expectedResult) {
 }
 
 // Ported from LocalDateTest.BasicProperties
-// See http://stackoverflow.com/questions/8010125
+// See https://stackoverflow.com/questions/8010125
 @Test()
 @TestCase([2007, 12, 31, 1])
 @TestCase([2008, 1, 6, 1])
@@ -265,8 +333,9 @@ void NonMondayFirstDayOfWeek(
   expect(week, rule.getWeekOfWeekYear(actual));
 }
 
-/*
 // Tests for BCL rules...
+// BclEquivalence and GetWeeksInWeekYear compare with System.Globalization.Calendar.GetWeekOfYear, so are .NET only.
+/*
 
 /// For each calendar and rule combination, check everything we can about every date
 /// from mid December to mid January around each year between 2016 and 2046.
@@ -325,51 +394,52 @@ expect(calendar.GetWeekOfYear(bclDate, bclRule, firstDayOfWeek),
 nodaRule.GetWeeksInWeekYear(year, nodaCalendar), 'Year {0}', year);
 }
 }
-
+*/
 
 // Tests where we ask for an invalid combination of week-year/week/day-of-week due to a week being 'short'
 // in BCL rules.
 // Jan 1st 2016 = Friday
 @Test()
-@TestCase(const [FirstDay, DayOfWeek.Monday, 2015, 53, IsoDayOfWeek.saturday])
-@TestCase(const [FirstDay, DayOfWeek.Monday, 2016, 1, IsoDayOfWeek.thursday])
-void GetLocalDate_Invalid(
-    CalendarWeekRule bclRule, DayOfWeek firstDayOfWeek,
-    int weekYear, int week, IsoDayOfWeek dayOfWeek)
-{
-  var nodaRule = WeekYearRules.FromCalendarWeekRule(bclRule, firstDayOfWeek);
-  expect(() => nodaRule.GetLocalDate(weekYear, week, dayOfWeek), throwsRangeError);
+@TestCase(
+    [CalendarWeekRule.firstDay, DayOfWeek.monday, 2015, 53, DayOfWeek.saturday])
+@TestCase(
+    [CalendarWeekRule.firstDay, DayOfWeek.monday, 2016, 1, DayOfWeek.thursday])
+void GetLocalDate_Invalid(CalendarWeekRule bclRule, DayOfWeek firstDayOfWeek,
+    int weekYear, int week, DayOfWeek dayOfWeek) {
+  var nodaRule = WeekYearRules.fromCalendarWeekRule(bclRule, firstDayOfWeek);
+  expect(
+      () => WeekYearRuleExtensions.getLocalDate(
+          nodaRule, weekYear, week, dayOfWeek),
+      throwsRangeError);
+}
+
+/// The BCL rules for every [CalendarWeekRule] and every first day of the week. (The BCL's DayOfWeek
+/// runs from Sunday to Saturday; WeekYearRules.fromCalendarWeekRule takes the equivalent [DayOfWeek].)
+List<List<Object>> get BclRules => [
+      for (var bclRule in CalendarWeekRules)
+        for (var i = 1; i <= 7; i++) [bclRule, DayOfWeek(i)]
+    ];
+
+@Test()
+@TestCaseSource(#BclRules)
+void RoundtripFirstDayBcl(CalendarWeekRule bclRule, DayOfWeek firstDayOfWeek) {
+  var rule = WeekYearRules.fromCalendarWeekRule(bclRule, firstDayOfWeek);
+  var date = LocalDate(-9998, 1, 1);
+  expect(
+      WeekYearRuleExtensions.getLocalDate(rule, rule.getWeekYear(date),
+          rule.getWeekOfWeekYear(date), date.dayOfWeek),
+      date);
 }
 
 @Test()
-[Combinatorial]
-void RoundtripFirstDayBcl(
-[ValueSource(#CalendarWeekRules)] CalendarWeekRule bclRule,
-[ValueSource(#BclDaysOfWeek)] DayOfWeek firstDayOfWeek)
-{
-var rule = WeekYearRules.FromCalendarWeekRule(bclRule, firstDayOfWeek);
-var date = new LocalDate(-9998, 1, 1);
-expect(date, rule.GetLocalDate(
-rule.GetWeekYear(date),
-rule.GetWeekOfWeekYear(date),
-date.DayOfWeek));
+@TestCaseSource(#BclRules)
+void RoundtripLastDayBcl(CalendarWeekRule bclRule, DayOfWeek firstDayOfWeek) {
+  var rule = WeekYearRules.fromCalendarWeekRule(bclRule, firstDayOfWeek);
+  var date = LocalDate(9999, 12, 31);
+  expect(
+      WeekYearRuleExtensions.getLocalDate(rule, rule.getWeekYear(date),
+          rule.getWeekOfWeekYear(date), date.dayOfWeek),
+      date);
 }
-
-@Test()
-[Combinatorial]
-void RoundtripLastDayBcl(
-[ValueSource(#CalendarWeekRules)] CalendarWeekRule bclRule,
-[ValueSource(#BclDaysOfWeek)] DayOfWeek firstDayOfWeek)
-{
-var rule = WeekYearRules.FromCalendarWeekRule(bclRule, firstDayOfWeek);
-var date = new LocalDate(9999, 12, 31);
-expect(date, rule.GetLocalDate(
-rule.GetWeekYear(date),
-rule.GetWeekOfWeekYear(date),
-date.DayOfWeek));
-}
-*/
 
 // TODO: Test the difference in ValidateWeekYear for 9999 between regular and non-regular rules.
-
-

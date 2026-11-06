@@ -30,9 +30,9 @@ class CalendarOrdinal {
     'IslamicCivilBase15',
     'IslamicCivilBase16',
     'IslamicCivilIndian',
-    'IslamicAstronomicalHabashAlHasib',
+    'IslamicCivilHabashAlHasib',
     'UmAlQura',
-    'Wondrous',
+    'Badi',
     'Size'
   ];
 
@@ -53,7 +53,7 @@ class CalendarOrdinal {
     islamicCivilBase15,
     islamicCivilBase16,
     islamicCivilIndian,
-    islamicAstronomicalHabashAlHasib,
+    islamicCivilHabashAlHasib,
     umAlQura,
     badi,
     size

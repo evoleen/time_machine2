@@ -8,8 +8,13 @@ import 'package:time_machine2/src/time_machine_internal.dart';
 abstract class LocalDatePatterns {
   /// Class whose existence is solely to avoid type initialization order issues, most of which stem
   /// from needing TimeFormatInfo.InvariantInfo...
+  static const String isoPatternText = "uuuu'-'MM'-'dd";
+  static const String fullRoundtripPatternText = "uuuu'-'MM'-'dd '('c')'";
+
   static final LocalDatePattern isoPatternImpl =
-      LocalDatePattern.createWithInvariantCulture("uuuu'-'MM'-'dd");
+      LocalDatePattern.createWithInvariantCulture(isoPatternText);
+  static final LocalDatePattern fullRoundtripPatternImpl =
+      LocalDatePattern.createWithInvariantCulture(fullRoundtripPatternText);
 
   static LocalDatePattern create(String patternText,
           TimeMachineFormatInfo formatInfo, LocalDate templateValue) =>
@@ -35,9 +40,19 @@ abstract class LocalDatePatterns {
 class LocalDatePattern implements IPattern<LocalDate> {
   static const String _defaultFormatPattern = 'D'; // Long
 
-  /// Gets an invariant local date pattern which is ISO-8601 compatible.
+  /// Gets an invariant local date pattern which is ISO-8601 compatible and which round trips values, but doesn't
+  /// include the calendar system.
   /// This corresponds to the text pattern "uuuu'-'MM'-'dd".
+  ///
+  /// This pattern corresponds to the 'R' standard pattern.
   static final LocalDatePattern iso = LocalDatePatterns.isoPatternImpl;
+
+  /// Gets an invariant local date pattern which round trips values including the calendar system.
+  /// This corresponds to the text pattern "uuuu'-'MM'-'dd '('c')'".
+  ///
+  /// This pattern corresponds to the 'r' standard pattern.
+  static final LocalDatePattern fullRoundtrip =
+      LocalDatePatterns.fullRoundtripPatternImpl;
 
   /// Returns the pattern that this object delegates to. Mostly useful to avoid this class
   /// implementing an internal interface.

@@ -56,14 +56,10 @@ class LocalDateTimePatternTest extends PatternTestBase<LocalDateTime> {
   @private
   static final LocalDateTime SampleLocalDateTimeToMinutes =
       TestLocalDateTimes.SampleLocalDateTimeToMinutes;
-  /*@internal static final LocalDateTime SampleLocalDateTimeCoptic = new LocalDateTime.fromYMDHMSC(
-      1976,
-      6,
-      19,
-      21,
-      13,
-      34,
-      CalendarSystem.Coptic).PlusNanoseconds(123456789);*/
+  @internal
+  static final LocalDateTime SampleLocalDateTimeCoptic =
+      LocalDateTime(1976, 6, 19, 21, 13, 34, calendar: CalendarSystem.coptic)
+          .addNanoseconds(123456789);
 
   // The standard example date/time used in all the MSDN samples, which means we can just cut and paste
   // the expected results of the standard patterns.
@@ -187,6 +183,18 @@ class LocalDateTimePatternTest extends PatternTestBase<LocalDateTime> {
     Data.ymd(2011, 10, 20)
       ..pattern = 'yyyy-MM-dd HH'
       ..text = '2011-10-19 24',
+    // Check near the end of supported time
+    Data.ymd(9999, 1, 1)
+      ..pattern = 'uuuu-MM-dd HH:mm'
+      ..text = '9998-12-31 24:00',
+    Data.ymd(9999, 12, 31)
+      ..pattern = 'uuuu-MM-dd HH:mm'
+      ..text = '9999-12-30 24:00',
+    Data.dt(LocalDate(9998, 12, 31, CalendarSystem.julian), LocalTime.midnight)
+      ..template =
+          LocalDateTime(1, 1, 1, 0, 0, 0, calendar: CalendarSystem.julian)
+      ..pattern = 'uuuu-MM-dd HH:mm (c)'
+      ..text = '9998-12-30 24:00 (Julian)',
   ];
 
   @internal
@@ -239,10 +247,10 @@ class LocalDateTimePatternTest extends PatternTestBase<LocalDateTime> {
       ..pattern = 'r'
       ..text = '2009-06-15T13:45:30.090000000 (ISO)'
       ..culture = TestCultures.EnUs,
-    /*new Data(SampleLocalDateTimeCoptic) // todo: @SkipMe.unimplemented()
-      ..Pattern = 'r'
-      ..Text = '1976-06-19T21:13:34.123456789 (Coptic)'
-      ..Culture = TestCultures.EnUs,*/
+    Data(SampleLocalDateTimeCoptic)
+      ..pattern = 'r'
+      ..text = '1976-06-19T21:13:34.123456789 (Coptic)'
+      ..culture = TestCultures.EnUs,
     // Note: No RFC1123, as that requires a time zone.
     // Sortable / ISO8601
     Data(MsdnStandardExampleNoMillis)
@@ -322,14 +330,14 @@ class LocalDateTimePatternTest extends PatternTestBase<LocalDateTime> {
       ..pattern = "uuuu-MM-dd(c)'T'HH:mm:ss.FFFFFFFFF"
       ..text = '2009-06-15(ISO)T13:45:30.09'
       ..culture = TestCultures.EnUs,
-    /*new Data(SampleLocalDateTimeCoptic) // todo: @SkipMe.unimplemented()
-      ..Pattern = "(c) uuuu-MM-dd'T'HH:mm:ss.FFFFFFFFF"
-      ..Text = '(Coptic) 1976-06-19T21:13:34.123456789'
-      ..Culture = TestCultures.FrFr,
-    new Data(SampleLocalDateTimeCoptic)
-      ..Pattern = "uuuu-MM-dd'C'c'T'HH:mm:ss.FFFFFFFFF"
-      ..Text = '1976-06-19CCopticT21:13:34.123456789'
-      ..Culture = TestCultures.EnUs,*/
+    Data(SampleLocalDateTimeCoptic)
+      ..pattern = "(c) uuuu-MM-dd'T'HH:mm:ss.FFFFFFFFF"
+      ..text = '(Coptic) 1976-06-19T21:13:34.123456789'
+      ..culture = TestCultures.FrFr,
+    Data(SampleLocalDateTimeCoptic)
+      ..pattern = "uuuu-MM-dd'C'c'T'HH:mm:ss.FFFFFFFFF"
+      ..text = '1976-06-19CCopticT21:13:34.123456789'
+      ..culture = TestCultures.EnUs,
 
     // Standard invariant patterns with a property but no pattern character
     Data(MsdnStandardExample)

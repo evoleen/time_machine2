@@ -51,4 +51,7 @@ class SingleEraCalculator extends EraCalculator {
 
   @override
   Era getEra(int absoluteYear) => _era;
+
+  @override
+  Era get defaultEra => _era;
 }

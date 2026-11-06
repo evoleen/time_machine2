@@ -17,7 +17,7 @@ Future main() async {
 }
 
 @Test()
-@SkipMe('Unsure how to implement')
+@SkipMe('.NET only: compares with the BCL PersianCalendar')
 // [Category('Slow')]
 void BclThroughHistory() {
   // Calendar bcl = BclCalendars.Persian;
@@ -67,4 +67,47 @@ void ArithmeticExamples(
   expect(gregorianYear, gregorian.year);
   expect(3, gregorian.monthOfYear);
   expect(gregorianDayOfMarch, gregorian.dayOfMonth);
+}
+
+/// The arithmetic calendar repeats every 2820 years, including the years before 474.
+/// A floored modulo puts year 24 in the same position in the cycle as year 2844.
+@Test()
+void ArithmeticLeapYearsRepeatEvery2820Years() {
+  var calendar = CalendarSystem.persianArithmetic;
+  for (var year = calendar.minYear; year + 2820 <= calendar.maxYear; year++) {
+    expect(calendar.isLeapYear(year), calendar.isLeapYear(year + 2820),
+        reason: 'Year $year');
+  }
+}
+
+/// Leap years and new year's days before 474 use the same cycle as later years.
+@Test()
+@TestCase([24, false, 645, 21])
+@TestCase([25, true, 646, 21])
+@TestCase([57, false, 678, 21])
+@TestCase([58, true, 679, 21])
+@TestCase([441, false, 1062, 21])
+@TestCase([442, true, 1063, 21])
+void ArithmeticYearsBefore474(
+    int persianYear, bool leap, int gregorianYear, int gregorianDayOfMarch) {
+  expect(CalendarSystem.persianArithmetic.isLeapYear(persianYear), leap);
+  var gregorian = LocalDate(persianYear, 1, 1, CalendarSystem.persianArithmetic)
+      .withCalendar(CalendarSystem.gregorian);
+  expect(
+      gregorian,
+      LocalDate(
+          gregorianYear, 3, gregorianDayOfMarch, CalendarSystem.gregorian));
+}
+
+@Test()
+void ArithmeticYearEndBefore474() {
+  var calendar = CalendarSystem.persianArithmetic;
+  var lastDayOfYear24 = LocalDate(24, 12, 29, calendar);
+  expect(lastDayOfYear24.addDays(1), LocalDate(25, 1, 1, calendar));
+  expect(() {
+    LocalDate(24, 12, 30, calendar);
+  }, throwsRangeError);
+
+  var leapDayOfYear25 = LocalDate(25, 12, 30, calendar);
+  expect(leapDayOfYear25.addDays(1), LocalDate(26, 1, 1, calendar));
 }

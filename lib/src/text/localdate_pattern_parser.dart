@@ -69,6 +69,16 @@ class LocalDatePatternParser implements IPatternParser<LocalDate> {
       // todo: do we want this functionality? (this was similar to the BCL support patterns
       // -- except it hits up dateTimeFormat stuff -- is there a different way this could or should be accessed?
       var patternCharacter = patternText[0];
+      // Invariant standard patterns. In Noda Time these return the cached LocalDatePattern.iso and
+      // LocalDatePattern.fullRoundtrip implementations, which use the default template value.
+      if (patternCharacter == 'R' || patternCharacter == 'r') {
+        return _parseNoStandardExpansion(
+            patternCharacter == 'R'
+                ? LocalDatePatterns.isoPatternText
+                : LocalDatePatterns.fullRoundtripPatternText,
+            formatInfo,
+            LocalDatePatterns.defaultTemplateValue);
+      }
       String? newPatternText =
           _expandStandardFormatPattern(patternText, formatInfo);
       if (newPatternText == null) {
@@ -79,11 +89,16 @@ class LocalDatePatternParser implements IPatternParser<LocalDate> {
       patternText = newPatternText;
     }
 
+    return _parseNoStandardExpansion(patternText, formatInfo, _templateValue);
+  }
+
+  IPattern<LocalDate> _parseNoStandardExpansion(String patternText,
+      TimeMachineFormatInfo formatInfo, LocalDate templateValue) {
     var patternBuilder = SteppedPatternBuilder<LocalDate, LocalDateParseBucket>(
-        formatInfo, () => LocalDateParseBucket(_templateValue));
+        formatInfo, () => LocalDateParseBucket(templateValue));
     patternBuilder.parseCustomPattern(patternText, _patternCharacterHandlers);
     patternBuilder.validateUsedFields();
-    return patternBuilder.build(_templateValue);
+    return patternBuilder.build(templateValue);
   }
 
   String? _expandStandardFormatPattern(
@@ -221,9 +236,13 @@ class LocalDateParseBucket extends ParseBucket<LocalDate> {
       return null;
     }
 
-    // Use the year from the template value, possibly checking the era.
+    // Use the year from the template value, checking validity in the target calendar, and possibly checking the era.
     if (!usedFields.hasAny(PatternFields.yearOfEra)) {
       year = templateValue.year;
+      if (year > calendar.maxYear || year < calendar.minYear) {
+        return IParseResult.templateYearOutOfRangeForCalendar<LocalDate>(
+            text, year, calendar);
+      }
       return usedFields.hasAny(PatternFields.era) &&
               _era != ICalendarSystem.getEra(calendar, year)
           ? IParseResult.inconsistentValues<LocalDate>(
@@ -231,8 +250,12 @@ class LocalDateParseBucket extends ParseBucket<LocalDate> {
           : null;
     }
 
+    // If the era hasn't been specified explicitly, use the template era if it's valid for the
+    // target calendar, or the target calendar's default era otherwise.
     if (!usedFields.hasAny(PatternFields.era)) {
-      _era = templateValue.era;
+      _era = calendar.eras.contains(templateValue.era)
+          ? templateValue.era
+          : ICalendarSystem.defaultEra(calendar);
     }
 
     if (usedFields.hasAny(PatternFields.yearTwoDigits)) {

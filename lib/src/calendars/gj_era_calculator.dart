@@ -56,4 +56,7 @@ class GJEraCalculator extends EraCalculator {
     _validateEra(era);
     return era == Era.common ? _maxYearOfAd : _maxYearOfBc;
   }
+
+  @override
+  Era get defaultEra => Era.common;
 }

@@ -33,7 +33,7 @@ class Era {
   /// The 'Anno Persico' era. This is the sole era used in the Persian calendar.
   static const Era annoPersico = Era._('AP', "Eras_AnnoPersico");
 
-  /// The "Bahá'í" era. This is the sole era used in the Wondrous calendar.
+  /// The "Bahá'í" era. This is the sole era used in the Badíʿ calendar.
   static const Era bahai = Era._('BE', "Eras_Bahai");
 
   final String _resourceIdentifier;
@@ -44,5 +44,6 @@ class Era {
   const Era._(this.name, this._resourceIdentifier);
 
   /// Returns the name of this era.
-  @override String toString() => name;
+  @override
+  String toString() => name;
 }

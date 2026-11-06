@@ -16,7 +16,7 @@ Future main() async {
 }
 
 @Test()
-@SkipMe('Need Dart Equivalent Test')
+@SkipMe('.NET only: compares with the BCL UmAlQuraCalendar')
 void BclEquivalence() {
   // BclEquivalenceHelper.AssertEquivalent(BclCalendars.UmAlQura, CalendarSystem.UmAlQura);
 }

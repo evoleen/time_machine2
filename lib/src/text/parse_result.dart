@@ -313,4 +313,9 @@ abstract class IParseResult {
 
   static ParseResult<T> ambiguousLocalTime<T>(String text) =>
       forInvalidValuePostParse(text, TextErrorMessages.ambiguousLocalTime);
+
+  static ParseResult<T> templateYearOutOfRangeForCalendar<T>(
+          String text, int value, CalendarSystem calendar) =>
+      forInvalidValuePostParse(text, TextErrorMessages.templateYearOutOfRange,
+          [value, calendar.name]);
 }

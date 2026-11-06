@@ -170,7 +170,10 @@ class PersianArithmetic extends PersianYearMonthDayCalculator {
 
   @override
   bool isLeapYear(int year) {
-    // Offset the cycles for easier arithmetic.
+    // Offset the cycles for easier arithmetic. The offset year is negative before 474, so take a floored
+    // modulo, which puts years 1-473 inside the cycle (474-3293) that the leap year formula is defined for.
+    // (Dart's % is already a floored modulo for a positive divisor; Noda Time needed a fix here as C#'s %
+    // truncates towards zero.)
     int offsetYear = year > 0 ? year - 474 : year - 473;
     int cycleYear = (offsetYear % 2820) + 474;
     return ((cycleYear + 38) * 31) % 128 < 31;

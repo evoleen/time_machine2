@@ -13,29 +13,28 @@ Future main() async {
   await runTests();
 }
 
-// todo: add the rest of the calendars
-
 // Here the term 'Islamic' only refers to whether the implementation is IslamicYearMonthDayCalculator,
 // not whether the calendar itself is based on Islamic scripture.
 List<TestCaseData> NonIslamicCalculators = [
   TestCaseData(GregorianYearMonthDayCalculator())..name = 'Gregorian',
-  //new TestCaseData(new CopticYearMonthDayCalculator())..name='Coptic',
+  TestCaseData(CopticYearMonthDayCalculator())..name = 'Coptic',
   TestCaseData(JulianYearMonthDayCalculator())..name = 'Julian',
-//new TestCaseData(new HebrewYearMonthDayCalculator(HebrewMonthNumbering.Civil)).SetName('Hebrew Civil'),
-//new TestCaseData(new HebrewYearMonthDayCalculator(HebrewMonthNumbering.Scriptural)).SetName('Hebrew Scriptural'),
-//new TestCaseData(new PersianYearMonthDayCalculator.Simple()).SetName('Persian Simple'),
-//new TestCaseData(new PersianYearMonthDayCalculator.Arithmetic()).SetName('Persian Arithmetic'),
-//new TestCaseData(new PersianYearMonthDayCalculator.Astronomical()).SetName('Persian Astronomoical'),
-//new TestCaseData(new UmAlQuraYearMonthDayCalculator()).SetName('Um Al Qura'),
+  TestCaseData(HebrewYearMonthDayCalculator(HebrewMonthNumbering.civil))
+    ..name = 'HebrewCivil',
+  TestCaseData(HebrewYearMonthDayCalculator(HebrewMonthNumbering.scriptural))
+    ..name = 'HebrewScriptural',
+  TestCaseData(PersianSimple())..name = 'PersianSimple',
+  TestCaseData(PersianArithmetic())..name = 'PersianArithmetic',
+  TestCaseData(PersianAstronomical())..name = 'PersianAstronomical',
+  TestCaseData(UmAlQuraYearMonthDayCalculator())..name = 'UmAlQura',
 ];
 
-List<TestCaseData> IslamicCalculators = [];
-/*
-(from epoch in Enum.GetValues(typeof(IslamicEpoch)).Cast<IslamicEpoch>()
-from leapYearPattern in Enum.GetValues(typeof(IslamicLeapYearPattern)).Cast<IslamicLeapYearPattern>()
-let calculator = new IslamicYearMonthDayCalculator(leapYearPattern, epoch)
-select new TestCaseData(calculator).SetName($'Islamic: {epoch}, {leapYearPattern}'))
-.ToArray();*/
+List<TestCaseData> IslamicCalculators = [
+  for (var epoch in IslamicEpoch.values)
+    for (var leapYearPattern in IslamicLeapYearPattern.values)
+      TestCaseData(IslamicYearMonthDayCalculator(leapYearPattern, epoch))
+        ..name = 'Islamic;${epoch.name};${leapYearPattern.name}'
+];
 
 Iterable<TestCaseData> AllCalculators =
     [NonIslamicCalculators, IslamicCalculators].expand((x) => x);
