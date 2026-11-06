@@ -15,5 +15,9 @@ doc/api/
 # Something Dart 2.0 related?
 .dart_tool
 
+# Test results and coverage, as written by CI
+coverage/
+test-results/
+
 # Test_Gen directory (generating test files without reflection for testing on javascript)
 test/test_gen/

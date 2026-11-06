@@ -2,10 +2,53 @@ name: Sanity Test
 
 on:
   push:
+  pull_request:
+
+# A newer push to a pull request cancels the run for the older commit.
+# Push runs each get their own group, so they're never cancelled or queued.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   Sanity:
-    runs-on: ubuntu-latest
+    name: Sanity (${{ matrix.name }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Local time zone from the /etc/localtime symlink (UTC on runners)
+          - name: Ubuntu
+            id: ubuntu
+            os: ubuntu-latest
+          # Local time zone from the TZ environment variable, with DST
+          - name: Ubuntu, TZ=Australia/Sydney
+            id: ubuntu-tz
+            os: ubuntu-latest
+            tz: Australia/Sydney
+          # macOS links /etc/localtime into /var/db/timezone/zoneinfo.
+          # Paused: GitHub-hosted macOS arm64 runners are at capacity, so jobs
+          # were cancelled before starting ("not acquired by Runner").
+          # - name: macOS
+          #   id: macos
+          #   os: macos-latest
+          # Windows zone ID mapped with CLDR, with DST
+          - name: Windows (English)
+            id: windows-en
+            os: windows-latest
+            windows_time_zone: AUS Eastern Standard Time
+          # As on German Windows: localized display names, English zone ID.
+          # The tests fail if the display names aren't actually localized.
+          - name: Windows (non-English)
+            id: windows-localized
+            os: windows-latest
+            windows_time_zone: W. Europe Standard Time
+            windows_standard_name: Mitteleuropäische Zeit
+            windows_daylight_name: Mitteleuropäische Sommerzeit
+    runs-on: ${{ matrix.os }}
     steps:
       - name: 📚 Checkout
         uses: actions/checkout@v4
@@ -14,11 +57,197 @@ jobs:
         uses: dart-lang/setup-dart@v1
 
       - name: 🏗️ Install packages
+        id: pub-get
         run: dart pub get
 
+      - name: 🕐 Set Windows time zone
+        if: matrix.windows_time_zone
+        shell: pwsh
+        run: tzutil /s "${{ matrix.windows_time_zone }}"
+
+      - name: 🌐 Use localized Windows time zone names
+        if: matrix.windows_standard_name
+        shell: pwsh
+        run: >
+          ./.github/scripts/set-windows-time-zone-names.ps1
+          -Standard "${{ matrix.windows_standard_name }}"
+          -Daylight "${{ matrix.windows_daylight_name }}"
+
       - name: 📘 Run unit & integration tests
+        shell: bash
+        env:
+          TIME_MACHINE_EXPECT_LOCALIZED_WINDOWS: ${{ matrix.windows_standard_name && '1' || '' }}
         run: |
-          dart test
+          # Only set TZ when asked: an empty TZ means UTC.
+          if [ -n "${{ matrix.tz }}" ]; then export TZ="${{ matrix.tz }}"; fi
+          dart test \
+            --coverage=coverage/raw \
+            --file-reporter=json:test-results/tests.json
+
+      - name: 🧰 Run TZDB compiler tests
+        # Also when the main tests failed, so that both sets of results are reported.
+        if: ${{ !cancelled() && steps.pub-get.outcome == 'success' }}
+        run: dart test tool/tzdb_compiler/test --file-reporter=json:test-results/compiler-tests.json
+
+      - name: 📈 Convert coverage to LCOV
+        if: ${{ !cancelled() && hashFiles('coverage/raw/**') != '' }}
+        shell: bash
+        run: |
+          dart run coverage:format_coverage --lcov --check-ignore \
+            --report-on=lib --base-directory=. \
+            --in=coverage/raw --out=coverage/lcov.info
+          # Use the same relative paths on every OS so the reports can be merged.
+          # -i.bak works with both GNU and BSD (macOS) sed.
+          sed -i.bak '/^SF:/ s|\\|/|g' coverage/lcov.info && rm -f coverage/lcov.info.bak
+
+      - name: 🟣 Setup .NET for ReportGenerator
+        if: ${{ !cancelled() && hashFiles('coverage/lcov.info') != '' }}
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 8.0.x
+
+      - name: 📊 Summarize coverage
+        if: ${{ !cancelled() && hashFiles('coverage/lcov.info') != '' }}
+        uses: danielpalme/ReportGenerator-GitHub-Action@v5
+        with:
+          # Outside the workspace, so pub publish --dry-run doesn't see the tool
+          toolpath: ${{ runner.temp }}/reportgeneratortool
+          reports: coverage/lcov.info
+          targetdir: coverage/report
+          reporttypes: MarkdownSummaryGithub
+          title: Coverage on ${{ matrix.name }}
+
+      - name: 📝 Add coverage to job summary
+        if: ${{ !cancelled() && hashFiles('coverage/report/SummaryGithub.md') != '' }}
+        shell: bash
+        run: cat coverage/report/SummaryGithub.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: 📤 Upload test results and coverage
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: results-${{ matrix.id }}
+          path: |
+            test-results/
+            coverage/lcov.info
 
       - name: Validate package
         run: dart pub publish --dry-run
+
+  # pub.dev's scoring (pana): the package must keep supporting everywhere Dart
+  # runs. Fails if pana stops reporting any of these tags, e.g. because a
+  # dart:io or dart:html import becomes reachable on the web or in WebAssembly.
+  Pana:
+    name: Platform support (pana)
+    runs-on: ubuntu-latest
+    env:
+      REQUIRED_TAGS: >-
+        platform:android platform:ios platform:linux platform:macos
+        platform:web platform:windows
+        runtime:native-aot runtime:native-jit runtime:web
+        is:wasm-ready sdk:dart sdk:flutter
+    steps:
+      - name: 📚 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🎯 Setup Dart
+        uses: dart-lang/setup-dart@v1
+
+      - name: 🔎 Run pana
+        run: |
+          dart pub global activate pana
+          dart pub global run pana --no-warning --json . > pana.json
+          {
+            echo "### pana"
+            echo
+            jq -r '.report.sections[] | "- \(.grantedPoints)/\(.maxPoints) \(.title)"' pana.json
+            echo
+            echo "Tags: $(jq -r '.tags | join(", ")' pana.json)"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: ✅ Check platform support
+        run: |
+          missing=""
+          for tag in $REQUIRED_TAGS; do
+            jq -e --arg tag "$tag" '.tags | index($tag)' pana.json > /dev/null || missing="$missing $tag"
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::pana no longer reports:$missing"
+            exit 1
+          fi
+          echo "All required tags present: $REQUIRED_TAGS"
+
+  Report:
+    name: Test results and coverage
+    needs: Sanity
+    # Also when tests failed, but not when the run was cancelled.
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
+    steps:
+      # The sources are needed for the line-by-line HTML coverage report.
+      - name: 📚 Checkout
+        uses: actions/checkout@v4
+
+      - name: 📥 Download test results and coverage
+        uses: actions/download-artifact@v8
+        with:
+          pattern: results-*
+          path: artifacts
+
+      # Job summary, a "Test Results" check run and, on pull requests, a
+      # comment that is updated in place. Pull requests from forks only get the
+      # job summary, because their token is read-only.
+      - name: 🧪 Publish test results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          files: artifacts/**/test-results/*.json
+          check_name: Test Results
+          # Push runs would otherwise also comment on the branch's pull request.
+          comment_mode: ${{ github.event_name == 'pull_request' && 'always' || 'off' }}
+          # Show a failure on each platform, not only on the first one.
+          report_individual_runs: true
+
+      - name: 🟣 Setup .NET for ReportGenerator
+        if: ${{ !cancelled() && hashFiles('artifacts/**/lcov.info') != '' }}
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 8.0.x
+
+      - name: 📊 Merge coverage of all platforms
+        if: ${{ !cancelled() && hashFiles('artifacts/**/lcov.info') != '' }}
+        uses: danielpalme/ReportGenerator-GitHub-Action@v5
+        with:
+          # Outside the workspace, so pub publish --dry-run doesn't see the tool
+          toolpath: ${{ runner.temp }}/reportgeneratortool
+          reports: artifacts/**/lcov.info
+          targetdir: coverage-report
+          reporttypes: HtmlInline;MarkdownSummaryGithub
+          title: Coverage (all platforms)
+
+      - name: 📝 Add coverage to job summary
+        if: ${{ !cancelled() && hashFiles('coverage-report/SummaryGithub.md') != '' }}
+        run: cat coverage-report/SummaryGithub.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: 📤 Upload HTML coverage report
+        if: ${{ !cancelled() && hashFiles('coverage-report/index.html') != '' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-report
+          path: coverage-report/
+
+      # Updates its own earlier comment. Skipped for pull requests from forks,
+      # whose token can't comment.
+      - name: 💬 Comment coverage on pull request
+        if: >-
+          ${{ !cancelled()
+          && github.event_name == 'pull_request'
+          && github.event.pull_request.head.repo.full_name == github.repository
+          && hashFiles('coverage-report/SummaryGithub.md') != '' }}
+        uses: marocchino/sticky-pull-request-comment@v3
+        with:
+          header: coverage
+          path: coverage-report/SummaryGithub.md
